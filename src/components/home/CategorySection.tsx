@@ -7,25 +7,25 @@ const categories = [
     id: 1,
     name: "Camping",
     icon: "tent",
-    image: "/lovable-uploads/c433cb7a-c6e4-4300-9a09-14559705ed9b.png" // Green tent
+    image: "/lovable-uploads/6778c187-b493-46d5-9b24-d7cb03212796.png" // Camping tent in mountains
   },
   {
     id: 2,
     name: "Hiking",
     icon: "backpack",
-    image: "/lovable-uploads/11b0bdf4-7ffe-4dc0-9dd9-f3570c833286.png" // Blue backpack
+    image: "/lovable-uploads/8c197f4e-9994-4393-810c-42cba6dc7bee.png" // Hiker with backpack
   },
   {
     id: 3,
     name: "Winter Sports",
     icon: "snow",
-    image: "/lovable-uploads/5cd41bd7-3f58-441a-98d7-427a756f161c.png" // Snowshoes
+    image: "/lovable-uploads/80cc8869-5dfd-4ef3-9de7-2602a29978d8.png" // Skier on slope
   },
   {
     id: 4,
     name: "Water Activities",
     icon: "waves",
-    image: "/lovable-uploads/77567aaf-59d0-4767-a072-a089c59a834f.png" // Paddleboard
+    image: "/lovable-uploads/0d452104-c701-45c2-b3e8-5edd90de63fa.png" // Rafting gear
   }
 ];
 
@@ -38,7 +38,7 @@ const CategoryCard = ({ category }: { category: typeof categories[0] }) => {
           <img 
             src={category.image} 
             alt={category.name} 
-            className="h-full w-full object-contain bg-white p-2 transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
