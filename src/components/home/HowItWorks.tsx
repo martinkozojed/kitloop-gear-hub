@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import { Search, Calendar, CheckCircle, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const steps = [
   {
@@ -63,10 +65,16 @@ const HowItWorks = () => {
           Renting outdoor gear has never been easier
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {steps.map(step => (
             <StepCard key={step.id} step={step} />
           ))}
+        </div>
+        
+        <div className="text-center">
+          <Button asChild className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white">
+            <Link to="/how-it-works">Learn more about how it works</Link>
+          </Button>
         </div>
       </div>
     </section>
