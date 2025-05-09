@@ -11,7 +11,7 @@ const CallToAction = () => {
           Join thousands of outdoor enthusiasts who are already using Kitloop to access gear without the hassle of ownership.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
-          <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text px-8 py-6 text-lg hover-lift">
+          <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white px-8 py-6 text-lg hover-lift">
             Find Gear Now
           </Button>
           <Button variant="outline" className="border-kitloop-accent text-kitloop-text px-8 py-6 text-lg hover-lift">

@@ -7,25 +7,25 @@ const categories = [
     id: 1,
     name: "Camping",
     icon: "tent",
-    image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&q=80"
+    image: "/lovable-uploads/39d5c971-2de5-4b77-bceb-726d5c0a8fa0.png"
   },
   {
     id: 2,
     name: "Hiking",
     icon: "backpack",
-    image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&q=80"
+    image: "/lovable-uploads/447642a9-6447-46bd-a750-77dc8ba0fb6c.png"
   },
   {
     id: 3,
     name: "Winter Sports",
     icon: "snow",
-    image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&q=80"
+    image: "/lovable-uploads/78ba6f25-e0d1-47a0-84ba-de19785b6732.png"
   },
   {
     id: 4,
     name: "Water Activities",
     icon: "waves",
-    image: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&q=80"
+    image: "/lovable-uploads/ddb70b86-249f-4ca7-a8a1-a2f362dfafe8.png"
   }
 ];
 
