@@ -3,122 +3,164 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const featuredGear = [
   {
     id: 1,
-    name: "Tent Scorpion 2 IX™ Snugpak®",
+    name: "Alto Semi-Free Standing Ultralight Tent",
     provider: "Mountain Outfitters",
-    price: 35,
+    price: 45,
     rating: 4.8,
-    reviews: 124,
-    image: "/lovable-uploads/6389c2fc-8fc7-4f5a-bdd7-e30cd31b993b.png"
+    reviews: 32,
+    image: "/lovable-uploads/c433cb7a-c6e4-4300-9a09-14559705ed9b.png",
+    isNew: true
   },
   {
     id: 2,
-    name: "Tent Journey Solo Snugpak®",
+    name: "Pursuit – Walking poles",
     provider: "TrailHead Rentals",
-    price: 22,
+    price: 15,
     rating: 4.9,
-    reviews: 87,
-    image: "/lovable-uploads/eb04220f-7940-4149-b09a-070188f4daa7.png"
+    reviews: 47,
+    image: "/lovable-uploads/e04cfa41-e5a4-4b0c-914c-02a9442c0bf8.png"
   },
   {
     id: 3,
-    name: "Ocún Via Ferrata Twist Shard",
+    name: "VF-Kit Top Shell – Via ferrata set",
     provider: "Climbing Gear Co.",
-    price: 15,
+    price: 28,
     rating: 4.7,
-    reviews: 63,
-    image: "/lovable-uploads/e85ead85-a219-4e66-aa19-679ac4e42083.png"
+    reviews: 19,
+    image: "/lovable-uploads/bbe3efcd-78fe-4520-ae76-f2bf3f6a83ee.png"
   },
   {
     id: 4,
-    name: "Singing Rock Phario Palm",
+    name: "Crag Sender Helmet – Climbing helmet",
     provider: "Summit Supplies",
-    price: 18,
-    rating: 4.5,
-    reviews: 42,
-    image: "/lovable-uploads/cd417d02-76b3-4d6d-8eac-6d74127d738d.png"
+    price: 12,
+    rating: 4.8,
+    reviews: 53,
+    image: "/lovable-uploads/cae29bc2-b0eb-43c8-af39-9fb4149ead72.png"
   },
   {
     id: 5,
-    name: "Petzl Sirocco",
+    name: "Nest Roof Tent",
     provider: "Adventure Gear",
-    price: 12,
-    rating: 4.9,
-    reviews: 79,
-    image: "/lovable-uploads/cff39c98-70b4-4188-b5f5-cf580f44aeb0.png"
+    price: 125,
+    rating: 5.0,
+    reviews: 8,
+    image: "/lovable-uploads/3b6f4981-b87f-4129-815e-c665b5e9e013.png",
+    isNew: true
   },
   {
     id: 6,
-    name: "Osprey Volt 65",
-    provider: "BackCountry Rentals",
-    price: 28,
-    rating: 4.8,
-    reviews: 103,
-    image: "/lovable-uploads/de958e3d-2bfb-41fe-a6ca-a72f28abd111.png"
+    name: "BD - Recon X Avy set",
+    provider: "Backcountry Safety",
+    price: 42,
+    rating: 4.9,
+    reviews: 26,
+    image: "/lovable-uploads/db356eb4-958b-4bdf-b937-0c2f35cc1772.png"
   },
   {
     id: 7,
-    name: "Black Diamond Trail Back Burnt Sienna",
+    name: "Osprey Exos 48 – Walking backpack",
     provider: "Hiker's Haven",
-    price: 14,
-    rating: 4.6,
-    reviews: 58,
-    image: "/lovable-uploads/94af71de-1d1b-45ae-8828-88a9bcb44e67.png"
+    price: 32,
+    rating: 4.8,
+    reviews: 72,
+    image: "/lovable-uploads/11b0bdf4-7ffe-4dc0-9dd9-f3570c833286.png"
   },
   {
     id: 8,
-    name: "Alpin Tour Plus – with Dragon-Tour leash",
+    name: "Tatonka Women's Yukon 60+10 Backpack",
     provider: "Mountain Equipment",
-    price: 24,
-    rating: 4.7,
-    reviews: 61,
-    image: "/lovable-uploads/17170a90-3ec5-49b1-a678-45ac01d0347f.png"
+    price: 36,
+    rating: 4.6,
+    reviews: 41,
+    image: "/lovable-uploads/35312d79-2e63-4d88-a34b-b4384fb73ce0.png"
   },
   {
     id: 9,
-    name: "Petzl Ergonomic",
-    provider: "Ice Climbing Rentals",
-    price: 32,
-    rating: 4.9,
-    reviews: 47,
-    image: "/lovable-uploads/cb959978-aea6-4b3d-841b-f06a692f87ce.png"
+    name: "Waterproof W5 3.5mm Men Fullsuit EOL",
+    provider: "Watersports Gear",
+    price: 65,
+    rating: 4.7,
+    reviews: 15,
+    image: "/lovable-uploads/3db3441f-4881-4b4b-8b85-07fbaa18f183.png"
   },
   {
     id: 10,
-    name: "Petzl Crevasse Rescue Kit",
-    provider: "Glacier Guides",
-    price: 45,
-    rating: 5.0,
-    reviews: 39,
-    image: "/lovable-uploads/ba1c3e81-079d-4427-b8fc-57cfc7626b99.png"
+    name: "SPEEDY Canyoning backpack 45L – V2",
+    provider: "Expedition Ready",
+    price: 38,
+    rating: 4.8,
+    reviews: 23,
+    image: "/lovable-uploads/2af77df2-0b20-4124-8c0c-182bcf575710.png"
   },
   {
     id: 11,
-    name: "Sport - BD - Recon X Avy set",
-    provider: "Avalanche Safety",
-    price: 55,
+    name: "COMFY CANYON V2 HARNESS",
+    provider: "Rock Climbing Co.",
+    price: 25,
     rating: 4.9,
-    reviews: 28,
-    image: "/lovable-uploads/81d4cb00-2d0d-430c-ab18-bae417eca059.png"
+    reviews: 37,
+    image: "/lovable-uploads/76acf454-3f94-4523-8099-53e55743e183.png"
   },
   {
     id: 12,
-    name: "Switchback 32",
-    provider: "Ortovox Official",
-    price: 38,
+    name: "Petzl Quark Ice Axes",
+    provider: "Alpine Gear",
+    price: 30,
     rating: 4.7,
-    reviews: 52,
-    image: "/lovable-uploads/447642a9-6447-46bd-a750-77dc8ba0fb6c.png"
+    reviews: 29,
+    image: "/lovable-uploads/44852bd8-e6ff-40d7-8d82-7c15a60583d4.png"
+  },
+  {
+    id: 13,
+    name: "Explorer Inflatable Kayak (1/2 Seater)",
+    provider: "River Rush Co.",
+    price: 55,
+    rating: 4.8,
+    reviews: 44,
+    image: "/lovable-uploads/a2377e79-7615-420d-bcd1-51b1841aef0f.png"
+  },
+  {
+    id: 14,
+    name: "Tubbs Flex TRK 24 – Snowshoes",
+    provider: "Winter Sports Outlet",
+    price: 28,
+    rating: 4.6,
+    reviews: 31,
+    image: "/lovable-uploads/5cd41bd7-3f58-441a-98d7-427a756f161c.png"
+  },
+  {
+    id: 15,
+    name: "Grivel G12 – Crampons",
+    provider: "Ice Climbing Gear",
+    price: 22,
+    rating: 4.7,
+    reviews: 18,
+    image: "/lovable-uploads/e00435fd-aaea-4cc3-91f4-84f857fe7d4e.png"
+  },
+  {
+    id: 16,
+    name: "OEX Heiro Solo Stove",
+    provider: "Camping Supplies Co.",
+    price: 18,
+    rating: 4.9,
+    reviews: 58,
+    image: "/lovable-uploads/bf2aec13-e8de-4df5-84be-f60db05f0b2a.png"
   }
 ];
 
 const GearCard = ({ item }: { item: typeof featuredGear[0] }) => {
   return (
     <Card className="overflow-hidden border-none shadow-md hover-lift h-full flex flex-col">
-      <div className="relative h-52">
+      <div className="relative h-52 bg-white">
+        {item.isNew && (
+          <Badge className="absolute top-2 right-2 bg-kitloop-accent text-white">New</Badge>
+        )}
         <img 
           src={item.image} 
           alt={item.name} 
@@ -127,8 +169,8 @@ const GearCard = ({ item }: { item: typeof featuredGear[0] }) => {
       </div>
       <CardContent className="p-5 flex-grow">
         <div className="flex justify-between items-start">
-          <h3 className="font-semibold text-lg">{item.name}</h3>
-          <p className="font-bold text-kitloop-text">${item.price}<span className="text-sm font-normal text-muted-foreground">/day</span></p>
+          <h3 className="font-semibold text-lg line-clamp-2">{item.name}</h3>
+          <p className="font-bold text-kitloop-text whitespace-nowrap ml-2">${item.price}<span className="text-sm font-normal text-muted-foreground">/day</span></p>
         </div>
         <p className="text-muted-foreground text-sm mt-1">{item.provider}</p>
       </CardContent>
@@ -136,7 +178,7 @@ const GearCard = ({ item }: { item: typeof featuredGear[0] }) => {
         <div className="flex items-center">
           <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
           <span className="ml-1 text-sm font-medium">{item.rating}</span>
-          <span className="text-sm text-muted-foreground ml-1">({item.reviews} reviews)</span>
+          <span className="text-sm text-muted-foreground ml-1">({item.reviews})</span>
         </div>
         <Button size="sm" className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white">
           Reserve

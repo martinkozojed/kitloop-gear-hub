@@ -63,12 +63,12 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Kitloop custom colors - Updated accent color to forest green
+				// Updated Kitloop custom colors with new accent color
 				kitloop: {
 					background: '#FFFBEB',
 					text: '#051923',
-					accent: '#2F6846',
-					'accent-hover': '#25543A',
+					accent: '#67AE6E', // Updated from #2F6846 to #67AE6E
+					'accent-hover': '#5A9D60', // New hover state based on the new accent
 					'light-gray': '#F5F5F5',
 					'medium-gray': '#E0E0E0',
 				}

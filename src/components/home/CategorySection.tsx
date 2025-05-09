@@ -7,25 +7,25 @@ const categories = [
     id: 1,
     name: "Camping",
     icon: "tent",
-    image: "/lovable-uploads/39d5c971-2de5-4b77-bceb-726d5c0a8fa0.png"
+    image: "/lovable-uploads/c433cb7a-c6e4-4300-9a09-14559705ed9b.png" // Green tent
   },
   {
     id: 2,
     name: "Hiking",
     icon: "backpack",
-    image: "/lovable-uploads/447642a9-6447-46bd-a750-77dc8ba0fb6c.png"
+    image: "/lovable-uploads/11b0bdf4-7ffe-4dc0-9dd9-f3570c833286.png" // Blue backpack
   },
   {
     id: 3,
     name: "Winter Sports",
     icon: "snow",
-    image: "/lovable-uploads/78ba6f25-e0d1-47a0-84ba-de19785b6732.png"
+    image: "/lovable-uploads/5cd41bd7-3f58-441a-98d7-427a756f161c.png" // Snowshoes
   },
   {
     id: 4,
     name: "Water Activities",
     icon: "waves",
-    image: "/lovable-uploads/ddb70b86-249f-4ca7-a8a1-a2f362dfafe8.png"
+    image: "/lovable-uploads/77567aaf-59d0-4767-a072-a089c59a834f.png" // Paddleboard
   }
 ];
 
@@ -34,11 +34,13 @@ const CategoryCard = ({ category }: { category: typeof categories[0] }) => {
     <Card className="overflow-hidden border-none shadow-md hover-lift group cursor-pointer">
       <CardContent className="p-0 relative">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-        <img 
-          src={category.image} 
-          alt={category.name} 
-          className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <div className="h-64 w-full overflow-hidden">
+          <img 
+            src={category.image} 
+            alt={category.name} 
+            className="h-full w-full object-contain bg-white p-2 transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
           <h3 className="text-white text-xl font-semibold">{category.name}</h3>
         </div>
