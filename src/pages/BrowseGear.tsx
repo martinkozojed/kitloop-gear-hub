@@ -1,10 +1,10 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Search, Filter, Star } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { 
   Select, 
   SelectContent, 
@@ -28,7 +28,7 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1501854140801-50d01698950b",
     price: 350,
     rating: 4.8,
-    category: "Camping"
+    category: "camping"
   },
   {
     id: 2,
@@ -36,7 +36,7 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
     price: 120,
     rating: 4.5,
-    category: "Hiking"
+    category: "hiking"
   },
   {
     id: 3,
@@ -44,7 +44,7 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
     price: 280,
     rating: 4.9,
-    category: "Climbing"
+    category: "climbing"
   },
   {
     id: 4,
@@ -52,7 +52,7 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
     price: 150,
     rating: 4.7,
-    category: "Climbing"
+    category: "climbing"
   },
   {
     id: 5,
@@ -60,7 +60,7 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
     price: 420,
     rating: 4.6,
-    category: "Water Activities"
+    category: "water activities"
   },
   {
     id: 6,
@@ -68,7 +68,7 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1",
     price: 180,
     rating: 4.3,
-    category: "Winter Sports"
+    category: "winter sports"
   },
   {
     id: 7,
@@ -76,7 +76,7 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1501854140801-50d01698950b",
     price: 130,
     rating: 4.4,
-    category: "Hiking"
+    category: "hiking"
   },
   {
     id: 8,
@@ -84,12 +84,12 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
     price: 490,
     rating: 5.0,
-    category: "Winter Sports"
+    category: "winter sports"
   },
 ];
 
-// Filter categories
-const categories = ["Camping", "Hiking", "Climbing", "Winter Sports", "Water Activities"];
+// Filter categories - updated to match with lowercase
+const categories = ["camping", "hiking", "climbing", "winter sports", "water activities"];
 const priceRanges = ["0-100", "100-200", "200-300", "300+"];
 const ratings = ["4+", "3+", "All"];
 
@@ -125,17 +125,23 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
 const FilterSidebar = ({ 
   onCategoryChange, 
   onPriceChange,
-  onRatingChange
+  onRatingChange,
+  selectedCategories
 }: { 
   onCategoryChange: (categories: string[]) => void;
   onPriceChange: (ranges: string[]) => void;
   onRatingChange: (rating: string) => void;
+  selectedCategories: string[];
 }) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [localSelectedCategories, setLocalSelectedCategories] = useState<string[]>(selectedCategories);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   
+  useEffect(() => {
+    setLocalSelectedCategories(selectedCategories);
+  }, [selectedCategories]);
+  
   const handleCategoryChange = (category: string) => {
-    setSelectedCategories(prev => {
+    setLocalSelectedCategories(prev => {
       const newSelection = prev.includes(category)
         ? prev.filter(c => c !== category)
         : [...prev, category];
@@ -172,12 +178,12 @@ const FilterSidebar = ({
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox 
                     id={`category-${category}`}
-                    checked={selectedCategories.includes(category)}
+                    checked={localSelectedCategories.includes(category)}
                     onCheckedChange={() => handleCategoryChange(category)}
                   />
                   <label 
                     htmlFor={`category-${category}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
                   >
                     {category}
                   </label>
@@ -236,6 +242,27 @@ const BrowseGear = () => {
   const [filteredGear, setFilteredGear] = useState(sampleGear);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("popular");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const location = useLocation();
+
+  // Parse URL parameters on component mount or URL change
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const categoryParam = queryParams.get('category');
+    
+    // If category parameter exists in URL, set it as selected
+    if (categoryParam) {
+      setSelectedCategories([categoryParam.toLowerCase()]);
+      // Filter gear by the category from URL
+      const filtered = sampleGear.filter(gear => 
+        gear.category.toLowerCase() === categoryParam.toLowerCase()
+      );
+      setFilteredGear(filtered);
+    } else {
+      setSelectedCategories([]);
+      setFilteredGear(sampleGear);
+    }
+  }, [location.search]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -247,24 +274,36 @@ const BrowseGear = () => {
   };
   
   const handleCategoryFilter = (categories: string[]) => {
+    setSelectedCategories(categories);
+    
     if (categories.length === 0) {
       setFilteredGear(sampleGear);
       return;
     }
     
     const filtered = sampleGear.filter(gear => 
-      categories.includes(gear.category)
+      categories.includes(gear.category.toLowerCase())
     );
     setFilteredGear(filtered);
   };
   
   const handlePriceFilter = (ranges: string[]) => {
     if (ranges.length === 0) {
-      setFilteredGear(sampleGear);
+      // Apply only category filters if they exist
+      if (selectedCategories.length > 0) {
+        handleCategoryFilter(selectedCategories);
+      } else {
+        setFilteredGear(sampleGear);
+      }
       return;
     }
     
-    const filtered = sampleGear.filter(gear => {
+    // Start with either category-filtered results or all gear
+    const baseGear = selectedCategories.length > 0
+      ? sampleGear.filter(gear => selectedCategories.includes(gear.category.toLowerCase()))
+      : sampleGear;
+    
+    const filtered = baseGear.filter(gear => {
       return ranges.some(range => {
         if (range === "0-100") return gear.price <= 100;
         if (range === "100-200") return gear.price > 100 && gear.price <= 200;
@@ -278,12 +317,17 @@ const BrowseGear = () => {
   };
   
   const handleRatingFilter = (rating: string) => {
-    let filtered = sampleGear;
+    // Start with either category-filtered results or all gear
+    const baseGear = selectedCategories.length > 0
+      ? sampleGear.filter(gear => selectedCategories.includes(gear.category.toLowerCase()))
+      : sampleGear;
+    
+    let filtered = baseGear;
     
     if (rating === "4+") {
-      filtered = sampleGear.filter(gear => gear.rating >= 4);
+      filtered = baseGear.filter(gear => gear.rating >= 4);
     } else if (rating === "3+") {
-      filtered = sampleGear.filter(gear => gear.rating >= 3);
+      filtered = baseGear.filter(gear => gear.rating >= 3);
     }
     
     setFilteredGear(filtered);
@@ -340,6 +384,7 @@ const BrowseGear = () => {
               onCategoryChange={handleCategoryFilter}
               onPriceChange={handlePriceFilter}
               onRatingChange={handleRatingFilter}
+              selectedCategories={selectedCategories}
             />
           </aside>
           
@@ -348,6 +393,11 @@ const BrowseGear = () => {
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-gray-500">
                 Showing {filteredGear.length} items
+                {selectedCategories.length > 0 && (
+                  <span className="ml-1">
+                    in <span className="font-medium capitalize">{selectedCategories.join(", ")}</span>
+                  </span>
+                )}
               </p>
               
               <Select defaultValue="popular" onValueChange={handleSort}>
@@ -367,7 +417,10 @@ const BrowseGear = () => {
               <div className="bg-white rounded-lg p-8 text-center">
                 <p className="text-lg">No gear found matching your criteria.</p>
                 <Button 
-                  onClick={() => setFilteredGear(sampleGear)} 
+                  onClick={() => {
+                    setFilteredGear(sampleGear);
+                    setSelectedCategories([]);
+                  }} 
                   variant="outline" 
                   className="mt-4"
                 >

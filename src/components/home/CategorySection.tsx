@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   {
@@ -30,8 +31,17 @@ const categories = [
 ];
 
 const CategoryCard = ({ category }: { category: typeof categories[0] }) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    navigate(`/browse?category=${encodeURIComponent(category.name.toLowerCase())}`);
+  };
+  
   return (
-    <Card className="overflow-hidden border-none shadow-md hover-lift group cursor-pointer">
+    <Card 
+      className="overflow-hidden border-none shadow-md hover-lift group cursor-pointer"
+      onClick={handleClick}
+    >
       <CardContent className="p-0 relative">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
         <div className="h-64 w-full overflow-hidden">
