@@ -1,17 +1,19 @@
 
 import React from 'react';
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Search, BookOpen, ShoppingCart, RotateCcw } from "lucide-react";
 
 const faqData = [
   {
     category: "finding",
-    title: "🧩 Finding Gear",
+    title: "Finding Gear",
+    icon: Search,
     questions: [
       {
         question: "How do I find the gear I need?",
@@ -37,7 +39,8 @@ const faqData = [
   },
   {
     category: "reservation",
-    title: "🛒 Making a Reservation",
+    title: "Making a Reservation",
+    icon: BookOpen,
     questions: [
       {
         question: "How do I reserve gear?",
@@ -63,7 +66,8 @@ const faqData = [
   },
   {
     category: "pickup",
-    title: "🧳 Pickup",
+    title: "Pickup",
+    icon: ShoppingCart,
     questions: [
       {
         question: "Where do I pick up my gear?",
@@ -89,7 +93,8 @@ const faqData = [
   },
   {
     category: "returning",
-    title: "🔁 Returning Gear",
+    title: "Returning Gear",
+    icon: RotateCcw,
     questions: [
       {
         question: "How do I return the gear?",
@@ -118,42 +123,75 @@ const faqData = [
 const FAQ = () => {
   return (
     <section className="py-16 px-6 bg-white">
-      <div className="container mx-auto max-w-4xl">
+      <div className="container mx-auto max-w-5xl">
         <h2 className="text-3xl font-bold mb-2 text-center">Frequently Asked Questions</h2>
-        <p className="text-muted-foreground mb-10 text-center">
+        <p className="text-muted-foreground mb-12 text-center">
           Everything you need to know about renting gear with Kitloop
         </p>
         
-        <Tabs defaultValue="finding" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8">
-            {faqData.map((category) => (
-              <TabsTrigger 
-                key={category.category} 
-                value={category.category}
-                className="text-sm md:text-base"
-              >
-                {category.title}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          
-          {faqData.map((category) => (
-            <TabsContent key={category.category} value={category.category} className="mt-0">
-              <Accordion type="single" collapsible className="w-full">
-                {category.questions.map((faq, index) => (
-                  <AccordionItem key={index} value={`${category.category}-item-${index}`}>
-                    <AccordionTrigger className="text-left font-medium text-lg">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </TabsContent>
-          ))}
-        </Tabs>
+        <div className="grid md:grid-cols-[280px_1fr] gap-8">
+          {/* Categories navigation on the left side */}
+          <div className="space-y-4">
+            <Tabs defaultValue="finding" orientation="vertical" className="w-full">
+              <TabsList className="flex flex-col h-auto space-y-1 bg-transparent p-0">
+                {faqData.map((category) => {
+                  const Icon = category.icon;
+                  return (
+                    <TabsTrigger 
+                      key={category.category} 
+                      value={category.category}
+                      className="justify-start text-left p-3 h-auto border-l-2 border-transparent data-[state=active]:border-kitloop-accent data-[state=active]:bg-muted data-[state=active]:text-foreground w-full rounded-r-md"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
+                          <Icon size={18} className="text-kitloop-accent" />
+                        </div>
+                        <span className="font-medium">{category.title}</span>
+                      </div>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* FAQ content on the right side */}
+          <div>
+            <Tabs defaultValue="finding" className="w-full">
+              {faqData.map((category) => (
+                <TabsContent key={category.category} value={category.category} className="mt-0 animate-fade-in">
+                  <div className="space-y-4">
+                    {category.questions.map((faq, index) => (
+                      <Card key={index} className="overflow-hidden border-muted bg-card shadow-sm transition-all hover:shadow">
+                        <Collapsible className="w-full">
+                          <CollapsibleTrigger className="flex w-full items-center justify-between p-4 text-left font-medium">
+                            <span className="text-lg">{faq.question}</span>
+                            <div className="h-6 w-6 rounded-full border border-muted flex items-center justify-center transition-transform duration-200 data-[state=open]:rotate-180">
+                              <svg 
+                                width="10" 
+                                height="6" 
+                                viewBox="0 0 10 6" 
+                                fill="none" 
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <CardContent className="pb-4 text-muted-foreground leading-relaxed border-t pt-4">
+                              {faq.answer}
+                            </CardContent>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+        </div>
       </div>
     </section>
   );
