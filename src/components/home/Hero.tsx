@@ -1,11 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, Package } from "lucide-react";
 import SearchBar from './SearchBar';
 
 const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleFindGear = () => {
+    navigate('/browse');
+  };
+
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-kitloop-background to-white py-20 px-6">
       <div className="absolute inset-0 z-0 opacity-20">
@@ -31,12 +37,17 @@ const Hero = () => {
         </div>
         
         <div className="flex flex-wrap gap-3 justify-center">
-          <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text px-6 py-6 text-lg hover-lift">
+          <Button 
+            className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text px-6 py-6 text-lg hover-lift"
+            onClick={handleFindGear}
+          >
             <Search className="mr-2 h-5 w-5" /> Find Gear
           </Button>
-          <Button variant="outline" className="bg-white/80 hover:bg-white text-kitloop-text border-kitloop-accent px-6 py-6 text-lg hover-lift">
-            <Package className="mr-2 h-5 w-5" /> Add Your Rental
-          </Button>
+          <Link to="/add-rental">
+            <Button variant="outline" className="bg-white/80 hover:bg-white text-kitloop-text border-kitloop-accent px-6 py-6 text-lg hover-lift">
+              <Package className="mr-2 h-5 w-5" /> Add Your Rental
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

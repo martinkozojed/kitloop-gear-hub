@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Search, Filter, Star } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Select, 
   SelectContent, 
@@ -241,35 +241,93 @@ const FilterSidebar = ({
 const BrowseGear = () => {
   const [filteredGear, setFilteredGear] = useState(sampleGear);
   const [searchQuery, setSearchQuery] = useState("");
+  const [locationQuery, setLocationQuery] = useState("");
   const [sortOption, setSortOption] = useState("popular");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Parse URL parameters on component mount or URL change
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const categoryParam = queryParams.get('category');
     
-    // If category parameter exists in URL, set it as selected
-    if (categoryParam) {
-      setSelectedCategories([categoryParam.toLowerCase()]);
-      // Filter gear by the category from URL
-      const filtered = sampleGear.filter(gear => 
-        gear.category.toLowerCase() === categoryParam.toLowerCase()
-      );
-      setFilteredGear(filtered);
-    } else {
-      setSelectedCategories([]);
-      setFilteredGear(sampleGear);
+    // Check for category param
+    const categoryParam = queryParams.get('category');
+    // Check for search query
+    const searchParam = queryParams.get('query');
+    // Check for location param
+    const locationParam = queryParams.get('location');
+    
+    // Set the search query if present
+    if (searchParam) {
+      setSearchQuery(searchParam);
     }
+    
+    // Set the location query if present
+    if (locationParam) {
+      setLocationQuery(locationParam);
+    }
+    
+    // Filter by category if present
+    let newCategories: string[] = [];
+    if (categoryParam) {
+      newCategories = [categoryParam.toLowerCase()];
+      setSelectedCategories(newCategories);
+    }
+    
+    // Apply initial filtering
+    let filtered = sampleGear;
+    
+    // Apply category filter
+    if (newCategories.length > 0) {
+      filtered = filtered.filter(gear => 
+        newCategories.includes(gear.category.toLowerCase())
+      );
+    }
+    
+    // Apply search query filter if present
+    if (searchParam) {
+      filtered = filtered.filter(gear => 
+        gear.name.toLowerCase().includes(searchParam.toLowerCase())
+      );
+    }
+    
+    setFilteredGear(filtered);
   }, [location.search]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would be a more sophisticated search
-    const filtered = sampleGear.filter(
-      gear => gear.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    
+    // Build the query parameters
+    const params = new URLSearchParams();
+    if (searchQuery) params.append("query", searchQuery);
+    if (locationQuery) params.append("location", locationQuery);
+    
+    // If we have categories selected, preserve them
+    if (selectedCategories.length > 0) {
+      params.append("category", selectedCategories[0]);
+    }
+    
+    // Update the URL
+    navigate(`/browse?${params.toString()}`);
+    
+    // Filter the gear
+    let filtered = sampleGear;
+    
+    // Apply search query filter
+    if (searchQuery) {
+      filtered = filtered.filter(gear => 
+        gear.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Apply category filter if we have categories
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(gear => 
+        selectedCategories.includes(gear.category.toLowerCase())
+      );
+    }
+    
     setFilteredGear(filtered);
   };
   
@@ -368,6 +426,8 @@ const BrowseGear = () => {
             <div className="md:w-48">
               <Input 
                 placeholder="Location..."
+                value={locationQuery}
+                onChange={(e) => setLocationQuery(e.target.value)}
                 className="w-full"
               />
             </div>
