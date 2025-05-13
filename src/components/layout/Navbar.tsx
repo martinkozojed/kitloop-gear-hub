@@ -52,11 +52,11 @@ const Navbar = () => {
         </nav>
         
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="hidden md:flex">
-            Sign In
+          <Button variant="outline" className="hidden md:flex" asChild>
+            <Link to="/login">Sign In</Link>
           </Button>
-          <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text">
-            Sign Up
+          <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text" asChild>
+            <Link to="/signup">Sign Up</Link>
           </Button>
         </div>
       </div>

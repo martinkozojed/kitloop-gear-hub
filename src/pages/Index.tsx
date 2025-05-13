@@ -7,7 +7,6 @@ import HowItWorks from '../components/home/HowItWorks';
 import FeaturedGear from '../components/home/FeaturedGear';
 import MapSection from '../components/home/MapSection';
 import FAQ from '../components/home/FAQ';
-import CallToAction from '../components/home/CallToAction';
 
 const Index = () => {
   const location = useLocation();
@@ -37,7 +36,6 @@ const Index = () => {
       <div id="faq">
         <FAQ />
       </div>
-      <CallToAction />
     </div>
   );
 };

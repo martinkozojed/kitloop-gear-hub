@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import HowItWorks from "./pages/HowItWorks";
 import BrowseGear from "./pages/BrowseGear";
 import AddRental from "./pages/AddRental";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -27,6 +29,8 @@ const App = () => (
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/browse" element={<BrowseGear />} />
             <Route path="/add-rental" element={<AddRental />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
