@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, Package } from "lucide-react";
 import SearchBar from './SearchBar';
 
 const Hero = () => {
@@ -34,8 +34,8 @@ const Hero = () => {
           <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text px-6 py-6 text-lg hover-lift">
             <Search className="mr-2 h-5 w-5" /> Find Gear
           </Button>
-          <Button variant="outline" asChild className="bg-white/80 hover:bg-white text-kitloop-text border-kitloop-accent px-6 py-6 text-lg hover-lift">
-            <Link to="/how-it-works">Learn How It Works</Link>
+          <Button variant="outline" className="bg-white/80 hover:bg-white text-kitloop-text border-kitloop-accent px-6 py-6 text-lg hover-lift">
+            <Package className="mr-2 h-5 w-5" /> Add Your Rental
           </Button>
         </div>
       </div>

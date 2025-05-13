@@ -2,8 +2,25 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const scrollToSection = (sectionId: string) => {
+    // If we're not on the home page, navigate there first
+    if (window.location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: sectionId } });
+      return;
+    }
+
+    // If we're already on the home page, scroll to the section
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="py-4 px-6 md:px-10 bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -17,15 +34,21 @@ const Navbar = () => {
           <Link to="/" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
             Home
           </Link>
+          <button 
+            onClick={() => scrollToSection('how-it-works')} 
+            className="text-kitloop-text hover:text-kitloop-accent transition-colors"
+          >
+            How It Works
+          </button>
           <Link to="/browse" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
             Browse Gear
           </Link>
-          <Link to="/howitworks" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
-            How It Works
-          </Link>
-          <Link to="/faq" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
+          <button 
+            onClick={() => scrollToSection('faq')} 
+            className="text-kitloop-text hover:text-kitloop-accent transition-colors"
+          >
             FAQ
-          </Link>
+          </button>
         </nav>
         
         <div className="flex items-center gap-3">
