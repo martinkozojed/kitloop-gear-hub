@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -409,7 +410,12 @@ const BrowseGear = () => {
   return (
     <div className="bg-kitloop-background min-h-screen pt-24 pb-16 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8">Browse Available Gear</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4">Browse Available Gear</h1>
+        
+        {/* Added intro text */}
+        <p className="text-lg text-muted-foreground mb-8">
+          Browse and rent gear based on activity, location or provider. Find exactly what you need for your next adventure.
+        </p>
         
         {/* Search Section */}
         <div className="bg-white rounded-lg p-4 mb-8 shadow-sm">

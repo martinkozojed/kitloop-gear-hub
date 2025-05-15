@@ -44,7 +44,7 @@ const About = () => {
               </div>
               <div className="md:w-1/2 flex justify-center">
                 <img 
-                  src="/public/lovable-uploads/DSC01518_crop.jpg" 
+                  src="/lovable-uploads/b1f0a36d-5b99-458c-bae3-638430580400.png" 
                   alt="Martin Kozojed, Founder of Kitloop" 
                   className="rounded-lg max-w-full shadow-md object-cover max-h-80"
                 />

@@ -126,14 +126,14 @@ const FAQ = () => {
   const [activeCategory, setActiveCategory] = React.useState("finding");
   
   return (
-    <section className="py-16 px-6 bg-white">
+    <section className="py-16 px-6 bg-white" id="faq">
       <div className="container mx-auto max-w-5xl">
         <h2 className="text-3xl font-bold mb-2 text-center">Frequently Asked Questions</h2>
         <p className="text-muted-foreground mb-12 text-center">
           Everything you need to know about renting gear with Kitloop
         </p>
         
-        <div className={`${isMobile ? 'flex flex-col' : 'grid md:grid-cols-[280px_1fr]'} gap-8`}>
+        <div className={`${isMobile ? 'flex flex-col space-y-6' : 'grid md:grid-cols-[280px_1fr]'} gap-8`}>
           {/* Categories navigation - adapts to mobile */}
           <div className="space-y-4">
             <Tabs 
@@ -143,7 +143,7 @@ const FAQ = () => {
               className="w-full"
             >
               <TabsList className={`
-                ${isMobile ? 'flex overflow-x-auto justify-start pb-2 w-full space-x-2' : 'flex flex-col h-auto space-y-1'} 
+                ${isMobile ? 'flex overflow-x-auto justify-start pb-3 w-full space-x-3' : 'flex flex-col h-auto space-y-2'} 
                 bg-transparent p-0`}
               >
                 {faqData.map((category) => {
@@ -154,14 +154,14 @@ const FAQ = () => {
                       value={category.category}
                       className={`
                         justify-start text-left p-3 h-auto 
-                        ${isMobile ? 'border-b-2 border-b-transparent data-[state=active]:border-b-kitloop-accent' : 'border-l-2 border-transparent data-[state=active]:border-kitloop-accent'}
-                        data-[state=active]:bg-muted data-[state=active]:text-foreground 
+                        ${isMobile ? 'border-b-2 border-b-transparent data-[state=active]:border-b-kitloop-accent' : 'border-l-2 border-transparent data-[state=active]:border-l-kitloop-accent'}
+                        data-[state=active]:bg-muted data-[state=active]:text-kitloop-accent font-medium
                         ${isMobile ? 'rounded-md whitespace-nowrap min-w-max' : 'w-full rounded-r-md'}
                       `}
                     >
                       <div className={`flex items-center gap-3 ${isMobile ? 'flex-col text-xs' : ''}`}>
-                        <div className={`flex items-center justify-center ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-muted`}>
-                          <Icon size={isMobile ? 14 : 18} className="text-kitloop-accent" />
+                        <div className={`flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-full bg-muted`}>
+                          <Icon size={isMobile ? 16 : 20} className="text-kitloop-accent" />
                         </div>
                         <span className="font-medium">{category.title}</span>
                       </div>
