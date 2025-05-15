@@ -22,20 +22,28 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Available gear categories
+// Available gear categories with more specific options
 const gearCategories = [
-  "Camping",
-  "Hiking",
-  "Climbing",
-  "Winter Sports",
-  "Water Activities",
-  "Other"
+  "Tents",
+  "Sleeping Bags",
+  "Backpacks",
+  "Cooking Equipment",
+  "Climbing Gear",
+  "Kayaks & Canoes",
+  "Winter Sports Equipment",
+  "Hiking Poles",
+  "Mountain Bikes",
+  "Avalanche Safety Gear",
+  "Fishing Equipment",
+  "Other Outdoor Gear"
 ];
 
 const AddRental = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   
   const form = useForm({
     defaultValues: {
@@ -67,12 +75,42 @@ const AddRental = () => {
     // Simulate API call
     setTimeout(() => {
       console.log("Submitted data:", data);
-      toast.success("Your rental was submitted successfully! We'll contact you soon.");
-      form.reset();
-      setImagePreview(null);
+      toast.success("Your listing request has been sent successfully!");
+      setIsSubmitted(true);
       setIsSubmitting(false);
     }, 1500);
   });
+  
+  if (isSubmitted) {
+    return (
+      <div className="bg-kitloop-background min-h-screen pt-24 pb-16 px-4 md:px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg p-6 md:p-10 shadow-sm">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-kitloop-accent/10 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle className="h-8 w-8 text-kitloop-accent" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Thank You for Your Submission!</h2>
+              <div className="max-w-lg">
+                <p className="text-lg mb-4">
+                  We've received your listing request. Our team will review it and get back to you within 2 business days.
+                </p>
+                <p className="text-md text-gray-600">
+                  You'll be notified via email when your rental is approved and ready to go live on Kitloop.
+                </p>
+              </div>
+              <Button 
+                className="mt-8 bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text" 
+                onClick={() => window.location.href = '/'}
+              >
+                Return to Homepage
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="bg-kitloop-background min-h-screen pt-24 pb-16 px-4 md:px-6">
@@ -143,6 +181,12 @@ const AddRental = () => {
             <form onSubmit={onSubmit} className="space-y-6">
               <h2 className="text-2xl font-semibold mb-6">Your Information</h2>
               
+              <Alert className="mb-6 bg-kitloop-accent/5 border-kitloop-accent/20">
+                <AlertDescription>
+                  Your listing will be reviewed by our team before it goes live on Kitloop. We do this to ensure a safe and high-quality experience for everyone.
+                </AlertDescription>
+              </Alert>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -197,7 +241,7 @@ const AddRental = () => {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
+                            <SelectValue placeholder="Select a gear category" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -226,7 +270,7 @@ const AddRental = () => {
                       ) : (
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <Upload className="w-8 h-8 mb-2 text-gray-500" />
-                          <p className="text-sm text-gray-500">Click or drag to upload an image</p>
+                          <p className="text-sm text-gray-500">Add a photo of your gear or your rental's logo</p>
                         </div>
                       )}
                       <input 
@@ -249,7 +293,7 @@ const AddRental = () => {
                     <FormLabel>Availability Notes</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Describe when your gear is typically available, any seasonal limitations, etc." 
+                        placeholder="e.g. Available on weekends only. Not available in winter." 
                         className="min-h-[100px]"
                         {...field}
                       />
@@ -265,7 +309,7 @@ const AddRental = () => {
                   className="w-full bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text py-6" 
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Submitting..." : "Submit Your Rental"}
+                  {isSubmitting ? "Sending..." : "Send Listing Request"}
                 </Button>
               </div>
               
