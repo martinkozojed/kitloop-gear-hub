@@ -8,6 +8,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, BookOpen, ShoppingCart, RotateCcw } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const faqData = [
   {
@@ -121,6 +122,9 @@ const faqData = [
 ];
 
 const FAQ = () => {
+  const isMobile = useIsMobile();
+  const [activeCategory, setActiveCategory] = React.useState("finding");
+  
   return (
     <section className="py-16 px-6 bg-white">
       <div className="container mx-auto max-w-5xl">
@@ -129,22 +133,35 @@ const FAQ = () => {
           Everything you need to know about renting gear with Kitloop
         </p>
         
-        <div className="grid md:grid-cols-[280px_1fr] gap-8">
-          {/* Categories navigation on the left side */}
+        <div className={`${isMobile ? 'flex flex-col' : 'grid md:grid-cols-[280px_1fr]'} gap-8`}>
+          {/* Categories navigation - adapts to mobile */}
           <div className="space-y-4">
-            <Tabs defaultValue="finding" orientation="vertical" className="w-full">
-              <TabsList className="flex flex-col h-auto space-y-1 bg-transparent p-0">
+            <Tabs 
+              value={activeCategory} 
+              onValueChange={setActiveCategory}
+              orientation={isMobile ? "horizontal" : "vertical"} 
+              className="w-full"
+            >
+              <TabsList className={`
+                ${isMobile ? 'flex overflow-x-auto justify-start pb-2 w-full space-x-2' : 'flex flex-col h-auto space-y-1'} 
+                bg-transparent p-0`}
+              >
                 {faqData.map((category) => {
                   const Icon = category.icon;
                   return (
                     <TabsTrigger 
                       key={category.category} 
                       value={category.category}
-                      className="justify-start text-left p-3 h-auto border-l-2 border-transparent data-[state=active]:border-kitloop-accent data-[state=active]:bg-muted data-[state=active]:text-foreground w-full rounded-r-md"
+                      className={`
+                        justify-start text-left p-3 h-auto 
+                        ${isMobile ? 'border-b-2 border-b-transparent data-[state=active]:border-b-kitloop-accent' : 'border-l-2 border-transparent data-[state=active]:border-kitloop-accent'}
+                        data-[state=active]:bg-muted data-[state=active]:text-foreground 
+                        ${isMobile ? 'rounded-md whitespace-nowrap min-w-max' : 'w-full rounded-r-md'}
+                      `}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
-                          <Icon size={18} className="text-kitloop-accent" />
+                      <div className={`flex items-center gap-3 ${isMobile ? 'flex-col text-xs' : ''}`}>
+                        <div className={`flex items-center justify-center ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-muted`}>
+                          <Icon size={isMobile ? 14 : 18} className="text-kitloop-accent" />
                         </div>
                         <span className="font-medium">{category.title}</span>
                       </div>
@@ -155,9 +172,9 @@ const FAQ = () => {
             </Tabs>
           </div>
 
-          {/* FAQ content on the right side */}
+          {/* FAQ content - same Tabs component controlling both sides */}
           <div>
-            <Tabs defaultValue="finding" className="w-full">
+            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
               {faqData.map((category) => (
                 <TabsContent key={category.category} value={category.category} className="mt-0 animate-fade-in">
                   <div className="space-y-4">
@@ -165,7 +182,7 @@ const FAQ = () => {
                       <Card key={index} className="overflow-hidden border-muted bg-card shadow-sm transition-all hover:shadow">
                         <Collapsible className="w-full">
                           <CollapsibleTrigger className="flex w-full items-center justify-between p-4 text-left font-medium">
-                            <span className="text-lg">{faq.question}</span>
+                            <span className={`${isMobile ? 'text-base' : 'text-lg'}`}>{faq.question}</span>
                             <div className="h-6 w-6 rounded-full border border-muted flex items-center justify-center transition-transform duration-200 data-[state=open]:rotate-180">
                               <svg 
                                 width="10" 
