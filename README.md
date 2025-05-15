@@ -1,73 +1,89 @@
-# Welcome to your Lovable project
 
-## Project info
+# Kitloop - Outdoor Gear Rental Platform
 
-**URL**: https://lovable.dev/projects/48794c70-a7f2-4e1f-877e-585e76831c05
+Kitloop is a peer-to-peer marketplace for outdoor gear rentals, connecting adventure enthusiasts with local gear providers. The platform enables users to browse available equipment, make reservations, and list their own gear for others to rent.
 
-## How can I edit this code?
+## What this project does
 
-There are several ways of editing your application.
+- **Browse outdoor gear** - Search and filter by location, category, dates
+- **List your gear** - Generate income by renting out your outdoor equipment
+- **Make reservations** - Book gear for your next adventure
+- **Community features** - Reviews, ratings, and messaging between renters and providers
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/48794c70-a7f2-4e1f-877e-585e76831c05) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Tech Stack
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Vite** - Fast build tool and development server
+- **TypeScript** - Static typing for better developer experience
+- **React** - UI component library
+- **React Router** - Navigation and routing
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - High-quality UI components
+- **Lucide React** - Beautiful, consistent icons
+- **React Hook Form** - Form validation and handling
+- **React Query** - Data fetching library
 
-## How can I deploy this project?
+## Getting Started
 
-Simply open [Lovable](https://lovable.dev/projects/48794c70-a7f2-4e1f-877e-585e76831c05) and click on Share -> Publish.
+### Prerequisites
 
-## Can I connect a custom domain to my Lovable project?
+- Node.js (v16 or higher)
+- npm or yarn
 
-Yes, you can!
+### Installation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```bash
+# Clone the repository
+git clone <repository-url>
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Navigate to the project directory
+cd kitloop
+
+# Install dependencies
+npm install
+# or
+yarn install
+
+# Start the development server
+npm run dev
+# or
+yarn dev
+```
+
+The application will be available at `http://localhost:5173`
+
+## Project Structure
+
+```
+/src
+  /components       # Reusable UI components
+    /home           # Homepage-specific components
+    /layout         # Layout components (navbar, footer)
+    /ui             # Base UI components from shadcn
+  /pages            # Main application pages
+  /services         # API service layer
+  /lib              # Utility functions and helpers
+  /hooks            # Custom React hooks
+```
+
+## Available Routes
+
+- `/` - Homepage
+- `/browse` - Browse available gear
+- `/add-rental` - List your gear for rent
+- `/login` - User login
+- `/signup` - User registration
+- `/how-it-works` - Information about the platform
+
+## Next Steps
+
+- Integration with backend services
+- User authentication system
+- Reservation management
+- Payment processing
+- Messaging between users
+
+## URL
+
+**Project URL**: https://lovable.dev/projects/48794c70-a7f2-4e1f-877e-585e76831c05

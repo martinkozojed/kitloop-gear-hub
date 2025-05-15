@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { submitRental, RentalSubmission } from "@/services/kitloopApi";
 
 // Available gear categories with more specific options
 const gearCategories = [
@@ -69,16 +69,20 @@ const AddRental = () => {
     }
   };
   
-  const onSubmit = form.handleSubmit((data) => {
+  const onSubmit = form.handleSubmit(async (data) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Submitted data:", data);
+    try {
+      // Use our API service instead of setTimeout
+      await submitRental(data as RentalSubmission);
       toast.success("Your listing request has been sent successfully!");
       setIsSubmitted(true);
+    } catch (error) {
+      toast.error("There was an error submitting your listing. Please try again.");
+      console.error("Error submitting rental:", error);
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   });
   
   if (isSubmitted) {
