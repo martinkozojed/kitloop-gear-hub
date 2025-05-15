@@ -3,6 +3,21 @@ import React from 'react';
 import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const scrollToSection = (sectionId: string) => {
+    // If we're not on the home page, navigate to home first
+    if (window.location.pathname !== '/') {
+      // Using window.location for now as it's a simple redirect with hash
+      window.location.href = `/#${sectionId}`;
+      return;
+    }
+
+    // If we're already on the home page, scroll to the section
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-white py-12 px-6 border-t border-gray-100">
       <div className="container mx-auto max-w-7xl">
@@ -20,27 +35,22 @@ const Footer = () => {
             <h3 className="font-bold mb-4">Discover</h3>
             <ul className="space-y-2">
               <li><Link to="/browse" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Browse Gear</Link></li>
-              <li><Link to="/locations" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Locations</Link></li>
-              <li><Link to="/providers" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Rental Providers</Link></li>
-              <li><Link to="/blog" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Adventure Blog</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-bold mb-4">Company</h3>
-            <ul className="space-y-2">
+              <li><button onClick={() => scrollToSection('how-it-works')} className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left">How It Works</button></li>
               <li><Link to="/about" className="text-muted-foreground hover:text-kitloop-accent transition-colors">About Us</Link></li>
-              <li><Link to="/howitworks" className="text-muted-foreground hover:text-kitloop-accent transition-colors">How It Works</Link></li>
-              <li><Link to="/contact" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Contact</Link></li>
-              <li><Link to="/careers" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Careers</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="font-bold mb-4">Support</h3>
             <ul className="space-y-2">
-              <li><Link to="/help" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Help Center</Link></li>
-              <li><Link to="/faq" className="text-muted-foreground hover:text-kitloop-accent transition-colors">FAQ</Link></li>
+              <li><a href="mailto:info@kitloop.app" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Contact</a></li>
+              <li><button onClick={() => scrollToSection('faq')} className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left">FAQ</button></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-bold mb-4">Legal</h3>
+            <ul className="space-y-2">
               <li><Link to="/terms" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Terms of Service</Link></li>
               <li><Link to="/privacy" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Privacy Policy</Link></li>
             </ul>

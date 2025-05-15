@@ -43,6 +43,9 @@ const Navbar = () => {
           <Link to="/browse" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
             Browse Gear
           </Link>
+          <Link to="/about" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
+            About Us
+          </Link>
           <button 
             onClick={() => scrollToSection('faq')} 
             className="text-kitloop-text hover:text-kitloop-accent transition-colors"
