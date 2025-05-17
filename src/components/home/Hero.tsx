@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Package } from "lucide-react";
 import SearchBar from './SearchBar';
+import { useTranslation } from "react-i18next";
 
 const Hero = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleFindGear = () => {
     navigate('/browse');
@@ -25,7 +27,7 @@ const Hero = () => {
       
       <div className="container mx-auto relative z-10 flex flex-col items-center text-center max-w-4xl animate-fade-in">
         <h1 className="text-4xl md:text-6xl font-bold mb-6 text-kitloop-text text-shadow">
-          Rent Outdoor Gear <span className="text-kitloop-accent">Easily</span>
+          <span className="text-kitloop-accent">{t('hero.headline')}</span>
         </h1>
         <p className="text-lg md:text-xl mb-10 max-w-2xl">
           Find, reserve, and rent the perfect outdoor equipment for your next adventure. 
@@ -41,11 +43,11 @@ const Hero = () => {
             className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text px-6 py-6 text-lg hover-lift"
             onClick={handleFindGear}
           >
-            <Search className="mr-2 h-5 w-5" /> Find Gear
+            <Search className="mr-2 h-5 w-5" /> {t('hero.cta')}
           </Button>
           <Link to="/add-rental">
             <Button variant="outline" className="bg-white/80 hover:bg-white text-kitloop-text border-kitloop-accent px-6 py-6 text-lg hover-lift">
-              <Package className="mr-2 h-5 w-5" /> Add Your Rental
+              <Package className="mr-2 h-5 w-5" /> {t('hero.add_rental')}
             </Button>
           </Link>
         </div>

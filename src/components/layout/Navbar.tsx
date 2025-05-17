@@ -3,9 +3,12 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const scrollToSection = (sectionId: string) => {
     // If we're not on the home page, navigate there first
@@ -32,34 +35,35 @@ const Navbar = () => {
         
         <nav className="hidden md:flex items-center gap-8">
           <Link to="/" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
-            Home
+            {t('navbar.home')}
           </Link>
           <button 
             onClick={() => scrollToSection('how-it-works')} 
             className="text-kitloop-text hover:text-kitloop-accent transition-colors"
           >
-            How It Works
+            {t('navbar.how_it_works')}
           </button>
           <Link to="/browse" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
-            Browse Gear
+            {t('navbar.browse_gear')}
           </Link>
           <Link to="/about" className="text-kitloop-text hover:text-kitloop-accent transition-colors">
-            About Us
+            {t('navbar.about_us')}
           </Link>
           <button 
             onClick={() => scrollToSection('faq')} 
             className="text-kitloop-text hover:text-kitloop-accent transition-colors"
           >
-            FAQ
+            {t('navbar.faq')}
           </button>
         </nav>
         
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           <Button variant="outline" className="hidden md:flex" asChild>
-            <Link to="/login">Sign In</Link>
+            <Link to="/login">{t('navbar.sign_in')}</Link>
           </Button>
           <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text" asChild>
-            <Link to="/signup">Sign Up</Link>
+            <Link to="/signup">{t('navbar.sign_up')}</Link>
           </Button>
         </div>
       </div>

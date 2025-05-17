@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const SearchBar = () => {
   const [gearQuery, setGearQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +28,7 @@ const SearchBar = () => {
     <form onSubmit={handleSearch} className="flex flex-col sm:flex-row w-full max-w-3xl mx-auto gap-2">
       <div className="relative flex-grow">
         <Input 
-          placeholder="What gear do you need?" 
+          placeholder={t('hero.search_placeholder')} 
           className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-kitloop-accent"
           value={gearQuery}
           onChange={(e) => setGearQuery(e.target.value)}
@@ -35,7 +37,7 @@ const SearchBar = () => {
       </div>
       <div className="relative flex-grow">
         <Input 
-          placeholder="Where? (City or postal code)" 
+          placeholder={t('hero.location_placeholder')} 
           className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-kitloop-accent"
           value={locationQuery}
           onChange={(e) => setLocationQuery(e.target.value)}
@@ -45,7 +47,7 @@ const SearchBar = () => {
         </div>
       </div>
       <Button type="submit" className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text py-6 px-8 whitespace-nowrap">
-        Search
+        {t('hero.cta')}
       </Button>
     </form>
   );

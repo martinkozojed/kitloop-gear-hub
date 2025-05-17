@@ -1,0 +1,63 @@
+
+{
+  "hero": {
+    "headline": "Rent Outdoor Gear Easily",
+    "search_placeholder": "What gear are you looking for?",
+    "location_placeholder": "Where? (City or postal code)",
+    "cta": "Find Gear",
+    "add_rental": "Add Your Rental"
+  },
+  "footer": {
+    "about": "About Us",
+    "browse": "Browse Gear",
+    "how_it_works": "How It Works",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© {{year}} Kitloop. All rights reserved."
+  },
+  "navbar": {
+    "home": "Home",
+    "how_it_works": "How It Works",
+    "browse_gear": "Browse Gear",
+    "about_us": "About Us",
+    "faq": "FAQ",
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up"
+  },
+  "cta": {
+    "title": "Ready for your next adventure?",
+    "description": "Join thousands of outdoor enthusiasts who are already using Kitloop to access gear without the hassle of ownership.",
+    "find_gear": "Find Gear Now",
+    "become_provider": "Become a Provider"
+  },
+  "categories": {
+    "title": "Explore by Category",
+    "description": "Find the perfect gear for your next outdoor adventure",
+    "camping": "Camping",
+    "hiking": "Hiking",
+    "winter_sports": "Winter Sports",
+    "water_activities": "Water Activities"
+  },
+  "about": {
+    "title": "About Us",
+    "why_kitloop": {
+      "title": "Why Kitloop Was Created",
+      "paragraph1": "Kitloop started as a fictional business for a university marketing course. But instead of creating something random, I looked at a real problem: at home, we had tons of outdoor gear that we used only once or twice a year. Meanwhile, people kept buying new things.",
+      "paragraph2": "That's how the idea was born — a platform where rental providers and individuals could offer their gear online, all in one place.",
+      "paragraph3": "We believe the gear rental market urgently needs digitalization — and this is our answer."
+    },
+    "founder": {
+      "title": "About the Founder",
+      "paragraph1": "Hi! I'm Martin Kozojed – a student of tourism, outdoor enthusiast, and technology lover.",
+      "paragraph2": "I created Kitloop because I wanted to combine all the things I care about: nature, community, and smart digital solutions.",
+      "paragraph3": "I believe gear should be accessible, not owned. Kitloop is my way of making that happen."
+    },
+    "cta": "Join Us as a Rental Provider"
+  },
+  "language_selector": {
+    "en": "English",
+    "cs": "Czech"
+  }
+}

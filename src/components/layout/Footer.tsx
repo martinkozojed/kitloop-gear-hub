@@ -1,8 +1,12 @@
 
 import React from 'react';
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   const scrollToSection = (sectionId: string) => {
     // If we're not on the home page, navigate to home first
     if (window.location.pathname !== '/') {
@@ -34,32 +38,35 @@ const Footer = () => {
           <div>
             <h3 className="font-bold mb-4">Discover</h3>
             <ul className="space-y-2">
-              <li><Link to="/browse" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Browse Gear</Link></li>
-              <li><button onClick={() => scrollToSection('how-it-works')} className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left">How It Works</button></li>
-              <li><Link to="/about" className="text-muted-foreground hover:text-kitloop-accent transition-colors">About Us</Link></li>
+              <li><Link to="/browse" className="text-muted-foreground hover:text-kitloop-accent transition-colors">{t('footer.browse')}</Link></li>
+              <li><button onClick={() => scrollToSection('how-it-works')} className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left">{t('footer.how_it_works')}</button></li>
+              <li><Link to="/about" className="text-muted-foreground hover:text-kitloop-accent transition-colors">{t('footer.about')}</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="font-bold mb-4">Support</h3>
             <ul className="space-y-2">
-              <li><a href="mailto:info@kitloop.app" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Contact</a></li>
-              <li><button onClick={() => scrollToSection('faq')} className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left">FAQ</button></li>
+              <li><a href="mailto:info@kitloop.app" className="text-muted-foreground hover:text-kitloop-accent transition-colors">{t('footer.contact')}</a></li>
+              <li><button onClick={() => scrollToSection('faq')} className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left">{t('footer.faq')}</button></li>
             </ul>
           </div>
           
           <div>
             <h3 className="font-bold mb-4">Legal</h3>
             <ul className="space-y-2">
-              <li><Link to="/terms" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Terms of Service</Link></li>
-              <li><Link to="/privacy" className="text-muted-foreground hover:text-kitloop-accent transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-muted-foreground hover:text-kitloop-accent transition-colors">{t('footer.terms')}</Link></li>
+              <li><Link to="/privacy" className="text-muted-foreground hover:text-kitloop-accent transition-colors">{t('footer.privacy')}</Link></li>
             </ul>
+            <div className="mt-4">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
         
         <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} Kitloop. All rights reserved.
+            {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex space-x-6">
             <a href="#" className="text-muted-foreground hover:text-kitloop-accent transition-colors">

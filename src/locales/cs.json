@@ -1,0 +1,63 @@
+
+{
+  "hero": {
+    "headline": "Půjč si outdoorové vybavení snadno",
+    "search_placeholder": "Jaké vybavení hledáš?",
+    "location_placeholder": "Kde? (Město nebo PSČ)",
+    "cta": "Najdi výbavu",
+    "add_rental": "Přidej svou výbavu"
+  },
+  "footer": {
+    "about": "O nás",
+    "browse": "Prohlížet výbavu",
+    "how_it_works": "Jak to funguje",
+    "faq": "Často kladené dotazy",
+    "contact": "Kontakt",
+    "privacy": "Zásady ochrany osobních údajů",
+    "terms": "Obchodní podmínky",
+    "copyright": "© {{year}} Kitloop. Všechna práva vyhrazena."
+  },
+  "navbar": {
+    "home": "Domů",
+    "how_it_works": "Jak to funguje",
+    "browse_gear": "Prohlížet výbavu",
+    "about_us": "O nás",
+    "faq": "Časté dotazy",
+    "sign_in": "Přihlásit se",
+    "sign_up": "Registrovat se"
+  },
+  "cta": {
+    "title": "Jsi připraven na další dobrodružství?",
+    "description": "Přidej se k tisícům nadšenců do outdooru, kteří již využívají Kitloop pro přístup k vybavení bez starostí s vlastnictvím.",
+    "find_gear": "Najít vybavení teď",
+    "become_provider": "Stát se poskytovatelem"
+  },
+  "categories": {
+    "title": "Prozkoumejte podle kategorie",
+    "description": "Najděte perfektní vybavení pro vaše další dobrodružství v přírodě",
+    "camping": "Kempování",
+    "hiking": "Turistika",
+    "winter_sports": "Zimní sporty",
+    "water_activities": "Vodní aktivity"
+  },
+  "about": {
+    "title": "O nás",
+    "why_kitloop": {
+      "title": "Proč Kitloop vznikl",
+      "paragraph1": "Kitloop začal jako fiktivní podnik pro univerzitní kurz marketingu. Ale místo vytváření něčeho náhodného jsem se podíval na skutečný problém: doma jsme měli tuny outdoorového vybavení, které jsme používali jen jednou či dvakrát za rok. Mezitím lidé stále kupovali nové věci.",
+      "paragraph2": "Tak se zrodil nápad — platforma, kde by poskytovatelé půjčoven a jednotlivci mohli nabízet své vybavení online, vše na jednom místě.",
+      "paragraph3": "Věříme, že trh s půjčovnami vybavení naléhavě potřebuje digitalizaci — a tohle je naše odpověď."
+    },
+    "founder": {
+      "title": "O zakladateli",
+      "paragraph1": "Ahoj! Jsem Martin Kozojed – student cestovního ruchu, nadšenec do outdooru a milovník technologií.",
+      "paragraph2": "Vytvořil jsem Kitloop, protože jsem chtěl spojit všechny věci, na kterých mi záleží: přírodu, komunitu a chytrá digitální řešení.",
+      "paragraph3": "Věřím, že vybavení by mělo být přístupné, ne vlastněné. Kitloop je můj způsob, jak to uskutečnit."
+    },
+    "cta": "Připojte se k nám jako poskytovatel půjčovny"
+  },
+  "language_selector": {
+    "en": "Anglicky",
+    "cs": "Česky"
+  }
+}
