@@ -5,7 +5,9 @@
     "search_placeholder": "Jaké vybavení hledáš?",
     "location_placeholder": "Kde? (Město nebo PSČ)",
     "cta": "Najdi výbavu",
-    "add_rental": "Přidej svou výbavu"
+    "add_rental": "Přidej svou výbavu",
+    "description": "Najděte, rezervujte a půjčte si dokonalé vybavení pro vaše příští dobrodružství. Vše na jednom místě, stejně snadno jako objednání jídla.",
+    "image_alt": "Venkovní krajina"
   },
   "footer": {
     "about": "O nás",
@@ -38,7 +40,8 @@
     "camping": "Kempování",
     "hiking": "Turistika",
     "winter_sports": "Zimní sporty",
-    "water_activities": "Vodní aktivity"
+    "water_activities": "Vodní aktivity",
+    "climbing": "Lezení"
   },
   "about": {
     "title": "O nás",
@@ -52,12 +55,85 @@
       "title": "O zakladateli",
       "paragraph1": "Ahoj! Jsem Martin Kozojed – student cestovního ruchu, nadšenec do outdooru a milovník technologií.",
       "paragraph2": "Vytvořil jsem Kitloop, protože jsem chtěl spojit všechny věci, na kterých mi záleží: přírodu, komunitu a chytrá digitální řešení.",
-      "paragraph3": "Věřím, že vybavení by mělo být přístupné, ne vlastněné. Kitloop je můj způsob, jak to uskutečnit."
+      "paragraph3": "Věřím, že vybavení by mělo být přístupné, ne vlastněné. Kitloop je můj způsob, jak to uskutečnit.",
+      "image_alt": "Martin Kozojed, zakladatel Kitloop"
     },
     "cta": "Připojte se k nám jako poskytovatel půjčovny"
   },
   "language_selector": {
     "en": "Anglicky",
     "cs": "Česky"
+  },
+  "browse": {
+    "title": "Prohlížej dostupné vybavení",
+    "subtitle": "Vyhledávejte a půjčujte si vybavení podle činnosti, lokality nebo poskytovatele. Najděte přesně to, co potřebujete pro vaše další dobrodružství.",
+    "search_placeholder": "Hledat vybavení...",
+    "location_placeholder": "Lokalita...",
+    "search": "Hledat",
+    "filters": "Filtry",
+    "categories": "Kategorie",
+    "price_range": "Cenové rozpětí (Kč/den)",
+    "rating": "Hodnocení",
+    "select_rating": "Vyberte hodnocení",
+    "apply_filters": "Použít filtry",
+    "showing": "Zobrazeno",
+    "items": "položek",
+    "in": "v",
+    "sort_by": "Seřadit dle",
+    "most_popular": "Nejpopulárnější",
+    "price_low_high": "Cena: od nejnižší",
+    "price_high_low": "Cena: od nejvyšší",
+    "highest_rated": "Nejlépe hodnocené",
+    "no_gear_found": "Nebylo nalezeno žádné vybavení odpovídající vašim kritériím.",
+    "clear_filters": "Vymazat filtry",
+    "reserve": "Rezervovat"
+  },
+  "how_it_works": {
+    "title": "Jak Kitloop funguje",
+    "subtitle": "Půjčování outdoorového vybavení nikdy nebylo jednodušší",
+    "learn_more": "Zjistěte více o tom, jak to funguje",
+    "step_1_title": "Vyberte",
+    "step_1_description": "Procházejte naši nabídku vybavení od ověřených poskytovatelů půjčoven.",
+    "step_2_title": "Rezervujte",
+    "step_2_description": "Vyberte termíny a zaplaťte bezpečně online. Žádné telefonáty nejsou potřeba.",
+    "step_3_title": "Vyzvedněte",
+    "step_3_description": "Vyzvedněte si vybavení z půjčovny nebo si ho nechte doručit.",
+    "step_4_title": "Vraťte",
+    "step_4_description": "Vraťte vybavení v dohodnutém termínu. Bez starostí, bez překvapení."
+  },
+  "login": {
+    "welcome": "Vítejte zpět",
+    "instructions": "Pro přihlášení zadejte své přihlašovací údaje",
+    "email": "Email",
+    "email_placeholder": "ahoj@priklad.cz",
+    "password": "Heslo",
+    "password_placeholder": "••••••••",
+    "forgot_password": "Zapomenuté heslo?",
+    "sign_in": "Přihlásit se",
+    "signing_in": "Přihlašování...",
+    "no_account": "Nemáte účet?",
+    "create_account": "Vytvořit účet",
+    "success": "Úspěšně přihlášeno!",
+    "error_fields": "Zadejte prosím email i heslo"
+  },
+  "signup": {
+    "title": "Vytvořit účet",
+    "description": "Zadejte své údaje pro začátek s Kitloop",
+    "first_name": "Jméno",
+    "first_name_placeholder": "Jana",
+    "last_name": "Příjmení",
+    "last_name_placeholder": "Nováková",
+    "email": "Email",
+    "email_placeholder": "ahoj@priklad.cz",
+    "password": "Heslo",
+    "password_placeholder": "Vytvořte heslo",
+    "confirm_password": "Potvrďte heslo",
+    "confirm_password_placeholder": "Potvrďte své heslo",
+    "create_account": "Vytvořit účet",
+    "creating_account": "Vytváření účtu...",
+    "have_account": "Už máte účet?",
+    "sign_in": "Přihlásit se",
+    "success": "Účet byl úspěšně vytvořen!",
+    "password_mismatch": "Hesla se neshodují"
   }
 }

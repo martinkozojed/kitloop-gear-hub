@@ -5,7 +5,9 @@
     "search_placeholder": "What gear are you looking for?",
     "location_placeholder": "Where? (City or postal code)",
     "cta": "Find Gear",
-    "add_rental": "Add Your Rental"
+    "add_rental": "Add Your Rental",
+    "description": "Find, reserve, and rent the perfect outdoor equipment for your next adventure. All in one place, just as easy as ordering food.",
+    "image_alt": "Outdoor landscape"
   },
   "footer": {
     "about": "About Us",
@@ -38,7 +40,8 @@
     "camping": "Camping",
     "hiking": "Hiking",
     "winter_sports": "Winter Sports",
-    "water_activities": "Water Activities"
+    "water_activities": "Water Activities",
+    "climbing": "Climbing"
   },
   "about": {
     "title": "About Us",
@@ -52,12 +55,85 @@
       "title": "About the Founder",
       "paragraph1": "Hi! I'm Martin Kozojed – a student of tourism, outdoor enthusiast, and technology lover.",
       "paragraph2": "I created Kitloop because I wanted to combine all the things I care about: nature, community, and smart digital solutions.",
-      "paragraph3": "I believe gear should be accessible, not owned. Kitloop is my way of making that happen."
+      "paragraph3": "I believe gear should be accessible, not owned. Kitloop is my way of making that happen.",
+      "image_alt": "Martin Kozojed, Founder of Kitloop"
     },
     "cta": "Join Us as a Rental Provider"
   },
   "language_selector": {
     "en": "English",
     "cs": "Czech"
+  },
+  "browse": {
+    "title": "Browse Available Gear",
+    "subtitle": "Browse and rent gear based on activity, location or provider. Find exactly what you need for your next adventure.",
+    "search_placeholder": "Search for gear...",
+    "location_placeholder": "Location...",
+    "search": "Search",
+    "filters": "Filters",
+    "categories": "Categories",
+    "price_range": "Price Range (CZK/day)",
+    "rating": "Rating",
+    "select_rating": "Select Rating",
+    "apply_filters": "Apply Filters",
+    "showing": "Showing",
+    "items": "items",
+    "in": "in",
+    "sort_by": "Sort by",
+    "most_popular": "Most Popular",
+    "price_low_high": "Price: Low to High",
+    "price_high_low": "Price: High to Low",
+    "highest_rated": "Highest Rated",
+    "no_gear_found": "No gear found matching your criteria.",
+    "clear_filters": "Clear Filters",
+    "reserve": "Reserve"
+  },
+  "how_it_works": {
+    "title": "How Kitloop Works",
+    "subtitle": "Renting outdoor gear has never been easier",
+    "learn_more": "Learn more about how it works",
+    "step_1_title": "Choose",
+    "step_1_description": "Browse through our selection of gear from verified rental providers.",
+    "step_2_title": "Reserve",
+    "step_2_description": "Select your dates and pay securely online. No more phone calls needed.",
+    "step_3_title": "Pick up",
+    "step_3_description": "Get your gear from the rental shop or have it delivered to you.",
+    "step_4_title": "Return",
+    "step_4_description": "Return the gear at the agreed time. No hassle, no surprises."
+  },
+  "login": {
+    "welcome": "Welcome back",
+    "instructions": "Enter your credentials to sign in to your account",
+    "email": "Email",
+    "email_placeholder": "hello@example.com",
+    "password": "Password",
+    "password_placeholder": "••••••••",
+    "forgot_password": "Forgot password?",
+    "sign_in": "Sign In",
+    "signing_in": "Signing In...",
+    "no_account": "Don't have an account?",
+    "create_account": "Create an account",
+    "success": "Successfully logged in!",
+    "error_fields": "Please enter both email and password"
+  },
+  "signup": {
+    "title": "Create an account",
+    "description": "Enter your details to get started with Kitloop",
+    "first_name": "First name",
+    "first_name_placeholder": "Jane",
+    "last_name": "Last name",
+    "last_name_placeholder": "Doe",
+    "email": "Email",
+    "email_placeholder": "hello@example.com",
+    "password": "Password",
+    "password_placeholder": "Create a password",
+    "confirm_password": "Confirm password",
+    "confirm_password_placeholder": "Confirm your password",
+    "create_account": "Create Account",
+    "creating_account": "Creating Account...",
+    "have_account": "Already have an account?",
+    "sign_in": "Sign in",
+    "success": "Account created successfully!",
+    "password_mismatch": "Passwords do not match"
   }
 }

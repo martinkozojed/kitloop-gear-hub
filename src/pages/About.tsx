@@ -47,7 +47,7 @@ const About = () => {
               <div className="md:w-1/2 flex justify-center">
                 <img 
                   src="/lovable-uploads/b1f0a36d-5b99-458c-bae3-638430580400.png" 
-                  alt="Martin Kozojed, Founder of Kitloop" 
+                  alt={t('about.founder.image_alt')} 
                   className="rounded-lg max-w-full shadow-md object-cover max-h-80"
                 />
               </div>

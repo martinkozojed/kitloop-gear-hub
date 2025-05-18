@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Search, Filter, Star } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { 
   Select, 
   SelectContent, 
@@ -90,11 +91,13 @@ const sampleGear = [
 ];
 
 // Filter categories - updated to match with lowercase
-const categories = ["camping", "hiking", "climbing", "winter sports", "water activities"];
+const categories = ["camping", "hiking", "climbing", "winter_sports", "water_activities"];
 const priceRanges = ["0-100", "100-200", "200-300", "300+"];
 const ratings = ["4+", "3+", "All"];
 
 const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
+  const { t } = useTranslation();
+  
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1">
       <div className="relative">
@@ -115,7 +118,7 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
         <div className="flex items-center justify-between mt-2">
           <p className="font-bold text-kitloop-accent">{gear.price} CZK/day</p>
           <Button size="sm" className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white">
-            Reserve
+            {t('browse.reserve')}
           </Button>
         </div>
       </CardContent>
@@ -136,6 +139,7 @@ const FilterSidebar = ({
 }) => {
   const [localSelectedCategories, setLocalSelectedCategories] = useState<string[]>(selectedCategories);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
+  const { t } = useTranslation();
   
   useEffect(() => {
     setLocalSelectedCategories(selectedCategories);
@@ -167,12 +171,12 @@ const FilterSidebar = ({
     <div className="w-full lg:w-64 bg-white p-4 rounded-lg shadow-sm">
       <div className="flex items-center mb-4">
         <Filter className="h-5 w-5 mr-2" />
-        <h2 className="text-lg font-medium">Filters</h2>
+        <h2 className="text-lg font-medium">{t('browse.filters')}</h2>
       </div>
       
       <Accordion type="multiple" defaultValue={["categories", "price", "rating"]}>
         <AccordionItem value="categories">
-          <AccordionTrigger>Categories</AccordionTrigger>
+          <AccordionTrigger>{t('browse.categories')}</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2">
               {categories.map(category => (
@@ -186,7 +190,7 @@ const FilterSidebar = ({
                     htmlFor={`category-${category}`}
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
                   >
-                    {category}
+                    {t(`categories.${category}`)}
                   </label>
                 </div>
               ))}
@@ -195,7 +199,7 @@ const FilterSidebar = ({
         </AccordionItem>
         
         <AccordionItem value="price">
-          <AccordionTrigger>Price Range (CZK/day)</AccordionTrigger>
+          <AccordionTrigger>{t('browse.price_range')}</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2">
               {priceRanges.map(range => (
@@ -218,11 +222,11 @@ const FilterSidebar = ({
         </AccordionItem>
         
         <AccordionItem value="rating">
-          <AccordionTrigger>Rating</AccordionTrigger>
+          <AccordionTrigger>{t('browse.rating')}</AccordionTrigger>
           <AccordionContent>
             <Select onValueChange={onRatingChange} defaultValue="4+">
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Rating" />
+                <SelectValue placeholder={t('browse.select_rating')} />
               </SelectTrigger>
               <SelectContent>
                 {ratings.map(rating => (
@@ -234,7 +238,7 @@ const FilterSidebar = ({
         </AccordionItem>
       </Accordion>
       
-      <Button className="w-full mt-4">Apply Filters</Button>
+      <Button className="w-full mt-4">{t('browse.apply_filters')}</Button>
     </div>
   );
 };
@@ -247,6 +251,7 @@ const BrowseGear = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Parse URL parameters on component mount or URL change
   useEffect(() => {
@@ -410,11 +415,11 @@ const BrowseGear = () => {
   return (
     <div className="bg-kitloop-background min-h-screen pt-24 pb-16 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">Browse Available Gear</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4">{t('browse.title')}</h1>
         
         {/* Added intro text */}
         <p className="text-lg text-muted-foreground mb-8">
-          Browse and rent gear based on activity, location or provider. Find exactly what you need for your next adventure.
+          {t('browse.subtitle')}
         </p>
         
         {/* Search Section */}
@@ -423,7 +428,7 @@ const BrowseGear = () => {
             <div className="flex-grow relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input 
-                placeholder="Search for gear..."
+                placeholder={t('browse.search_placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -431,14 +436,14 @@ const BrowseGear = () => {
             </div>
             <div className="md:w-48">
               <Input 
-                placeholder="Location..."
+                placeholder={t('browse.location_placeholder')}
                 value={locationQuery}
                 onChange={(e) => setLocationQuery(e.target.value)}
                 className="w-full"
               />
             </div>
             <Button type="submit" className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white">
-              Search
+              {t('browse.search')}
             </Button>
           </form>
         </div>
@@ -458,30 +463,30 @@ const BrowseGear = () => {
           <main className="flex-grow">
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-gray-500">
-                Showing {filteredGear.length} items
+                {t('browse.showing')} {filteredGear.length} {t('browse.items')}
                 {selectedCategories.length > 0 && (
                   <span className="ml-1">
-                    in <span className="font-medium capitalize">{selectedCategories.join(", ")}</span>
+                    {t('browse.in')} <span className="font-medium capitalize">{selectedCategories.map(cat => t(`categories.${cat}`)).join(", ")}</span>
                   </span>
                 )}
               </p>
               
               <Select defaultValue="popular" onValueChange={handleSort}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder={t('browse.sort_by')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="popular">Most Popular</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="popular">{t('browse.most_popular')}</SelectItem>
+                  <SelectItem value="price-low">{t('browse.price_low_high')}</SelectItem>
+                  <SelectItem value="price-high">{t('browse.price_high_low')}</SelectItem>
+                  <SelectItem value="rating">{t('browse.highest_rated')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             {filteredGear.length === 0 ? (
               <div className="bg-white rounded-lg p-8 text-center">
-                <p className="text-lg">No gear found matching your criteria.</p>
+                <p className="text-lg">{t('browse.no_gear_found')}</p>
                 <Button 
                   onClick={() => {
                     setFilteredGear(sampleGear);
@@ -490,7 +495,7 @@ const BrowseGear = () => {
                   variant="outline" 
                   className="mt-4"
                 >
-                  Clear Filters
+                  {t('browse.clear_filters')}
                 </Button>
               </div>
             ) : (

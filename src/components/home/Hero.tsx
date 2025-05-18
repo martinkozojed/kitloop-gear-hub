@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Package } from "lucide-react";
@@ -20,7 +20,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-kitloop-accent/20 to-transparent"></div>
         <img 
           src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80" 
-          alt="Outdoor landscape" 
+          alt={t('hero.image_alt')} 
           className="w-full h-full object-cover"
         />
       </div>
@@ -30,8 +30,7 @@ const Hero = () => {
           <span className="text-kitloop-accent">{t('hero.headline')}</span>
         </h1>
         <p className="text-lg md:text-xl mb-10 max-w-2xl">
-          Find, reserve, and rent the perfect outdoor equipment for your next adventure. 
-          All in one place, just as easy as ordering food.
+          {t('hero.description')}
         </p>
         
         <div className="w-full max-w-2xl mb-8">
