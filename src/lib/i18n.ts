@@ -15,7 +15,12 @@ i18n
       cs: { translation: cs }
     },
     fallbackLng: "en",
-    interpolation: { escapeValue: false }
+    interpolation: { escapeValue: false },
+    react: {
+      // This ensures compatibility with React's type system
+      transSupportBasicHtmlNodes: true,
+      transKeepBasicHtmlNodesFor: ['br', 'strong', 'i', 'p', 'span'],
+    }
   });
 
 export default i18n;
