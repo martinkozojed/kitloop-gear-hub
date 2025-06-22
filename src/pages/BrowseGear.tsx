@@ -90,8 +90,14 @@ const sampleGear = [
   },
 ];
 
-// Filter categories - updated to match with lowercase
-const categories = ["camping", "hiking", "climbing", "winter_sports", "water_activities"];
+// Filter categories - match translation keys
+const categories = [
+  "camping",
+  "hiking",
+  "climbing",
+  "winter_sports",
+  "water_activities",
+];
 const priceRanges = ["0-100", "100-200", "200-300", "300+"];
 const ratings = ["4+", "3+", "All"];
 
@@ -280,14 +286,15 @@ const BrowseGear = () => {
       newCategories = [categoryParam.toLowerCase()];
       setSelectedCategories(newCategories);
     }
-    
+
     // Apply initial filtering
     let filtered = sampleGear;
-    
+
     // Apply category filter
     if (newCategories.length > 0) {
-      filtered = filtered.filter(gear => 
-        newCategories.includes(gear.category.toLowerCase())
+      const normalized = newCategories.map((c) => c.replace(/_/g, " "));
+      filtered = filtered.filter((gear) =>
+        normalized.includes(gear.category.toLowerCase())
       );
     }
     
@@ -329,27 +336,29 @@ const BrowseGear = () => {
     
     // Apply category filter if we have categories
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(gear => 
-        selectedCategories.includes(gear.category.toLowerCase())
+      const normalized = selectedCategories.map(c => c.replace(/_/g, " "));
+      filtered = filtered.filter(gear =>
+        normalized.includes(gear.category.toLowerCase())
       );
     }
     
     setFilteredGear(filtered);
   };
   
-  const handleCategoryFilter = (categories: string[]) => {
-    setSelectedCategories(categories);
-    
-    if (categories.length === 0) {
-      setFilteredGear(sampleGear);
-      return;
-    }
-    
-    const filtered = sampleGear.filter(gear => 
-      categories.includes(gear.category.toLowerCase())
-    );
-    setFilteredGear(filtered);
-  };
+const handleCategoryFilter = (categories: string[]) => {
+  setSelectedCategories(categories);
+
+  if (categories.length === 0) {
+    setFilteredGear(sampleGear);
+    return;
+  }
+
+  const normalized = categories.map((c) => c.replace(/_/g, " "));
+  const filtered = sampleGear.filter((gear) =>
+    normalized.includes(gear.category.toLowerCase())
+  );
+  setFilteredGear(filtered);
+};
   
   const handlePriceFilter = (ranges: string[]) => {
     if (ranges.length === 0) {
@@ -363,8 +372,9 @@ const BrowseGear = () => {
     }
     
     // Start with either category-filtered results or all gear
+    const normalizedCats = selectedCategories.map(c => c.replace(/_/g, " "));
     const baseGear = selectedCategories.length > 0
-      ? sampleGear.filter(gear => selectedCategories.includes(gear.category.toLowerCase()))
+      ? sampleGear.filter(gear => normalizedCats.includes(gear.category.toLowerCase()))
       : sampleGear;
     
     const filtered = baseGear.filter(gear => {
@@ -382,8 +392,9 @@ const BrowseGear = () => {
   
   const handleRatingFilter = (rating: string) => {
     // Start with either category-filtered results or all gear
+    const normalizedCats = selectedCategories.map(c => c.replace(/_/g, " "));
     const baseGear = selectedCategories.length > 0
-      ? sampleGear.filter(gear => selectedCategories.includes(gear.category.toLowerCase()))
+      ? sampleGear.filter(gear => normalizedCats.includes(gear.category.toLowerCase()))
       : sampleGear;
     
     let filtered = baseGear;
