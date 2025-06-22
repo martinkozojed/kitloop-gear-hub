@@ -400,7 +400,7 @@ const BrowseGear = () => {
   const handleSort = (option: string) => {
     setSortOption(option);
     
-    let sorted = [...filteredGear];
+    const sorted = [...filteredGear];
     if (option === "price-low") {
       sorted.sort((a, b) => a.price - b.price);
     } else if (option === "price-high") {
