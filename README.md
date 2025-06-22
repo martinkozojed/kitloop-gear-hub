@@ -38,7 +38,7 @@ This project is built with:
 git clone <repository-url>
 
 # Navigate to the project directory
-cd kitloop
+cd kitloop-gear-hub
 
 # Install dependencies
 npm install
