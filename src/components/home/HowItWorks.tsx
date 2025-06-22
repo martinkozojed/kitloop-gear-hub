@@ -2,11 +2,19 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Search, Calendar, CheckCircle, ArrowRight } from "lucide-react";
+import { Search, Calendar, CheckCircle, ArrowRight, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 
-const StepCard = ({ step }: { step: any }) => {
+interface Step {
+  id: number;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+const StepCard = ({ step }: { step: Step }) => {
   const IconComponent = step.icon;
   
   return (
@@ -29,7 +37,7 @@ const StepCard = ({ step }: { step: any }) => {
 const HowItWorks = () => {
   const { t } = useTranslation();
   
-  const steps = [
+  const steps: Step[] = [
     {
       id: 1,
       title: t('how_it_works.step_1_title'),

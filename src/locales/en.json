@@ -7,7 +7,11 @@
     "cta": "Find Gear",
     "add_rental": "Add Your Rental",
     "description": "Find, reserve, and rent the perfect outdoor equipment for your next adventure. All in one place, just as easy as ordering food.",
-    "image_alt": "Outdoor landscape"
+    "image_alt": "Outdoor landscape",
+    "title": "Your next adventure starts here",
+    "subtitle": "Rent premium gear from local outdoor enthusiasts",
+    "gearPlaceholder": "Type of gear",
+    "locationPlaceholder": "Location"
   },
   "footer": {
     "about": "About Us",
