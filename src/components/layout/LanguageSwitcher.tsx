@@ -1,33 +1,22 @@
+import React from "react";
+import { useTranslation } from "react-i18next";
 
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+const LanguageSwitcher = () => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language;
 
-const LanguageSwitcher: React.FC = () => {
-  const { i18n, t } = useTranslation();
-  
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+  const toggleLanguage = () => {
+    const newLang = currentLang === "cs" ? "en" : "cs";
+    i18n.changeLanguage(newLang);
   };
 
   return (
-    <div className="flex items-center space-x-2">
-      <button 
-        onClick={() => changeLanguage('en')} 
-        className={`flex items-center space-x-1 px-2 py-1 rounded-md transition-colors ${i18n.language === 'en' ? 'bg-kitloop-accent/20' : 'hover:bg-gray-100'}`}
-        aria-label={t('language_selector.en')}
-      >
-        <span className="text-base">🇺🇸</span>
-        <span className="text-xs hidden sm:inline">{t('language_selector.en')}</span>
-      </button>
-      <button 
-        onClick={() => changeLanguage('cs')} 
-        className={`flex items-center space-x-1 px-2 py-1 rounded-md transition-colors ${i18n.language === 'cs' ? 'bg-kitloop-accent/20' : 'hover:bg-gray-100'}`}
-        aria-label={t('language_selector.cs')}
-      >
-        <span className="text-base">🇨🇿</span>
-        <span className="text-xs hidden sm:inline">{t('language_selector.cs')}</span>
-      </button>
-    </div>
+    <button
+      onClick={toggleLanguage}
+      className="text-sm font-medium text-kitloop-text hover:text-kitloop-accent transition-colors"
+    >
+      {currentLang === "cs" ? "🇨🇿 CZ" : "🇺🇸 EN"}
+    </button>
   );
 };
 
