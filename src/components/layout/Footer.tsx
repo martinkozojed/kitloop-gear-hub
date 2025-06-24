@@ -21,6 +21,8 @@ const Footer = () => {
     <footer className="bg-background py-12 px-6 border-t border-gray-100">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          
+          {/* About */}
           <div>
             <h3 className="font-bold text-xl mb-4">
               <span className="text-kitloop-accent">Kit</span>loop
@@ -29,7 +31,8 @@ const Footer = () => {
               Making outdoor gear rental fast, simple, and seamless. Access over ownership.
             </p>
           </div>
-          
+
+          {/* Discover */}
           <div>
             <h3 className="font-bold mb-4">Discover</h3>
             <ul className="space-y-2">
@@ -39,12 +42,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection('how-it-works')}
-                  className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left"
-                >
+                <Link to="/how-it-works" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
                   {t('footer.how_it_works')}
-                </button>
+                </Link>
               </li>
               <li>
                 <Link to="/about" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
@@ -53,7 +53,8 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
+          {/* Support */}
           <div>
             <h3 className="font-bold mb-4">Support</h3>
             <ul className="space-y-2">
@@ -72,7 +73,8 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
+          {/* Legal */}
           <div>
             <h3 className="font-bold mb-4">Legal</h3>
             <ul className="space-y-2">
@@ -93,12 +95,13 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Bottom */}
         <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm mb-4 md:mb-0">
             {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex space-x-6">
-            {/* Social icons zde zůstávají beze změny */}
+            {/* Social icons beze změny, pokud nejsou potřeba */}
           </div>
         </div>
       </div>

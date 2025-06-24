@@ -10,7 +10,7 @@ const Navbar = () => {
 
   const scrollToSection = (sectionId: string) => {
     if (window.location.pathname !== '/') {
-      // Redirect to the homepage with the section hash so the page knows what to scroll to
+      // Redirect to homepage with section hash
       window.location.href = `/#${sectionId}`;
       return;
     }
@@ -33,14 +33,11 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Center Navigation */}
+        {/* Navigation */}
         <nav className="flex-1 hidden md:flex justify-center items-center gap-8 text-text">
-          <button
-            onClick={() => scrollToSection('how-it-works')}
-            className="hover:underline transition-colors duration-200"
-          >
+          <Link to="/how-it-works" className="hover:underline transition-colors duration-200">
             {t('navbar.how_it_works')}
-          </button>
+          </Link>
           <Link to="/browse" className="hover:underline transition-colors duration-200">
             {t('navbar.browse_gear')}
           </Link>
@@ -55,7 +52,7 @@ const Navbar = () => {
           </button>
         </nav>
 
-        {/* Actions (Language + Auth) */}
+        {/* Actions */}
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
           <Button variant="outline" className="hidden md:flex" asChild>
