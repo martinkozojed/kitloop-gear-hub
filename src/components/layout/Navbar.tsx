@@ -32,20 +32,17 @@ const Navbar = () => {
 
         {/* Center Navigation */}
         <nav className="flex-1 hidden md:flex justify-center items-center gap-8 text-kitloop-text">
-          <button 
-            onClick={() => scrollToSection('how-it-works')} 
-            className="hover:text-kitloop-accent transition-colors"
-          >
+          <Link to="/how-it-works" className="hover:text-kitloop-accent transition-colors">
             {t('navbar.how_it_works')}
-          </button>
+          </Link>
           <Link to="/browse" className="hover:text-kitloop-accent transition-colors">
             {t('navbar.browse_gear')}
           </Link>
           <Link to="/about" className="hover:text-kitloop-accent transition-colors">
             {t('navbar.about_us')}
           </Link>
-          <button 
-            onClick={() => scrollToSection('faq')} 
+          <button
+            onClick={() => scrollToSection('faq')}
             className="hover:text-kitloop-accent transition-colors"
           >
             {t('navbar.faq')}

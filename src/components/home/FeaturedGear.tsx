@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { useTranslation } from "react-i18next";
+
 
 type FeaturedGearItem = Database["public"]["Tables"]["featured_gear"]["Row"];
 
@@ -52,13 +54,14 @@ const GearCard = ({ item }: { item: FeaturedGearItem }) => {
 
 const FeaturedGear = () => {
   const [gearList, setGearList] = useState<FeaturedGearItem[]>([]);
+  const [showAll, setShowAll] = useState(false);
+const { t } = useTranslation();
 
   useEffect(() => {
     const fetchGear = async () => {
       const { data, error } = await supabase
         .from("featured_gear")
-        .select("*")
-        .limit(8);
+        .select("*");
 
       if (error) {
         console.error("❌ Error fetching featured gear:", error.message);
@@ -70,6 +73,8 @@ const FeaturedGear = () => {
     fetchGear();
   }, []);
 
+  const displayedGear = showAll ? gearList : gearList.slice(0, 8);
+
   return (
     <section className="py-16 px-6 bg-white">
       <div className="container mx-auto max-w-7xl">
@@ -79,10 +84,21 @@ const FeaturedGear = () => {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {gearList.map((item) => (
+          {displayedGear.map((item) => (
             <GearCard key={item.id} item={item} />
           ))}
         </div>
+
+        {gearList.length > 8 && (
+          <div className="text-center mt-8">
+            <Button
+              variant="outline"
+              onClick={() => setShowAll((prev) => !prev)}
+            >
+              {showAll ? t("featured.collapse") : t("featured.expand")}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );

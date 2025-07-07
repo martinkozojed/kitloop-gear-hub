@@ -105,6 +105,10 @@
     "step_4_title": "Vraťte",
     "step_4_description": "Vraťte vybavení v dohodnutém termínu. Bez starostí, bez překvapení."
   },
+  "featured": {
+  "expand": "Zobrazit více vybavení",
+  "collapse": "Zobrazit méně"
+  },
   "login": {
     "welcome": "Vítejte zpět",
     "instructions": "Pro přihlášení zadejte své přihlašovací údaje",

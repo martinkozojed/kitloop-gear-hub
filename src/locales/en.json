@@ -104,6 +104,10 @@
     "step_3_description": "Get your gear from the rental shop or have it delivered to you.",
     "step_4_title": "Return",
     "step_4_description": "Return the gear at the agreed time. No hassle, no surprises."
+   },
+    "featured": {
+  "expand": "Show more gear",
+  "collapse": "Show less"
   },
   "login": {
     "welcome": "Welcome back",
