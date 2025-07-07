@@ -64,15 +64,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Updated Kitloop custom colors with new accent color
-				kitloop: {
-					background: '#FFFBEB',
-					text: '#051923',
-					accent: '#67AE6E', // Updated from #2F6846 to #67AE6E
-					'accent-hover': '#5A9D60', // New hover state based on the new accent
-					'light-gray': '#F5F5F5',
-					'medium-gray': '#E0E0E0',
-				}
+                                // Kitloop custom colors updated to new palette
+                                kitloop: {
+                                        background: '#F9FAFB',
+                                        text: '#1A1A1A',
+                                        accent: '#2F855A',
+                                        'accent-hover': '#276749',
+                                        'light-gray': '#F5F5F5',
+                                        'medium-gray': '#E0E0E0',
+                                        secondary: '#F4A261'
+                                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
