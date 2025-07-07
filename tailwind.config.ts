@@ -21,31 +21,33 @@ export default {
 		},
 		extend: {
 			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
-				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
-				},
-				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
-				},
-				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
-				},
+                                border: 'hsl(var(--border))',
+                                input: 'hsl(var(--input))',
+                                ring: 'hsl(var(--ring))',
+                                background: '#FAF9F6',
+                                foreground: '#1F1F1F',
+                                text: '#1F1F1F',
+                                primary: {
+                                        DEFAULT: '#2E7D32',
+                                        foreground: '#FFFFFF'
+                                },
+                                primaryDark: '#27632A',
+                                secondary: {
+                                        DEFAULT: '#F4A261',
+                                        foreground: '#1F1F1F'
+                                },
+                                destructive: {
+                                        DEFAULT: 'hsl(var(--destructive))',
+                                        foreground: 'hsl(var(--destructive-foreground))'
+                                },
+                                muted: {
+                                        DEFAULT: 'hsl(var(--muted))',
+                                        foreground: 'hsl(var(--muted-foreground))'
+                                },
+                                accent: {
+                                        DEFAULT: '#D97706',
+                                        foreground: '#1F1F1F'
+                                },
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
@@ -66,15 +68,16 @@ export default {
 				},
                                 // Kitloop custom colors updated to new palette
                                 kitloop: {
-                                        background: '#F9FAFB',
-                                        text: '#1A1A1A',
-                                        accent: '#2F855A',
-                                        'accent-hover': '#276749',
+                                        background: '#FAF9F6',
+                                        text: '#1F1F1F',
+                                        accent: '#2E7D32',
+                                        'accent-hover': '#27632A',
                                         'light-gray': '#F5F5F5',
                                         'medium-gray': '#E0E0E0',
                                         secondary: '#F4A261'
-                                }
-			},
+                                },
+                                white: '#FFFFFF'
+                       },
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

@@ -15,7 +15,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-kitloop-background to-white py-20 px-6">
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-kitloop-background to-background py-20 px-6">
   <div className="absolute inset-0 z-0 opacity-20">
     <div className="absolute inset-0 bg-gradient-to-r from-kitloop-accent/20 to-transparent"></div>
     <img 

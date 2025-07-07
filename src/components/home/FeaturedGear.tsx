@@ -11,7 +11,7 @@ type FeaturedGearItem = Database["public"]["Tables"]["featured_gear"]["Row"];
 const GearCard = ({ item }: { item: FeaturedGearItem }) => {
   return (
     <Card className="overflow-hidden border-none shadow-md hover-lift h-full flex flex-col">
-      <div className="relative h-52 bg-white">
+      <div className="relative h-52 bg-background">
         {item.is_new && (
           <Badge className="absolute top-2 right-2 bg-kitloop-accent text-white">
             New
@@ -71,7 +71,7 @@ const FeaturedGear = () => {
   }, []);
 
   return (
-    <section className="py-16 px-6 bg-white">
+    <section className="py-16 px-6 bg-background">
       <div className="container mx-auto max-w-7xl">
         <h2 className="text-3xl font-bold mb-2 text-center">Featured Gear</h2>
         <p className="text-muted-foreground mb-10 text-center max-w-2xl mx-auto">

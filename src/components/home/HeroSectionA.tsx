@@ -34,13 +34,13 @@ const HeroSectionA = () => {
             value={gear}
             onChange={(e) => setGear(e.target.value)}
             placeholder={t('hero.gearPlaceholder')}
-            className="bg-white py-6 text-foreground"
+            className="bg-background py-6 text-foreground"
           />
           <Input
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder={t('hero.locationPlaceholder')}
-            className="bg-white py-6 text-foreground"
+            className="bg-background py-6 text-foreground"
           />
           <Button type="submit" className="w-full py-6 text-lg">
             {t('hero.cta')}
