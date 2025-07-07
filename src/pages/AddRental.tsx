@@ -89,7 +89,7 @@ const AddRental = () => {
     return (
       <div className="bg-kitloop-background min-h-screen pt-24 pb-16 px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg p-6 md:p-10 shadow-sm">
+          <div className="bg-background rounded-lg p-6 md:p-10 shadow-sm">
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-kitloop-accent/10 rounded-full flex items-center justify-center mb-6">
                 <CheckCircle className="h-8 w-8 text-kitloop-accent" />
@@ -119,7 +119,7 @@ const AddRental = () => {
   return (
     <div className="bg-kitloop-background min-h-screen pt-24 pb-16 px-4 md:px-6">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg p-6 md:p-10 shadow-sm">
+        <div className="bg-background rounded-lg p-6 md:p-10 shadow-sm">
           <div className="mb-8 text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">List Your Gear on Kitloop</h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">

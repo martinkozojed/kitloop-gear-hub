@@ -126,7 +126,7 @@ const FAQ = () => {
   const [activeCategory, setActiveCategory] = React.useState("finding");
   
   return (
-    <section className="py-16 px-6 bg-white" id="faq">
+    <section className="py-16 px-6 bg-background" id="faq">
       <div className="container mx-auto max-w-5xl">
         <h2 className="text-3xl font-bold mb-2 text-center">Frequently Asked Questions</h2>
         <p className="text-muted-foreground mb-12 text-center">

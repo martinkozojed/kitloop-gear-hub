@@ -18,7 +18,7 @@ const StepCard = ({ step }: { step: Step }) => {
   const IconComponent = step.icon;
   
   return (
-    <Card className="border-none shadow-md bg-white hover-lift">
+    <Card className="border-none shadow-md bg-background hover-lift">
       <CardContent className="p-6 flex flex-col items-center text-center">
         <div className={`w-16 h-16 rounded-full ${step.color} flex items-center justify-center mb-4`}>
           <IconComponent className="h-8 w-8" />
@@ -43,28 +43,28 @@ const HowItWorks = () => {
       title: t('how_it_works.step_1_title'),
       description: t('how_it_works.step_1_description'),
       icon: Search,
-      color: "bg-blue-100 text-blue-600"
+      color: "bg-secondary/20 text-secondary"
     },
     {
       id: 2,
       title: t('how_it_works.step_2_title'),
       description: t('how_it_works.step_2_description'),
       icon: Calendar,
-      color: "bg-purple-100 text-purple-600"
+      color: "bg-accent/20 text-accent"
     },
     {
       id: 3,
       title: t('how_it_works.step_3_title'),
       description: t('how_it_works.step_3_description'),
       icon: CheckCircle,
-      color: "bg-amber-100 text-amber-600"
+      color: "bg-primary/20 text-primary"
     },
     {
       id: 4,
       title: t('how_it_works.step_4_title'),
       description: t('how_it_works.step_4_description'),
       icon: ArrowRight,
-      color: "bg-green-100 text-green-600"
+      color: "bg-primary/20 text-primary"
     }
   ];
   

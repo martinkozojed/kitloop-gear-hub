@@ -29,7 +29,7 @@ const HeroSectionB = () => {
             {t('hero.subtitle')}
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center bg-white rounded-xl shadow-lg p-4 gap-2 w-full lg:w-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center bg-background rounded-xl shadow-lg p-4 gap-2 w-full lg:w-auto">
           <Input
             value={gear}
             onChange={(e) => setGear(e.target.value)}

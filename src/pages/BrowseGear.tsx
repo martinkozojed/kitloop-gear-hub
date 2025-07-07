@@ -168,7 +168,7 @@ const FilterSidebar = ({
   };
   
   return (
-    <div className="w-full lg:w-64 bg-white p-4 rounded-lg shadow-sm">
+    <div className="w-full lg:w-64 bg-background p-4 rounded-lg shadow-sm">
       <div className="flex items-center mb-4">
         <Filter className="h-5 w-5 mr-2" />
         <h2 className="text-lg font-medium">{t('browse.filters')}</h2>
@@ -423,7 +423,7 @@ const BrowseGear = () => {
         </p>
         
         {/* Search Section */}
-        <div className="bg-white rounded-lg p-4 mb-8 shadow-sm">
+        <div className="bg-background rounded-lg p-4 mb-8 shadow-sm">
           <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
             <div className="flex-grow relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -485,7 +485,7 @@ const BrowseGear = () => {
             </div>
             
             {filteredGear.length === 0 ? (
-              <div className="bg-white rounded-lg p-8 text-center">
+              <div className="bg-background rounded-lg p-8 text-center">
                 <p className="text-lg">{t('browse.no_gear_found')}</p>
                 <Button 
                   onClick={() => {
