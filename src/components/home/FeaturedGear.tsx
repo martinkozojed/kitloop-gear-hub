@@ -41,10 +41,7 @@ const GearCard = ({ item }: { item: FeaturedGearItem }) => {
           <span className="ml-1 text-sm font-medium">{item.rating}</span>
           <span className="text-sm text-muted-foreground ml-1">({item.reviews})</span>
         </div>
-        <Button
-          size="sm"
-          className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white"
-        >
+        <Button size="sm" variant="primary">
           Reserve
         </Button>
       </CardFooter>

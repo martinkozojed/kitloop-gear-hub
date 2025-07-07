@@ -103,9 +103,10 @@ const AddRental = () => {
                   You'll be notified via email when your rental is approved and ready to go live on Kitloop.
                 </p>
               </div>
-              <Button 
-                className="mt-8 bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text" 
-                onClick={() => window.location.href = '/'}
+              <Button
+                variant="primary"
+                className="mt-8"
+                onClick={() => (window.location.href = '/')}
               >
                 Return to Homepage
               </Button>
@@ -308,9 +309,10 @@ const AddRental = () => {
               />
               
               <div className="pt-4">
-                <Button 
-                  type="submit" 
-                  className="w-full bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text py-6" 
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="w-full py-6"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Sending..." : "Send Listing Request"}

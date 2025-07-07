@@ -83,7 +83,7 @@ const HowItWorks = () => {
         </div>
         
         <div className="text-center">
-          <Button asChild className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white">
+          <Button asChild variant="primary">
             <Link to="/how-it-works">{t('how_it_works.learn_more')}</Link>
           </Button>
         </div>
