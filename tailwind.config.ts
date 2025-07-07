@@ -20,65 +20,20 @@ export default {
 			}
 		},
 		extend: {
-			colors: {
-                                border: 'hsl(var(--border))',
-                                input: 'hsl(var(--input))',
-                                ring: 'hsl(var(--ring))',
+                        colors: {
                                 background: '#FAF9F6',
-                                foreground: '#1F1F1F',
                                 text: '#1F1F1F',
-                                primary: {
-                                        DEFAULT: '#2E7D32',
-                                        foreground: '#FFFFFF'
-                                },
+                                primary: '#2E7D32',
                                 primaryDark: '#27632A',
-                                secondary: {
-                                        DEFAULT: '#F4A261',
-                                        foreground: '#1F1F1F'
-                                },
-                                destructive: {
-                                        DEFAULT: 'hsl(var(--destructive))',
-                                        foreground: 'hsl(var(--destructive-foreground))'
-                                },
-                                muted: {
-                                        DEFAULT: 'hsl(var(--muted))',
-                                        foreground: 'hsl(var(--muted-foreground))'
-                                },
-                                accent: {
-                                        DEFAULT: '#D97706',
-                                        foreground: '#1F1F1F'
-                                },
-				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
-				},
-				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
-				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				},
-                                // Kitloop custom colors updated to new palette
+                                white: '#FFFFFF',
                                 kitloop: {
-                                        background: '#FAF9F6',
-                                        text: '#1F1F1F',
                                         accent: '#2E7D32',
                                         'accent-hover': '#27632A',
-                                        'light-gray': '#F5F5F5',
-                                        'medium-gray': '#E0E0E0',
-                                        secondary: '#F4A261'
-                                },
-                                white: '#FFFFFF'
+                                        background: '#FAF9F6',
+                                        text: '#1F1F1F'
+                                }
                        },
-			borderRadius: {
+                       borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
@@ -127,10 +82,10 @@ export default {
 				'fade-in': 'fade-in 0.4s ease-out',
 				'fade-out': 'fade-out 0.4s ease-out'
 			},
-			fontFamily: {
-				sans: ['Inter', 'system-ui', 'sans-serif'],
-			}
-		}
-	},
+                        fontFamily: {
+                                sans: ['Inter', 'sans-serif'],
+                        }
+               }
+       },
        plugins: [tailwindcssAnimate],
 } satisfies Config;

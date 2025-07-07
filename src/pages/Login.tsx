@@ -56,7 +56,7 @@ const Login = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="text-sm font-medium">{t('login.password')}</label>
-                <Link to="/forgot-password" className="text-sm font-medium text-kitloop-accent hover:underline">
+                <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
                   {t('login.forgot_password')}
                 </Link>
               </div>
@@ -69,9 +69,10 @@ const Login = () => {
                 required
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-kitloop-accent hover:bg-kitloop-accent-hover text-white"
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
               disabled={isLoggingIn}
             >
               {isLoggingIn ? t('login.signing_in') : t('login.sign_in')}
@@ -81,7 +82,7 @@ const Login = () => {
         <CardFooter className="flex flex-col space-y-3">
           <div className="text-center text-sm">
             {t('login.no_account')}{' '}
-            <Link to="/signup" className="text-kitloop-accent hover:underline font-medium">
+            <Link to="/signup" className="text-primary hover:underline font-medium">
               {t('login.create_account')}
             </Link>
           </div>

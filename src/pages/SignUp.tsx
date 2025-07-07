@@ -108,9 +108,10 @@ const SignUp = () => {
                 required
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-kitloop-accent hover:bg-kitloop-accent-hover text-white mt-6"
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full mt-6"
               disabled={isRegistering}
             >
               {isRegistering ? t('signup.creating_account') : t('signup.create_account')}
@@ -120,7 +121,7 @@ const SignUp = () => {
         <CardFooter className="flex flex-col space-y-3">
           <div className="text-center text-sm">
             {t('signup.have_account')}{' '}
-            <Link to="/login" className="text-kitloop-accent hover:underline font-medium">
+            <Link to="/login" className="text-primary hover:underline font-medium">
               {t('signup.sign_in')}
             </Link>
           </div>

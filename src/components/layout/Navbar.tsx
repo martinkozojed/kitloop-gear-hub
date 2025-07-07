@@ -20,33 +20,33 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm">
+    <header className="py-4 px-6 md:px-10 bg-white text-primary fixed top-0 left-0 right-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Logo */}
         <div className="flex-shrink-0">
-          <Link to="/" className="text-2xl font-bold text-kitloop-text flex items-center">
-            <span className="text-kitloop-accent mr-1">Kit</span>loop
+          <Link to="/" className="text-2xl font-bold flex items-center">
+            <span className="text-primary mr-1">Kit</span>loop
           </Link>
         </div>
 
         {/* Center Navigation */}
-        <nav className="flex-1 hidden md:flex justify-center items-center gap-8 text-kitloop-text">
+        <nav className="flex-1 hidden md:flex justify-center items-center gap-8">
           <button 
             onClick={() => scrollToSection('how-it-works')} 
-            className="hover:text-kitloop-accent transition-colors"
+            className="hover:underline"
           >
             {t('navbar.how_it_works')}
           </button>
-          <Link to="/browse" className="hover:text-kitloop-accent transition-colors">
+          <Link to="/browse" className="hover:underline">
             {t('navbar.browse_gear')}
           </Link>
-          <Link to="/about" className="hover:text-kitloop-accent transition-colors">
+          <Link to="/about" className="hover:underline">
             {t('navbar.about_us')}
           </Link>
           <button 
             onClick={() => scrollToSection('faq')} 
-            className="hover:text-kitloop-accent transition-colors"
+            className="hover:underline"
           >
             {t('navbar.faq')}
           </button>
@@ -58,7 +58,7 @@ const Navbar = () => {
           <Button variant="outline" className="hidden md:flex" asChild>
             <Link to="/login">{t('navbar.sign_in')}</Link>
           </Button>
-          <Button className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-kitloop-text" asChild>
+          <Button variant="primary" asChild>
             <Link to="/signup">{t('navbar.sign_up')}</Link>
           </Button>
         </div>
