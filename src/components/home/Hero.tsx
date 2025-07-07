@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import Section from "@/components/ui/section";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Package } from "lucide-react";
 import SearchBar from './SearchBar';
@@ -15,7 +16,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-kitloop-background to-background py-20 px-6">
+    <Section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-kitloop-background to-background">
   <div className="absolute inset-0 z-0 opacity-20">
     <div className="absolute inset-0 bg-gradient-to-r from-kitloop-accent/20 to-transparent"></div>
     <img 
@@ -25,7 +26,7 @@ const Hero = () => {
     />
   </div>
 
-  <div className="container mx-auto relative z-10 flex flex-col items-center text-center max-w-4xl animate-fade-in">
+  <div className="container mx-auto relative z-10 flex flex-col items-center text-center max-w-4xl">
     <h1 className="text-4xl md:text-6xl font-bold mb-6 text-kitloop-text text-shadow">
       <span className="text-kitloop-accent">{t('hero.headline')}</span>
     </h1>
@@ -36,12 +37,12 @@ const Hero = () => {
 
 <div className="mt-4 text-sm text-muted-foreground">
   Are you a rental provider?{" "}
-  <Link to="/add-rental" className="underline text-kitloop-accent hover:text-kitloop-accent-hover">
+  <Link to="/add-rental" className="underline text-primary hover:text-primaryDark">
     Add your gear here.
   </Link>
 </div>
 </div>
-</section>
+</Section>
 
   );
 };
