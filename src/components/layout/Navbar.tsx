@@ -26,27 +26,28 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/" className="text-2xl font-bold flex items-center">
-            <span className="text-primary mr-1">Kit</span>loop
+            <span className="text-primary">Kit</span>
+            <span className="text-text">loop</span>
           </Link>
         </div>
 
         {/* Center Navigation */}
-        <nav className="flex-1 hidden md:flex justify-center items-center gap-8">
-          <button 
-            onClick={() => scrollToSection('how-it-works')} 
-            className="hover:underline"
+        <nav className="flex-1 hidden md:flex justify-center items-center gap-8 text-text">
+          <button
+            onClick={() => scrollToSection('how-it-works')}
+            className="hover:underline transition-colors duration-200"
           >
             {t('navbar.how_it_works')}
           </button>
-          <Link to="/browse" className="hover:underline">
+          <Link to="/browse" className="hover:underline transition-colors duration-200">
             {t('navbar.browse_gear')}
           </Link>
-          <Link to="/about" className="hover:underline">
+          <Link to="/about" className="hover:underline transition-colors duration-200">
             {t('navbar.about_us')}
           </Link>
-          <button 
-            onClick={() => scrollToSection('faq')} 
-            className="hover:underline"
+          <button
+            onClick={() => scrollToSection('faq')}
+            className="hover:underline transition-colors duration-200"
           >
             {t('navbar.faq')}
           </button>
