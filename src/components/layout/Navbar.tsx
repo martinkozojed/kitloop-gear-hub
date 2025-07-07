@@ -31,13 +31,6 @@ const Navbar = () => {
         </div>
 
         {/* Center Navigation */}
-<<<<<<< HEAD
-        <nav className="flex-1 hidden md:flex justify-center items-center gap-8 text-kitloop-text">
-          <Link to="/how-it-works" className="hover:text-kitloop-accent transition-colors">
-            {t('navbar.how_it_works')}
-          </Link>
-          <Link to="/browse" className="hover:text-kitloop-accent transition-colors">
-=======
         <nav className="flex-1 hidden md:flex justify-center items-center gap-8">
           <button 
             onClick={() => scrollToSection('how-it-works')} 
@@ -46,21 +39,14 @@ const Navbar = () => {
             {t('navbar.how_it_works')}
           </button>
           <Link to="/browse" className="hover:underline">
->>>>>>> c24f09e40e0cfce29970c5d3aaa4f7d84887a4a9
             {t('navbar.browse_gear')}
           </Link>
           <Link to="/about" className="hover:underline">
             {t('navbar.about_us')}
           </Link>
-<<<<<<< HEAD
-          <button
-            onClick={() => scrollToSection('faq')}
-            className="hover:text-kitloop-accent transition-colors"
-=======
           <button 
             onClick={() => scrollToSection('faq')} 
             className="hover:underline"
->>>>>>> c24f09e40e0cfce29970c5d3aaa4f7d84887a4a9
           >
             {t('navbar.faq')}
           </button>
