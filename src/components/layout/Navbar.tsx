@@ -26,8 +26,8 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/" className="text-2xl font-bold flex items-center">
-            <span className="text-primary">Kit</span>
-            <span className="text-text">loop</span>
+            <span className="text-primary pr-0.5 tracking-tight">Kit</span>
+            <span className="text-text tracking-wide">loop</span>
           </Link>
         </div>
 
