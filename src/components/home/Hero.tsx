@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import Section from "@/components/ui/section";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Package } from "lucide-react";
 import SearchBar from './SearchBar';
@@ -16,7 +15,7 @@ const Hero = () => {
   };
 
   return (
-    <Section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-kitloop-background to-background">
+    <section className="min-h-screen pt-24 pb-16 bg-background flex items-center relative overflow-hidden">
   <div className="absolute inset-0 z-0 opacity-20">
     <div className="absolute inset-0 bg-gradient-to-r from-kitloop-accent/20 to-transparent"></div>
     <img 
@@ -42,7 +41,7 @@ const Hero = () => {
   </Link>
 </div>
 </div>
-</Section>
+</section>
 
   );
 };
