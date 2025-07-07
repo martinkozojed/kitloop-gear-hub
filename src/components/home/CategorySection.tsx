@@ -65,7 +65,7 @@ const CategorySection = () => {
   const { t } = useTranslation();
   
   return (
-    <section className="py-16 px-6 bg-white">
+    <section className="py-16 px-6 bg-background">
       <div className="container mx-auto max-w-7xl">
         <h2 className="text-3xl font-bold mb-2 text-center">{t('categories.title')}</h2>
         <p className="text-muted-foreground mb-10 text-center max-w-2xl mx-auto">

@@ -46,7 +46,7 @@ const MapSection = () => {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <p className="text-muted-foreground">Interactive map showing nearby rental options would be displayed here</p>
                 </div>
-                <div className="absolute bottom-4 right-4 bg-white p-3 rounded-lg shadow-md">
+                <div className="absolute bottom-4 right-4 bg-background p-3 rounded-lg shadow-md">
                   <p className="font-medium text-sm">24 providers near you</p>
                 </div>
               </div>

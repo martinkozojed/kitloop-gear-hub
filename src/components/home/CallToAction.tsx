@@ -7,7 +7,7 @@ const CallToAction = () => {
   const { t } = useTranslation();
   
   return (
-    <section className="py-16 px-6 bg-gradient-to-br from-kitloop-accent/20 to-white">
+    <section className="py-16 px-6 bg-gradient-to-br from-kitloop-accent/20 to-background">
       <div className="container mx-auto max-w-4xl text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('cta.title')}</h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto">

@@ -27,8 +27,8 @@ const HowItWorks = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Step 1 */}
             <div className="flex flex-col items-center text-center animate-fade-in" style={{animationDelay: "0.1s"}}>
-              <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center mb-6 hover-lift">
-                <Search className="w-12 h-12 text-blue-600" />
+              <div className="w-24 h-24 rounded-full bg-secondary/20 flex items-center justify-center mb-6 hover-lift">
+                <Search className="w-12 h-12 text-secondary" />
               </div>
               <h3 className="text-2xl font-semibold mb-2">Choose your gear</h3>
               <p className="text-muted-foreground">
@@ -38,8 +38,8 @@ const HowItWorks = () => {
 
             {/* Step 2 */}
             <div className="flex flex-col items-center text-center animate-fade-in" style={{animationDelay: "0.2s"}}>
-              <div className="w-24 h-24 rounded-full bg-purple-100 flex items-center justify-center mb-6 hover-lift">
-                <CalendarCheck className="w-12 h-12 text-purple-600" />
+              <div className="w-24 h-24 rounded-full bg-accent/20 flex items-center justify-center mb-6 hover-lift">
+                <CalendarCheck className="w-12 h-12 text-accent" />
               </div>
               <h3 className="text-2xl font-semibold mb-2">Reserve online</h3>
               <p className="text-muted-foreground">
@@ -49,8 +49,8 @@ const HowItWorks = () => {
 
             {/* Step 3 */}
             <div className="flex flex-col items-center text-center animate-fade-in" style={{animationDelay: "0.3s"}}>
-              <div className="w-24 h-24 rounded-full bg-amber-100 flex items-center justify-center mb-6 hover-lift">
-                <MapPin className="w-12 h-12 text-amber-600" />
+              <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-6 hover-lift">
+                <MapPin className="w-12 h-12 text-primary" />
               </div>
               <h3 className="text-2xl font-semibold mb-2">Pick it up</h3>
               <p className="text-muted-foreground">
@@ -60,8 +60,8 @@ const HowItWorks = () => {
 
             {/* Step 4 */}
             <div className="flex flex-col items-center text-center animate-fade-in" style={{animationDelay: "0.4s"}}>
-              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6 hover-lift">
-                <Star className="w-12 h-12 text-green-600" />
+              <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-6 hover-lift">
+                <Star className="w-12 h-12 text-primary" />
               </div>
               <h3 className="text-2xl font-semibold mb-2">Return & rate</h3>
               <p className="text-muted-foreground">
@@ -73,7 +73,7 @@ const HowItWorks = () => {
       </section>
 
       {/* Visual Timeline */}
-      <section className="py-16 px-6 bg-white">
+      <section className="py-16 px-6 bg-background">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl font-bold mb-12 text-center">Your Rental Journey</h2>
           
@@ -160,26 +160,26 @@ const HowItWorks = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 px-6 bg-gradient-to-br from-kitloop-accent/20 to-white">
+      <section className="py-16 px-6 bg-gradient-to-br from-kitloop-accent/20 to-background">
         <div className="container mx-auto max-w-5xl text-center">
           <h2 className="text-3xl font-bold mb-8">Why Rent with Kitloop?</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-white p-6 rounded-lg shadow-sm hover-lift">
+            <div className="bg-background p-6 rounded-lg shadow-sm hover-lift">
               <h3 className="text-xl font-semibold mb-3">Save Money</h3>
               <p className="text-muted-foreground">
                 Why buy expensive gear you'll only use a few times a year? Rent exactly what you need, when you need it.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm hover-lift">
+            <div className="bg-background p-6 rounded-lg shadow-sm hover-lift">
               <h3 className="text-xl font-semibold mb-3">Try Before You Buy</h3>
               <p className="text-muted-foreground">
                 Test out different models and brands before committing to a purchase. Find what works best for you.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm hover-lift">
+            <div className="bg-background p-6 rounded-lg shadow-sm hover-lift">
               <h3 className="text-xl font-semibold mb-3">Travel Light</h3>
               <p className="text-muted-foreground">
                 Pick up gear at your destination instead of carrying it with you. Perfect for traveling adventurers.
