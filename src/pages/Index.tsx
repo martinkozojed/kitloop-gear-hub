@@ -10,15 +10,16 @@ const Index = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.state && location.state.scrollTo) {
-      const sectionId = location.state.scrollTo;
-      setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
+    const sectionId = location.state?.scrollTo || location.hash.replace('#', '');
+    if (!sectionId) return;
+
+    // Delay ensures the DOM is ready when navigating from another page
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }, [location]);
 
   return (
