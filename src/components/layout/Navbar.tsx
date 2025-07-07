@@ -10,9 +10,11 @@ const Navbar = () => {
 
   const scrollToSection = (sectionId: string) => {
     if (window.location.pathname !== '/') {
-      navigate('/', { state: { scrollTo: sectionId } });
+      // Redirect to the homepage with the section hash so the page knows what to scroll to
+      window.location.href = `/#${sectionId}`;
       return;
     }
+
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
