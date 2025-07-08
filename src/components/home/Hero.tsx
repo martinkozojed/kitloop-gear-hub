@@ -2,7 +2,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Package } from "lucide-react";
 import SearchBar from './SearchBar';
 import { useTranslation } from "react-i18next";
 
@@ -26,21 +25,21 @@ const Hero = () => {
   </div>
 
   <div className="container mx-auto relative z-10 flex flex-col items-center text-center max-w-4xl">
-    <h1 className="text-4xl md:text-6xl font-bold mb-6 text-kitloop-text text-shadow">
+    <h1 className="text-4xl md:text-6xl font-bold mb-4 text-kitloop-text text-shadow">
       <span className="text-green-600">{t('hero.headline')}</span>
     </h1>
+    <p className="text-lg md:text-xl text-kitloop-text mb-6 max-w-2xl">
+      {t('hero.description')}
+    </p>
 
-    <div className="w-full max-w-2xl mb-8">
+    <div className="w-full max-w-2xl mb-6">
       <SearchBar />
     </div>
 
-<div className="mt-4 text-sm text-muted-foreground">
-  Are you a rental provider?{" "}
-  <Link to="/add-rental" className="underline text-green-600 hover:text-green-600">
-    Add your gear here.
-  </Link>
-</div>
-</div>
+    <Button variant="ghost" asChild className="text-lg">
+      <Link to="/add-rental">{t('hero.add_rental')}</Link>
+    </Button>
+  </div>
 </section>
 
   );
