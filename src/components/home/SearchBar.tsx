@@ -25,20 +25,23 @@ const SearchBar = () => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="flex flex-col sm:flex-row w-full max-w-3xl mx-auto gap-2">
+    <form
+      onSubmit={handleSearch}
+      className="flex flex-col sm:flex-row w-full max-w-3xl mx-auto gap-2 bg-white/90 backdrop-blur-md p-2 rounded-lg shadow-lg"
+    >
       <div className="relative flex-grow">
-        <Input 
-          placeholder={t('hero.search_placeholder')} 
-          className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-green-600"
+        <Input
+          placeholder={t('hero.search_placeholder')}
+          className="pl-10 py-6 bg-transparent border-kitloop-medium-gray focus:border-green-600"
           value={gearQuery}
           onChange={(e) => setGearQuery(e.target.value)}
         />
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
       </div>
       <div className="relative flex-grow">
-        <Input 
-          placeholder={t('hero.location_placeholder')} 
-          className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-green-600"
+        <Input
+          placeholder={t('hero.location_placeholder')}
+          className="pl-10 py-6 bg-transparent border-kitloop-medium-gray focus:border-green-600"
           value={locationQuery}
           onChange={(e) => setLocationQuery(e.target.value)}
         />

@@ -13,8 +13,8 @@ type FeaturedGearItem = Database["public"]["Tables"]["featured_gear"]["Row"];
 
 const GearCard = ({ item }: { item: FeaturedGearItem }) => {
   return (
-    <Card className="overflow-hidden border-none shadow-md hover:-translate-y-1 hover:shadow-lg transition-transform h-full flex flex-col">
-      <div className="relative h-52 bg-background">
+    <Card className="group overflow-hidden border-none shadow-md hover:-translate-y-1 hover:shadow-lg transition-transform h-full flex flex-col">
+      <div className="relative h-52 bg-background flex items-center justify-center">
         {item.is_new && (
           <Badge className="absolute top-2 right-2">New</Badge>
         )}
@@ -28,13 +28,13 @@ const GearCard = ({ item }: { item: FeaturedGearItem }) => {
       <CardContent className="p-5 flex-grow">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg line-clamp-2">{item.name}</h3>
-          <p className="font-bold text-kitloop-text whitespace-nowrap ml-2">
+          <p className="font-bold text-green-600 whitespace-nowrap ml-2">
             ${item.price}
             <span className="text-sm font-normal text-muted-foreground">/day</span>
           </p>
         </div>
         <p className="text-muted-foreground text-sm mt-1">{item.provider}</p>
-        <p className="text-muted-foreground text-xs">Camping • Prague</p>
+        <p className="text-muted-foreground text-xs">Camping gear • Prague</p>
       </CardContent>
       <CardFooter className="px-5 py-3 border-t border-gray-100 flex justify-between items-center">
         <div className="flex items-center">

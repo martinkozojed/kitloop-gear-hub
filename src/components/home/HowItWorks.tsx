@@ -16,10 +16,13 @@ interface Step {
 const StepItem = ({ step }: { step: Step }) => {
   const IconComponent = step.icon;
   return (
-    <li className="mb-10 ml-6 relative pl-8">
-      <span className={`absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-full ${step.color}`}>
+    <li className="relative pl-10 pb-10 last:pb-0">
+      <span
+        className={`absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-full ${step.color}`}
+      >
         <IconComponent className="w-3 h-3" />
       </span>
+      <div className="absolute left-3 top-6 bottom-0 w-px bg-border" />
       <h3 className="font-semibold text-lg">{step.title}</h3>
       <p className="text-muted-foreground text-sm">{step.description}</p>
     </li>
