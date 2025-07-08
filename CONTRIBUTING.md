@@ -13,16 +13,16 @@ Maintain clean, readable, and scalable styling practices
 🎯 Brand Color Rules
 Primary Brand Color
 PurposeHEXTailwind Class
-Primary color#00856Fkitloop-accent
-Hover variant#00745Ekitloop-accent-hover
+Accent gradientfrom-green-400 to-green-600bg-gradient-to-br
+Solid color#16a34abg-green-600
 
 Allowed:
 
-bg-kitloop-accent
+bg-gradient-to-br from-green-400 to-green-600
 
-text-kitloop-accent
+text-green-600
 
-hover:bg-kitloop-accent-hover
+bg-green-600
 
 Not allowed:
 

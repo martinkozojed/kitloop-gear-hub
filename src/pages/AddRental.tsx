@@ -91,8 +91,8 @@ const AddRental = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-background rounded-lg p-6 md:p-10 shadow-sm">
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-kitloop-accent/10 rounded-full flex items-center justify-center mb-6">
-                <CheckCircle className="h-8 w-8 text-kitloop-accent" />
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-green-400 to-green-600">
+                <CheckCircle className="h-8 w-8 text-white" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4">Thank You for Your Submission!</h2>
               <div className="max-w-lg">
@@ -130,49 +130,49 @@ const AddRental = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
             <div className="bg-kitloop-background rounded-lg p-6 flex flex-col items-center text-center">
-              <div className="bg-kitloop-accent/10 rounded-full p-4 mb-4">
-                <Package className="h-8 w-8 text-kitloop-accent" />
+              <div className="rounded-full p-4 mb-4 bg-gradient-to-br from-green-400 to-green-600">
+                <Package className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Why list your gear?</h3>
               <ul className="text-left space-y-3 mt-4">
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-kitloop-accent mr-2 shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-green-600 mr-2 shrink-0 mt-0.5" />
                   <span>Earn extra income from gear you already own</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-kitloop-accent mr-2 shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-green-600 mr-2 shrink-0 mt-0.5" />
                   <span>Help others access quality outdoor equipment</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-kitloop-accent mr-2 shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-green-600 mr-2 shrink-0 mt-0.5" />
                   <span>Simple booking and secure payment system</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-kitloop-accent mr-2 shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-green-600 mr-2 shrink-0 mt-0.5" />
                   <span>Full control over pricing and availability</span>
                 </li>
               </ul>
             </div>
             
-            <div className="bg-gradient-to-br from-kitloop-accent/10 to-transparent rounded-lg p-6">
+            <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4">How it works</h3>
               <ol className="space-y-4">
                 <li className="flex items-start">
-                  <div className="bg-kitloop-accent rounded-full h-6 w-6 text-white flex items-center justify-center mr-3 shrink-0 mt-0.5">1</div>
+                  <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full h-6 w-6 text-white flex items-center justify-center mr-3 shrink-0 mt-0.5">1</div>
                   <div>
                     <h4 className="font-medium">Submit your gear</h4>
                     <p className="text-sm text-gray-600">Fill out this form with details about your equipment</p>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <div className="bg-kitloop-accent rounded-full h-6 w-6 text-white flex items-center justify-center mr-3 shrink-0 mt-0.5">2</div>
+                  <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full h-6 w-6 text-white flex items-center justify-center mr-3 shrink-0 mt-0.5">2</div>
                   <div>
                     <h4 className="font-medium">Verification</h4>
                     <p className="text-sm text-gray-600">Our team reviews your listing for quality assurance</p>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <div className="bg-kitloop-accent rounded-full h-6 w-6 text-white flex items-center justify-center mr-3 shrink-0 mt-0.5">3</div>
+                  <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full h-6 w-6 text-white flex items-center justify-center mr-3 shrink-0 mt-0.5">3</div>
                   <div>
                     <h4 className="font-medium">Start renting</h4>
                     <p className="text-sm text-gray-600">Receive booking requests and earn income</p>
@@ -186,7 +186,7 @@ const AddRental = () => {
             <form onSubmit={onSubmit} className="space-y-6">
               <h2 className="text-2xl font-semibold mb-6">Your Information</h2>
               
-              <Alert className="mb-6 bg-kitloop-accent/5 border-kitloop-accent/20">
+              <Alert className="mb-6 bg-green-600/5 border-green-600/20">
                 <AlertDescription>
                   Your listing will be reviewed by our team before it goes live on Kitloop. We do this to ensure a safe and high-quality experience for everyone.
                 </AlertDescription>

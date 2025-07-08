@@ -57,14 +57,14 @@ const HowItWorks = () => {
       title: t('how_it_works.step_3_title'),
       description: t('how_it_works.step_3_description'),
       icon: CheckCircle,
-      color: "bg-primary/20 text-primary"
+      color: "bg-gradient-to-br from-green-400 to-green-600 text-white"
     },
     {
       id: 4,
       title: t('how_it_works.step_4_title'),
       description: t('how_it_works.step_4_description'),
       icon: ArrowRight,
-      color: "bg-primary/20 text-primary"
+      color: "bg-gradient-to-br from-green-400 to-green-600 text-white"
     }
   ];
   

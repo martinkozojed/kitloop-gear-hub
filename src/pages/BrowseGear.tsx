@@ -116,8 +116,8 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
       <CardContent className="p-4">
         <h3 className="font-medium line-clamp-2 mb-1 h-12">{gear.name}</h3>
         <div className="flex items-center justify-between mt-2">
-          <p className="font-bold text-kitloop-accent">{gear.price} CZK/day</p>
-          <Button size="sm" className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white">
+          <p className="font-bold text-green-600">{gear.price} CZK/day</p>
+          <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white">
             {t('browse.reserve')}
           </Button>
         </div>
@@ -442,7 +442,7 @@ const BrowseGear = () => {
                 className="w-full"
               />
             </div>
-            <Button type="submit" className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white">
+            <Button type="submit" className="bg-green-600 hover:bg-green-600 text-white">
               {t('browse.search')}
             </Button>
           </form>

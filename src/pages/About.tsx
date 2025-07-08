@@ -15,7 +15,7 @@ const About = () => {
           <h1 className="text-4xl md:text-5xl font-bold mb-10 text-center">{t('about.title')}</h1>
           
           <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-6 text-kitloop-accent">{t('about.why_kitloop.title')}</h2>
+            <h2 className="text-3xl font-bold mb-6 text-green-600">{t('about.why_kitloop.title')}</h2>
             <div className="space-y-4 text-lg">
               <p>
                 {t('about.why_kitloop.paragraph1')}
@@ -31,7 +31,7 @@ const About = () => {
           
           {/* Section 2: About the Founder */}
           <div className="mb-12">
-            <h2 className="text-3xl font-bold mb-8 text-kitloop-accent">{t('about.founder.title')}</h2>
+            <h2 className="text-3xl font-bold mb-8 text-green-600">{t('about.founder.title')}</h2>
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="md:w-1/2 space-y-4 text-lg">
                 <p>
@@ -56,7 +56,7 @@ const About = () => {
           
           {/* Optional CTA */}
           <div className="text-center mt-16">
-            <Button asChild className="bg-kitloop-accent hover:bg-kitloop-accent-hover text-white px-8 py-6 text-lg">
+            <Button asChild className="bg-green-600 hover:bg-green-600 text-white px-8 py-6 text-lg">
               <Link to="/add-rental">{t('about.cta')}</Link>
             </Button>
           </div>

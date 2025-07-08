@@ -121,7 +121,7 @@ const SignUp = () => {
         <CardFooter className="flex flex-col space-y-3">
           <div className="text-center text-sm">
             {t('signup.have_account')}{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
+            <Link to="/login" className="text-green-600 hover:underline font-medium">
               {t('signup.sign_in')}
             </Link>
           </div>

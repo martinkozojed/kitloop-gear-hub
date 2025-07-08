@@ -19,7 +19,7 @@ const HeroSectionA = () => {
   };
 
   return (
-    <section className="bg-primary text-foreground py-16 sm:py-24">
+    <section className="bg-green-600 text-foreground py-16 sm:py-24">
       <div className="container mx-auto max-w-2xl px-4 text-center space-y-8">
         <div>
           <h1 className="text-5xl sm:text-6xl font-bold mb-4">

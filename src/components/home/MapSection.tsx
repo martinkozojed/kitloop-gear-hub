@@ -14,7 +14,7 @@ const MapSection = () => {
             </p>
             <ul className="space-y-3">
               <li className="flex items-start">
-                <div className="bg-kitloop-accent rounded-full p-1 mr-3 mt-1">
+                <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full p-1 mr-3 mt-1">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -22,7 +22,7 @@ const MapSection = () => {
                 <span>Over 500 verified rental providers nationwide</span>
               </li>
               <li className="flex items-start">
-                <div className="bg-kitloop-accent rounded-full p-1 mr-3 mt-1">
+                <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full p-1 mr-3 mt-1">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -30,7 +30,7 @@ const MapSection = () => {
                 <span>Easy pickup options or delivery available</span>
               </li>
               <li className="flex items-start">
-                <div className="bg-kitloop-accent rounded-full p-1 mr-3 mt-1">
+                <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full p-1 mr-3 mt-1">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>

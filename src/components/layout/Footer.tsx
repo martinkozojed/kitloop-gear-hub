@@ -25,7 +25,7 @@ const Footer = () => {
           {/* About */}
           <div>
             <h3 className="font-bold text-xl mb-4">
-              <span className="text-kitloop-accent">Kit</span>loop
+              <span className="text-green-600">Kit</span>loop
             </h3>
             <p className="text-muted-foreground mb-4">
               Making outdoor gear rental fast, simple, and seamless. Access over ownership.
@@ -37,17 +37,17 @@ const Footer = () => {
             <h3 className="font-bold mb-4">Discover</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/browse" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
+                <Link to="/browse" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.browse')}
                 </Link>
               </li>
               <li>
-                <Link to="/how-it-works" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
+                <Link to="/how-it-works" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.how_it_works')}
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
+                <Link to="/about" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.about')}
                 </Link>
               </li>
@@ -59,14 +59,14 @@ const Footer = () => {
             <h3 className="font-bold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <a href="mailto:info@kitloop.app" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
+                <a href="mailto:info@kitloop.app" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.contact')}
                 </a>
               </li>
               <li>
                 <button
                   onClick={() => scrollToSection('faq')}
-                  className="text-muted-foreground hover:text-kitloop-accent transition-colors text-left"
+                  className="text-muted-foreground hover:text-green-600 transition-colors text-left"
                 >
                   {t('footer.faq')}
                 </button>
@@ -79,12 +79,12 @@ const Footer = () => {
             <h3 className="font-bold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/terms" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
+                <Link to="/terms" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.terms')}
                 </Link>
               </li>
               <li>
-                <Link to="/privacy" className="text-muted-foreground hover:text-kitloop-accent transition-colors">
+                <Link to="/privacy" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.privacy')}
                 </Link>
               </li>
