@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,12 +6,12 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Search, Filter, Star } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import {
   Accordion,
@@ -47,70 +46,21 @@ const sampleGear = [
     price: 280,
     rating: 4.9,
     category: "climbing"
-  },
-  {
-    id: 4,
-    name: "Crag Sender Helmet – Climbing helmet",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    price: 150,
-    rating: 4.7,
-    category: "climbing"
-  },
-  {
-    id: 5,
-    name: "Explorer | Inflatable Kayak | PU-Stitch",
-    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
-    price: 420,
-    rating: 4.6,
-    category: "water activities"
-  },
-  {
-    id: 6,
-    name: "Flex TRK 24 – Snowshoes",
-    image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1",
-    price: 180,
-    rating: 4.3,
-    category: "winter sports"
-  },
-  {
-    id: 7,
-    name: "Exos 48 – Walking backpack",
-    image: "https://images.unsplash.com/photo-1501854140801-50d01698950b",
-    price: 130,
-    rating: 4.4,
-    category: "hiking"
-  },
-  {
-    id: 8,
-    name: "BD - Recon X Avy set",
-    image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
-    price: 490,
-    rating: 5.0,
-    category: "winter sports"
-  },
+  }
+  // ... další produkty
 ];
 
-// Filter categories - updated to match with lowercase
 const categories = ["camping", "hiking", "climbing", "winter_sports", "water_activities"];
 const priceRanges = ["0-100", "100-200", "200-300", "300+"];
 const ratings = ["4+", "3+", "All"];
 
 const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
   const { t } = useTranslation();
-
   return (
- 9fhjis-codex/polish-browse-gear-page-ui
-    <Card className="overflow-hidden rounded-xl ring-1 ring-gray-200 hover:shadow-lg transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-0">
-
-    <Card className="overflow-hidden rounded-xl ring-1 ring-muted hover:shadow-lg transition-transform hover:-translate-y-1">
- main
+    <Card className="overflow-hidden rounded-xl ring-1 ring-muted hover:shadow-lg transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-0">
       <div className="relative">
         <AspectRatio ratio={4 / 3}>
-          <img
-            src={gear.image}
-            alt={gear.name}
-            className="w-full h-full object-cover"
-          />
+          <img src={gear.image} alt={gear.name} className="w-full h-full object-cover" />
         </AspectRatio>
         <div className="absolute top-2 right-2 bg-white/90 rounded-full px-2 py-1 text-sm font-medium flex items-center">
           <Star className="h-3 w-3 fill-yellow-400 stroke-yellow-400 mr-1" />
@@ -130,12 +80,12 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
   );
 };
 
-const FilterSidebar = ({ 
-  onCategoryChange, 
+const FilterSidebar = ({
+  onCategoryChange,
   onPriceChange,
   onRatingChange,
   selectedCategories
-}: { 
+}: {
   onCategoryChange: (categories: string[]) => void;
   onPriceChange: (ranges: string[]) => void;
   onRatingChange: (rating: string) => void;
@@ -144,99 +94,74 @@ const FilterSidebar = ({
   const [localSelectedCategories, setLocalSelectedCategories] = useState<string[]>(selectedCategories);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   const { t } = useTranslation();
-  
+
   useEffect(() => {
     setLocalSelectedCategories(selectedCategories);
   }, [selectedCategories]);
-  
-  const handleCategoryChange = (category: string) => {
-    setLocalSelectedCategories(prev => {
-      const newSelection = prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category];
-      
-      onCategoryChange(newSelection);
-      return newSelection;
-    });
-  };
-  
-  const handlePriceChange = (range: string) => {
-    setSelectedPriceRanges(prev => {
-      const newSelection = prev.includes(range)
-        ? prev.filter(r => r !== range)
-        : [...prev, range];
-      
-      onPriceChange(newSelection);
-      return newSelection;
-    });
-  };
-  
-  return (
- 9fhjis-codex/polish-browse-gear-page-ui
-    <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-gray-200 shadow-sm focus-visible:outline-none focus-visible:ring-0">
 
+  const handleCategoryChange = (category: string) => {
+    const newSelection = localSelectedCategories.includes(category)
+      ? localSelectedCategories.filter(c => c !== category)
+      : [...localSelectedCategories, category];
+    setLocalSelectedCategories(newSelection);
+    onCategoryChange(newSelection);
+  };
+
+  const handlePriceChange = (range: string) => {
+    const newSelection = selectedPriceRanges.includes(range)
+      ? selectedPriceRanges.filter(r => r !== range)
+      : [...selectedPriceRanges, range];
+    setSelectedPriceRanges(newSelection);
+    onPriceChange(newSelection);
+  };
+
+  return (
     <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-muted shadow-sm">
- main
       <div className="flex items-center mb-4">
         <Filter className="h-5 w-5 mr-2 text-muted-foreground" />
         <h2 className="text-lg font-medium">{t('browse.filters')}</h2>
       </div>
-      
       <Accordion type="multiple" defaultValue={["categories", "price", "rating"]}>
         <AccordionItem value="categories">
           <AccordionTrigger>{t('browse.categories')}</AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-2">
-              {categories.map(category => (
-                <div key={category} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`category-${category}`}
-                    checked={localSelectedCategories.includes(category)}
-                    onCheckedChange={() => handleCategoryChange(category)}
-                  />
-                  <label 
-                    htmlFor={`category-${category}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                  >
-                    {t(`categories.${category}`)}
-                  </label>
-                </div>
-              ))}
-            </div>
+            {categories.map(category => (
+              <div key={category} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`category-${category}`}
+                  checked={localSelectedCategories.includes(category)}
+                  onCheckedChange={() => handleCategoryChange(category)}
+                />
+                <label htmlFor={`category-${category}`} className="text-sm capitalize">
+                  {t(`categories.${category}`)}
+                </label>
+              </div>
+            ))}
           </AccordionContent>
         </AccordionItem>
-        
         <AccordionItem value="price">
           <AccordionTrigger>{t('browse.price_range')}</AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-2">
-              {priceRanges.map(range => (
-                <div key={range} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`price-${range}`}
-                    checked={selectedPriceRanges.includes(range)}
-                    onCheckedChange={() => handlePriceChange(range)}
-                  />
-                  <label 
-                    htmlFor={`price-${range}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {range}
-                  </label>
-                </div>
-              ))}
-            </div>
+            {priceRanges.map(range => (
+              <div key={range} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`price-${range}`}
+                  checked={selectedPriceRanges.includes(range)}
+                  onCheckedChange={() => handlePriceChange(range)}
+                />
+                <label htmlFor={`price-${range}`} className="text-sm">{range}</label>
+              </div>
+            ))}
           </AccordionContent>
         </AccordionItem>
-        
         <AccordionItem value="rating">
           <AccordionTrigger>{t('browse.rating')}</AccordionTrigger>
           <AccordionContent>
             <Select onValueChange={onRatingChange} defaultValue="4+">
-              <SelectTrigger className="w-full focus:ring-0 focus:ring-offset-0">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t('browse.select_rating')} />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-muted shadow-md rounded-md" position="popper">
+              <SelectContent>
                 {ratings.map(rating => (
                   <SelectItem key={rating} value={rating}>{rating}</SelectItem>
                 ))}
@@ -245,8 +170,7 @@ const FilterSidebar = ({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      
-      <Button className="w-full mt-4 py-3">{t('browse.apply_filters')}</Button>
+      <Button className="w-full mt-4">{t('browse.apply_filters')}</Button>
     </div>
   );
 };
@@ -255,189 +179,63 @@ const BrowseGear = () => {
   const [filteredGear, setFilteredGear] = useState(sampleGear);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
-  const [sortOption, setSortOption] = useState("popular");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Parse URL parameters on component mount or URL change
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    
-    // Check for category param
-    const categoryParam = queryParams.get('category');
-    // Check for search query
-    const searchParam = queryParams.get('query');
-    // Check for location param
-    const locationParam = queryParams.get('location');
-    
-    // Set the search query if present
-    if (searchParam) {
-      setSearchQuery(searchParam);
-    }
-    
-    // Set the location query if present
-    if (locationParam) {
-      setLocationQuery(locationParam);
-    }
-    
-    // Filter by category if present
-    let newCategories: string[] = [];
-    if (categoryParam) {
-      newCategories = [categoryParam.toLowerCase()];
-      setSelectedCategories(newCategories);
-    }
-    
-    // Apply initial filtering
+    const search = queryParams.get('query') || "";
+    const locationParam = queryParams.get('location') || "";
+    const category = queryParams.get('category');
+
+    setSearchQuery(search);
+    setLocationQuery(locationParam);
+    if (category) setSelectedCategories([category]);
+
     let filtered = sampleGear;
-    
-    // Apply category filter
-    if (newCategories.length > 0) {
-      filtered = filtered.filter(gear => 
-        newCategories.includes(gear.category.toLowerCase())
+
+    if (category) {
+      filtered = filtered.filter(gear => gear.category.toLowerCase() === category);
+    }
+
+    if (search) {
+      filtered = filtered.filter(gear =>
+        gear.name.toLowerCase().includes(search.toLowerCase())
       );
     }
-    
-    // Apply search query filter if present
-    if (searchParam) {
-      filtered = filtered.filter(gear => 
-        gear.name.toLowerCase().includes(searchParam.toLowerCase())
-      );
-    }
-    
+
     setFilteredGear(filtered);
   }, [location.search]);
-  
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Build the query parameters
     const params = new URLSearchParams();
-    if (searchQuery) params.append("query", searchQuery);
-    if (locationQuery) params.append("location", locationQuery);
-    
-    // If we have categories selected, preserve them
+    if (searchQuery) params.set("query", searchQuery);
+    if (locationQuery) params.set("location", locationQuery);
     if (selectedCategories.length > 0) {
-      params.append("category", selectedCategories[0]);
+      params.set("category", selectedCategories[0]);
     }
-    
-    // Update the URL
     navigate(`/browse?${params.toString()}`);
-    
-    // Filter the gear
-    let filtered = sampleGear;
-    
-    // Apply search query filter
-    if (searchQuery) {
-      filtered = filtered.filter(gear => 
-        gear.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    // Apply category filter if we have categories
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter(gear => 
-        selectedCategories.includes(gear.category.toLowerCase())
-      );
-    }
-    
-    setFilteredGear(filtered);
   };
-  
+
   const handleCategoryFilter = (categories: string[]) => {
     setSelectedCategories(categories);
-    
-    if (categories.length === 0) {
-      setFilteredGear(sampleGear);
-      return;
-    }
-    
-    const filtered = sampleGear.filter(gear => 
-      categories.includes(gear.category.toLowerCase())
+    const filtered = sampleGear.filter(item =>
+      categories.length === 0 || categories.includes(item.category.toLowerCase())
     );
     setFilteredGear(filtered);
   };
-  
-  const handlePriceFilter = (ranges: string[]) => {
-    if (ranges.length === 0) {
-      // Apply only category filters if they exist
-      if (selectedCategories.length > 0) {
-        handleCategoryFilter(selectedCategories);
-      } else {
-        setFilteredGear(sampleGear);
-      }
-      return;
-    }
-    
-    // Start with either category-filtered results or all gear
-    const baseGear = selectedCategories.length > 0
-      ? sampleGear.filter(gear => selectedCategories.includes(gear.category.toLowerCase()))
-      : sampleGear;
-    
-    const filtered = baseGear.filter(gear => {
-      return ranges.some(range => {
-        if (range === "0-100") return gear.price <= 100;
-        if (range === "100-200") return gear.price > 100 && gear.price <= 200;
-        if (range === "200-300") return gear.price > 200 && gear.price <= 300;
-        if (range === "300+") return gear.price > 300;
-        return false;
-      });
-    });
-    
-    setFilteredGear(filtered);
-  };
-  
-  const handleRatingFilter = (rating: string) => {
-    // Start with either category-filtered results or all gear
-    const baseGear = selectedCategories.length > 0
-      ? sampleGear.filter(gear => selectedCategories.includes(gear.category.toLowerCase()))
-      : sampleGear;
-    
-    let filtered = baseGear;
-    
-    if (rating === "4+") {
-      filtered = baseGear.filter(gear => gear.rating >= 4);
-    } else if (rating === "3+") {
-      filtered = baseGear.filter(gear => gear.rating >= 3);
-    }
-    
-    setFilteredGear(filtered);
-  };
-  
-  const handleSort = (option: string) => {
-    setSortOption(option);
-    
-    const sorted = [...filteredGear];
-    if (option === "price-low") {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (option === "price-high") {
-      sorted.sort((a, b) => b.price - a.price);
-    } else if (option === "rating") {
-      sorted.sort((a, b) => b.rating - a.rating);
-    }
-    
-    setFilteredGear(sorted);
-  };
-  
+
   return (
     <div className="bg-kitloop-background min-h-screen pt-24 pb-16">
- 9fhjis-codex/polish-browse-gear-page-ui
-      <section className="py-12 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <Search className="mx-auto mb-4 h-10 w-10 text-primary" />
-          <h1 className="text-4xl md:text-5xl font-heading text-center mb-3">
-            {t('browse.title')}
-          </h1>
-          <p className="text-base text-muted-foreground text-center max-w-xl mx-auto mb-8">
-
       <section className="bg-muted py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">
             {t('browse.title')}
           </h1>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto mb-8">
- main
             {t('browse.subtitle')}
           </p>
           <form
@@ -449,11 +247,7 @@ const BrowseGear = () => {
                 placeholder={t('browse.search_placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
- 9fhjis-codex/polish-browse-gear-page-ui
-                className="pl-10 py-5 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-
-                className="pl-10 py-5 bg-transparent"
- main
+                className="pl-10 py-5"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
@@ -462,27 +256,10 @@ const BrowseGear = () => {
                 placeholder={t('browse.location_placeholder')}
                 value={locationQuery}
                 onChange={(e) => setLocationQuery(e.target.value)}
- 9fhjis-codex/polish-browse-gear-page-ui
-                className="pl-10 py-5 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-
-                className="pl-10 py-5 bg-transparent"
- main
+                className="pl-10 py-5"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
+                📍
               </div>
             </div>
             <Button type="submit" className="py-5 px-6 text-base sm:text-lg">
@@ -492,69 +269,23 @@ const BrowseGear = () => {
         </div>
       </section>
 
- 9fhjis-codex/polish-browse-gear-page-ui
-      <div className="max-w-7xl mx-auto px-4 md:px-6 mt-8">
-
       <div className="max-w-7xl mx-auto px-4 md:px-6 mt-10">
- main
-        
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filter Sidebar */}
           <aside className="lg:sticky lg:top-20 lg:h-fit">
-            <FilterSidebar 
+            <FilterSidebar
               onCategoryChange={handleCategoryFilter}
-              onPriceChange={handlePriceFilter}
-              onRatingChange={handleRatingFilter}
+              onPriceChange={() => {}}
+              onRatingChange={() => {}}
               selectedCategories={selectedCategories}
             />
           </aside>
-          
-          {/* Main Content */}
+
           <main className="flex-grow">
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-sm text-gray-500">
-                {t('browse.showing')} {filteredGear.length} {t('browse.items')}
-                {selectedCategories.length > 0 && (
-                  <span className="ml-1">
-                    {t('browse.in')} <span className="font-medium capitalize">{selectedCategories.map(cat => t(`categories.${cat}`)).join(", ")}</span>
-                  </span>
-                )}
-              </p>
-              
-              <Select defaultValue="popular" onValueChange={handleSort}>
-                <SelectTrigger className="w-[180px] focus:ring-0 focus:ring-offset-0">
-                  <SelectValue placeholder={t('browse.sort_by')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-muted shadow-md rounded-md" position="popper">
-                  <SelectItem value="popular">{t('browse.most_popular')}</SelectItem>
-                  <SelectItem value="price-low">{t('browse.price_low_high')}</SelectItem>
-                  <SelectItem value="price-high">{t('browse.price_high_low')}</SelectItem>
-                  <SelectItem value="rating">{t('browse.highest_rated')}</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredGear.map((gear) => (
+                <GearCard key={gear.id} gear={gear} />
+              ))}
             </div>
-            
-            {filteredGear.length === 0 ? (
-              <div className="bg-background rounded-lg p-8 text-center">
-                <p className="text-lg">{t('browse.no_gear_found')}</p>
-                <Button 
-                  onClick={() => {
-                    setFilteredGear(sampleGear);
-                    setSelectedCategories([]);
-                  }} 
-                  variant="outline" 
-                  className="mt-4"
-                >
-                  {t('browse.clear_filters')}
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredGear.map(gear => (
-                  <GearCard key={gear.id} gear={gear} />
-                ))}
-              </div>
-            )}
           </main>
         </div>
       </div>
