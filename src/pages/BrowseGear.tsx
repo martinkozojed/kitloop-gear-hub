@@ -116,7 +116,7 @@ const FilterSidebar = ({
   };
 
   return (
-    <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-muted shadow-sm">
+    <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-muted shadow-sm focus-visible:outline-none focus-visible:ring-0">
       <div className="flex items-center mb-4">
         <Filter className="h-5 w-5 mr-2 text-muted-foreground" />
         <h2 className="text-lg font-medium">{t('browse.filters')}</h2>
@@ -161,7 +161,7 @@ const FilterSidebar = ({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t('browse.select_rating')} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {ratings.map(rating => (
                   <SelectItem key={rating} value={rating}>{rating}</SelectItem>
                 ))}
@@ -230,7 +230,8 @@ const BrowseGear = () => {
 
   return (
     <div className="bg-kitloop-background min-h-screen pt-24 pb-16">
-      <section className="bg-muted py-20 px-4">
+      {/* BrowseGear polished UI */}
+      <section className="border-b border-border bg-muted/50 py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">
             {t('browse.title')}
@@ -240,7 +241,7 @@ const BrowseGear = () => {
           </p>
           <form
             onSubmit={handleSearch}
-            className="flex flex-col sm:flex-row gap-2 bg-white p-2 rounded-xl shadow max-w-3xl mx-auto"
+            className="flex flex-col sm:flex-row gap-2 bg-white p-2 rounded-xl shadow-sm max-w-3xl mx-auto"
           >
             <div className="relative flex-grow">
               <Input
@@ -270,7 +271,8 @@ const BrowseGear = () => {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 mt-10">
-        <div className="flex flex-col lg:flex-row gap-8">
+        {/* BrowseGear polished UI */}
+        <div className="flex flex-col lg:flex-row lg:items-start gap-8">
           <aside className="lg:sticky lg:top-20 lg:h-fit">
             <FilterSidebar
               onCategoryChange={handleCategoryFilter}
@@ -286,11 +288,15 @@ const BrowseGear = () => {
                 <GearCard key={gear.id} gear={gear} />
               ))}
             </div>
+            {filteredGear.length === 0 && (
+              <p className="text-center text-muted-foreground mt-6">
+                {t('browse.no_gear_found')}
+              </p>
+            )}
           </main>
         </div>
       </div>
     </div>
   );
 };
-
 export default BrowseGear;
