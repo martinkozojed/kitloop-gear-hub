@@ -13,7 +13,7 @@ const LanguageSwitcher = () => {
   return (
     <button
       onClick={toggleLanguage}
-      className="text-sm font-medium text-kitloop-text hover:text-kitloop-accent transition-colors"
+      className="text-sm font-medium text-kitloop-text hover:text-green-600 transition-colors"
     >
       {currentLang === "cs" ? "🇨🇿 CZ" : "🇺🇸 EN"}
     </button>

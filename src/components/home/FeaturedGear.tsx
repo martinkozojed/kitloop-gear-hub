@@ -15,7 +15,7 @@ const GearCard = ({ item }: { item: FeaturedGearItem }) => {
     <Card className="overflow-hidden border-none shadow-md hover-lift h-full flex flex-col">
       <div className="relative h-52 bg-background">
         {item.is_new && (
-          <Badge className="absolute top-2 right-2 bg-kitloop-accent text-white">
+          <Badge className="absolute top-2 right-2">
             New
           </Badge>
         )}

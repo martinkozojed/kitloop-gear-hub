@@ -29,7 +29,7 @@ const SearchBar = () => {
       <div className="relative flex-grow">
         <Input 
           placeholder={t('hero.search_placeholder')} 
-          className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-kitloop-accent"
+          className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-green-600"
           value={gearQuery}
           onChange={(e) => setGearQuery(e.target.value)}
         />
@@ -38,7 +38,7 @@ const SearchBar = () => {
       <div className="relative flex-grow">
         <Input 
           placeholder={t('hero.location_placeholder')} 
-          className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-kitloop-accent"
+          className="pl-10 py-6 bg-white/90 backdrop-blur-sm border-kitloop-medium-gray focus:border-green-600"
           value={locationQuery}
           onChange={(e) => setLocationQuery(e.target.value)}
         />

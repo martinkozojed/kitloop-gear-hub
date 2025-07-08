@@ -41,19 +41,31 @@ const process = [
     title: "Booking secured",
     description:
       "You book the gear – we immediately notify the provider and hold your payment securely until return.",
-    icon: <HandCoins className="w-6 h-6 text-kitloop-accent" />,
+    icon: (
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600">
+        <HandCoins className="w-4 h-4 text-white" />
+      </div>
+    ),
   },
   {
     title: "Provider prepares",
     description:
       "The provider confirms availability, prepares everything for pickup, and marks return in the system.",
-    icon: <CheckCircle className="w-6 h-6 text-kitloop-accent" />,
+    icon: (
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600">
+        <CheckCircle className="w-4 h-4 text-white" />
+      </div>
+    ),
   },
   {
     title: "Automatic payout",
     description:
       "After successful return, the provider is paid out automatically. Kitloop support steps in if needed.",
-    icon: <ShieldCheck className="w-6 h-6 text-kitloop-accent" />,
+    icon: (
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600">
+        <ShieldCheck className="w-4 h-4 text-white" />
+      </div>
+    ),
   },
 ];
 

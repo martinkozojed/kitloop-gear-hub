@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-sm bg-primary text-white text-xs px-2 py-1"
+  "inline-flex items-center rounded-sm bg-gradient-to-br from-green-400 to-green-600 text-white text-xs px-2 py-1"
 )
 
 function Badge({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

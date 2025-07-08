@@ -154,14 +154,14 @@ const FAQ = () => {
                       value={category.category}
                       className={`
                         justify-start text-left p-3 h-auto 
-                        ${isMobile ? 'border-b-2 border-b-transparent data-[state=active]:border-b-kitloop-accent' : 'border-l-2 border-transparent data-[state=active]:border-l-kitloop-accent'}
-                        data-[state=active]:bg-muted data-[state=active]:text-kitloop-accent font-medium
+                        ${isMobile ? 'border-b-2 border-b-transparent data-[state=active]:border-b-green-600' : 'border-l-2 border-transparent data-[state=active]:border-l-green-600'}
+                        data-[state=active]:bg-muted data-[state=active]:text-green-600 font-medium
                         ${isMobile ? 'rounded-md whitespace-nowrap min-w-max' : 'w-full rounded-r-md'}
                       `}
                     >
                       <div className={`flex items-center gap-3 ${isMobile ? 'flex-col text-xs' : ''}`}>
                         <div className={`flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-full bg-muted`}>
-                          <Icon size={isMobile ? 16 : 20} className="text-kitloop-accent" />
+                          <Icon size={isMobile ? 16 : 20} className="text-green-600" />
                         </div>
                         <span className="font-medium">{category.title}</span>
                       </div>

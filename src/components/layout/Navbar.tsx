@@ -22,13 +22,13 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 bg-white text-primary fixed top-0 left-0 right-0 z-50 shadow-sm">
+    <header className="py-4 px-6 md:px-10 bg-white text-green-600 fixed top-0 left-0 right-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/" className="text-2xl font-bold flex items-center">
-            <span className="text-primary pr-0.5 tracking-tight">Kit</span>
+            <span className="text-green-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-text tracking-wide">loop</span>
           </Link>
         </div>
