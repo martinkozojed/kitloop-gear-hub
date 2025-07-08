@@ -21,6 +21,7 @@
     "contact": "Kontakt",
     "privacy": "Zásady ochrany osobních údajů",
     "terms": "Obchodní podmínky",
+    "cookies": "Cookies",
     "copyright": "© {{year}} Kitloop. Všechna práva vyhrazena."
   },
   "navbar": {
@@ -97,13 +98,13 @@
     "subtitle": "Půjčování outdoorového vybavení nikdy nebylo jednodušší",
     "learn_more": "Zjistěte více o tom, jak to funguje",
     "step_1_title": "Vyberte",
-    "step_1_description": "Procházejte naši nabídku vybavení od ověřených poskytovatelů půjčoven.",
+    "step_1_description": "Procházejte vybavení od ověřených poskytovatelů ve vašem okolí.",
     "step_2_title": "Rezervujte",
-    "step_2_description": "Vyberte termíny a zaplaťte bezpečně online. Žádné telefonáty nejsou potřeba.",
+    "step_2_description": "Zvolte termíny, zaplaťte online a ihned máte potvrzeno.",
     "step_3_title": "Vyzvedněte",
-    "step_3_description": "Vyzvedněte si vybavení z půjčovny nebo si ho nechte doručit.",
+    "step_3_description": "Pokyny k vyzvednutí obdržíte po potvrzení rezervace.",
     "step_4_title": "Vraťte",
-    "step_4_description": "Vraťte vybavení v dohodnutém termínu. Bez starostí, bez překvapení."
+    "step_4_description": "Vraťte vybavení včas a zanechte hodnocení."
   },
   "featured": {
   "expand": "Zobrazit více vybavení",

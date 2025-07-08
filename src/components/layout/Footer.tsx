@@ -18,9 +18,9 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-background py-12 px-6 border-t border-gray-100">
+    <footer className="bg-background py-12 px-6 border-t border-gray-200">
       <div className="container mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
           
           {/* About */}
           <div>
@@ -71,6 +71,11 @@ const Footer = () => {
                   {t('footer.faq')}
                 </button>
               </li>
+              <li>
+                <Link to="/add-rental" className="text-muted-foreground hover:text-green-600 transition-colors">
+                  {t('hero.add_rental')}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -86,6 +91,11 @@ const Footer = () => {
               <li>
                 <Link to="/privacy" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.privacy')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookies" className="text-muted-foreground hover:text-green-600 transition-colors">
+                  {t('footer.cookies')}
                 </Link>
               </li>
             </ul>

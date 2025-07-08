@@ -21,6 +21,7 @@
     "contact": "Contact",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
+    "cookies": "Cookies",
     "copyright": "© {{year}} Kitloop. All rights reserved."
   },
   "navbar": {
@@ -97,13 +98,13 @@
     "subtitle": "Renting outdoor gear has never been easier",
     "learn_more": "Learn more about how it works",
     "step_1_title": "Choose",
-    "step_1_description": "Browse through our selection of gear from verified rental providers.",
+    "step_1_description": "Browse gear from verified providers near you.",
     "step_2_title": "Reserve",
-    "step_2_description": "Select your dates and pay securely online. No more phone calls needed.",
+    "step_2_description": "Select your dates, pay securely online and get instant confirmation.",
     "step_3_title": "Pick up",
-    "step_3_description": "Get your gear from the rental shop or have it delivered to you.",
+    "step_3_description": "Pickup point is shared right after booking confirmation.",
     "step_4_title": "Return",
-    "step_4_description": "Return the gear at the agreed time. No hassle, no surprises."
+    "step_4_description": "Return the gear on time and leave a review."
    },
     "featured": {
   "expand": "Show more gear",

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Search, Calendar, CheckCircle, ArrowRight, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,23 +13,16 @@ interface Step {
   color: string;
 }
 
-const StepCard = ({ step }: { step: Step }) => {
+const StepItem = ({ step }: { step: Step }) => {
   const IconComponent = step.icon;
-  
   return (
-    <Card className="border-none shadow-md bg-background hover-lift">
-      <CardContent className="p-6 flex flex-col items-center text-center">
-        <div className={`w-16 h-16 rounded-full ${step.color} flex items-center justify-center mb-4`}>
-          <IconComponent className="h-8 w-8" />
-        </div>
-        <h3 className="text-xl font-semibold mb-2">
-          {step.title}
-        </h3>
-        <p className="text-muted-foreground">
-          {step.description}
-        </p>
-      </CardContent>
-    </Card>
+    <li className="mb-10 ml-6 relative pl-8">
+      <span className={`absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-full ${step.color}`}>
+        <IconComponent className="w-3 h-3" />
+      </span>
+      <h3 className="font-semibold text-lg">{step.title}</h3>
+      <p className="text-muted-foreground text-sm">{step.description}</p>
+    </li>
   );
 };
 
@@ -76,11 +68,11 @@ const HowItWorks = () => {
           {t('how_it_works.subtitle')}
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {steps.map(step => (
-            <StepCard key={step.id} step={step} />
+        <ol className="relative border-l border-gray-300 max-w-xl mx-auto mb-12">
+          {steps.map((step) => (
+            <StepItem key={step.id} step={step} />
           ))}
-        </div>
+        </ol>
         
         <div className="text-center">
           <Button asChild variant="primary">

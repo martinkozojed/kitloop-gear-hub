@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { useTranslation } from "react-i18next";
@@ -12,17 +13,16 @@ type FeaturedGearItem = Database["public"]["Tables"]["featured_gear"]["Row"];
 
 const GearCard = ({ item }: { item: FeaturedGearItem }) => {
   return (
-    <Card className="overflow-hidden border-none shadow-md hover-lift h-full flex flex-col">
+    <Card className="overflow-hidden border-none shadow-md hover:-translate-y-1 hover:shadow-lg transition-transform h-full flex flex-col">
       <div className="relative h-52 bg-background">
         {item.is_new && (
-          <Badge className="absolute top-2 right-2">
-            New
-          </Badge>
+          <Badge className="absolute top-2 right-2">New</Badge>
         )}
         <img
-          src={item.image_url}
-          alt={item.name ?? ""}
-          className="h-full w-full object-contain p-4"
+          src={item.image_url || '/placeholder.svg'}
+          onError={(e) => ((e.currentTarget as HTMLImageElement).src = '/placeholder.svg')}
+          alt={item.name ?? ''}
+          className="h-full w-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       <CardContent className="p-5 flex-grow">
@@ -34,6 +34,7 @@ const GearCard = ({ item }: { item: FeaturedGearItem }) => {
           </p>
         </div>
         <p className="text-muted-foreground text-sm mt-1">{item.provider}</p>
+        <p className="text-muted-foreground text-xs">Camping • Prague</p>
       </CardContent>
       <CardFooter className="px-5 py-3 border-t border-gray-100 flex justify-between items-center">
         <div className="flex items-center">
@@ -52,6 +53,7 @@ const GearCard = ({ item }: { item: FeaturedGearItem }) => {
 const FeaturedGear = () => {
   const [gearList, setGearList] = useState<FeaturedGearItem[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const [loading, setLoading] = useState(true);
 const { t } = useTranslation();
 
   useEffect(() => {
@@ -65,6 +67,7 @@ const { t } = useTranslation();
       } else {
         setGearList(data ?? []);
       }
+      setLoading(false);
     };
 
     fetchGear();
@@ -81,9 +84,13 @@ const { t } = useTranslation();
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {displayedGear.map((item) => (
-            <GearCard key={item.id} item={item} />
-          ))}
+          {loading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-72 w-full" />
+              ))
+            : displayedGear.map((item) => (
+                <GearCard key={item.id} item={item} />
+              ))}
         </div>
 
         {gearList.length > 8 && (
