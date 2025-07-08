@@ -99,7 +99,11 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
   const { t } = useTranslation();
 
   return (
+ 9fhjis-codex/polish-browse-gear-page-ui
     <Card className="overflow-hidden rounded-xl ring-1 ring-gray-200 hover:shadow-lg transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-0">
+
+    <Card className="overflow-hidden rounded-xl ring-1 ring-muted hover:shadow-lg transition-transform hover:-translate-y-1">
+ main
       <div className="relative">
         <AspectRatio ratio={4 / 3}>
           <img
@@ -168,7 +172,11 @@ const FilterSidebar = ({
   };
   
   return (
+ 9fhjis-codex/polish-browse-gear-page-ui
     <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-gray-200 shadow-sm focus-visible:outline-none focus-visible:ring-0">
+
+    <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-muted shadow-sm">
+ main
       <div className="flex items-center mb-4">
         <Filter className="h-5 w-5 mr-2 text-muted-foreground" />
         <h2 className="text-lg font-medium">{t('browse.filters')}</h2>
@@ -414,6 +422,7 @@ const BrowseGear = () => {
   
   return (
     <div className="bg-kitloop-background min-h-screen pt-24 pb-16">
+ 9fhjis-codex/polish-browse-gear-page-ui
       <section className="py-12 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <Search className="mx-auto mb-4 h-10 w-10 text-primary" />
@@ -421,6 +430,14 @@ const BrowseGear = () => {
             {t('browse.title')}
           </h1>
           <p className="text-base text-muted-foreground text-center max-w-xl mx-auto mb-8">
+
+      <section className="bg-muted py-20 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">
+            {t('browse.title')}
+          </h1>
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto mb-8">
+ main
             {t('browse.subtitle')}
           </p>
           <form
@@ -432,7 +449,11 @@ const BrowseGear = () => {
                 placeholder={t('browse.search_placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+ 9fhjis-codex/polish-browse-gear-page-ui
                 className="pl-10 py-5 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+
+                className="pl-10 py-5 bg-transparent"
+ main
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
@@ -441,7 +462,11 @@ const BrowseGear = () => {
                 placeholder={t('browse.location_placeholder')}
                 value={locationQuery}
                 onChange={(e) => setLocationQuery(e.target.value)}
+ 9fhjis-codex/polish-browse-gear-page-ui
                 className="pl-10 py-5 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+
+                className="pl-10 py-5 bg-transparent"
+ main
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 <svg
@@ -467,7 +492,11 @@ const BrowseGear = () => {
         </div>
       </section>
 
+ 9fhjis-codex/polish-browse-gear-page-ui
       <div className="max-w-7xl mx-auto px-4 md:px-6 mt-8">
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mt-10">
+ main
         
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filter Sidebar */}
