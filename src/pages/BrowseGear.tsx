@@ -97,14 +97,14 @@ const ratings = ["4+", "3+", "All"];
 
 const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
   const { t } = useTranslation();
-  
+
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1">
+    <Card className="overflow-hidden rounded-xl ring-1 ring-gray-200 hover:shadow-lg transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-0">
       <div className="relative">
-        <AspectRatio ratio={4/3}>
-          <img 
-            src={gear.image} 
-            alt={gear.name} 
+        <AspectRatio ratio={4 / 3}>
+          <img
+            src={gear.image}
+            alt={gear.name}
             className="w-full h-full object-cover"
           />
         </AspectRatio>
@@ -113,12 +113,12 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
           {gear.rating}
         </div>
       </div>
-      <CardContent className="p-4">
-        <h3 className="font-medium line-clamp-2 mb-1 h-12">{gear.name}</h3>
-        <div className="flex items-center justify-between mt-2">
+      <CardContent className="p-4 md:p-5">
+        <h3 className="font-medium line-clamp-2 mb-2 h-12">{gear.name}</h3>
+        <div className="flex items-center justify-between mt-1">
           <p className="font-bold text-green-600">{gear.price} CZK/day</p>
-          <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white">
-            {t('browse.reserve')}
+          <Button size="sm" className="w-full sm:w-auto">
+            {t("browse.reserve")}
           </Button>
         </div>
       </CardContent>
@@ -168,9 +168,9 @@ const FilterSidebar = ({
   };
   
   return (
-    <div className="w-full lg:w-64 bg-background p-4 rounded-lg shadow-sm">
+    <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-gray-200 shadow-sm focus-visible:outline-none focus-visible:ring-0">
       <div className="flex items-center mb-4">
-        <Filter className="h-5 w-5 mr-2" />
+        <Filter className="h-5 w-5 mr-2 text-muted-foreground" />
         <h2 className="text-lg font-medium">{t('browse.filters')}</h2>
       </div>
       
@@ -225,10 +225,10 @@ const FilterSidebar = ({
           <AccordionTrigger>{t('browse.rating')}</AccordionTrigger>
           <AccordionContent>
             <Select onValueChange={onRatingChange} defaultValue="4+">
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full focus:ring-0 focus:ring-offset-0">
                 <SelectValue placeholder={t('browse.select_rating')} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-muted shadow-md rounded-md" position="popper">
                 {ratings.map(rating => (
                   <SelectItem key={rating} value={rating}>{rating}</SelectItem>
                 ))}
@@ -238,7 +238,7 @@ const FilterSidebar = ({
         </AccordionItem>
       </Accordion>
       
-      <Button className="w-full mt-4">{t('browse.apply_filters')}</Button>
+      <Button className="w-full mt-4 py-3">{t('browse.apply_filters')}</Button>
     </div>
   );
 };
@@ -413,44 +413,65 @@ const BrowseGear = () => {
   };
   
   return (
-    <div className="bg-kitloop-background min-h-screen pt-24 pb-16 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">{t('browse.title')}</h1>
-        
-        {/* Added intro text */}
-        <p className="text-lg text-muted-foreground mb-8">
-          {t('browse.subtitle')}
-        </p>
-        
-        {/* Search Section */}
-        <div className="bg-background rounded-lg p-4 mb-8 shadow-sm">
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
-            <div className="flex-grow relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input 
+    <div className="bg-kitloop-background min-h-screen pt-24 pb-16">
+      <section className="py-12 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <Search className="mx-auto mb-4 h-10 w-10 text-primary" />
+          <h1 className="text-4xl md:text-5xl font-heading text-center mb-3">
+            {t('browse.title')}
+          </h1>
+          <p className="text-base text-muted-foreground text-center max-w-xl mx-auto mb-8">
+            {t('browse.subtitle')}
+          </p>
+          <form
+            onSubmit={handleSearch}
+            className="flex flex-col sm:flex-row gap-2 bg-white p-2 rounded-xl shadow max-w-3xl mx-auto"
+          >
+            <div className="relative flex-grow">
+              <Input
                 placeholder={t('browse.search_placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 py-5 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
               />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
-            <div className="md:w-48">
-              <Input 
+            <div className="relative flex-grow sm:w-48">
+              <Input
                 placeholder={t('browse.location_placeholder')}
                 value={locationQuery}
                 onChange={(e) => setLocationQuery(e.target.value)}
-                className="w-full"
+                className="pl-10 py-5 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
               />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
             </div>
-            <Button type="submit" className="bg-green-600 hover:bg-green-600 text-white">
+            <Button type="submit" className="py-5 px-6 text-base sm:text-lg">
               {t('browse.search')}
             </Button>
           </form>
         </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mt-8">
         
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filter Sidebar */}
-          <aside className="lg:sticky lg:top-28 lg:h-fit">
+          <aside className="lg:sticky lg:top-20 lg:h-fit">
             <FilterSidebar 
               onCategoryChange={handleCategoryFilter}
               onPriceChange={handlePriceFilter}
@@ -472,10 +493,10 @@ const BrowseGear = () => {
               </p>
               
               <Select defaultValue="popular" onValueChange={handleSort}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] focus:ring-0 focus:ring-offset-0">
                   <SelectValue placeholder={t('browse.sort_by')} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border border-muted shadow-md rounded-md" position="popper">
                   <SelectItem value="popular">{t('browse.most_popular')}</SelectItem>
                   <SelectItem value="price-low">{t('browse.price_low_high')}</SelectItem>
                   <SelectItem value="price-high">{t('browse.price_high_low')}</SelectItem>
