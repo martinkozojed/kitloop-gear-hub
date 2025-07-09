@@ -20,45 +20,20 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 
-const sampleGear = [
-  {
-    id: 1,
-    name: "Alto Semi-Free Standing Ultralight Tent",
-    image: "https://images.unsplash.com/photo-1501854140801-50d01698950b",
-    price: 350,
-    rating: 4.8,
-    category: "camping",
-    location: "Brno",
-  },
-  {
-    id: 2,
-    name: "Pursuit – Walking poles",
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-    price: 120,
-    rating: 4.5,
-    category: "hiking",
-    location: "Praha",
-  },
-  {
-    id: 3,
-    name: "VF-Kit Top Shell – Via ferrata set",
-    image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
-    price: 280,
-    rating: 4.9,
-    category: "climbing",
-    location: "Jeseníky",
-  },
-];
+type GearItem = Database["public"]["Tables"]["gear_items"]["Row"];
 
-const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
+const GearCard = ({ gear }: { gear: GearItem }) => {
   return (
     <Card className="overflow-hidden rounded-2xl transition-transform hover:shadow-xl hover:-translate-y-1">
       <div className="relative">
         <AspectRatio ratio={4 / 3}>
           <img
-            src={gear.image}
-            alt={gear.name}
+            src={gear.image_url || "/placeholder.svg"}
+            alt={gear.name ?? ""}
+            onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/placeholder.svg")}
             className="w-full h-full object-cover"
           />
         </AspectRatio>
@@ -73,7 +48,7 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
         </h3>
         <div className="flex items-center justify-between mt-3">
           <p className="text-green-600 font-semibold text-sm">
-            {gear.price} CZK/day
+            {gear.price_per_day} CZK/day
           </p>
           <Button size="sm" className="text-sm px-4 py-1.5">
             Reserve
@@ -85,7 +60,8 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
 };
 
 const BrowseGear = () => {
-  const [filteredGear, setFilteredGear] = useState(sampleGear);
+  const [gearList, setGearList] = useState<GearItem[]>([]);
+  const [filteredGear, setFilteredGear] = useState<GearItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [sortOption, setSortOption] = useState("");
@@ -96,31 +72,47 @@ const BrowseGear = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // Load gear items from Supabase on mount
   useEffect(() => {
-  const queryParams = new URLSearchParams(location.search);
-  const search = queryParams.get("query") || "";
+    const fetchGear = async () => {
+      const { data, error } = await supabase.from("gear_items").select("*");
+      if (error) {
+        console.error("Error fetching gear items:", error.message);
+      } else {
+        setGearList(data ?? []);
+      }
+    };
 
-  // nastav hodnotu pouze při načtení komponenty
-  if (!searchQuery) {
-    setSearchQuery(search);
-  }
+    fetchGear();
+  }, []);
 
-  let filtered = sampleGear.filter((gear) => {
-    const matchesSearch = gear.name.toLowerCase().includes(search.toLowerCase());
-    const matchesLocation = gear.location.toLowerCase().includes(locationQuery.toLowerCase());
-    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(gear.category);
-    const matchesRating = selectedRatings.length === 0 || selectedRatings.some((r) => gear.rating >= parseFloat(r));
-    return matchesSearch && matchesLocation && matchesCategory && matchesRating;
-  });
+  // Filter gear whenever search params or filters change
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const search = queryParams.get("query") || "";
 
-  if (sortOption === "price-asc") {
-    filtered = [...filtered].sort((a, b) => a.price - b.price);
-  } else if (sortOption === "price-desc") {
-    filtered = [...filtered].sort((a, b) => b.price - a.price);
-  }
+    if (!searchQuery) {
+      setSearchQuery(search);
+    }
 
-  setFilteredGear(filtered);
-}, [location.search, sortOption, locationQuery, selectedCategories, selectedRatings]);
+    let filtered = gearList.filter((gear) => {
+      const matchesSearch = (gear.name ?? "").toLowerCase().includes(search.toLowerCase());
+      const matchesLocation = (gear.location ?? "").toLowerCase().includes(locationQuery.toLowerCase());
+      const category = (gear as any).category as string | undefined;
+      const matchesCategory = selectedCategories.length === 0 || (category ? selectedCategories.includes(category) : true);
+      const rating = gear.rating ?? 0;
+      const matchesRating = selectedRatings.length === 0 || selectedRatings.some((r) => rating >= parseFloat(r));
+      return matchesSearch && matchesLocation && matchesCategory && matchesRating;
+    });
+
+    if (sortOption === "price-asc") {
+      filtered = [...filtered].sort((a, b) => (a.price_per_day ?? 0) - (b.price_per_day ?? 0));
+    } else if (sortOption === "price-desc") {
+      filtered = [...filtered].sort((a, b) => (b.price_per_day ?? 0) - (a.price_per_day ?? 0));
+    }
+
+    setFilteredGear(filtered);
+  }, [gearList, location.search, sortOption, locationQuery, selectedCategories, selectedRatings]);
 
 
   const handleSearch = (e: React.FormEvent) => {
