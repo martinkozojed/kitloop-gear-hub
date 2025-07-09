@@ -1,27 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Search, Filter, Star } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Select,
+  SelectTrigger,
+  SelectValue,
   SelectContent,
   SelectItem,
-  SelectTrigger,
-  SelectValue
 } from "@/components/ui/select";
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  AccordionContent,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Sample gear data
 const sampleGear = [
   {
     id: 1,
@@ -29,7 +28,8 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1501854140801-50d01698950b",
     price: 350,
     rating: 4.8,
-    category: "camping"
+    category: "camping",
+    location: "Brno",
   },
   {
     id: 2,
@@ -37,7 +37,8 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
     price: 120,
     rating: 4.5,
-    category: "hiking"
+    category: "hiking",
+    location: "Praha",
   },
   {
     id: 3,
@@ -45,34 +46,37 @@ const sampleGear = [
     image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
     price: 280,
     rating: 4.9,
-    category: "climbing"
-  }
-  // ... další produkty
+    category: "climbing",
+    location: "Jeseníky",
+  },
 ];
 
-const categories = ["camping", "hiking", "climbing", "winter_sports", "water_activities"];
-const priceRanges = ["0-100", "100-200", "200-300", "300+"];
-const ratings = ["4+", "3+", "All"];
-
 const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
-  const { t } = useTranslation();
   return (
-    <Card className="overflow-hidden rounded-xl ring-1 ring-muted hover:shadow-lg transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-0">
+    <Card className="overflow-hidden rounded-2xl transition-transform hover:shadow-xl hover:-translate-y-1">
       <div className="relative">
         <AspectRatio ratio={4 / 3}>
-          <img src={gear.image} alt={gear.name} className="w-full h-full object-cover" />
+          <img
+            src={gear.image}
+            alt={gear.name}
+            className="w-full h-full object-cover"
+          />
         </AspectRatio>
-        <div className="absolute top-2 right-2 bg-white/90 rounded-full px-2 py-1 text-sm font-medium flex items-center">
+        <div className="absolute top-3 right-3 bg-white/90 rounded-full px-2 py-1 text-xs font-medium flex items-center shadow-sm">
           <Star className="h-3 w-3 fill-yellow-400 stroke-yellow-400 mr-1" />
           {gear.rating}
         </div>
       </div>
-      <CardContent className="p-4 md:p-5">
-        <h3 className="font-medium line-clamp-2 mb-2 h-12">{gear.name}</h3>
-        <div className="flex items-center justify-between mt-1">
-          <p className="font-bold text-green-600">{gear.price} CZK/day</p>
-          <Button size="sm" className="w-full sm:w-auto">
-            {t("browse.reserve")}
+      <CardContent className="p-4">
+        <h3 className="text-base font-semibold leading-tight line-clamp-2 h-10">
+          {gear.name}
+        </h3>
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-green-600 font-semibold text-sm">
+            {gear.price} CZK/day
+          </p>
+          <Button size="sm" className="text-sm px-4 py-1.5">
+            Reserve
           </Button>
         </div>
       </CardContent>
@@ -80,223 +84,176 @@ const GearCard = ({ gear }: { gear: typeof sampleGear[0] }) => {
   );
 };
 
-const FilterSidebar = ({
-  onCategoryChange,
-  onPriceChange,
-  onRatingChange,
-  selectedCategories
-}: {
-  onCategoryChange: (categories: string[]) => void;
-  onPriceChange: (ranges: string[]) => void;
-  onRatingChange: (rating: string) => void;
-  selectedCategories: string[];
-}) => {
-  const [localSelectedCategories, setLocalSelectedCategories] = useState<string[]>(selectedCategories);
-  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    setLocalSelectedCategories(selectedCategories);
-  }, [selectedCategories]);
-
-  const handleCategoryChange = (category: string) => {
-    const newSelection = localSelectedCategories.includes(category)
-      ? localSelectedCategories.filter(c => c !== category)
-      : [...localSelectedCategories, category];
-    setLocalSelectedCategories(newSelection);
-    onCategoryChange(newSelection);
-  };
-
-  const handlePriceChange = (range: string) => {
-    const newSelection = selectedPriceRanges.includes(range)
-      ? selectedPriceRanges.filter(r => r !== range)
-      : [...selectedPriceRanges, range];
-    setSelectedPriceRanges(newSelection);
-    onPriceChange(newSelection);
-  };
-
-  return (
-    <div className="w-full lg:w-64 bg-white rounded-xl p-4 ring-1 ring-muted shadow-sm focus-visible:outline-none focus-visible:ring-0">
-      <div className="flex items-center mb-4">
-        <Filter className="h-5 w-5 mr-2 text-muted-foreground" />
-        <h2 className="text-lg font-medium">{t('browse.filters')}</h2>
-      </div>
-      <Accordion type="multiple" defaultValue={["categories", "price", "rating"]}>
-        <AccordionItem value="categories">
-          <AccordionTrigger>{t('browse.categories')}</AccordionTrigger>
-          <AccordionContent>
-            {categories.map(category => (
-              <div key={category} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`category-${category}`}
-                  checked={localSelectedCategories.includes(category)}
-                  onCheckedChange={() => handleCategoryChange(category)}
-                />
-                <label htmlFor={`category-${category}`} className="text-sm capitalize">
-                  {t(`categories.${category}`)}
-                </label>
-              </div>
-            ))}
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="price">
-          <AccordionTrigger>{t('browse.price_range')}</AccordionTrigger>
-          <AccordionContent>
-            {priceRanges.map(range => (
-              <div key={range} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`price-${range}`}
-                  checked={selectedPriceRanges.includes(range)}
-                  onCheckedChange={() => handlePriceChange(range)}
-                />
-                <label htmlFor={`price-${range}`} className="text-sm">{range}</label>
-              </div>
-            ))}
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="rating">
-          <AccordionTrigger>{t('browse.rating')}</AccordionTrigger>
-          <AccordionContent>
-            <Select onValueChange={onRatingChange} defaultValue="4+">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t('browse.select_rating')} />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {ratings.map(rating => (
-                  <SelectItem key={rating} value={rating}>{rating}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-      <Button className="w-full mt-4">{t('browse.apply_filters')}</Button>
-    </div>
-  );
-};
-
 const BrowseGear = () => {
   const [filteredGear, setFilteredGear] = useState(sampleGear);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
+  const [sortOption, setSortOption] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
+
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const search = queryParams.get('query') || "";
-    const locationParam = queryParams.get('location') || "";
-    const category = queryParams.get('category');
+  const queryParams = new URLSearchParams(location.search);
+  const search = queryParams.get("query") || "";
 
+  // nastav hodnotu pouze při načtení komponenty
+  if (!searchQuery) {
     setSearchQuery(search);
-    setLocationQuery(locationParam);
-    if (category) setSelectedCategories([category]);
+  }
 
-    let filtered = sampleGear;
+  let filtered = sampleGear.filter((gear) => {
+    const matchesSearch = gear.name.toLowerCase().includes(search.toLowerCase());
+    const matchesLocation = gear.location.toLowerCase().includes(locationQuery.toLowerCase());
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(gear.category);
+    const matchesRating = selectedRatings.length === 0 || selectedRatings.some((r) => gear.rating >= parseFloat(r));
+    return matchesSearch && matchesLocation && matchesCategory && matchesRating;
+  });
 
-    if (category) {
-      filtered = filtered.filter(gear => gear.category.toLowerCase() === category);
-    }
+  if (sortOption === "price-asc") {
+    filtered = [...filtered].sort((a, b) => a.price - b.price);
+  } else if (sortOption === "price-desc") {
+    filtered = [...filtered].sort((a, b) => b.price - a.price);
+  }
 
-    if (search) {
-      filtered = filtered.filter(gear =>
-        gear.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+  setFilteredGear(filtered);
+}, [location.search, sortOption, locationQuery, selectedCategories, selectedRatings]);
 
-    setFilteredGear(filtered);
-  }, [location.search]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (searchQuery) params.set("query", searchQuery);
-    if (locationQuery) params.set("location", locationQuery);
-    if (selectedCategories.length > 0) {
-      params.set("category", selectedCategories[0]);
-    }
     navigate(`/browse?${params.toString()}`);
   };
 
-  const handleCategoryFilter = (categories: string[]) => {
-    setSelectedCategories(categories);
-    const filtered = sampleGear.filter(item =>
-      categories.length === 0 || categories.includes(item.category.toLowerCase())
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
-    setFilteredGear(filtered);
+  };
+
+  const toggleRating = (rating: string) => {
+    setSelectedRatings((prev) =>
+      prev.includes(rating) ? prev.filter((r) => r !== rating) : [...prev, rating]
+    );
   };
 
   return (
-    <div className="bg-kitloop-background min-h-screen pt-24 pb-16">
-      {/* BrowseGear polished UI */}
-      <section className="border-b border-border bg-muted/50 py-20 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">
-            {t('browse.title')}
+    <div className="bg-kitloop-background min-h-screen">
+      <section className="bg-gradient-to-br from-green-100 to-white py-24 px-4 border-b border-border">
+        <div className="max-w-5xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            {t("browse.title")}
           </h1>
-          <p className="text-base text-muted-foreground max-w-2xl mx-auto mb-8">
-            {t('browse.subtitle')}
+          <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+            {t("browse.subtitle")}
           </p>
           <form
             onSubmit={handleSearch}
-            className="flex flex-col sm:flex-row gap-2 bg-white p-2 rounded-xl shadow-sm max-w-3xl mx-auto"
+            className="flex flex-col sm:flex-row items-center gap-3 bg-white shadow-md p-4 rounded-2xl max-w-4xl mx-auto"
           >
-            <div className="relative flex-grow">
+            <div className="relative flex-1 w-full">
               <Input
-                placeholder={t('browse.search_placeholder')}
+                placeholder="Search gear..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 py-5"
+                className="pl-10 h-12"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
             </div>
-            <div className="relative flex-grow sm:w-48">
+            <div className="relative flex-1 w-full">
               <Input
-                placeholder={t('browse.location_placeholder')}
+                placeholder="Location..."
                 value={locationQuery}
                 onChange={(e) => setLocationQuery(e.target.value)}
-                className="pl-10 py-5"
+                className="pl-10 h-12"
               />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                📍
-              </div>
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg">📍</div>
             </div>
-            <Button type="submit" className="py-5 px-6 text-base sm:text-lg">
-              {t('browse.search')}
+            <Button type="submit" className="h-12 px-6 text-base">
+              {t("browse.search") || "Search"}
             </Button>
           </form>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 mt-10">
-        {/* BrowseGear polished UI */}
-        <div className="flex flex-col lg:flex-row lg:items-start gap-8">
-          <aside className="lg:sticky lg:top-20 lg:h-fit">
-            <FilterSidebar
-              onCategoryChange={handleCategoryFilter}
-              onPriceChange={() => {}}
-              onRatingChange={() => {}}
-              selectedCategories={selectedCategories}
-            />
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="flex flex-col lg:flex-row gap-10">
+          <aside className="w-full lg:w-64 shrink-0 bg-white p-5 rounded-2xl shadow">
+            <h3 className="text-lg font-semibold mb-4">Filters</h3>
+            <Accordion type="multiple" defaultValue={["category", "rating"]}>
+              <AccordionItem value="category">
+                <AccordionTrigger>Category</AccordionTrigger>
+                <AccordionContent>
+                  {['camping', 'hiking', 'climbing'].map((cat) => (
+                    <div key={cat} className="flex items-center space-x-2 mb-2">
+                      <Checkbox
+                        id={`cat-${cat}`}
+                        checked={selectedCategories.includes(cat)}
+                        onCheckedChange={() => toggleCategory(cat)}
+                      />
+                      <label htmlFor={`cat-${cat}`} className="text-sm capitalize">
+                        {cat}
+                      </label>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="rating">
+                <AccordionTrigger>Rating</AccordionTrigger>
+                <AccordionContent>
+                  {['4', '3'].map((rating) => (
+                    <div key={rating} className="flex items-center space-x-2 mb-2">
+                      <Checkbox
+                        id={`rate-${rating}`}
+                        checked={selectedRatings.includes(rating)}
+                        onCheckedChange={() => toggleRating(rating)}
+                      />
+                      <label htmlFor={`rate-${rating}`} className="text-sm">
+                        {rating}+ stars
+                      </label>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </aside>
 
-          <main className="flex-grow">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredGear.map((gear) => (
-                <GearCard key={gear.id} gear={gear} />
-              ))}
+          <div className="flex-1">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold">Available Gear</h2>
+              <Select onValueChange={setSortOption}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent className="z-50">
+                  <SelectItem value="recommended">Recommended</SelectItem>
+                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            {filteredGear.length === 0 && (
-              <p className="text-center text-muted-foreground mt-6">
-                {t('browse.no_gear_found')}
-              </p>
+
+            {filteredGear.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredGear.map((gear) => (
+                  <GearCard key={gear.id} gear={gear} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground mt-6">
+                <p className="text-lg">{t("browse.no_gear_found")}</p>
+              </div>
             )}
-          </main>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
 export default BrowseGear;
