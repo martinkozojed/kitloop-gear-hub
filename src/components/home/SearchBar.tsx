@@ -32,7 +32,7 @@ const SearchBar = () => {
       <div className="relative flex-grow">
         <Input
           placeholder={t('hero.search_placeholder')}
-          className="pl-10 py-6 bg-transparent border-kitloop-medium-gray focus:border-green-600"
+          className="pl-10 py-4 sm:py-6 bg-transparent border-kitloop-medium-gray focus:border-green-600"
           value={gearQuery}
           onChange={(e) => setGearQuery(e.target.value)}
         />
@@ -41,7 +41,7 @@ const SearchBar = () => {
       <div className="relative flex-grow">
         <Input
           placeholder={t('hero.location_placeholder')}
-          className="pl-10 py-6 bg-transparent border-kitloop-medium-gray focus:border-green-600"
+          className="pl-10 py-4 sm:py-6 bg-transparent border-kitloop-medium-gray focus:border-green-600"
           value={locationQuery}
           onChange={(e) => setLocationQuery(e.target.value)}
         />
@@ -53,7 +53,7 @@ const SearchBar = () => {
         type="submit"
         variant="primary"
         aria-label={t('hero.cta')}
-        className="py-6 px-10 text-lg md:text-xl shadow-lg whitespace-nowrap"
+        className="py-4 px-6 sm:py-6 sm:px-10 text-lg md:text-xl shadow-lg whitespace-nowrap"
       >
         {t('hero.cta')}
       </Button>
