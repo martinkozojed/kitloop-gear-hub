@@ -23,8 +23,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
-type GearItem = Database["public"]["Tables"]["gear_items"]["Row"];
-
 const GearCard = ({ gear }: { gear: GearItem }) => {
   return (
     <Card className="overflow-hidden rounded-2xl transition-transform hover:shadow-xl hover:-translate-y-1">
@@ -59,11 +57,15 @@ const GearCard = ({ gear }: { gear: GearItem }) => {
   );
 };
 
+type GearItem = Database["public"]["Tables"]["gear_items"]["Row"];
+
 const BrowseGear = () => {
   const [gearList, setGearList] = useState<GearItem[]>([]);
   const [filteredGear, setFilteredGear] = useState<GearItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [sortOption, setSortOption] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
@@ -72,28 +74,19 @@ const BrowseGear = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Load gear items from Supabase on mount
   useEffect(() => {
     const fetchGear = async () => {
       const { data, error } = await supabase.from("gear_items").select("*");
-      if (error) {
-        console.error("Error fetching gear items:", error.message);
-      } else {
-        setGearList(data ?? []);
-      }
+      if (error) console.error("Error fetching gear items:", error.message);
+      else setGearList(data ?? []);
     };
-
     fetchGear();
   }, []);
 
-  // Filter gear whenever search params or filters change
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const search = queryParams.get("query") || "";
-
-    if (!searchQuery) {
-      setSearchQuery(search);
-    }
+    if (!searchQuery) setSearchQuery(search);
 
     let filtered = gearList.filter((gear) => {
       const matchesSearch = (gear.name ?? "").toLowerCase().includes(search.toLowerCase());
@@ -102,7 +95,9 @@ const BrowseGear = () => {
       const matchesCategory = selectedCategories.length === 0 || (category ? selectedCategories.includes(category) : true);
       const rating = gear.rating ?? 0;
       const matchesRating = selectedRatings.length === 0 || selectedRatings.some((r) => rating >= parseFloat(r));
-      return matchesSearch && matchesLocation && matchesCategory && matchesRating;
+      const price = gear.price_per_day ?? 0;
+      const matchesPrice = (!minPrice || price >= parseFloat(minPrice)) && (!maxPrice || price <= parseFloat(maxPrice));
+      return matchesSearch && matchesLocation && matchesCategory && matchesRating && matchesPrice;
     });
 
     if (sortOption === "price-asc") {
@@ -112,8 +107,7 @@ const BrowseGear = () => {
     }
 
     setFilteredGear(filtered);
-  }, [gearList, location.search, sortOption, locationQuery, selectedCategories, selectedRatings]);
-
+  }, [gearList, location.search, sortOption, locationQuery, selectedCategories, selectedRatings, minPrice, maxPrice]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,53 +138,32 @@ const BrowseGear = () => {
           <p className="text-muted-foreground max-w-xl mx-auto mb-8">
             {t("browse.subtitle")}
           </p>
-          <form
-            onSubmit={handleSearch}
-            className="flex flex-col sm:flex-row items-center gap-3 bg-white shadow-md p-4 rounded-2xl max-w-4xl mx-auto"
-          >
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-3 bg-white shadow-md p-4 rounded-2xl max-w-4xl mx-auto">
             <div className="relative flex-1 w-full">
-              <Input
-                placeholder="Search gear..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12"
-              />
+              <Input placeholder="Search gear..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 h-12" />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
             </div>
             <div className="relative flex-1 w-full">
-              <Input
-                placeholder="Location..."
-                value={locationQuery}
-                onChange={(e) => setLocationQuery(e.target.value)}
-                className="pl-10 h-12"
-              />
+              <Input placeholder="Location..." value={locationQuery} onChange={(e) => setLocationQuery(e.target.value)} className="pl-10 h-12" />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg">📍</div>
             </div>
-            <Button type="submit" className="h-12 px-6 text-base">
-              {t("browse.search") || "Search"}
-            </Button>
+            <Button type="submit" className="h-12 px-6 text-base">{t("browse.search") || "Search"}</Button>
           </form>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="flex flex-col lg:flex-row gap-10">
-          <aside className="w-full lg:w-64 shrink-0 bg-white p-5 rounded-2xl shadow">
+          <aside className="w-full lg:w-64 shrink-0 sticky top-24 self-start bg-white p-5 rounded-2xl shadow">
             <h3 className="text-lg font-semibold mb-4">Filters</h3>
             <Accordion type="multiple" defaultValue={["category", "rating"]}>
               <AccordionItem value="category">
                 <AccordionTrigger>Category</AccordionTrigger>
                 <AccordionContent>
-                  {['camping', 'hiking', 'climbing'].map((cat) => (
+                  {["camping", "hiking", "climbing"].map((cat) => (
                     <div key={cat} className="flex items-center space-x-2 mb-2">
-                      <Checkbox
-                        id={`cat-${cat}`}
-                        checked={selectedCategories.includes(cat)}
-                        onCheckedChange={() => toggleCategory(cat)}
-                      />
-                      <label htmlFor={`cat-${cat}`} className="text-sm capitalize">
-                        {cat}
-                      </label>
+                      <Checkbox id={`cat-${cat}`} checked={selectedCategories.includes(cat)} onCheckedChange={() => toggleCategory(cat)} />
+                      <label htmlFor={`cat-${cat}`} className="text-sm capitalize">{cat}</label>
                     </div>
                   ))}
                 </AccordionContent>
@@ -198,18 +171,21 @@ const BrowseGear = () => {
               <AccordionItem value="rating">
                 <AccordionTrigger>Rating</AccordionTrigger>
                 <AccordionContent>
-                  {['4', '3'].map((rating) => (
+                  {["4", "3"].map((rating) => (
                     <div key={rating} className="flex items-center space-x-2 mb-2">
-                      <Checkbox
-                        id={`rate-${rating}`}
-                        checked={selectedRatings.includes(rating)}
-                        onCheckedChange={() => toggleRating(rating)}
-                      />
-                      <label htmlFor={`rate-${rating}`} className="text-sm">
-                        {rating}+ stars
-                      </label>
+                      <Checkbox id={`rate-${rating}`} checked={selectedRatings.includes(rating)} onCheckedChange={() => toggleRating(rating)} />
+                      <label htmlFor={`rate-${rating}`} className="text-sm">{rating}+ stars</label>
                     </div>
                   ))}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="price">
+                <AccordionTrigger>Price</AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex gap-2 mt-2">
+                    <Input type="number" placeholder="Min" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="w-full" />
+                    <Input type="number" placeholder="Max" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-full" />
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
