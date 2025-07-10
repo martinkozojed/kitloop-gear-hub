@@ -40,9 +40,11 @@ const CategoryCard = ({ category }: { category: typeof categories[0] }) => {
   };
   
   return (
-    <Card 
+    <Card
       className="overflow-hidden border-none shadow-md hover-lift group cursor-pointer"
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
     >
       <CardContent className="p-0 relative">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>

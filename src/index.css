@@ -37,7 +37,7 @@
 
 
   body {
-    @apply bg-kitloop-background text-kitloop-text;
+    @apply bg-kitloop-background text-kitloop-text overflow-x-hidden;
     font-family: 'Inter', sans-serif;
   }
 

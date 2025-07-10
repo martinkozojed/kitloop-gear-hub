@@ -2,7 +2,13 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Menu } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -58,7 +64,35 @@ const Navbar = () => {
           <Button variant="outline" className="hidden md:flex" asChild>
             <Link to="/login">{t('navbar.sign_in')}</Link>
           </Button>
-          <Button variant="primary" asChild>
+          <Button variant="primary" className="hidden md:flex" asChild>
+            <Link to="/signup">{t('navbar.sign_up')}</Link>
+          </Button>
+
+          {/* Mobile menu */}
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="p-6 space-y-6">
+              <nav className="flex flex-col space-y-4 text-center text-text">
+                <Link to="/how-it-works">{t('navbar.how_it_works')}</Link>
+                <Link to="/browse">{t('navbar.browse_gear')}</Link>
+                <Link to="/about">{t('navbar.about_us')}</Link>
+                <button onClick={() => scrollToSection('faq')}>{t('navbar.faq')}</button>
+              </nav>
+              <div className="flex flex-col gap-3">
+                <Button variant="outline" asChild className="w-full">
+                  <Link to="/login">{t('navbar.sign_in')}</Link>
+                </Button>
+                <Button variant="primary" asChild className="w-full">
+                  <Link to="/signup">{t('navbar.sign_up')}</Link>
+                </Button>
+              </div>
+            </DrawerContent>
+          </Drawer>
+          <Button variant="primary" className="md:hidden" asChild>
             <Link to="/signup">{t('navbar.sign_up')}</Link>
           </Button>
         </div>

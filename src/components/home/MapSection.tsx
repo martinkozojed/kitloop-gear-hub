@@ -42,7 +42,7 @@ const MapSection = () => {
           
           <div className="flex-1">
             <Card className="overflow-hidden border-none shadow-lg rounded-xl">
-              <div className="bg-kitloop-medium-gray h-96 relative">
+              <div className="bg-kitloop-medium-gray h-64 sm:h-80 lg:h-96 relative">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <p className="text-muted-foreground">Interactive map showing nearby rental options would be displayed here</p>
                 </div>
