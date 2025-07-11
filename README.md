@@ -53,6 +53,16 @@ yarn dev
 
 The application will be available at `http://localhost:5173`
 
+### Environment Variables
+
+Create a `.env.local` file based on the provided `.env.example` and add your
+Supabase credentials:
+
+```bash
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
 ## Project Structure
 
 ```
