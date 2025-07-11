@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/integrations/supabase/client';
 
 // Available gear categories with more specific options
 const gearCategories = [
