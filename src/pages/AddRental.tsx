@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { 
   Select,
   SelectContent,
@@ -22,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { submitRental, RentalSubmission } from "@/services/kitloopApi";
+import { supabase } from "@/lib/supabaseClient";
 
 // Available gear categories with more specific options
 const gearCategories = [
@@ -40,12 +39,22 @@ const gearCategories = [
   "Other Outdoor Gear"
 ];
 
+interface FormValues {
+  rentalName: string;
+  location: string;
+  email: string;
+  gearCategory: string;
+  availability: string;
+  image: File | null;
+}
+
 const AddRental = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
-  const form = useForm({
+  const form = useForm<FormValues>({
+    mode: "onBlur",
     defaultValues: {
       rentalName: "",
       location: "",
@@ -60,7 +69,7 @@ const AddRental = () => {
     const file = e.target.files?.[0];
     
     if (file) {
-      form.setValue("image", file);
+      form.setValue("image", file, { shouldValidate: true });
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -71,15 +80,35 @@ const AddRental = () => {
   
   const onSubmit = form.handleSubmit(async (data) => {
     setIsSubmitting(true);
-    
+
     try {
-      // Use our API service instead of setTimeout
-      await submitRental(data as RentalSubmission);
-      toast.success("Your listing request has been sent successfully!");
+      let logoUrl: string | null = null;
+      if (data.image) {
+        const ext = data.image.name.split('.').pop();
+        const filePath = `provider-logos/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('provider-logos')
+          .upload(filePath, data.image);
+        if (uploadError) throw uploadError;
+        logoUrl = supabase.storage.from('provider-logos').getPublicUrl(filePath).data.publicUrl;
+      }
+
+      const { error } = await supabase.from('providers').insert({
+        name: data.rentalName,
+        location: data.location,
+        email: data.email,
+        gear_category: data.gearCategory,
+        availability: data.availability,
+        logo_url: logoUrl,
+        status: 'pending',
+      });
+      if (error) throw error;
+
+      toast.success('Your listing request has been sent successfully!');
       setIsSubmitted(true);
     } catch (error) {
-      toast.error("There was an error submitting your listing. Please try again.");
-      console.error("Error submitting rental:", error);
+      toast.error('There was an error submitting your listing. Please try again.');
+      console.error('Error submitting rental:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -196,6 +225,7 @@ const AddRental = () => {
                 <FormField
                   control={form.control}
                   name="rentalName"
+                  rules={{ required: "Name is required" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Rental/Shop Name</FormLabel>
@@ -210,6 +240,7 @@ const AddRental = () => {
                 <FormField
                   control={form.control}
                   name="location"
+                  rules={{ required: "Location is required" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Location</FormLabel>
@@ -225,6 +256,13 @@ const AddRental = () => {
               <FormField
                 control={form.control}
                 name="email"
+                rules={{
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email address",
+                  },
+                }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contact Email</FormLabel>
@@ -240,6 +278,7 @@ const AddRental = () => {
                 <FormField
                   control={form.control}
                   name="gearCategory"
+                  rules={{ required: "Please select a category" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type of Gear Offered</FormLabel>
@@ -293,12 +332,13 @@ const AddRental = () => {
               <FormField
                 control={form.control}
                 name="availability"
+                rules={{ required: "Please provide availability info" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Availability Notes</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="e.g. Available on weekends only. Not available in winter." 
+                      <Textarea
+                        placeholder="e.g. Available on weekends only. Not available in winter."
                         className="min-h-[100px]"
                         {...field}
                       />
