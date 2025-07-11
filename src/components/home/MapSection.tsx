@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card } from "@/components/ui/card";
+import RentalMap from './RentalMap';
 
 const MapSection = () => {
   return (
@@ -41,16 +41,7 @@ const MapSection = () => {
           </div>
           
           <div className="flex-1">
-            <Card className="overflow-hidden border-none shadow-lg rounded-xl">
-              <div className="bg-kitloop-medium-gray h-64 sm:h-80 lg:h-96 relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-muted-foreground">Interactive map showing nearby rental options would be displayed here</p>
-                </div>
-                <div className="absolute bottom-4 right-4 bg-background p-3 rounded-lg shadow-md">
-                  <p className="font-medium text-sm">24 providers near you</p>
-                </div>
-              </div>
-            </Card>
+            <RentalMap />
           </div>
         </div>
       </div>
