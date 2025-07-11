@@ -91,7 +91,7 @@ const BrowseGear = () => {
     let filtered = gearList.filter((gear) => {
       const matchesSearch = (gear.name ?? "").toLowerCase().includes(search.toLowerCase());
       const matchesLocation = (gear.location ?? "").toLowerCase().includes(locationQuery.toLowerCase());
-      const category = (gear as any).category as string | undefined;
+      const category = (gear as GearItem & { category?: string }).category;
       const matchesCategory = selectedCategories.length === 0 || (category ? selectedCategories.includes(category) : true);
       const rating = gear.rating ?? 0;
       const matchesRating = selectedRatings.length === 0 || selectedRatings.some((r) => rating >= parseFloat(r));
