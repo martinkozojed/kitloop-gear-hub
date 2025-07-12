@@ -17,6 +17,11 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
+import ProviderRoute from "./components/ProviderRoute";
+import DashboardOverview from "./pages/provider/DashboardOverview";
+import ProviderGear from "./pages/provider/ProviderGear";
+import ProviderReservations from "./pages/provider/ProviderReservations";
+import ProviderVerify from "./pages/provider/ProviderVerify";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +44,38 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route
+                path="/provider/dashboard"
+                element={
+                  <ProviderRoute>
+                    <DashboardOverview />
+                  </ProviderRoute>
+                }
+              />
+              <Route
+                path="/provider/dashboard/gear"
+                element={
+                  <ProviderRoute>
+                    <ProviderGear />
+                  </ProviderRoute>
+                }
+              />
+              <Route
+                path="/provider/dashboard/reservations"
+                element={
+                  <ProviderRoute>
+                    <ProviderReservations />
+                  </ProviderRoute>
+                }
+              />
+              <Route
+                path="/provider/dashboard/verify"
+                element={
+                  <ProviderRoute>
+                    <ProviderVerify />
+                  </ProviderRoute>
+                }
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

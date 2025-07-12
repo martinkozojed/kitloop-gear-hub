@@ -5,6 +5,8 @@ interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  role?: string;
+  approved?: boolean;
   isLoggedIn: boolean;
 }
 
