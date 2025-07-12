@@ -22,8 +22,12 @@ import { cn } from "@/lib/utils";
 // Form schema (Zod validation)
 const formSchema = z.object({
   rental_name: z.string().min(1, "Required"),
-  location: z.string().min(1, "Required"),
+  contact_name: z.string().min(1, "Required"),
   email: z.string().email("Must be a valid email"),
+  phone: z.string().regex(/^\+?\d{7,15}$/, "Invalid phone number"),
+  website: z.union([z.string().url("Invalid website URL"), z.literal("")]).optional(),
+  company_id: z.string().min(1, "Required"),
+  location: z.string().min(1, "Required"),
   category: z.string().min(1, "Select a category"),
   availability_notes: z.string().optional(),
   logoFile: z.any().optional(),
@@ -48,8 +52,12 @@ export default function AddRental() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       rental_name: "",
-      location: "",
+      contact_name: "",
       email: "",
+      phone: "",
+      website: "",
+      company_id: "",
+      location: "",
       category: "",
       availability_notes: "",
       logoFile: null,
@@ -99,9 +107,13 @@ export default function AddRental() {
       const { error: insertError } = await supabase
         .from("providers")
         .insert({
-          name: values.rental_name,
-          location: values.location,
+          rental_name: values.rental_name,
+          contact_name: values.contact_name,
           email: values.email,
+          phone: values.phone,
+          website: values.website || null,
+          company_id: values.company_id,
+          location: values.location,
           category: values.category,
           availability_notes: values.availability_notes,
           logo_url: imageUrl,
@@ -126,7 +138,7 @@ export default function AddRental() {
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2 text-2xl font-bold">
             <Package className="w-5 h-5" />
-            List Your Rental
+            Register Your Shop
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -140,9 +152,9 @@ export default function AddRental() {
             </FormItem>
           )} />
 
-          <FormField control={form.control} name="location" render={({ field }) => (
+          <FormField control={form.control} name="contact_name" render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>Contact Name</FormLabel>
               <FormControl><Input {...field} /></FormControl>
               <FormMessage />
             </FormItem>
@@ -152,6 +164,38 @@ export default function AddRental() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl><Input type="email" {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          <FormField control={form.control} name="phone" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          <FormField control={form.control} name="website" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Website</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          <FormField control={form.control} name="company_id" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Company ID (IČO)</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          <FormField control={form.control} name="location" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Location</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />
