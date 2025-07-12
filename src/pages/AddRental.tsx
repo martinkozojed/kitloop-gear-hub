@@ -119,6 +119,7 @@ export default function AddRental() {
     } finally {
       setIsSubmitting(false);
     }
+  };
   return (
     <div className="flex items-center justify-center min-h-screen bg-kitloop-background px-4">
       <Card className="w-full max-w-xl shadow">
