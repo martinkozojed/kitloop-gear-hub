@@ -1,0 +1,30 @@
+
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import Section from "@/components/ui/section";
+import { useTranslation } from "react-i18next";
+
+const CallToAction = () => {
+  const { t } = useTranslation();
+  
+  return (
+    <Section className="bg-gradient-to-br from-green-400 to-green-600">
+      <div className="container mx-auto max-w-4xl text-center">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('cta.title')}</h2>
+        <p className="text-lg mb-8 max-w-2xl mx-auto">
+          {t('cta.description')}
+        </p>
+        <div className="flex flex-wrap gap-4 justify-center">
+          <Button variant="primary" className="px-8 py-6 text-lg hover-lift">
+            {t('cta.find_gear')}
+          </Button>
+          <Button variant="outline" className="px-8 py-6 text-lg hover-lift">
+            {t('cta.become_provider')}
+          </Button>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+export default CallToAction;

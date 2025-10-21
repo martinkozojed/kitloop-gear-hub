@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "badge": "Jak Kitloop funguje",
+    "title": "Pronajměte si outdoor vybavení během pár minut",
+    "subtitle": "Zajistěte si výbavu přesně na váš výlet. Bez čekání, bez telefonátů, s jasným plánem od rezervace až po vrácení.",
+    "primaryCta": "Procházet nabídku",
+    "secondaryCta": "Zobrazit postup (1 min)",
+    "features": {
+      "securePayments": {
+        "title": "Zabezpečená platba",
+        "description": "Záloha zůstává v úschově do potvrzení vrácení.",
+        "iconLabel": "Ikona štítu se znakem bezpečné platby"
+      },
+      "availability": {
+        "title": "Dostupnost v reálném čase",
+        "description": "Vidíte volné termíny hned, bez obvolávání půjčoven.",
+        "iconLabel": "Ikona kalendáře představující dostupnost"
+      },
+      "support": {
+        "title": "Podpora na cestě",
+        "description": "Připomeneme převzetí i vrácení a jsme k dispozici, když se něco změní.",
+        "iconLabel": "Ikona konfety symbolizující hladký průběh"
+      }
+    }
+  },
+  "steps": {
+    "sectionTitle": "Krok za krokem od rezervace po vrácení",
+    "sectionSubtitle": "Celý proces zabere minutu a vše najdete ve svém profilu Kitloop.",
+    "ariaLabel": "Postup rezervace v Kitloopu",
+    "accordionAria": "Kroky rezervace",
+    "stepLabel": "Krok {{index}}",
+    "discover": {
+      "title": "Vyberte vybavení",
+      "description": "Filtrované nabídky podle lokality, termínu nebo aktivity vám ukážou, co je opravdu dostupné.",
+      "tip": "Použijte filtry a uložte si oblíbené položky pro rychlé srovnání.",
+      "iconLabel": "Ikona lupy představující hledání vybavení"
+    },
+    "book": {
+      "title": "Rezervujte termín",
+      "description": "Stačí pár kliknutí, zálohu držíme v úschově a všechno potvrdíme e-mailem.",
+      "tip": "Přidejte zprávu pro poskytovatele, aby věděl, co přesně potřebujete.",
+      "iconLabel": "Ikona kalendáře představující rezervaci termínu"
+    },
+    "pickup": {
+      "title": "Převezměte na místě",
+      "description": "QR kód v aplikaci slouží jako předávací protokol – obě strany vidí stav vybavení i čas.",
+      "tip": "Otevřete QR kód dopředu, ať předání proběhne co nejrychleji.",
+      "iconLabel": "Ikona QR kódu pro potvrzení převzetí"
+    },
+    "return": {
+      "title": "Vraťte bez stresu",
+      "description": "Stačí opět potvrdit vrácení v aplikaci a záloha se uvolní. Zkušenost můžete hned ohodnotit.",
+      "tip": "Přidejte krátké hodnocení, pomáhá to ostatním i poskytovateli.",
+      "iconLabel": "Ikona konfety symbolizující úspěšné vrácení"
+    }
+  },
+  "behind": {
+    "title": "Co se děje na pozadí",
+    "subtitle": "O rezervaci se staráme od prvního potvrzení až po vrácení, abyste měli klid.",
+    "cards": {
+      "notify": {
+        "title": "Okamžité upozornění",
+        "description": "Jakmile rezervujete, poskytovatel dostane kompletní přehled a může se připravit.",
+        "iconLabel": "Ikona zvonku oznamující upozornění"
+      },
+      "tracking": {
+        "title": "Hlídání termínů",
+        "description": "Sledujeme začátky i konce, a pokud hrozí zpoždění, pošleme připomínku oběma stranám.",
+        "iconLabel": "Ikona hodin znázorňující hlídání času"
+      },
+      "help": {
+        "title": "Podpora na telefonu",
+        "description": "K dispozici je tým Kitloopu – když se něco zasekne, rychle pomůžeme domluvit další postup.",
+        "iconLabel": "Ikona bubliny představující podporu"
+      }
+    }
+  },
+  "pilot": {
+    "badge": "Pro první poskytovatele",
+    "title": "Chcete být u toho hned od začátku?",
+    "description": "Kitloop je v pilotním provozu a spolu s prvními půjčovnami ladíme každý detail. Pomůžeme vám převést rezervace do digitálu během pár dní.",
+    "highlights": {
+      "onboarding": {
+        "title": "Osobní onboarding",
+        "description": "Společně nastavíme profil, ceny i inventář, aby bylo všechno připravené.",
+        "iconLabel": "Ikona záchranného kruhu symbolizující podporu"
+      },
+      "communication": {
+        "title": "Rychlá komunikace",
+        "description": "Jsme dostupní na telefonu i e-mailu, reagujeme během několika minut.",
+        "iconLabel": "Ikona bubliny představující komunikaci"
+      },
+      "feedback": {
+        "title": "Vývoj podle vás",
+        "description": "Vaše připomínky jdou přímo k product týmu a nové funkce nasazujeme týdně.",
+        "iconLabel": "Ikona hvězdiček představující zlepšování produktu"
+      }
+    },
+    "ctaTitle": "Přidejte se do pilotu",
+    "ctaSubtitle": "Domluvíme onboarding call, projdeme proces a nastavíme první rezervace.",
+    "primaryCta": "Začít nastavení profilu",
+    "secondaryCta": "Napsat týmu Kitloop",
+    "contactNote": "Preferujete telefon? Napište nám a domluvíme si hovor ve vámi zvoleném čase."
+  },
+  "stickyCta": {
+    "ariaLabel": "Rychlé akce Kitloop",
+    "message": "Máte otázky? Vyzkoušejte nabídku nebo se podívejte na celý postup.",
+    "primary": "Procházet nabídku",
+    "secondary": "Zobrazit postup (1 min)"
+  },
+  "jsonld": {
+    "name": "Jak funguje Kitloop",
+    "description": "Krátký návod, jak probíhá rezervace outdoor vybavení přes Kitloop."
+  }
+}

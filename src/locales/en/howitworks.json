@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "badge": "How Kitloop Works",
+    "title": "Rent outdoor gear in just a minute",
+    "subtitle": "Get the right equipment for your trip without phone calls or waiting. Every step from booking to return is planned for you.",
+    "primaryCta": "Browse gear",
+    "secondaryCta": "See the steps (1 min)",
+    "features": {
+      "securePayments": {
+        "title": "Secure payment",
+        "description": "We hold the deposit in escrow until the gear is returned.",
+        "iconLabel": "Shield icon representing secure payment"
+      },
+      "availability": {
+        "title": "Live availability",
+        "description": "Check real-time calendars instead of calling rental shops.",
+        "iconLabel": "Calendar icon representing availability"
+      },
+      "support": {
+        "title": "Support along the way",
+        "description": "We remind you about pickup and return and help if anything changes.",
+        "iconLabel": "Confetti icon showing a smooth experience"
+      }
+    }
+  },
+  "steps": {
+    "sectionTitle": "Step by step from booking to return",
+    "sectionSubtitle": "The whole process takes a minute and you can manage everything from your Kitloop profile.",
+    "ariaLabel": "Reservation flow in Kitloop",
+    "accordionAria": "Reservation steps",
+    "stepLabel": "Step {{index}}",
+    "discover": {
+      "title": "Choose your gear",
+      "description": "Filter by location, date or activity to see what is truly available.",
+      "tip": "Use filters and save favourites to compare options quickly.",
+      "iconLabel": "Magnifying glass icon representing gear search"
+    },
+    "book": {
+      "title": "Confirm the dates",
+      "description": "A few clicks secure the booking, we keep the deposit safe and send confirmations by email.",
+      "tip": "Add a note for the provider so they know the exact plan.",
+      "iconLabel": "Calendar icon representing booking"
+    },
+    "pickup": {
+      "title": "Pick up on site",
+      "description": "Your in-app QR code acts as the handover protocol so everyone sees the status and time.",
+      "tip": "Open the QR code in advance to keep the handover quick.",
+      "iconLabel": "QR code icon confirming pickup"
+    },
+    "return": {
+      "title": "Return without stress",
+      "description": "Confirm the return in the app, the deposit is released and you can leave a review immediately.",
+      "tip": "Share a short review to help other renters and the provider.",
+      "iconLabel": "Confetti icon symbolising a successful return"
+    }
+  },
+  "behind": {
+    "title": "What happens behind the scenes",
+    "subtitle": "We manage every reservation from confirmation to return so you can stay relaxed.",
+    "cards": {
+      "notify": {
+        "title": "Instant notification",
+        "description": "Providers receive the full overview as soon as you book so they can prepare.",
+        "iconLabel": "Bell icon showing a notification"
+      },
+      "tracking": {
+        "title": "Timeline tracking",
+        "description": "We monitor start and end times and send reminders if anything runs late.",
+        "iconLabel": "Clock icon representing time tracking"
+      },
+      "help": {
+        "title": "Team on call",
+        "description": "The Kitloop team is ready to jump in and help coordinate the next steps.",
+        "iconLabel": "Speech bubble icon representing support"
+      }
+    }
+  },
+  "pilot": {
+    "badge": "For early providers",
+    "title": "Join from day one",
+    "description": "Kitloop is running a pilot with selected rental partners to digitise bookings in days, not months.",
+    "highlights": {
+      "onboarding": {
+        "title": "Personal onboarding",
+        "description": "We set up your profile, pricing and inventory together so everything is ready.",
+        "iconLabel": "Lifebuoy icon representing guidance"
+      },
+      "communication": {
+        "title": "Fast communication",
+        "description": "Reach us by phone or email—we respond within minutes.",
+        "iconLabel": "Speech bubble icon representing communication"
+      },
+      "feedback": {
+        "title": "Product shaped by you",
+        "description": "Your feedback goes straight to the product team and we ship improvements every week.",
+        "iconLabel": "Sparkles icon representing product improvements"
+      }
+    },
+    "ctaTitle": "Join the pilot",
+    "ctaSubtitle": "Book an onboarding call, walk through the flow and launch your first reservations.",
+    "primaryCta": "Start profile setup",
+    "secondaryCta": "Contact the Kitloop team",
+    "contactNote": "Prefer a call? Send us a note and we will schedule one that fits you."
+  },
+  "stickyCta": {
+    "ariaLabel": "Quick Kitloop actions",
+    "message": "Ready to dive in? Explore the gear or review the full walkthrough.",
+    "primary": "Browse gear",
+    "secondary": "See the steps (1 min)"
+  },
+  "jsonld": {
+    "name": "How Kitloop works",
+    "description": "A short guide that explains the outdoor gear booking flow in Kitloop."
+  }
+}

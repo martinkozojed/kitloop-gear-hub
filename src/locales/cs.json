@@ -1,0 +1,295 @@
+
+{
+  "hero": {
+    "headline": "Najdi. Půjč. Objev.",
+    "search_placeholder": "Jaké vybavení hledáš?",
+    "location_placeholder": "Kde? (Město nebo PSČ)",
+    "cta": "Najdi výbavu",
+    "add_rental": "Přidej svou výbavu",
+      "description": "Rezervuj outdoorové vybavení od místních během chvilky.",
+    "image_alt": "Venkovní krajina",
+    "title": "Vaše další dobrodružství začíná zde",
+    "subtitle": "Půjčte si špičkové vybavení od místních nadšenců",
+    "gearPlaceholder": "Typ vybavení",
+    "locationPlaceholder": "Lokalita"
+  },
+  "footer": {
+    "about": "O nás",
+    "browse": "Prohlížet výbavu",
+    "how_it_works": "Jak to funguje",
+    "faq": "Často kladené dotazy",
+    "contact": "Kontakt",
+    "privacy": "Zásady ochrany osobních údajů",
+    "terms": "Obchodní podmínky",
+    "cookies": "Cookies",
+    "copyright": "© {{year}} Kitloop. Všechna práva vyhrazena."
+  },
+  "navbar": {
+    "home": "Domů",
+    "how_it_works": "Jak to funguje",
+    "browse_gear": "Prohlížet výbavu",
+    "about_us": "O nás",
+    "faq": "Časté dotazy",
+    "sign_in": "Přihlásit se",
+    "sign_up": "Registrovat se"
+  },
+  "cta": {
+    "title": "Jsi připraven na další dobrodružství?",
+    "description": "Přidej se k tisícům nadšenců do outdooru, kteří již využívají Kitloop pro přístup k vybavení bez starostí s vlastnictvím.",
+    "find_gear": "Najít vybavení teď",
+    "become_provider": "Stát se poskytovatelem"
+  },
+  "categories": {
+    "title": "Prozkoumejte podle kategorie",
+    "description": "Najděte perfektní vybavení pro vaše další dobrodružství v přírodě",
+    "camping": "Kempování",
+    "hiking": "Turistika",
+    "winter_sports": "Zimní sporty",
+    "water_activities": "Vodní aktivity",
+    "climbing": "Lezení"
+  },
+  "about": {
+    "title": "O nás",
+    "why_kitloop": {
+      "title": "Proč Kitloop vznikl",
+      "paragraph1": "Kitloop začal jako fiktivní podnik pro univerzitní kurz marketingu. Ale místo vytváření něčeho náhodného jsem se podíval na skutečný problém: doma jsme měli tuny outdoorového vybavení, které jsme používali jen jednou či dvakrát za rok. Mezitím lidé stále kupovali nové věci.",
+      "paragraph2": "Tak se zrodil nápad — platforma, kde by poskytovatelé půjčoven a jednotlivci mohli nabízet své vybavení online, vše na jednom místě.",
+      "paragraph3": "Věříme, že trh s půjčovnami vybavení naléhavě potřebuje digitalizaci — a tohle je naše odpověď."
+    },
+    "founder": {
+      "title": "O zakladateli",
+      "paragraph1": "Ahoj! Jsem Martin Kozojed – student cestovního ruchu, nadšenec do outdooru a milovník technologií.",
+      "paragraph2": "Vytvořil jsem Kitloop, protože jsem chtěl spojit všechny věci, na kterých mi záleží: přírodu, komunitu a chytrá digitální řešení.",
+      "paragraph3": "Věřím, že vybavení by mělo být přístupné, ne vlastněné. Kitloop je můj způsob, jak to uskutečnit.",
+      "image_alt": "Martin Kozojed, zakladatel Kitloop"
+    },
+    "cta": "Připojte se k nám jako poskytovatel půjčovny"
+  },
+  "language_selector": {
+    "en": "Anglicky",
+    "cs": "Česky"
+  },
+  "browse": {
+    "title": "Prohlížej dostupné vybavení",
+    "subtitle": "Vyhledávejte a půjčujte si vybavení podle činnosti, lokality nebo poskytovatele. Najděte přesně to, co potřebujete pro vaše další dobrodružství.",
+    "search_placeholder": "Hledat vybavení...",
+    "location_placeholder": "Lokalita...",
+    "search": "Hledat",
+    "filters": "Filtry",
+    "categories": "Kategorie",
+    "price_range": "Cenové rozpětí (Kč/den)",
+    "rating": "Hodnocení",
+    "select_rating": "Vyberte hodnocení",
+    "apply_filters": "Použít filtry",
+    "showing": "Zobrazeno",
+    "items": "položek",
+    "in": "v",
+    "sort_by": "Seřadit dle",
+    "most_popular": "Nejpopulárnější",
+    "price_low_high": "Cena: od nejnižší",
+    "price_high_low": "Cena: od nejvyšší",
+    "highest_rated": "Nejlépe hodnocené",
+    "no_gear_found": "Nebylo nalezeno žádné vybavení odpovídající vašim kritériím.",
+    "clear_filters": "Vymazat filtry",
+    "reserve": "Rezervovat"
+  },
+  "how_it_works": {
+    "title": "Jak Kitloop funguje",
+    "subtitle": "Půjčování outdoorového vybavení nikdy nebylo jednodušší",
+    "learn_more": "Zjistěte více o tom, jak to funguje",
+    "step_1_title": "Vyberte",
+    "step_1_description": "Procházejte vybavení od ověřených poskytovatelů ve vašem okolí.",
+    "step_2_title": "Rezervujte",
+    "step_2_description": "Zvolte termíny, zaplaťte online a ihned máte potvrzeno.",
+    "step_3_title": "Vyzvedněte",
+    "step_3_description": "Pokyny k vyzvednutí obdržíte po potvrzení rezervace.",
+    "step_4_title": "Vraťte",
+    "step_4_description": "Vraťte vybavení včas a zanechte hodnocení."
+  },
+  "featured": {
+  "expand": "Zobrazit více vybavení",
+  "collapse": "Zobrazit méně"
+  },
+  "login": {
+    "welcome": "Vítejte zpět",
+    "instructions": "Pro přihlášení zadejte své přihlašovací údaje",
+    "email": "Email",
+    "email_placeholder": "ahoj@priklad.cz",
+    "password": "Heslo",
+    "password_placeholder": "••••••••",
+    "forgot_password": "Zapomenuté heslo?",
+    "sign_in": "Přihlásit se",
+    "signing_in": "Přihlašování...",
+    "no_account": "Nemáte účet?",
+    "create_account": "Vytvořit účet",
+    "success": "Úspěšně přihlášeno!",
+    "error_fields": "Zadejte prosím email i heslo"
+  },
+  "signup": {
+    "title": "Vytvořit účet",
+    "description": "Zadejte své údaje pro začátek s Kitloop",
+    "first_name": "Jméno",
+    "first_name_placeholder": "Jana",
+    "last_name": "Příjmení",
+    "last_name_placeholder": "Nováková",
+    "email": "Email",
+    "email_placeholder": "ahoj@priklad.cz",
+    "password": "Heslo",
+    "password_placeholder": "Vytvořte heslo",
+    "confirm_password": "Potvrďte heslo",
+    "confirm_password_placeholder": "Potvrďte své heslo",
+    "create_account": "Vytvořit účet",
+    "creating_account": "Vytváření účtu...",
+    "have_account": "Už máte účet?",
+    "sign_in": "Přihlásit se",
+    "success": "Účet byl úspěšně vytvořen!",
+    "password_mismatch": "Hesla se neshodují"
+  },
+  "provider": {
+    "sidebar": {
+      "headline": "Řídicí centrum",
+      "welcome": "Vítej zpět",
+      "subtitle": "Měj svou půjčovnu pod kontrolou.",
+      "nav": {
+        "dashboard": "Přehled",
+        "inventory": "Inventář",
+        "reservations": "Rezervace",
+        "reports": "Reporty",
+        "settings": "Nastavení"
+      },
+      "newReservation": "Nová rezervace"
+    },
+    "bottomNav": {
+      "dashboard": "Přehled",
+      "inventory": "Inventář",
+      "reservations": "Rezervace",
+      "more": "Nastavení"
+    },
+    "dashboard": {
+      "title": "Přehled",
+      "todayLabel": "Dnes: {{date}}",
+      "empty": {
+        "welcome": "👋 Vítej, {{name}}!",
+        "subtitle": "Začněme s Kitloopem.",
+        "ctaTitle": "🎿 Přidej svou první výbavu",
+        "ctaDescription": "Začni půjčovat přidáním vybavení do inventáře. Zabere to méně než 2 minuty.",
+        "ctaAdd": "Přidat položku",
+        "ctaImport": "Import z CSV",
+        "tutorial": "💡 Pusť si 30sekundový návod",
+        "checklistTitle": "Kontrolní seznam: {{completed}}/{{total}} hotovo",
+        "profile": "Profil společnosti vytvořen",
+        "firstItem": "První položka ve výbavě přidána",
+        "testReservation": "Testovací rezervace vytvořena",
+        "team": "Člen týmu pozván",
+        "pricing": "Ceník nastaven",
+        "create": "Vytvořit",
+        "comingSoon": "Již brzy",
+        "continueSetup": "Pokračovat v nastavení →"
+      },
+      "stats": {
+        "pickups": "Vyzvednutí",
+        "returns": "Vrácení",
+        "available": "Dostupné",
+        "today": "Dnes",
+        "items": "Položky"
+      },
+      "agenda": {
+        "title": "📅 Dnešní program",
+        "empty": "Dnes nejsou naplánována žádná vyzvednutí ani vrácení",
+        "viewAll": "Zobrazit všechny rezervace",
+        "pickupLabel": "🔵 VYZVEDNUTÍ",
+        "returnLabel": "🟢 VRÁCENÍ",
+        "checkOut": "Vydat",
+        "checkIn": "Převzít zpět",
+        "placeholder": "Detaily programu se zobrazí, jakmile bude agenda rezervací propojena."
+      },
+      "upcoming": {
+        "title": "📊 Nadcházející (dalších 7 dní)",
+        "reservations": "{{count}} rezervací",
+        "pending": "{{count}} čeká na potvrzení",
+        "viewAll": "Zobrazit všechny rezervace →"
+      }
+    },
+    "inventory": {
+      "title": "Inventář",
+      "totalAll": "{{count}} položek celkem",
+      "totalFiltered": "Zobrazeno {{filtered}} z {{total}} položek",
+      "buttons": {
+        "import": "Import CSV",
+        "add": "Přidat položku",
+        "addFirst": "Přidat první položku"
+      },
+      "searchPlaceholder": "Hledat podle názvu, SKU nebo popisu...",
+      "filters": {
+        "categories": "Všechny kategorie",
+        "status": "Všechny stavy",
+        "condition": "Všechny stavy vybavení",
+        "clear": "Vymazat všechny filtry",
+        "badge": "Hledáno: \"{{value}}\"",
+        "categoryBadge": "Kategorie: {{value}}",
+        "statusBadge": "Stav: {{value}}",
+        "conditionBadge": "Stav vybavení: {{value}}"
+      },
+      "empty": {
+        "title": "Zatím žádný inventář",
+        "description": "Začni tím, že přidáš první položku a můžeš začít půjčovat."
+      },
+      "table": {
+        "image": "Obrázek",
+        "name": "Název",
+        "category": "Kategorie",
+        "price": "Cena/den",
+        "quantity": "Množství",
+        "status": "Stav",
+        "actions": "Akce"
+      },
+      "mobileCard": {
+        "price": "Cena:",
+        "pricePerDay": "{{value}} Kč/den",
+        "availability": "Dostupnost:",
+        "availabilityValue": "{{available}}/{{total}} ks",
+        "sku": "SKU:",
+        "edit": "Upravit",
+        "delete": "Smazat"
+      },
+      "statusLabels": {
+        "available": "dostupné",
+        "reserved": "rezervováno",
+        "maintenance": "servis",
+        "retired": "vyřazeno"
+      },
+      "filterResults": {
+        "title": "Žádné položky nenalezeny",
+        "searchHint": "Zkuste jiný vyhledávací výraz nebo upravte filtry",
+        "hint": "Zkuste změnit filtry",
+        "button": "Vymazat všechny filtry"
+      },
+      "toasts": {
+        "noProviderTitle": "Chyba: Nenalezen profil poskytovatele",
+        "noProviderDescription": "Zkuste se odhlásit a znovu přihlásit.",
+        "accessError": "Chyba přístupu",
+        "accessDescription": "Nemáte oprávnění zobrazit tento inventář.",
+        "networkError": "Chyba připojení",
+        "networkDescription": "Zkontrolujte internetové připojení a zkuste to znovu.",
+        "fetchError": "Nepodařilo se načíst inventář",
+        "fetchDescription": "Obnovte stránku a zkuste to znovu.",
+        "unexpectedError": "Neočekávaná chyba",
+        "unexpectedDescription": "Obnovte stránku nebo kontaktujte podporu.",
+        "deleteAccessError": "Chyba přístupu",
+        "deleteForeignKey": "Nelze smazat položku",
+        "deleteForeignKeyDescription": "Položka je použita v aktivních rezervacích.",
+        "deleteError": "Nepodařilo se smazat položku",
+        "deleteSuccess": "Položka smazána",
+        "deleteSuccessDescription": "Inventář byl úspěšně aktualizován."
+      },
+      "dialog": {
+        "title": "Smazat položku?",
+        "question": "Opravdu chcete smazat \"{{name}}\"?",
+        "warning": "Tato akce je nevratná. Položka bude trvale odstraněna z inventáře.",
+        "highValue": "⚠️ Upozornění: Položka má vysokou hodnotu ({{price}} Kč/den)",
+        "cancel": "Zrušit",
+        "confirm": "Smazat položku"
+      }
+    }
+  }
+}

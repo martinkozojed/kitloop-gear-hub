@@ -1,0 +1,13 @@
+[[headers]]
+for = "/*"
+  [headers.values]
+  Content-Security-Policy = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://*.supabase.co https://api.stripe.com https://r.stripe.com https://*.sentry.io https://*.ingest.sentry.io; frame-ancestors 'self'; base-uri 'self';"
+  Referrer-Policy = "no-referrer"
+  Permissions-Policy = "geolocation=(), camera=(), microphone=()"
+  X-Content-Type-Options = "nosniff"
+  X-Frame-Options = "SAMEORIGIN"
+
+# Context: Protect outbound requests to Supabase, Stripe, and Sentry (M1 hardening).
+# To enable Stripe Elements later, extend script-src/frame-src with https://js.stripe.com
+# Example variant: script-src 'self' https://js.stripe.com; frame-src 'self' https://js.stripe.com
+# Keep connect-src ready for https://r.stripe.com (Stripe) and https://*.ingest.sentry.io (Sentry ingest).

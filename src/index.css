@@ -1,0 +1,80 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45 29% 97%;
+    --foreground: 0 0% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 80% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 80% 8%;
+
+    --primary: 123 46% 34%;
+    --primary-foreground: 0 0% 100%;
+
+
+    --muted: 60 14% 95%;
+    --muted-foreground: 200 10% 40%;
+
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 200 20% 88%;
+    --input: 200 20% 88%;
+    --ring: 123 46% 34%;
+
+    --radius: 0.5rem;
+  }
+
+
+  body {
+    @apply bg-kitloop-background text-kitloop-text overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1 {
+    @apply font-heading text-4xl font-bold;
+  }
+
+  h2 {
+    @apply font-heading text-3xl font-semibold;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+  }
+
+  /* Custom utility classes */
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1;
+  }
+}
+
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
