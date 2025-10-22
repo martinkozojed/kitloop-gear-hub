@@ -205,13 +205,18 @@
         "checkIn": "Check In",
         "placeholder": "Agenda details will appear here once reservation data is connected.",
         "noTime": "Time not set",
+        "anytimeToday": "Anytime today",
         "confirm": "Confirm",
+        "confirming": "Confirming...",
+        "processing": "Processing...",
         "reschedule": "Reschedule",
         "markReturned": "Mark as Returned",
         "reportDamage": "Report Damage",
         "success": "Success",
+        "pickupConfirmed": "Pickup confirmed!",
         "markedAsReturned": "Reservation marked as completed",
-        "errorMarkingReturned": "Error marking reservation as returned"
+        "errorMarkingReturned": "Error marking reservation as returned",
+        "errorConfirming": "Error confirming reservation"
       },
       "upcoming": {
         "title": "📊 Upcoming (Next 7 Days)",

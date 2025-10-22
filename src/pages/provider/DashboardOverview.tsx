@@ -52,6 +52,7 @@ const DashboardOverview = () => {
   });
   const [loading, setLoading] = useState(true);
   const [todayEvents, setTodayEvents] = useState<AgendaEvent[]>([]);
+  const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
   const [checklist, setChecklist] = useState<SetupChecklist>({
     profileCreated: true, // Always true if they're here
     firstItemAdded: false,
@@ -356,11 +357,73 @@ const DashboardOverview = () => {
     };
   }, [provider?.id]); // Only re-run when provider.id actually changes
 
-  const handleMarkReturned = async (reservationId: string) => {
+  const handleConfirmPickup = async (reservationId: string) => {
+    setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
+
+    // Optimistic update
+    setTodayEvents(prev =>
+      prev.map(e => e.id === reservationId ? { ...e, status: 'confirmed' } : e)
+    );
+
     try {
       const { error } = await supabase
         .from('reservations')
-        .update({ status: 'completed' })
+        .update({
+          status: 'confirmed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reservationId);
+
+      if (error) throw error;
+
+      toast({
+        title: t('provider.dashboard.agenda.success'),
+        description: t('provider.dashboard.agenda.pickupConfirmed'),
+      });
+
+      // Optionally remove from list or keep with updated status
+      // For now, keeping it visible as "confirmed"
+    } catch (error) {
+      console.error('Error confirming pickup:', error);
+
+      // Rollback optimistic update
+      setTodayEvents(prev =>
+        prev.map(e => e.id === reservationId ? { ...e, status: 'hold' } : e)
+      );
+
+      toast({
+        title: t('error'),
+        description: t('provider.dashboard.agenda.errorConfirming'),
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingActions(prev => ({ ...prev, [reservationId]: false }));
+    }
+  };
+
+  const handleReschedule = (reservationId: string) => {
+    // Navigate to reservations page with this reservation selected
+    // For now, just navigate to reservations list
+    window.location.href = `/provider/reservations?highlight=${reservationId}`;
+  };
+
+  const handleReportDamage = (reservationId: string) => {
+    // For now, navigate to reservations page
+    // Future: open damage report modal
+    window.location.href = `/provider/reservations?damage=${reservationId}`;
+  };
+
+  const handleMarkReturned = async (reservationId: string) => {
+    setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
+
+    try {
+      const { error } = await supabase
+        .from('reservations')
+        .update({
+          status: 'completed',
+          actual_return_time: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
         .eq('id', reservationId);
 
       if (error) throw error;
@@ -379,6 +442,8 @@ const DashboardOverview = () => {
         description: t('provider.dashboard.agenda.errorMarkingReturned'),
         variant: 'destructive',
       });
+    } finally {
+      setLoadingActions(prev => ({ ...prev, [reservationId]: false }));
     }
   };
 
@@ -568,7 +633,11 @@ const DashboardOverview = () => {
                   <AgendaEventCard
                     key={event.id}
                     event={event}
+                    onConfirmPickup={handleConfirmPickup}
+                    onReschedule={handleReschedule}
                     onMarkReturned={handleMarkReturned}
+                    onReportDamage={handleReportDamage}
+                    isLoading={loadingActions[event.id] || false}
                   />
                 ))}
                 <div className="pt-2 text-center">
@@ -609,14 +678,25 @@ const DashboardOverview = () => {
 
 interface AgendaEventCardProps {
   event: AgendaEvent;
+  onConfirmPickup?: (id: string) => void;
+  onReschedule?: (id: string) => void;
   onMarkReturned?: (id: string) => void;
+  onReportDamage?: (id: string) => void;
+  isLoading?: boolean;
 }
 
-const AgendaEventCard = ({ event, onMarkReturned }: AgendaEventCardProps) => {
+const AgendaEventCard = ({
+  event,
+  onConfirmPickup,
+  onReschedule,
+  onMarkReturned,
+  onReportDamage,
+  isLoading = false
+}: AgendaEventCardProps) => {
   const { t } = useTranslation();
 
   const formatTime = (time: string | null) => {
-    if (!time) return t('provider.dashboard.agenda.noTime');
+    if (!time) return t('provider.dashboard.agenda.anytimeToday');
     return new Date(time).toLocaleTimeString(t('locale'), {
       hour: '2-digit',
       minute: '2-digit'
@@ -667,10 +747,20 @@ const AgendaEventCard = ({ event, onMarkReturned }: AgendaEventCardProps) => {
           <div className="flex gap-2 mt-3">
             {isPickup ? (
               <>
-                <Button size="sm" variant="primary">
-                  {t('provider.dashboard.agenda.confirm')}
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => onConfirmPickup && onConfirmPickup(event.id)}
+                  disabled={isLoading}
+                >
+                  {isLoading ? t('provider.dashboard.agenda.confirming') : t('provider.dashboard.agenda.confirm')}
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onReschedule && onReschedule(event.id)}
+                  disabled={isLoading}
+                >
                   {t('provider.dashboard.agenda.reschedule')}
                 </Button>
               </>
@@ -680,10 +770,16 @@ const AgendaEventCard = ({ event, onMarkReturned }: AgendaEventCardProps) => {
                   size="sm"
                   variant="primary"
                   onClick={() => onMarkReturned && onMarkReturned(event.id)}
+                  disabled={isLoading}
                 >
-                  {t('provider.dashboard.agenda.markReturned')}
+                  {isLoading ? t('provider.dashboard.agenda.processing') : t('provider.dashboard.agenda.markReturned')}
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onReportDamage && onReportDamage(event.id)}
+                  disabled={isLoading}
+                >
                   {t('provider.dashboard.agenda.reportDamage')}
                 </Button>
               </>

@@ -205,13 +205,18 @@
         "checkIn": "Převzít zpět",
         "placeholder": "Detaily programu se zobrazí, jakmile bude agenda rezervací propojena.",
         "noTime": "Čas neuvedený",
+        "anytimeToday": "Kdykoliv dnes",
         "confirm": "Potvrdit",
+        "confirming": "Potvrzuji...",
+        "processing": "Zpracovávám...",
         "reschedule": "Přeplánovat",
         "markReturned": "Označit jako vráceno",
         "reportDamage": "Nahlásit poškození",
         "success": "Úspěch",
+        "pickupConfirmed": "Vyzvednutí potvrzeno!",
         "markedAsReturned": "Rezervace byla označena jako dokončená",
-        "errorMarkingReturned": "Chyba při označování rezervace jako vrácené"
+        "errorMarkingReturned": "Chyba při označování rezervace jako vrácené",
+        "errorConfirming": "Chyba při potvrzování rezervace"
       },
       "upcoming": {
         "title": "📊 Nadcházející (dalších 7 dní)",
