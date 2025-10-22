@@ -6,8 +6,9 @@ import { Progress } from "@/components/ui/progress";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Package, Calendar, CheckCircle, Clock } from 'lucide-react';
+import { Package, Calendar, CheckCircle, Clock, Phone, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from '@/components/ui/use-toast';
 
 interface DashboardStats {
   totalItems: number;
@@ -26,6 +27,18 @@ interface SetupChecklist {
   pricingConfigured: boolean;
 }
 
+interface AgendaEvent {
+  id: string;
+  type: 'pickup' | 'return';
+  customer_name: string;
+  customer_phone: string | null;
+  gear_name: string;
+  gear_category: string | null;
+  time: string | null;
+  status: string;
+  notes: string | null;
+}
+
 const DashboardOverview = () => {
   const { user, provider } = useAuth();
   const { t, i18n } = useTranslation();
@@ -38,6 +51,7 @@ const DashboardOverview = () => {
     availableItems: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [todayEvents, setTodayEvents] = useState<AgendaEvent[]>([]);
   const [checklist, setChecklist] = useState<SetupChecklist>({
     profileCreated: true, // Always true if they're here
     firstItemAdded: false,
@@ -203,6 +217,100 @@ const DashboardOverview = () => {
               availableItemsCount = Math.max(0, (itemsCount || 0) - reservedToday);
               console.log('✅ Available items count:', availableItemsCount, '(total:', itemsCount, 'reserved today:', reservedToday, ')');
             }
+
+            // Fetch today's agenda events (pickups and returns)
+            const events: AgendaEvent[] = [];
+
+            // Query pickups (start_date = today)
+            const { data: pickupsData, error: pickupsDataError } = await supabase
+              .from('reservations')
+              .select(`
+                id,
+                customer_name,
+                customer_phone,
+                pickup_time,
+                status,
+                notes,
+                gear_items:gear_id (
+                  name,
+                  category
+                )
+              `)
+              .in('gear_id', gearIds)
+              .gte('start_date', todayIso)
+              .lt('start_date', tomorrowIso)
+              .in('status', ['confirmed', 'hold']);
+
+            if (!isMounted) return;
+
+            if (!pickupsDataError && pickupsData) {
+              pickupsData.forEach((pickup: any) => {
+                const gearInfo = Array.isArray(pickup.gear_items) ? pickup.gear_items[0] : pickup.gear_items;
+                events.push({
+                  id: pickup.id,
+                  type: 'pickup',
+                  customer_name: pickup.customer_name,
+                  customer_phone: pickup.customer_phone,
+                  gear_name: gearInfo?.name || 'Unknown',
+                  gear_category: gearInfo?.category || null,
+                  time: pickup.pickup_time,
+                  status: pickup.status,
+                  notes: pickup.notes,
+                });
+              });
+              console.log('✅ Today\'s pickups loaded:', pickupsData.length);
+            }
+
+            // Query returns (end_date = today)
+            const { data: returnsData, error: returnsDataError } = await supabase
+              .from('reservations')
+              .select(`
+                id,
+                customer_name,
+                customer_phone,
+                return_time,
+                status,
+                notes,
+                gear_items:gear_id (
+                  name,
+                  category
+                )
+              `)
+              .in('gear_id', gearIds)
+              .gte('end_date', todayIso)
+              .lt('end_date', tomorrowIso)
+              .in('status', ['active']);
+
+            if (!isMounted) return;
+
+            if (!returnsDataError && returnsData) {
+              returnsData.forEach((returnItem: any) => {
+                const gearInfo = Array.isArray(returnItem.gear_items) ? returnItem.gear_items[0] : returnItem.gear_items;
+                events.push({
+                  id: returnItem.id,
+                  type: 'return',
+                  customer_name: returnItem.customer_name,
+                  customer_phone: returnItem.customer_phone,
+                  gear_name: gearInfo?.name || 'Unknown',
+                  gear_category: gearInfo?.category || null,
+                  time: returnItem.return_time,
+                  status: returnItem.status,
+                  notes: returnItem.notes,
+                });
+              });
+              console.log('✅ Today\'s returns loaded:', returnsData.length);
+            }
+
+            // Sort events by time (nulls at end)
+            events.sort((a, b) => {
+              if (!a.time) return 1;
+              if (!b.time) return -1;
+              return a.time.localeCompare(b.time);
+            });
+
+            if (isMounted) {
+              setTodayEvents(events);
+            }
           } else {
             console.log('ℹ️ No gear items yet, skipping reservations lookup');
           }
@@ -247,6 +355,32 @@ const DashboardOverview = () => {
       }
     };
   }, [provider?.id]); // Only re-run when provider.id actually changes
+
+  const handleMarkReturned = async (reservationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('reservations')
+        .update({ status: 'completed' })
+        .eq('id', reservationId);
+
+      if (error) throw error;
+
+      toast({
+        title: t('provider.dashboard.agenda.success'),
+        description: t('provider.dashboard.agenda.markedAsReturned'),
+      });
+
+      // Remove from today's events
+      setTodayEvents(prev => prev.filter(e => e.id !== reservationId));
+    } catch (error) {
+      console.error('Error marking as returned:', error);
+      toast({
+        title: t('error'),
+        description: t('provider.dashboard.agenda.errorMarkingReturned'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const completedTasks = Object.values(checklist).filter(Boolean).length;
   const totalTasks = Object.keys(checklist).length;
@@ -420,7 +554,7 @@ const DashboardOverview = () => {
             <CardTitle>{t('provider.dashboard.agenda.title')}</CardTitle>
           </CardHeader>
           <CardContent>
-            {stats.todayPickups === 0 && stats.todayReturns === 0 ? (
+            {todayEvents.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
                 <p>{t('provider.dashboard.agenda.empty')}</p>
@@ -429,11 +563,19 @@ const DashboardOverview = () => {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4 text-center text-muted-foreground">
-                <p>{t('provider.dashboard.agenda.placeholder')}</p>
-                <Button variant="ghost" asChild className="mx-auto">
-                  <Link to="/provider/reservations">{t('provider.dashboard.agenda.viewAll')}</Link>
-                </Button>
+              <div className="space-y-3">
+                {todayEvents.map((event) => (
+                  <AgendaEventCard
+                    key={event.id}
+                    event={event}
+                    onMarkReturned={handleMarkReturned}
+                  />
+                ))}
+                <div className="pt-2 text-center">
+                  <Button variant="ghost" asChild>
+                    <Link to="/provider/reservations">{t('provider.dashboard.agenda.viewAll')}</Link>
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
@@ -464,6 +606,94 @@ const DashboardOverview = () => {
 };
 
 // Helper Components
+
+interface AgendaEventCardProps {
+  event: AgendaEvent;
+  onMarkReturned?: (id: string) => void;
+}
+
+const AgendaEventCard = ({ event, onMarkReturned }: AgendaEventCardProps) => {
+  const { t } = useTranslation();
+
+  const formatTime = (time: string | null) => {
+    if (!time) return t('provider.dashboard.agenda.noTime');
+    return new Date(time).toLocaleTimeString(t('locale'), {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const isPickup = event.type === 'pickup';
+  const Icon = isPickup ? ArrowDownToLine : ArrowUpFromLine;
+  const bgColor = isPickup ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200';
+  const iconColor = isPickup ? 'text-blue-600' : 'text-green-600';
+
+  return (
+    <div className={`border-2 rounded-lg p-4 ${bgColor}`}>
+      <div className="flex items-start gap-3">
+        <Icon className={`w-5 h-5 mt-1 ${iconColor}`} />
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="font-semibold text-sm">
+              {formatTime(event.time)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {event.gear_category}
+            </span>
+          </div>
+
+          <div className="font-medium">{event.customer_name}</div>
+
+          {event.customer_phone && (
+            <a
+              href={`tel:${event.customer_phone}`}
+              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mt-1"
+            >
+              <Phone className="w-3 h-3" />
+              {event.customer_phone}
+            </a>
+          )}
+
+          <div className="text-sm mt-2">
+            <span className="font-medium">{event.gear_name}</span>
+          </div>
+
+          {event.notes && (
+            <div className="text-xs text-muted-foreground mt-2 italic">
+              {event.notes}
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-3">
+            {isPickup ? (
+              <>
+                <Button size="sm" variant="primary">
+                  {t('provider.dashboard.agenda.confirm')}
+                </Button>
+                <Button size="sm" variant="outline">
+                  {t('provider.dashboard.agenda.reschedule')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => onMarkReturned && onMarkReturned(event.id)}
+                >
+                  {t('provider.dashboard.agenda.markReturned')}
+                </Button>
+                <Button size="sm" variant="outline">
+                  {t('provider.dashboard.agenda.reportDamage')}
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface ChecklistItemProps {
   completed: boolean;

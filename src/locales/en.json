@@ -1,5 +1,7 @@
 
 {
+  "locale": "en-US",
+  "error": "Error",
   "hero": {
     "headline": "Find. Rent. Explore.",
     "search_placeholder": "What gear are you looking for?",
@@ -201,7 +203,15 @@
         "returnLabel": "🟢 RETURN",
         "checkOut": "Check Out",
         "checkIn": "Check In",
-        "placeholder": "Agenda details will appear here once reservation data is connected."
+        "placeholder": "Agenda details will appear here once reservation data is connected.",
+        "noTime": "Time not set",
+        "confirm": "Confirm",
+        "reschedule": "Reschedule",
+        "markReturned": "Mark as Returned",
+        "reportDamage": "Report Damage",
+        "success": "Success",
+        "markedAsReturned": "Reservation marked as completed",
+        "errorMarkingReturned": "Error marking reservation as returned"
       },
       "upcoming": {
         "title": "📊 Upcoming (Next 7 Days)",
