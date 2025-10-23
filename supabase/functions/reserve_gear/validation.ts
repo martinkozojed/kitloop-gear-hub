@@ -6,6 +6,7 @@ export const reservationRequestSchema = z.object({
   start_date: z.string().datetime({ offset: true }),
   end_date: z.string().datetime({ offset: true }),
   idempotency_key: z.string().min(10),
+  quantity: z.number().int().min(1).max(100).optional().default(1),
   total_price: z.number().nonnegative().optional(),
   deposit_paid: z.boolean().optional(),
   notes: z.string().max(1000).optional(),

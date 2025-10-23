@@ -85,6 +85,7 @@ Deno.serve(async (req) => {
       start_date: startDateISO,
       end_date: endDateISO,
       idempotency_key: idempotencyKey,
+      quantity: requestedQuantity,
       customer,
       total_price: totalPrice,
       deposit_paid: depositPaid,
@@ -188,8 +189,9 @@ Deno.serve(async (req) => {
         provider_id: string;
         active: boolean | null;
         price_per_day: number | null;
+        quantity: number | null;
       }>`
-        SELECT provider_id, active, price_per_day
+        SELECT provider_id, active, price_per_day, quantity
         FROM public.gear_items
         WHERE id = ${gearId}
         FOR UPDATE
@@ -216,9 +218,14 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Detect overlapping reservations (confirmed/active/hold)
-      const overlapping = await client.queryObject`
-        SELECT id
+      // Check quantity availability
+      const totalQuantity = gearRow.rows[0].quantity ?? 1;
+
+      // Get overlapping reservations and sum their quantities
+      const overlapping = await client.queryObject<{
+        quantity: number | null;
+      }>`
+        SELECT quantity
         FROM public.reservations
         WHERE gear_id = ${gearId}
           AND status IN ('hold', 'confirmed', 'active')
@@ -227,10 +234,23 @@ Deno.serve(async (req) => {
         FOR UPDATE
       `;
 
-      if (overlapping.rows.length > 0) {
+      const reservedQuantity = overlapping.rows.reduce(
+        (sum, row) => sum + (row.quantity ?? 1),
+        0
+      );
+
+      const availableQuantity = totalQuantity - reservedQuantity;
+
+      if (availableQuantity < (requestedQuantity ?? 1)) {
         await client.queryObject`ROLLBACK`;
         return jsonResponse(
-          { error: "Gear already reserved in that window" },
+          {
+            error: "insufficient_quantity",
+            message: `Only ${availableQuantity} items available, but ${requestedQuantity ?? 1} requested`,
+            available: availableQuantity,
+            requested: requestedQuantity ?? 1,
+            total: totalQuantity,
+          },
           409,
         );
       }
@@ -245,12 +265,14 @@ Deno.serve(async (req) => {
         1,
         Math.ceil(diffMs / (1000 * 60 * 60 * 24)),
       );
-      const amountTotalCents = dailyRateCents * rentalDays;
+      const quantity = requestedQuantity ?? 1;
+      const amountTotalCents = dailyRateCents * rentalDays * quantity;
       const currency = "CZK";
 
       const pricingSnapshot = JSON.stringify({
         daily_rate_cents: dailyRateCents,
         days: rentalDays,
+        quantity: quantity,
         currency,
         subtotal_cents: amountTotalCents,
       });
@@ -276,6 +298,7 @@ Deno.serve(async (req) => {
           start_date,
           end_date,
           status,
+          quantity,
           notes,
           total_price,
           deposit_paid,
@@ -295,6 +318,7 @@ Deno.serve(async (req) => {
           ${startDate.toISOString()},
           ${endDate.toISOString()},
           'hold',
+          ${quantity},
           ${notes ?? null},
           ${normalizedTotalPrice ?? null},
           ${depositPaid ?? false},

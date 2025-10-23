@@ -40,3 +40,61 @@ Deno.test("reservationRequestSchema rejects invalid payload", () => {
     });
   }
 });
+
+Deno.test("reservationRequestSchema accepts quantity field", () => {
+  const payload = {
+    gear_id: crypto.randomUUID(),
+    provider_id: crypto.randomUUID(),
+    start_date: new Date(Date.now() + 60_000).toISOString(),
+    end_date: new Date(Date.now() + 120_000).toISOString(),
+    idempotency_key: "key-" + crypto.randomUUID(),
+    quantity: 2,
+    customer: {
+      name: "John Doe",
+    },
+  };
+
+  const parsed = reservationRequestSchema.parse(payload);
+
+  assertEquals(parsed.quantity, 2);
+});
+
+Deno.test("reservationRequestSchema defaults quantity to 1 when omitted", () => {
+  const payload = {
+    gear_id: crypto.randomUUID(),
+    provider_id: crypto.randomUUID(),
+    start_date: new Date(Date.now() + 60_000).toISOString(),
+    end_date: new Date(Date.now() + 120_000).toISOString(),
+    idempotency_key: "key-" + crypto.randomUUID(),
+    customer: {
+      name: "John Doe",
+    },
+  };
+
+  const parsed = reservationRequestSchema.parse(payload);
+
+  assertEquals(parsed.quantity, 1);
+});
+
+Deno.test("reservationRequestSchema rejects invalid quantity", () => {
+  const payloadZero = {
+    gear_id: crypto.randomUUID(),
+    provider_id: crypto.randomUUID(),
+    start_date: new Date(Date.now() + 60_000).toISOString(),
+    end_date: new Date(Date.now() + 120_000).toISOString(),
+    idempotency_key: "key-" + crypto.randomUUID(),
+    quantity: 0,
+    customer: { name: "Test" },
+  };
+
+  const resultZero = reservationRequestSchema.safeParse(payloadZero);
+  assertEquals(resultZero.success, false);
+
+  const payloadNegative = { ...payloadZero, quantity: -5 };
+  const resultNegative = reservationRequestSchema.safeParse(payloadNegative);
+  assertEquals(resultNegative.success, false);
+
+  const payloadTooHigh = { ...payloadZero, quantity: 150 };
+  const resultTooHigh = reservationRequestSchema.safeParse(payloadTooHigh);
+  assertEquals(resultTooHigh.success, false);
+});
