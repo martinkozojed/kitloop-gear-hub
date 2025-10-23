@@ -6,6 +6,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -52,6 +62,8 @@ const ProviderReservations = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
 
   // Fetch reservations
   useEffect(() => {
@@ -130,6 +142,19 @@ const ProviderReservations = () => {
     setFilteredReservations(filtered);
   }, [reservations, searchQuery, statusFilter]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape to close expanded rows
+      if (e.key === 'Escape' && expandedRows.size > 0) {
+        setExpandedRows(new Set());
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [expandedRows]);
+
   // Toggle row expansion
   const toggleRowExpansion = (reservationId: string) => {
     setExpandedRows(prev => {
@@ -178,18 +203,25 @@ const ProviderReservations = () => {
     }
   };
 
-  const handleCancelReservation = async (reservationId: string) => {
+  const handleCancelReservation = (reservationId: string) => {
     const reservation = filteredReservations.find(r => r.id === reservationId);
-    if (reservation?.status === 'cancelled' || reservation?.status === 'completed') {
+    if (!reservation) return;
+
+    if (reservation.status === 'cancelled' || reservation.status === 'completed') {
       toast.info(t('provider.reservations.cannotCancel'));
       return;
     }
 
-    if (!confirm(t('provider.reservations.cancelConfirm'))) {
-      return;
-    }
+    // Show confirmation dialog
+    setReservationToCancel(reservation);
+    setCancelDialogOpen(true);
+  };
 
-    setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
+  const confirmCancelReservation = async () => {
+    if (!reservationToCancel) return;
+
+    setLoadingActions(prev => ({ ...prev, [reservationToCancel.id]: true }));
+    setCancelDialogOpen(false);
 
     try {
       const { error } = await supabase
@@ -198,13 +230,13 @@ const ProviderReservations = () => {
           status: 'cancelled',
           updated_at: new Date().toISOString()
         })
-        .eq('id', reservationId);
+        .eq('id', reservationToCancel.id);
 
       if (error) throw error;
 
       // Update local state
       setReservations(prev =>
-        prev.map(r => r.id === reservationId ? { ...r, status: 'cancelled' } : r)
+        prev.map(r => r.id === reservationToCancel.id ? { ...r, status: 'cancelled' } : r)
       );
 
       toast.success(t('provider.reservations.cancelSuccess'));
@@ -212,7 +244,8 @@ const ProviderReservations = () => {
       console.error('Error cancelling reservation:', error);
       toast.error(t('provider.reservations.cancelError'));
     } finally {
-      setLoadingActions(prev => ({ ...prev, [reservationId]: false }));
+      setLoadingActions(prev => ({ ...prev, [reservationToCancel.id]: false }));
+      setReservationToCancel(null);
     }
   };
 
@@ -560,8 +593,17 @@ const ProviderReservations = () => {
                                       }}
                                       disabled={isLoading}
                                     >
-                                      <CheckCircle className="w-4 h-4 mr-2" />
-                                      {isLoading ? 'Potvrzuji...' : 'Potvrdit'}
+                                      {isLoading ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                          Potvrzuji...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircle className="w-4 h-4 mr-2" />
+                                          Potvrdit
+                                        </>
+                                      )}
                                     </Button>
                                   )}
                                   {availableActions.includes('edit') && (
@@ -587,8 +629,17 @@ const ProviderReservations = () => {
                                       }}
                                       disabled={isLoading}
                                     >
-                                      <XCircle className="w-4 h-4 mr-2" />
-                                      {isLoading ? 'Ruším...' : 'Zrušit'}
+                                      {isLoading ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                          Ruším...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <XCircle className="w-4 h-4 mr-2" />
+                                          Zrušit
+                                        </>
+                                      )}
                                     </Button>
                                   )}
                                 </div>
@@ -740,8 +791,17 @@ const ProviderReservations = () => {
                                 }}
                                 disabled={isLoading}
                               >
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                {isLoading ? 'Potvrzuji...' : 'Potvrdit'}
+                                {isLoading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                    Potvrzuji...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle className="w-4 h-4 mr-1" />
+                                    Potvrdit
+                                  </>
+                                )}
                               </Button>
                             )}
                             {availableActions.includes('edit') && (
@@ -769,8 +829,17 @@ const ProviderReservations = () => {
                                 }}
                                 disabled={isLoading}
                               >
-                                <XCircle className="w-4 h-4 mr-1" />
-                                {isLoading ? 'Ruším...' : 'Zrušit'}
+                                {isLoading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                    Ruším...
+                                  </>
+                                ) : (
+                                  <>
+                                    <XCircle className="w-4 h-4 mr-1" />
+                                    Zrušit
+                                  </>
+                                )}
                               </Button>
                             )}
                           </div>
@@ -784,6 +853,58 @@ const ProviderReservations = () => {
           </div>
         )}
       </div>
+
+      {/* Cancel Reservation Confirmation Dialog */}
+      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zrušit rezervaci?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Opravdu chcete zrušit rezervaci pro <strong>{reservationToCancel?.customer_name}</strong>?</p>
+
+              {reservationToCancel && (
+                <div className="bg-muted/50 p-4 rounded-md space-y-1 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                    <span>
+                      <strong>Termín:</strong>{' '}
+                      {reservationToCancel.start_date && reservationToCancel.end_date
+                        ? formatDateRange(
+                            new Date(reservationToCancel.start_date),
+                            new Date(reservationToCancel.end_date)
+                          )
+                        : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">🎿</span>
+                    <span>
+                      <strong>Vybavení:</strong> {reservationToCancel.gear_items?.name || 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">💰</span>
+                    <span>
+                      <strong>Cena:</strong> {formatPrice(reservationToCancel.total_price || 0)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-destructive font-medium pt-2">Tato akce je nevratná.</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zpět</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCancelReservation}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Ano, zrušit rezervaci
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </ProviderLayout>
   );
 };

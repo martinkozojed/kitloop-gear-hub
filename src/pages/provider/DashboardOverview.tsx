@@ -1,12 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Package, Calendar, CheckCircle, Clock, Phone, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
+import { Package, Calendar, CheckCircle, Clock, Phone, ArrowDownToLine, ArrowUpFromLine, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@/components/ui/use-toast';
 
@@ -42,6 +55,7 @@ interface AgendaEvent {
 const DashboardOverview = () => {
   const { user, provider } = useAuth();
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     totalItems: 0,
     activeReservations: 0,
@@ -50,9 +64,14 @@ const DashboardOverview = () => {
     pendingReservations: 0,
     availableItems: 0,
   });
+  const isMountedRef = useRef(true);
   const [loading, setLoading] = useState(true);
   const [todayEvents, setTodayEvents] = useState<AgendaEvent[]>([]);
   const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [eventToReturn, setEventToReturn] = useState<AgendaEvent | null>(null);
+  const [returnCondition, setReturnCondition] = useState<'good' | 'minor' | 'damaged'>('good');
+  const [returnNotes, setReturnNotes] = useState('');
   const [checklist, setChecklist] = useState<SetupChecklist>({
     profileCreated: true, // Always true if they're here
     firstItemAdded: false,
@@ -61,301 +80,254 @@ const DashboardOverview = () => {
     pricingConfigured: false,
   });
 
-  useEffect(() => {
-    let isMounted = true;
-    let fetchTimeout: NodeJS.Timeout | null = null;
-
-    console.log('📊 DashboardOverview: useEffect triggered, provider?.id =', provider?.id);
-
-    const fetchDashboardData = async () => {
-      console.log('📊 DashboardOverview: fetchDashboardData called');
-
+  const fetchDashboardData = useCallback(async () => {
+    try {
       if (!provider?.id) {
-        console.log('⚠️ No provider ID, setting loading=false and returning');
-        if (isMounted) {
+        if (isMountedRef.current) {
+          setStats({
+            totalItems: 0,
+            activeReservations: 0,
+            todayPickups: 0,
+            todayReturns: 0,
+            pendingReservations: 0,
+            availableItems: 0,
+          });
+          setTodayEvents([]);
+          setChecklist(prev => ({
+            ...prev,
+            firstItemAdded: false,
+            testReservation: false,
+          }));
           setLoading(false);
         }
         return;
       }
 
-      // Debounce rapid re-renders (Safari fix)
-      if (fetchTimeout) {
-        console.log('⏱️ Debouncing dashboard fetch');
+      // Fetch provider gear items with quantities
+      const { data: gearItems, error: itemsError } = await supabase
+        .from('gear_items')
+        .select('id, quantity_available, active')
+        .eq('provider_id', provider.id);
+
+      if (itemsError) {
+        console.error('❌ Error fetching items:', itemsError);
         return;
       }
 
-      setLoading(true);
+      type GearItemRow = {
+        id: string;
+        quantity_available: number | null;
+        active: boolean | null;
+      };
 
-      fetchTimeout = setTimeout(async () => {
-        if (!isMounted) return;
+      const typedGearItems = (gearItems ?? []) as GearItemRow[];
+      const activeGear = typedGearItems.filter(item => item.active);
+      const totalItemsCount = activeGear.length;
+      const totalQuantity = activeGear.reduce((sum, item) => sum + (item.quantity_available ?? 0), 0);
+      const gearIds = activeGear.map(item => item.id);
 
-        try {
-          console.log('🔄 Fetching dashboard data for provider:', provider.id);
+      let activeReservationsCount = 0;
+      let pendingReservationsCount = 0;
+      let todayPickupsCount = 0;
+      let todayReturnsCount = 0;
+      let reservedTodayUnits = 0;
+      let events: AgendaEvent[] = [];
 
-          // Fetch provider gear items (ids only) to derive stats
-          const { data: gearItems, count: itemsCount, error: itemsError } = await supabase
-            .from('gear_items')
-            .select('id', { count: 'exact' })
-            .eq('provider_id', provider.id);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayIso = today.toISOString();
 
-          if (!isMounted) {
-            console.log('⚠️ Component unmounted, aborting items update');
-            return;
-          }
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowIso = tomorrow.toISOString();
 
-          if (itemsError) {
-            console.error('❌ Error fetching items:', itemsError);
-            if (isMounted) setLoading(false);
-            return;
-          } else {
-            console.log('✅ Items count:', itemsCount);
-          }
+      if (gearIds.length > 0) {
+        const [
+          activeCountResult,
+          pendingCountResult,
+          pickupsCountResult,
+          returnsCountResult,
+          activeTodayResult,
+          pickupsDataResult,
+          returnsDataResult,
+        ] = await Promise.all([
+          supabase
+            .from('reservations')
+            .select('id', { count: 'exact', head: true })
+            .in('gear_id', gearIds)
+            .in('status', ['hold', 'confirmed', 'active']),
+          supabase
+            .from('reservations')
+            .select('id', { count: 'exact', head: true })
+            .in('gear_id', gearIds)
+            .in('status', ['pending', 'hold']),
+          supabase
+            .from('reservations')
+            .select('id', { count: 'exact', head: true })
+            .in('gear_id', gearIds)
+            .gte('start_date', todayIso)
+            .lt('start_date', tomorrowIso)
+            .in('status', ['confirmed', 'hold']),
+          supabase
+            .from('reservations')
+            .select('id', { count: 'exact', head: true })
+            .in('gear_id', gearIds)
+            .gte('end_date', todayIso)
+            .lt('end_date', tomorrowIso)
+            .in('status', ['active']),
+          supabase
+            .from('reservations')
+            .select('id', { count: 'exact', head: true })
+            .in('gear_id', gearIds)
+            .in('status', ['hold', 'confirmed', 'active'])
+            .lt('start_date', tomorrowIso)
+            .gt('end_date', todayIso),
+          supabase
+            .from('reservations')
+            .select(`
+              id,
+              customer_name,
+              customer_phone,
+              pickup_time,
+              status,
+              notes,
+              gear_items:gear_id (
+                name,
+                category
+              )
+            `)
+            .in('gear_id', gearIds)
+            .gte('start_date', todayIso)
+            .lt('start_date', tomorrowIso)
+            .in('status', ['confirmed', 'hold']),
+          supabase
+            .from('reservations')
+            .select(`
+              id,
+              customer_name,
+              customer_phone,
+              return_time,
+              status,
+              notes,
+              gear_items:gear_id (
+                name,
+                category
+              )
+            `)
+            .in('gear_id', gearIds)
+            .gte('end_date', todayIso)
+            .lt('end_date', tomorrowIso)
+            .in('status', ['active']),
+        ]);
 
-          const gearIds = gearItems?.map(item => item.id) ?? [];
-          let activeReservationsCount = 0;
-          let pendingReservationsCount = 0;
-          let todayPickupsCount = 0;
-          let todayReturnsCount = 0;
-          let availableItemsCount = 0;
-
-          // Calculate today's date range (start and end of day)
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const todayIso = today.toISOString();
-
-          const tomorrow = new Date(today);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          const tomorrowIso = tomorrow.toISOString();
-
-          if (gearIds.length > 0) {
-            // Issue #4 Fix: Query active reservations (hold, confirmed, active)
-            const { count: activeCount, error: activeError } = await supabase
-              .from('reservations')
-              .select('id', { count: 'exact', head: true })
-              .in('gear_id', gearIds)
-              .in('status', ['hold', 'confirmed', 'active']);
-
-            if (!isMounted) {
-              console.log('⚠️ Component unmounted, aborting reservations update');
-              return;
-            }
-
-            if (activeError) {
-              console.error('❌ Error fetching active reservations:', activeError);
-            } else {
-              activeReservationsCount = activeCount || 0;
-              console.log('✅ Active reservations count:', activeReservationsCount);
-            }
-
-            // Issue #1 Fix: Query pending/hold reservations
-            const { count: pendingCount, error: pendingError } = await supabase
-              .from('reservations')
-              .select('id', { count: 'exact', head: true })
-              .in('gear_id', gearIds)
-              .in('status', ['pending', 'hold']);
-
-            if (!isMounted) return;
-
-            if (pendingError) {
-              console.error('❌ Error fetching pending reservations:', pendingError);
-            } else {
-              pendingReservationsCount = pendingCount || 0;
-              console.log('✅ Pending reservations count:', pendingReservationsCount);
-            }
-
-            // Issue #2 Fix: Query today's pickups (start_date = today)
-            const { count: pickupsCount, error: pickupsError } = await supabase
-              .from('reservations')
-              .select('id', { count: 'exact', head: true })
-              .in('gear_id', gearIds)
-              .gte('start_date', todayIso)
-              .lt('start_date', tomorrowIso)
-              .in('status', ['confirmed', 'hold']);
-
-            if (!isMounted) return;
-
-            if (pickupsError) {
-              console.error('❌ Error fetching today\'s pickups:', pickupsError);
-            } else {
-              todayPickupsCount = pickupsCount || 0;
-              console.log('✅ Today\'s pickups count:', todayPickupsCount);
-            }
-
-            // Issue #2 Fix: Query today's returns (end_date = today)
-            const { count: returnsCount, error: returnsError } = await supabase
-              .from('reservations')
-              .select('id', { count: 'exact', head: true })
-              .in('gear_id', gearIds)
-              .gte('end_date', todayIso)
-              .lt('end_date', tomorrowIso)
-              .in('status', ['active']);
-
-            if (!isMounted) return;
-
-            if (returnsError) {
-              console.error('❌ Error fetching today\'s returns:', returnsError);
-            } else {
-              todayReturnsCount = returnsCount || 0;
-              console.log('✅ Today\'s returns count:', todayReturnsCount);
-            }
-
-            // Issue #5 Fix: Calculate available items (date-aware)
-            // Get reservations active TODAY
-            const { count: activeTodayCount, error: activeTodayError } = await supabase
-              .from('reservations')
-              .select('id', { count: 'exact', head: true })
-              .in('gear_id', gearIds)
-              .in('status', ['hold', 'confirmed', 'active'])
-              .lte('start_date', tomorrowIso)
-              .gte('end_date', todayIso);
-
-            if (!isMounted) return;
-
-            if (activeTodayError) {
-              console.error('❌ Error fetching active today:', activeTodayError);
-            } else {
-              const reservedToday = activeTodayCount || 0;
-              availableItemsCount = Math.max(0, (itemsCount || 0) - reservedToday);
-              console.log('✅ Available items count:', availableItemsCount, '(total:', itemsCount, 'reserved today:', reservedToday, ')');
-            }
-
-            // Fetch today's agenda events (pickups and returns)
-            const events: AgendaEvent[] = [];
-
-            // Query pickups (start_date = today)
-            const { data: pickupsData, error: pickupsDataError } = await supabase
-              .from('reservations')
-              .select(`
-                id,
-                customer_name,
-                customer_phone,
-                pickup_time,
-                status,
-                notes,
-                gear_items:gear_id (
-                  name,
-                  category
-                )
-              `)
-              .in('gear_id', gearIds)
-              .gte('start_date', todayIso)
-              .lt('start_date', tomorrowIso)
-              .in('status', ['confirmed', 'hold']);
-
-            if (!isMounted) return;
-
-            if (!pickupsDataError && pickupsData) {
-              pickupsData.forEach((pickup: any) => {
-                const gearInfo = Array.isArray(pickup.gear_items) ? pickup.gear_items[0] : pickup.gear_items;
-                events.push({
-                  id: pickup.id,
-                  type: 'pickup',
-                  customer_name: pickup.customer_name,
-                  customer_phone: pickup.customer_phone,
-                  gear_name: gearInfo?.name || 'Unknown',
-                  gear_category: gearInfo?.category || null,
-                  time: pickup.pickup_time,
-                  status: pickup.status,
-                  notes: pickup.notes,
-                });
-              });
-              console.log('✅ Today\'s pickups loaded:', pickupsData.length);
-            }
-
-            // Query returns (end_date = today)
-            const { data: returnsData, error: returnsDataError } = await supabase
-              .from('reservations')
-              .select(`
-                id,
-                customer_name,
-                customer_phone,
-                return_time,
-                status,
-                notes,
-                gear_items:gear_id (
-                  name,
-                  category
-                )
-              `)
-              .in('gear_id', gearIds)
-              .gte('end_date', todayIso)
-              .lt('end_date', tomorrowIso)
-              .in('status', ['active']);
-
-            if (!isMounted) return;
-
-            if (!returnsDataError && returnsData) {
-              returnsData.forEach((returnItem: any) => {
-                const gearInfo = Array.isArray(returnItem.gear_items) ? returnItem.gear_items[0] : returnItem.gear_items;
-                events.push({
-                  id: returnItem.id,
-                  type: 'return',
-                  customer_name: returnItem.customer_name,
-                  customer_phone: returnItem.customer_phone,
-                  gear_name: gearInfo?.name || 'Unknown',
-                  gear_category: gearInfo?.category || null,
-                  time: returnItem.return_time,
-                  status: returnItem.status,
-                  notes: returnItem.notes,
-                });
-              });
-              console.log('✅ Today\'s returns loaded:', returnsData.length);
-            }
-
-            // Sort events by time (nulls at end)
-            events.sort((a, b) => {
-              if (!a.time) return 1;
-              if (!b.time) return -1;
-              return a.time.localeCompare(b.time);
-            });
-
-            if (isMounted) {
-              setTodayEvents(events);
-            }
-          } else {
-            console.log('ℹ️ No gear items yet, skipping reservations lookup');
-          }
-
-          if (isMounted) {
-            setStats({
-              totalItems: itemsCount || 0,
-              activeReservations: activeReservationsCount,
-              todayPickups: todayPickupsCount,
-              todayReturns: todayReturnsCount,
-              pendingReservations: pendingReservationsCount,
-              availableItems: availableItemsCount,
-            });
-
-            setChecklist(prev => ({
-              ...prev,
-              firstItemAdded: (itemsCount || 0) > 0,
-              testReservation: (activeReservationsCount || 0) > 0,
-            }));
-
-            console.log('✅ Dashboard data loaded successfully');
-          }
-        } catch (error) {
-          console.error('💥 Unexpected error fetching dashboard data:', error);
-        } finally {
-          if (isMounted) {
-            console.log('🏁 Setting loading=false');
-            setLoading(false);
-          }
+        if (activeCountResult.error) {
+          console.error('❌ Error fetching active reservations:', activeCountResult.error);
+        } else {
+          activeReservationsCount = activeCountResult.count || 0;
         }
-      }, 100); // 100ms debounce
-    };
 
-    fetchDashboardData();
+        if (pendingCountResult.error) {
+          console.error('❌ Error fetching pending reservations:', pendingCountResult.error);
+        } else {
+          pendingReservationsCount = pendingCountResult.count || 0;
+        }
 
-    // Cleanup function
-    return () => {
-      console.log('🧹 DashboardOverview: Cleaning up useEffect');
-      isMounted = false;
-      if (fetchTimeout) {
-        clearTimeout(fetchTimeout);
+        if (pickupsCountResult.error) {
+          console.error('❌ Error fetching today\'s pickups:', pickupsCountResult.error);
+        } else {
+          todayPickupsCount = pickupsCountResult.count || 0;
+        }
+
+        if (returnsCountResult.error) {
+          console.error('❌ Error fetching today\'s returns:', returnsCountResult.error);
+        } else {
+          todayReturnsCount = returnsCountResult.count || 0;
+        }
+
+        if (activeTodayResult.error) {
+          console.error('❌ Error fetching active today:', activeTodayResult.error);
+        } else {
+          reservedTodayUnits = activeTodayResult.count || 0;
+        }
+
+        if (!pickupsDataResult.error && pickupsDataResult.data) {
+          pickupsDataResult.data.forEach((pickup: any) => {
+            const gearInfo = Array.isArray(pickup.gear_items) ? pickup.gear_items[0] : pickup.gear_items;
+            events.push({
+              id: pickup.id,
+              type: 'pickup',
+              customer_name: pickup.customer_name,
+              customer_phone: pickup.customer_phone,
+              gear_name: gearInfo?.name || 'Unknown',
+              gear_category: gearInfo?.category || null,
+              time: pickup.pickup_time,
+              status: pickup.status,
+              notes: pickup.notes,
+            });
+          });
+        }
+
+        if (!returnsDataResult.error && returnsDataResult.data) {
+          returnsDataResult.data.forEach((returnItem: any) => {
+            const gearInfo = Array.isArray(returnItem.gear_items) ? returnItem.gear_items[0] : returnItem.gear_items;
+            events.push({
+              id: returnItem.id,
+              type: 'return',
+              customer_name: returnItem.customer_name,
+              customer_phone: returnItem.customer_phone,
+              gear_name: gearInfo?.name || 'Unknown',
+              gear_category: gearInfo?.category || null,
+              time: returnItem.return_time,
+              status: returnItem.status,
+              notes: returnItem.notes,
+            });
+          });
+        }
+
+        events.sort((a, b) => {
+          if (!a.time) return 1;
+          if (!b.time) return -1;
+          return a.time.localeCompare(b.time);
+        });
+      } else {
+        events = [];
       }
+
+      if (!isMountedRef.current) return;
+
+      setTodayEvents(events);
+      setStats({
+        totalItems: totalItemsCount,
+        activeReservations: activeReservationsCount,
+        todayPickups: todayPickupsCount,
+        todayReturns: todayReturnsCount,
+        pendingReservations: pendingReservationsCount,
+        availableItems: Math.max(0, totalQuantity - reservedTodayUnits),
+      });
+
+      setChecklist(prev => ({
+        ...prev,
+        firstItemAdded: totalItemsCount > 0,
+        testReservation: activeReservationsCount > 0,
+      }));
+    } catch (error) {
+      console.error('💥 Unexpected error fetching dashboard data:', error);
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [provider?.id]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
     };
-  }, [provider?.id]); // Only re-run when provider.id actually changes
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const handleConfirmPickup = async (reservationId: string) => {
     // Find the event to check its current status
@@ -393,7 +365,7 @@ const DashboardOverview = () => {
         description: t('provider.dashboard.agenda.pickupConfirmed'),
       });
 
-      // Keep in list but with updated status for visual feedback
+      await fetchDashboardData();
     } catch (error) {
       console.error('Error confirming pickup:', error);
 
@@ -415,17 +387,31 @@ const DashboardOverview = () => {
   const handleReschedule = (reservationId: string) => {
     // Navigate to reservations page with this reservation selected
     // For now, just navigate to reservations list
-    window.location.href = `/provider/reservations?highlight=${reservationId}`;
+    navigate(`/provider/reservations?highlight=${reservationId}`);
   };
 
   const handleReportDamage = (reservationId: string) => {
     // For now, navigate to reservations page
     // Future: open damage report modal
-    window.location.href = `/provider/reservations?damage=${reservationId}`;
+    navigate(`/provider/reservations?damage=${reservationId}`);
   };
 
-  const handleMarkReturned = async (reservationId: string) => {
-    setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
+  const handleMarkReturned = (reservationId: string) => {
+    const event = todayEvents.find(e => e.id === reservationId);
+    if (!event) return;
+
+    // Show confirmation dialog with condition selector
+    setEventToReturn(event);
+    setReturnCondition('good');
+    setReturnNotes('');
+    setReturnDialogOpen(true);
+  };
+
+  const confirmMarkReturned = async () => {
+    if (!eventToReturn) return;
+
+    setLoadingActions(prev => ({ ...prev, [eventToReturn.id]: true }));
+    setReturnDialogOpen(false);
 
     try {
       const { error } = await supabase
@@ -433,9 +419,10 @@ const DashboardOverview = () => {
         .update({
           status: 'completed',
           actual_return_time: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          notes: returnNotes ? `${eventToReturn.notes || ''}\n\nVráceno (${returnCondition}): ${returnNotes}`.trim() : eventToReturn.notes
         })
-        .eq('id', reservationId);
+        .eq('id', eventToReturn.id);
 
       if (error) throw error;
 
@@ -445,7 +432,8 @@ const DashboardOverview = () => {
       });
 
       // Remove from today's events
-      setTodayEvents(prev => prev.filter(e => e.id !== reservationId));
+      setTodayEvents(prev => prev.filter(e => e.id !== eventToReturn.id));
+      await fetchDashboardData();
     } catch (error) {
       console.error('Error marking as returned:', error);
       toast({
@@ -454,7 +442,9 @@ const DashboardOverview = () => {
         variant: 'destructive',
       });
     } finally {
-      setLoadingActions(prev => ({ ...prev, [reservationId]: false }));
+      setLoadingActions(prev => ({ ...prev, [eventToReturn.id]: false }));
+      setEventToReturn(null);
+      setReturnNotes('');
     }
   };
 
@@ -681,6 +671,57 @@ const DashboardOverview = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Mark as Returned Confirmation Dialog */}
+      <AlertDialog open={returnDialogOpen} onOpenChange={setReturnDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Označit jako vráceno</AlertDialogTitle>
+            <AlertDialogDescription>
+              Potvrďte vrácení vybavení od <strong>{eventToReturn?.customer_name}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="py-4 space-y-4">
+            <div>
+              <Label className="text-base font-medium">Stav vybavení</Label>
+              <RadioGroup value={returnCondition} onValueChange={(value: any) => setReturnCondition(value)} className="mt-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="good" id="good" />
+                  <Label htmlFor="good" className="font-normal cursor-pointer">✅ Bez poškození</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="minor" id="minor" />
+                  <Label htmlFor="minor" className="font-normal cursor-pointer">⚠️ Drobné opotřebení</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="damaged" id="damaged" />
+                  <Label htmlFor="damaged" className="font-normal cursor-pointer">❌ Poškozeno</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <Label htmlFor="returnNotes">Poznámka (volitelně)</Label>
+              <Textarea
+                id="returnNotes"
+                placeholder="Např. škrábnutí na pravé lyži..."
+                rows={3}
+                value={returnNotes}
+                onChange={(e) => setReturnNotes(e.target.value)}
+                className="mt-2"
+              />
+            </div>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zpět</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmMarkReturned}>
+              ✓ Potvrdit vrácení
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </ProviderLayout>
   );
 };
