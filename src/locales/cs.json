@@ -170,6 +170,14 @@
     "dashboard": {
       "title": "Přehled",
       "todayLabel": "Dnes: {{date}}",
+      "status": {
+        "hold": "Blokováno",
+        "pending": "Čeká",
+        "confirmed": "Potvrzeno",
+        "active": "Aktivní",
+        "completed": "Dokončeno",
+        "cancelled": "Zrušeno"
+      },
       "empty": {
         "welcome": "👋 Vítej, {{name}}!",
         "subtitle": "Začněme s Kitloopem.",
@@ -216,7 +224,10 @@
         "pickupConfirmed": "Vyzvednutí potvrzeno!",
         "markedAsReturned": "Rezervace byla označena jako dokončená",
         "errorMarkingReturned": "Chyba při označování rezervace jako vrácené",
-        "errorConfirming": "Chyba při potvrzování rezervace"
+        "errorConfirming": "Chyba při potvrzování rezervace",
+        "alreadyConfirmed": "Už potvrzeno",
+        "alreadyConfirmedDesc": "Tato rezervace už byla potvrzena",
+        "edit": "Upravit"
       },
       "upcoming": {
         "title": "📊 Nadcházející (dalších 7 dní)",

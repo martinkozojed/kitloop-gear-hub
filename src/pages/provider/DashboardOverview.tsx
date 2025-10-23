@@ -358,6 +358,18 @@ const DashboardOverview = () => {
   }, [provider?.id]); // Only re-run when provider.id actually changes
 
   const handleConfirmPickup = async (reservationId: string) => {
+    // Find the event to check its current status
+    const event = todayEvents.find(e => e.id === reservationId);
+
+    // Prevent if already confirmed
+    if (event?.status === 'confirmed') {
+      toast({
+        title: t('provider.dashboard.agenda.alreadyConfirmed'),
+        description: t('provider.dashboard.agenda.alreadyConfirmedDesc'),
+      });
+      return;
+    }
+
     setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
 
     // Optimistic update
@@ -381,14 +393,13 @@ const DashboardOverview = () => {
         description: t('provider.dashboard.agenda.pickupConfirmed'),
       });
 
-      // Optionally remove from list or keep with updated status
-      // For now, keeping it visible as "confirmed"
+      // Keep in list but with updated status for visual feedback
     } catch (error) {
       console.error('Error confirming pickup:', error);
 
       // Rollback optimistic update
       setTodayEvents(prev =>
-        prev.map(e => e.id === reservationId ? { ...e, status: 'hold' } : e)
+        prev.map(e => e.id === reservationId ? { ...e, status: event?.status || 'hold' } : e)
       );
 
       toast({
@@ -744,27 +755,50 @@ const AgendaEventCard = ({
             </div>
           )}
 
+          {/* Status Badge */}
+          <div className="mt-2">
+            <StatusBadge status={event.status} />
+          </div>
+
+          {/* Action Buttons - Status-based rendering */}
           <div className="flex gap-2 mt-3">
             {isPickup ? (
-              <>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => onConfirmPickup && onConfirmPickup(event.id)}
-                  disabled={isLoading}
-                >
-                  {isLoading ? t('provider.dashboard.agenda.confirming') : t('provider.dashboard.agenda.confirm')}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onReschedule && onReschedule(event.id)}
-                  disabled={isLoading}
-                >
-                  {t('provider.dashboard.agenda.reschedule')}
-                </Button>
-              </>
+              // Pickup actions based on status
+              event.status === 'confirmed' ? (
+                // Already confirmed - show status and edit option
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-green-600 font-medium">✓ {t('provider.dashboard.agenda.alreadyConfirmed')}</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onReschedule && onReschedule(event.id)}
+                  >
+                    {t('provider.dashboard.agenda.edit')}
+                  </Button>
+                </div>
+              ) : (
+                // Not confirmed yet - show confirm button
+                <>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => onConfirmPickup && onConfirmPickup(event.id)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? t('provider.dashboard.agenda.confirming') : t('provider.dashboard.agenda.confirm')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onReschedule && onReschedule(event.id)}
+                    disabled={isLoading}
+                  >
+                    {t('provider.dashboard.agenda.reschedule')}
+                  </Button>
+                </>
+              )
             ) : (
+              // Return actions
               <>
                 <Button
                   size="sm"
@@ -788,6 +822,32 @@ const AgendaEventCard = ({
         </div>
       </div>
     </div>
+  );
+};
+
+interface StatusBadgeProps {
+  status: string;
+}
+
+const StatusBadge = ({ status }: StatusBadgeProps) => {
+  const { t } = useTranslation();
+
+  const variants: Record<string, { color: string; icon: string; label: string }> = {
+    hold: { color: 'bg-orange-100 text-orange-800 border-orange-200', icon: '⏰', label: t('provider.dashboard.status.hold') },
+    pending: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: '⏳', label: t('provider.dashboard.status.pending') },
+    confirmed: { color: 'bg-blue-100 text-blue-800 border-blue-200', icon: '✓', label: t('provider.dashboard.status.confirmed') },
+    active: { color: 'bg-green-100 text-green-800 border-green-200', icon: '🔄', label: t('provider.dashboard.status.active') },
+    completed: { color: 'bg-gray-100 text-gray-800 border-gray-200', icon: '✅', label: t('provider.dashboard.status.completed') },
+    cancelled: { color: 'bg-red-100 text-red-800 border-red-200', icon: '❌', label: t('provider.dashboard.status.cancelled') }
+  };
+
+  const variant = variants[status] || variants.pending;
+
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${variant.color}`}>
+      <span>{variant.icon}</span>
+      <span>{variant.label}</span>
+    </span>
   );
 };
 

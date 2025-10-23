@@ -170,6 +170,14 @@
     "dashboard": {
       "title": "Dashboard Overview",
       "todayLabel": "Today: {{date}}",
+      "status": {
+        "hold": "Hold",
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "active": "Active",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
       "empty": {
         "welcome": "👋 Welcome, {{name}}!",
         "subtitle": "Let's get started with Kitloop.",
@@ -216,7 +224,10 @@
         "pickupConfirmed": "Pickup confirmed!",
         "markedAsReturned": "Reservation marked as completed",
         "errorMarkingReturned": "Error marking reservation as returned",
-        "errorConfirming": "Error confirming reservation"
+        "errorConfirming": "Error confirming reservation",
+        "alreadyConfirmed": "Already confirmed",
+        "alreadyConfirmedDesc": "This reservation has already been confirmed",
+        "edit": "Edit"
       },
       "upcoming": {
         "title": "📊 Upcoming (Next 7 Days)",

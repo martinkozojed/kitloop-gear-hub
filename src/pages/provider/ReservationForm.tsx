@@ -30,6 +30,7 @@ interface FormData {
   customer_email: string;
   customer_phone: string;
   gear_id: string;
+  quantity: number;
   start_date: string;
   end_date: string;
   notes: string;
@@ -68,6 +69,7 @@ const ReservationForm = () => {
     customer_email: '',
     customer_phone: '+420 ',
     gear_id: '',
+    quantity: 1,
     start_date: '',
     end_date: '',
     notes: '',
@@ -187,8 +189,9 @@ const ReservationForm = () => {
 
     if (end <= start) return 0;
 
-    return calculatePrice(selectedGear.price_per_day, start, end);
-  }, [selectedGear, formData.start_date, formData.end_date]);
+    const basePrice = calculatePrice(selectedGear.price_per_day, start, end);
+    return basePrice * formData.quantity;
+  }, [selectedGear, formData.start_date, formData.end_date, formData.quantity]);
 
   const totalPrice = calculateTotalPrice();
   const rentalDays = formData.start_date && formData.end_date && new Date(formData.end_date) > new Date(formData.start_date)
@@ -500,6 +503,35 @@ const ReservationForm = () => {
                 )}
               </div>
 
+              {/* Quantity Selector */}
+              {selectedGear && (
+                <div>
+                  <Label htmlFor="quantity">
+                    Množství <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex items-center gap-4">
+                    <Select
+                      value={formData.quantity.toString()}
+                      onValueChange={(value) => handleInputChange('quantity', parseInt(value))}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[...Array(Math.min(selectedGear.quantity_available || 1, 10))].map((_, i) => (
+                          <SelectItem key={i + 1} value={(i + 1).toString()}>
+                            {i + 1}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <span className="text-sm text-muted-foreground">
+                      Dostupné: {availability.result?.available ?? selectedGear.quantity_available ?? 0} ks
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="start_date">
@@ -573,16 +605,23 @@ const ReservationForm = () => {
               {selectedGear && rentalDays > 0 && (
                 <div className="p-4 bg-muted/50 rounded-lg space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Počet dní:</span>
-                    <span className="font-medium">{rentalDays}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Cena za den:</span>
                     <span className="font-medium">{formatPrice(selectedGear.price_per_day || 0)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Počet dní:</span>
+                    <span className="font-medium">× {rentalDays}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Množství:</span>
+                    <span className="font-medium">× {formData.quantity}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-2 border-t">
                     <span>Celková cena:</span>
                     <span>{formatPrice(totalPrice)}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatPrice(selectedGear.price_per_day || 0)} × {rentalDays} {rentalDays === 1 ? 'den' : rentalDays < 5 ? 'dny' : 'dní'} × {formData.quantity} ks
                   </div>
                 </div>
               )}
