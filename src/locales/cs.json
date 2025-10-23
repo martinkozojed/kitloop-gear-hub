@@ -316,6 +316,15 @@
         "cancel": "Zrušit",
         "confirm": "Smazat položku"
       }
+    },
+    "reservations": {
+      "alreadyConfirmed": "Tato rezervace již byla potvrzena",
+      "confirmSuccess": "Rezervace byla úspěšně potvrzena",
+      "confirmError": "Nepodařilo se potvrdit rezervaci",
+      "cannotCancel": "Tuto rezervaci nelze zrušit",
+      "cancelConfirm": "Opravdu chcete zrušit tuto rezervaci?",
+      "cancelSuccess": "Rezervace byla úspěšně zrušena",
+      "cancelError": "Nepodařilo se zrušit rezervaci"
     }
   }
 }

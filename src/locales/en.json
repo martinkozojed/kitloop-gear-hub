@@ -316,6 +316,15 @@
         "cancel": "Cancel",
         "confirm": "Delete item"
       }
+    },
+    "reservations": {
+      "alreadyConfirmed": "This reservation is already confirmed",
+      "confirmSuccess": "Reservation confirmed successfully",
+      "confirmError": "Failed to confirm reservation",
+      "cannotCancel": "This reservation cannot be cancelled",
+      "cancelConfirm": "Are you sure you want to cancel this reservation?",
+      "cancelSuccess": "Reservation cancelled successfully",
+      "cancelError": "Failed to cancel reservation"
     }
   }
 }
