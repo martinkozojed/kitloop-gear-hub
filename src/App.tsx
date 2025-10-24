@@ -29,6 +29,7 @@ import ReservationForm from "./pages/provider/ReservationForm";
 import ProviderVerify from "./pages/provider/ProviderVerify";
 import AdminApprovals from "./pages/AdminApprovals";
 import { cn } from "./lib/utils";
+import ProviderAnalytics from "./pages/provider/ProviderAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -104,6 +105,14 @@ const AppRoutes = () => {
             element={
               <ProviderRoute>
                 <ProviderReservations />
+              </ProviderRoute>
+            }
+          />
+          <Route
+            path="/provider/analytics"
+            element={
+              <ProviderRoute>
+                <ProviderAnalytics />
               </ProviderRoute>
             }
           />

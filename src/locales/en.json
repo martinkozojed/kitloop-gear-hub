@@ -1,4 +1,3 @@
-
 {
   "locale": "en-US",
   "error": "Error",
@@ -107,10 +106,10 @@
     "step_3_description": "Pickup point is shared right after booking confirmation.",
     "step_4_title": "Return",
     "step_4_description": "Return the gear on time and leave a review."
-   },
-    "featured": {
-  "expand": "Show more gear",
-  "collapse": "Show less"
+  },
+  "featured": {
+    "expand": "Show more gear",
+    "collapse": "Show less"
   },
   "login": {
     "welcome": "Welcome back",
@@ -154,6 +153,7 @@
       "subtitle": "Manage your rentals at a glance.",
       "nav": {
         "dashboard": "Dashboard",
+        "analytics": "Analytics",
         "inventory": "Inventory",
         "reservations": "Reservations",
         "reports": "Reports",
@@ -234,6 +234,78 @@
         "reservations": "{{count}} reservations",
         "pending": "{{count}} pending confirmations",
         "viewAll": "View All Reservations →"
+      }
+    },
+    "analytics": {
+      "title": "Analytics",
+      "headline": "Analytics & Insights",
+      "loading": "Loading analytics data...",
+      "error": "Failed to load analytics data",
+      "periods": {
+        "last7Days": "Last 7 Days",
+        "last30Days": "Last 30 Days",
+        "thisMonth": "This Month",
+        "lastMonth": "Last Month"
+      },
+      "cards": {
+        "revenue": {
+          "title": "Revenue",
+          "subtitle": "{{start}} - {{end}}",
+          "trendLabel": "vs. previous period"
+        },
+        "activeReservations": {
+          "title": "Active Reservations",
+          "subtitle": "Currently ongoing rentals"
+        },
+        "utilization": {
+          "title": "Inventory Utilization",
+          "subtitle": "{{active}} of {{total}} units rented",
+          "insightLow": "Low utilization - consider a marketing campaign",
+          "insightHigh": "High utilization - consider expanding inventory"
+        },
+        "rating": {
+          "title": "Average Rating",
+          "subtitle": "Based on customer reviews",
+          "value": "Coming Soon"
+        },
+        "insights": {
+          "title": "Smart Insights",
+          "subtitle": "AI-powered analytics",
+          "value": "Coming Soon"
+        }
+      },
+      "charts": {
+        "revenueTrend": {
+          "title": "Revenue Trend",
+          "empty": "No revenue in this period"
+        },
+        "reservationStatus": {
+          "title": "Reservations by Status",
+          "empty": "No reservations to display"
+        }
+      },
+      "tables": {
+        "topCustomers": {
+          "title": "Top Customers",
+          "empty": "No customers yet",
+          "columns": {
+            "customer": "Customer",
+            "email": "Email",
+            "phone": "Phone",
+            "revenue": "Total Spent",
+            "reservations": "Reservations"
+          }
+        }
+      },
+      "actions": {
+        "refresh": "Refresh Data",
+        "exportCustomers": "Export Customers"
+      },
+      "tooltips": {
+        "revenue": "Total revenue from confirmed and completed reservations",
+        "activeReservations": "Number of reservations in hold, confirmed or active status",
+        "utilization": "Percentage of inventory currently rented out",
+        "rating": "Rating feature will be available soon"
       }
     },
     "inventory": {

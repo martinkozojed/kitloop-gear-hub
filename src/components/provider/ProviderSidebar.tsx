@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Home, Package, Calendar, BarChart3, Settings, Plus } from 'lucide-react';
+import { Home, Package, Calendar, BarChart3, Settings, Plus, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const ProviderSidebar = () => {
@@ -10,9 +10,10 @@ const ProviderSidebar = () => {
 
   const navItems = [
     { path: '/provider/dashboard', label: 'provider.sidebar.nav.dashboard', icon: Home },
+    { path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 },
     { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
     { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: Calendar },
-    { path: '/provider/reports', label: 'provider.sidebar.nav.reports', icon: BarChart3 },
+    { path: '/provider/reports', label: 'provider.sidebar.nav.reports', icon: FileText },
     { path: '/provider/settings', label: 'provider.sidebar.nav.settings', icon: Settings },
   ];
 
