@@ -1,6 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import {
+  ActivityEvent,
+  CategoryRevenueStat,
+  CustomerKpis,
   DateRange,
+  DeadInventoryStat,
   ProviderAnalyticsPayload,
   RevenueComparison,
   RevenueQueryRange,
@@ -8,6 +12,8 @@ import {
   RevenueTrendQuery,
   ReservationStatusStat,
   TopCustomerStat,
+  TopItemPerformance,
+  UtilizationHeatmapPoint,
   UtilizationMetrics,
 } from "./types";
 import {
@@ -290,6 +296,220 @@ export async function fetchUtilizationMetrics(
     activeUnits,
     totalUnits,
     activeReservationCount,
+  };
+}
+
+export async function fetchTopItems(
+  providerId: string,
+  limit = 10
+): Promise<TopItemPerformance[]> {
+  const { data, error } = await supabase
+    .from("analytics_provider_item_performance")
+    .select(
+      "gear_id, gear_name, category, revenue_cents, reservation_count, last_rented_at, quantity_available"
+    )
+    .eq("provider_id", providerId)
+    .order("revenue_cents", { ascending: false, nullsFirst: false })
+    .limit(limit);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((item) => ({
+    gearId: item.gear_id ?? "",
+    gearName: item.gear_name ?? null,
+    category: item.category ?? null,
+    revenueCents: Number(item.revenue_cents ?? 0),
+    reservationCount: Number(item.reservation_count ?? 0),
+    lastRentedAt: item.last_rented_at ?? null,
+    quantityAvailable: item.quantity_available ?? null,
+  }));
+}
+
+export async function fetchCategoryRevenue(
+  providerId: string
+): Promise<CategoryRevenueStat[]> {
+  const { data, error } = await supabase
+    .from("analytics_provider_category_revenue")
+    .select("category, revenue_cents, reservation_count")
+    .eq("provider_id", providerId)
+    .order("revenue_cents", { ascending: false, nullsFirst: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    category: row.category ?? "Uncategorized",
+    revenueCents: Number(row.revenue_cents ?? 0),
+    reservationCount: Number(row.reservation_count ?? 0),
+  }));
+}
+
+export async function fetchDeadInventory(
+  providerId: string,
+  thresholdDays = 30,
+  limit = 25
+): Promise<DeadInventoryStat[]> {
+  const { data, error } = await supabase
+    .from("analytics_provider_item_performance")
+    .select(
+      "gear_id, gear_name, category, revenue_cents, reservation_count, last_rented_at"
+    )
+    .eq("provider_id", providerId)
+    .order("last_rented_at", { ascending: true, nullsFirst: true });
+
+  if (error) {
+    throw error;
+  }
+
+  const now = Date.now();
+  const thresholdMs = thresholdDays * 24 * 60 * 60 * 1000;
+
+  return (data ?? [])
+    .map<DeadInventoryStat>((item) => {
+      const lastRentedAt = item.last_rented_at;
+      const lastTime = lastRentedAt ? new Date(lastRentedAt).getTime() : null;
+      const daysSince = lastTime
+        ? Math.floor((now - lastTime) / (24 * 60 * 60 * 1000))
+        : null;
+
+      return {
+        gearId: item.gear_id ?? "",
+        gearName: item.gear_name ?? null,
+        category: item.category ?? null,
+        lastRentedAt,
+        daysSinceLastRental: daysSince,
+        reservationCount: Number(item.reservation_count ?? 0),
+      };
+    })
+    .filter((item) => {
+      if (item.daysSinceLastRental === null) {
+        return true;
+      }
+      return item.daysSinceLastRental >= thresholdDays;
+    })
+    .slice(0, limit);
+}
+
+export async function fetchActivityFeed(
+  providerId: string,
+  limit = 30
+): Promise<ActivityEvent[]> {
+  const { data, error } = await supabase
+    .from("analytics_provider_activity_feed")
+    .select(
+      "reservation_id, gear_name, customer_name, status, created_at, updated_at, start_date, end_date"
+    )
+    .eq("provider_id", providerId)
+    .order("updated_at", { ascending: false, nullsFirst: true })
+    .limit(limit);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    reservationId: row.reservation_id,
+    gearName: row.gear_name,
+    customerName: row.customer_name,
+    status: row.status,
+    eventTime: row.updated_at ?? row.created_at,
+    startDate: row.start_date,
+    endDate: row.end_date,
+  }));
+}
+
+export async function fetchUtilizationHeatmap(
+  providerId: string,
+  range?: DateRange
+): Promise<UtilizationHeatmapPoint[]> {
+  let query = supabase
+    .from("analytics_provider_daily_utilisation")
+    .select("usage_date, active_units, total_units")
+    .eq("provider_id", providerId)
+    .order("usage_date", { ascending: true });
+
+  if (range) {
+    query = query
+      .gte("usage_date", range.start.toISOString().slice(0, 10))
+      .lte("usage_date", range.end.toISOString().slice(0, 10));
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    date: row.usage_date ?? "",
+    activeUnits: Number(row.active_units ?? 0),
+    totalUnits: Number(row.total_units ?? 0),
+  }));
+}
+
+export async function fetchCustomerKpis(
+  providerId: string,
+  range?: DateRange
+): Promise<CustomerKpis> {
+  let query = supabase
+    .from("reservations")
+    .select(
+      "customer_name, customer_email, customer_phone, amount_total_cents, total_price, deposit_paid, status"
+    )
+    .eq("provider_id", providerId)
+    .in("status", REVENUE_STATUSES);
+
+  if (range) {
+    query = query
+      .gte("start_date", range.start.toISOString())
+      .lt("start_date", range.end.toISOString());
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  const reservations = data ?? [];
+  let revenueCents = 0;
+  let depositCount = 0;
+  const customers = new Set<string>();
+
+  reservations.forEach((row) => {
+    const amount = row.amount_total_cents ?? (row.total_price ? Number(row.total_price) * 100 : 0);
+    if (!Number.isNaN(amount)) {
+      revenueCents += Math.max(0, Math.round(amount));
+    }
+    if (row.deposit_paid) {
+      depositCount += 1;
+    }
+
+    const identifier = row.customer_email || row.customer_phone || row.customer_name;
+    if (identifier) {
+      customers.add(identifier);
+    }
+  });
+
+  const totalReservations = reservations.length;
+  const totalCustomers = customers.size;
+  const averageOrderValueCents = totalReservations
+    ? Math.round(revenueCents / totalReservations)
+    : 0;
+  const repeatCustomerRate = totalCustomers
+    ? Math.max(0, totalReservations - totalCustomers) / totalCustomers
+    : 0;
+  const depositRate = totalReservations ? depositCount / totalReservations : 0;
+
+  return {
+    averageOrderValueCents,
+    repeatCustomerRate,
+    depositRate,
+    totalCustomers,
+    totalReservations,
   };
 }
 

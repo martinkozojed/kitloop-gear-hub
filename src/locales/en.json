@@ -237,75 +237,109 @@
       }
     },
     "analytics": {
-      "title": "Analytics",
-      "headline": "Analytics & Insights",
-      "loading": "Loading analytics data...",
-      "error": "Failed to load analytics data",
+      "headline": "Performance Overview",
+      "title": "Analytics & Business Overview",
+      "subtitle": "Key metrics for your rental business – updated {{date}}.",
+      "loading": "Loading data...",
+      "error": "Unable to load analytics data. Please try again.",
+      "lastUpdated": "Updated {{time}}",
       "periods": {
-        "last7Days": "Last 7 Days",
-        "last30Days": "Last 30 Days",
-        "thisMonth": "This Month",
-        "lastMonth": "Last Month"
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days",
+        "thisMonth": "This month",
+        "lastMonth": "Last month"
+      },
+      "actions": {
+        "refresh": "Refresh data",
+        "exportCustomers": "Export customers",
+        "exportTopItems": "Export top items",
+        "exportDeadInventory": "Export dead inventory"
+      },
+      "tooltips": {
+        "revenue": "Revenue includes confirmed, active and completed reservations in the selected period.",
+        "activeReservations": "Shows all ongoing reservations (hold, confirmed, active).",
+        "utilization": "Utilization compares active reservations against available inventory units.",
+        "rating": "Collect reviews from customers to unlock average rating analytics."
       },
       "cards": {
         "revenue": {
-          "title": "Revenue",
-          "subtitle": "{{start}} - {{end}}",
-          "trendLabel": "vs. previous period"
+          "title": "Revenue (current month)",
+          "subtitle": "Period {{start}} – {{end}}",
+          "trendLabel": "vs. previous month"
         },
         "activeReservations": {
-          "title": "Active Reservations",
-          "subtitle": "Currently ongoing rentals"
+          "title": "Active reservations",
+          "subtitle": "Reservations happening right now"
         },
         "utilization": {
-          "title": "Inventory Utilization",
-          "subtitle": "{{active}} of {{total}} units rented",
-          "insightLow": "Low utilization - consider a marketing campaign",
-          "insightHigh": "High utilization - consider expanding inventory"
+          "title": "Inventory utilization",
+          "subtitle": "{{active}} of {{total}} units in use",
+          "insightLow": "Utilization is low – consider promoting your inventory.",
+          "insightHigh": "Great job! Inventory is highly utilized."
         },
         "rating": {
-          "title": "Average Rating",
-          "subtitle": "Based on customer reviews",
-          "value": "Coming Soon"
+          "title": "Average rating",
+          "subtitle": "Collecting customer feedback.",
+          "value": "Coming soon"
         },
         "insights": {
-          "title": "Smart Insights",
-          "subtitle": "AI-powered analytics",
-          "value": "Coming Soon"
+          "title": "Recommendations & insights",
+          "subtitle": "Stay tuned for smart tips and alerts.",
+          "value": "AI insights coming soon"
+        },
+        "customerKpis": {
+          "title": "Customer KPIs",
+          "aov": "Average order value",
+          "repeat": "Repeat customer rate",
+          "deposit": "Deposit uptake",
+          "counts": "Customers & reservations"
         }
       },
       "charts": {
         "revenueTrend": {
-          "title": "Revenue Trend",
-          "empty": "No revenue in this period"
+          "title": "Revenue over time",
+          "empty": "No data for the selected period."
         },
         "reservationStatus": {
-          "title": "Reservations by Status",
-          "empty": "No reservations to display"
+          "title": "Reservation status (last 30 days)",
+          "empty": "No reservations in this period.",
+          "total": "{{count}} reservations in the last 30 days."
+        },
+        "categoryBreakdown": {
+          "title": "Revenue by category",
+          "empty": "No revenue data available for this period."
+        },
+        "utilizationHeatmap": {
+          "title": "Utilization heatmap",
+          "empty": "No reservations recorded for this range."
+        },
+        "activityTimeline": {
+          "title": "Recent activity",
+          "empty": "No recent reservation activity."
         }
       },
       "tables": {
         "topCustomers": {
-          "title": "Top Customers",
-          "empty": "No customers yet",
+          "title": "Top customers (last 90 days)",
+          "empty": "No customers with revenue in this period.",
           "columns": {
             "customer": "Customer",
             "email": "Email",
             "phone": "Phone",
-            "revenue": "Total Spent",
-            "reservations": "Reservations"
+            "reservations": "Reservations",
+            "revenue": "Revenue"
           }
+        },
+        "topItems": {
+          "title": "Top performing items",
+          "subtitle": "Based on revenue in the selected period",
+          "empty": "No revenue recorded yet for your items."
+        },
+        "deadInventory": {
+          "title": "Dead inventory",
+          "threshold": "Items not rented for 30 days or more",
+          "empty": "Great! All items were rented recently."
         }
-      },
-      "actions": {
-        "refresh": "Refresh Data",
-        "exportCustomers": "Export Customers"
-      },
-      "tooltips": {
-        "revenue": "Total revenue from confirmed and completed reservations",
-        "activeReservations": "Number of reservations in hold, confirmed or active status",
-        "utilization": "Percentage of inventory currently rented out",
-        "rating": "Rating feature will be available soon"
       }
     },
     "inventory": {
@@ -397,6 +431,112 @@
       "cancelConfirm": "Are you sure you want to cancel this reservation?",
       "cancelSuccess": "Reservation cancelled successfully",
       "cancelError": "Failed to cancel reservation"
+    }
+  },
+  "analytics": {
+    "headline": "Performance Overview",
+    "title": "Analytics & Business Overview",
+    "subtitle": "Key metrics for your rental business – updated {{date}}.",
+    "loading": "Loading data...",
+    "error": "Unable to load analytics data. Please try again.",
+    "lastUpdated": "Updated {{time}}",
+    "periods": {
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "thisMonth": "This month",
+      "lastMonth": "Last month"
+    },
+    "actions": {
+      "refresh": "Refresh data",
+      "exportCustomers": "Export customers",
+      "exportTopItems": "Export top items",
+      "exportDeadInventory": "Export dead inventory"
+    },
+    "tooltips": {
+      "revenue": "Revenue includes confirmed, active and completed reservations in the selected period.",
+      "activeReservations": "Shows all ongoing reservations (hold, confirmed, active).",
+      "utilization": "Utilization compares active reservations against available inventory units.",
+      "rating": "Collect reviews from customers to unlock average rating analytics."
+    },
+    "cards": {
+      "revenue": {
+        "title": "Revenue (current month)",
+        "subtitle": "Period {{start}} – {{end}}",
+        "trendLabel": "vs. previous month"
+      },
+      "activeReservations": {
+        "title": "Active reservations",
+        "subtitle": "Reservations happening right now"
+      },
+      "utilization": {
+        "title": "Inventory utilization",
+        "subtitle": "{{active}} of {{total}} units in use",
+        "insightLow": "Utilization is low – consider promoting your inventory.",
+        "insightHigh": "Great job! Inventory is highly utilized."
+      },
+      "rating": {
+        "title": "Average rating",
+        "subtitle": "Collecting customer feedback.",
+        "value": "Coming soon"
+      },
+      "insights": {
+        "title": "Recommendations & insights",
+        "subtitle": "Stay tuned for smart tips and alerts.",
+        "value": "AI insights coming soon"
+      },
+      "customerKpis": {
+        "title": "Customer KPIs",
+        "aov": "Average order value",
+        "repeat": "Repeat customer rate",
+        "deposit": "Deposit uptake",
+        "counts": "Customers & reservations"
+      }
+    },
+    "charts": {
+      "revenueTrend": {
+        "title": "Revenue over time",
+        "empty": "No data for the selected period."
+      },
+      "reservationStatus": {
+        "title": "Reservation status (last 30 days)",
+        "empty": "No reservations in this period.",
+        "total": "{{count}} reservations in the last 30 days."
+      },
+      "categoryBreakdown": {
+        "title": "Revenue by category",
+        "empty": "No revenue data available for this period."
+      },
+      "utilizationHeatmap": {
+        "title": "Utilization heatmap",
+        "empty": "No reservations recorded for this range."
+      },
+      "activityTimeline": {
+        "title": "Recent activity",
+        "empty": "No recent reservation activity."
+      }
+    },
+    "tables": {
+      "topCustomers": {
+        "title": "Top customers (last 90 days)",
+        "empty": "No customers with revenue in this period.",
+        "columns": {
+          "customer": "Customer",
+          "email": "Email",
+          "phone": "Phone",
+          "reservations": "Reservations",
+          "revenue": "Revenue"
+        }
+      },
+      "topItems": {
+        "title": "Top performing items",
+        "subtitle": "Based on revenue in the selected period",
+        "empty": "No revenue recorded yet for your items."
+      },
+      "deadInventory": {
+        "title": "Dead inventory",
+        "threshold": "Items not rented for 30 days or more",
+        "empty": "Great! All items were rented recently."
+      }
     }
   }
 }

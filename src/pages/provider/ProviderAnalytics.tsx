@@ -5,11 +5,23 @@ import { AnalyticsGrid } from "@/components/analytics/layout/AnalyticsGrid";
 import { RevenueCard } from "@/components/analytics/cards/RevenueCard";
 import { ActiveReservationsCard } from "@/components/analytics/cards/ActiveReservationsCard";
 import { UtilizationCard } from "@/components/analytics/cards/UtilizationCard";
+import { MetricCard } from "@/components/analytics/cards/MetricCard";
+import { CustomerKpiCards } from "@/components/analytics/cards/CustomerKpiCards";
 import { RevenueTrendChart } from "@/components/analytics/charts/RevenueTrendChart";
 import { ReservationStatusChart } from "@/components/analytics/charts/ReservationStatusChart";
+import { CategoryBreakdownChart } from "@/components/analytics/charts/CategoryBreakdownChart";
+import { ActivityTimeline } from "@/components/analytics/charts/ActivityTimeline";
+import { UtilizationHeatmap } from "@/components/analytics/charts/UtilizationHeatmap";
 import { TopCustomersTable } from "@/components/analytics/tables/TopCustomersTable";
-import { MetricCard } from "@/components/analytics/cards/MetricCard";
+import { TopItemsTable } from "@/components/analytics/tables/TopItemsTable";
+import { DeadInventoryTable } from "@/components/analytics/tables/DeadInventoryTable";
 import { useAnalytics } from "@/hooks/analytics/useAnalytics";
+import { useTopItems } from "@/hooks/analytics/useTopItems";
+import { useCategoryRevenue } from "@/hooks/analytics/useCategoryRevenue";
+import { useDeadInventory } from "@/hooks/analytics/useDeadInventory";
+import { useActivityFeed } from "@/hooks/analytics/useActivityFeed";
+import { useUtilizationHeatmap } from "@/hooks/analytics/useUtilizationHeatmap";
+import { useCustomerKpis } from "@/hooks/analytics/useCustomerKpis";
 import { useAuth } from "@/context/AuthContext";
 import {
   formatInteger,
@@ -38,6 +50,31 @@ const ProviderAnalytics = () => {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<AnalyticsPeriod>("thisMonth");
   const analytics = useAnalytics(provider?.id, period);
+  const activeRange = analytics.revenue.comparisonRange.current;
+  const topItems = useTopItems(provider?.id, 10);
+  const categoryRevenue = useCategoryRevenue(provider?.id);
+  const deadInventory = useDeadInventory(provider?.id, 30, 25);
+  const activityFeed = useActivityFeed(provider?.id, 30);
+  const utilizationHeatmap = useUtilizationHeatmap(provider?.id, activeRange);
+  const customerKpis = useCustomerKpis(provider?.id, activeRange);
+  const topItemsQuery = topItems.query;
+  const categoryRevenueQuery = categoryRevenue.query;
+  const deadInventoryQuery = deadInventory.query;
+  const activityFeedQuery = activityFeed.query;
+  const utilizationHeatmapQuery = utilizationHeatmap.query;
+  const customerKpisQuery = customerKpis.query;
+
+  const revenueComparisonUpdatedAt = analytics.revenue.comparisonQuery.dataUpdatedAt;
+  const revenueTrendUpdatedAt = analytics.revenue.trendQuery.dataUpdatedAt;
+  const statusUpdatedAt = analytics.reservationStatuses.query.dataUpdatedAt;
+  const customersUpdatedAt = analytics.customers.query.dataUpdatedAt;
+  const utilizationUpdatedAt = analytics.utilization.query.dataUpdatedAt;
+  const topItemsUpdatedAt = topItemsQuery.dataUpdatedAt;
+  const categoryRevenueUpdatedAt = categoryRevenueQuery.dataUpdatedAt;
+  const deadInventoryUpdatedAt = deadInventoryQuery.dataUpdatedAt;
+  const activityFeedUpdatedAt = activityFeedQuery.dataUpdatedAt;
+  const utilizationHeatmapUpdatedAt = utilizationHeatmapQuery.dataUpdatedAt;
+  const customerKpisUpdatedAt = customerKpisQuery.dataUpdatedAt;
 
   const periodOptions = useMemo(
     () => [
@@ -93,25 +130,23 @@ const ProviderAnalytics = () => {
     return null;
   }, [analytics.utilization.data, t]);
 
-  const lastUpdated = useMemo(() => {
-    const timestamps = [
-      analytics.revenue.comparisonQuery.dataUpdatedAt,
-      analytics.revenue.trendQuery.dataUpdatedAt,
-      analytics.reservationStatuses.query.dataUpdatedAt,
-      analytics.customers.query.dataUpdatedAt,
-      analytics.utilization.query.dataUpdatedAt,
-    ].filter((value) => value && value > 0) as number[];
+  const timestamps = [
+    revenueComparisonUpdatedAt,
+    revenueTrendUpdatedAt,
+    statusUpdatedAt,
+    customersUpdatedAt,
+    utilizationUpdatedAt,
+    topItemsUpdatedAt,
+    categoryRevenueUpdatedAt,
+    deadInventoryUpdatedAt,
+    activityFeedUpdatedAt,
+    utilizationHeatmapUpdatedAt,
+    customerKpisUpdatedAt,
+  ].filter((value) => value && value > 0) as number[];
 
-    if (!timestamps.length) return null;
-    return formatRelativeTimeFromNow(Math.max(...timestamps), i18n.language);
-  }, [
-    analytics.customers.query.dataUpdatedAt,
-    analytics.revenue.comparisonQuery.dataUpdatedAt,
-    analytics.revenue.trendQuery.dataUpdatedAt,
-    analytics.reservationStatuses.query.dataUpdatedAt,
-    analytics.utilization.query.dataUpdatedAt,
-    i18n.language,
-  ]);
+  const lastUpdated = timestamps.length
+    ? formatRelativeTimeFromNow(Math.max(...timestamps), i18n.language)
+    : null;
 
   const handleRefresh = useCallback(() => {
     analytics.revenue.comparisonQuery.refetch();
@@ -119,7 +154,25 @@ const ProviderAnalytics = () => {
     analytics.reservationStatuses.query.refetch();
     analytics.customers.query.refetch();
     analytics.utilization.query.refetch();
-  }, [analytics]);
+    topItemsQuery.refetch();
+    categoryRevenueQuery.refetch();
+    deadInventoryQuery.refetch();
+    activityFeedQuery.refetch();
+    utilizationHeatmapQuery.refetch();
+    customerKpisQuery.refetch();
+  }, [
+    analytics.customers.query,
+    analytics.reservationStatuses.query,
+    analytics.revenue.comparisonQuery,
+    analytics.revenue.trendQuery,
+    analytics.utilization.query,
+    topItemsQuery,
+    categoryRevenueQuery,
+    deadInventoryQuery,
+    activityFeedQuery,
+    utilizationHeatmapQuery,
+    customerKpisQuery,
+  ]);
 
   const handlePeriodChange = useCallback((value: string) => {
     if (value) {
@@ -156,6 +209,22 @@ const ProviderAnalytics = () => {
     [navigate]
   );
 
+  const handleViewItem = useCallback(
+    (gearId: string) => {
+      const params = new URLSearchParams({ highlight: gearId });
+      navigate(`/provider/inventory?${params.toString()}`);
+    },
+    [navigate]
+  );
+
+  const handleViewReservation = useCallback(
+    (reservationId: string) => {
+      const params = new URLSearchParams({ highlight: reservationId });
+      navigate(`/provider/reservations?${params.toString()}`);
+    },
+    [navigate]
+  );
+
   const handleExportCustomers = useCallback(() => {
     if (!analytics.customers.data?.length) {
       return;
@@ -183,6 +252,54 @@ const ProviderAnalytics = () => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }, [analytics.customers.data, period]);
+
+  const handleExportTopItems = useCallback(() => {
+    if (!topItems.data.length) return;
+    const header = "Rank,Item,Category,RevenueCZK,Reservations,LastRentedAt";
+    const rows = topItems.data.map((item, idx) =>
+      [
+        idx + 1,
+        item.gearName ?? "",
+        item.category ?? "",
+        (item.revenueCents / 100).toFixed(2),
+        item.reservationCount,
+        item.lastRentedAt ?? "",
+      ].join(",")
+    );
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `top-items-${period}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [period, topItems.data]);
+
+  const handleExportDeadInventory = useCallback(() => {
+    if (!deadInventory.data.length) return;
+    const header = "Item,Category,DaysSinceLast,Reservations";
+    const rows = deadInventory.data.map((item) =>
+      [
+        item.gearName ?? "",
+        item.category ?? "",
+        item.daysSinceLastRental ?? "",
+        item.reservationCount,
+      ].join(",")
+    );
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dead-inventory-${period}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [deadInventory.data, period]);
 
   const revenueIcon = (
     <Tooltip>
@@ -363,6 +480,63 @@ const ProviderAnalytics = () => {
             }
             statusLabels={statusLabels}
             onSelectStatus={handleStatusSelect}
+          />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <TopItemsTable
+            data={topItems.data}
+            isLoading={topItemsQuery.isLoading}
+            title={t("provider.analytics.tables.topItems.title")}
+            subtitle={t("provider.analytics.tables.topItems.subtitle")}
+            emptyMessage={t("provider.analytics.tables.topItems.empty")}
+            onViewItem={handleViewItem}
+            onExport={handleExportTopItems}
+          />
+          <CategoryBreakdownChart
+            data={categoryRevenue.data}
+            isLoading={categoryRevenueQuery.isLoading}
+            title={t("provider.analytics.charts.categoryBreakdown.title")}
+            emptyMessage={t("provider.analytics.charts.categoryBreakdown.empty")}
+          />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <DeadInventoryTable
+            data={deadInventory.data}
+            isLoading={deadInventoryQuery.isLoading}
+            title={t("provider.analytics.tables.deadInventory.title")}
+            thresholdLabel={t("provider.analytics.tables.deadInventory.threshold")}
+            emptyMessage={t("provider.analytics.tables.deadInventory.empty")}
+            onViewItem={handleViewItem}
+            onExport={handleExportDeadInventory}
+          />
+          <CustomerKpiCards
+            data={customerKpis.data}
+            isLoading={customerKpisQuery.isLoading}
+            title={t("provider.analytics.cards.customerKpis.title")}
+            subtitles={{
+              aov: t("provider.analytics.cards.customerKpis.aov"),
+              repeat: t("provider.analytics.cards.customerKpis.repeat"),
+              deposit: t("provider.analytics.cards.customerKpis.deposit"),
+              counts: t("provider.analytics.cards.customerKpis.counts"),
+            }}
+          />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <ActivityTimeline
+            data={activityFeed.data}
+            isLoading={activityFeedQuery.isLoading}
+            title={t("provider.analytics.charts.activityTimeline.title")}
+            emptyMessage={t("provider.analytics.charts.activityTimeline.empty")}
+            onViewReservation={handleViewReservation}
+          />
+          <UtilizationHeatmap
+            data={utilizationHeatmap.data}
+            isLoading={utilizationHeatmapQuery.isLoading}
+            title={t("provider.analytics.charts.utilizationHeatmap.title")}
+            emptyMessage={t("provider.analytics.charts.utilizationHeatmap.empty")}
           />
         </section>
 

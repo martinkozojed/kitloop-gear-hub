@@ -329,29 +329,41 @@
     "analytics": {
       "title": "Analytika",
       "headline": "Analytika a přehledy",
+      "subtitle": "Klíčové metriky vaší půjčovny – aktualizováno {{date}}.",
       "loading": "Načítání analytických dat...",
       "error": "Nepodařilo se načíst analytická data",
+      "lastUpdated": "Aktualizováno: {{time}}",
       "periods": {
         "last7Days": "Posledních 7 dní",
         "last30Days": "Posledních 30 dní",
         "thisMonth": "Tento měsíc",
         "lastMonth": "Minulý měsíc"
       },
+      "actions": {
+        "refresh": "Obnovit data",
+        "exportCustomers": "Exportovat zákazníky"
+      },
+      "tooltips": {
+        "revenue": "Celkové tržby z potvrzených a dokončených rezervací",
+        "activeReservations": "Počet rezervací ve stavu hold, potvrzeno nebo aktivní",
+        "utilization": "Procento inventáře, které je aktuálně půjčeno",
+        "rating": "Funkce hodnocení bude brzy k dispozici"
+      },
       "cards": {
         "revenue": {
-          "title": "Tržby",
-          "subtitle": "{{start}} - {{end}}",
-          "trendLabel": "vs. předchozí období"
+          "title": "Tržby (aktuální měsíc)",
+          "subtitle": "Období {{start}} – {{end}}",
+          "trendLabel": "vs. minulý měsíc"
         },
         "activeReservations": {
           "title": "Aktivní rezervace",
-          "subtitle": "Právě probíhající půjčení"
+          "subtitle": "Rezervace probíhající právě teď"
         },
         "utilization": {
           "title": "Vytížení inventáře",
-          "subtitle": "{{active}} z {{total}} kusů půjčeno",
-          "insightLow": "Nízké vytížení - zvažte marketingovou kampaň",
-          "insightHigh": "Vysoké vytížení - zvažte rozšíření inventáře"
+          "subtitle": "{{active}} z {{total}} jednotek využito",
+          "insightLow": "Vytížení je nízké – zvaž propagační akci.",
+          "insightHigh": "Skvělé! Inventář je téměř plně využit."
         },
         "rating": {
           "title": "Průměrné hodnocení",
@@ -359,9 +371,16 @@
           "value": "Již brzy"
         },
         "insights": {
-          "title": "Inteligentní přehledy",
-          "subtitle": "AI-powered analytics",
-          "value": "Již brzy"
+          "title": "Doporučení a insighty",
+          "subtitle": "Brzy přidáme chytré tipy a upozornění – zůstaňte naladěni.",
+          "value": "Pracujeme na AI doporučeních"
+        },
+        "customerKpis": {
+          "title": "Zákaznické metriky",
+          "aov": "Průměrná hodnota objednávky",
+          "repeat": "Podíl vracejících se zákazníků",
+          "deposit": "Podíl rezervací se zálohou",
+          "counts": "Zákazníci a rezervace"
         }
       },
       "charts": {
@@ -386,16 +405,112 @@
             "reservations": "Počet rezervací"
           }
         }
+      }
+    }
+  },
+  "analytics": {
+    "headline": "Přehled výkonu",
+    "title": "Analytika a business přehled",
+    "subtitle": "Klíčové metriky vaší půjčovny – aktualizováno {{date}}.",
+    "loading": "Načítáme data...",
+    "error": "Nepodařilo se načíst data. Zkuste to prosím znovu.",
+    "lastUpdated": "Aktualizováno: {{time}}",
+    "periods": {
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "thisMonth": "This month",
+      "lastMonth": "Last month"
+    },
+    "actions": {
+      "refresh": "Obnovit data",
+      "exportCustomers": "Export zákazníků",
+      "exportTopItems": "Export nejlepších položek",
+      "exportDeadInventory": "Export mrtvého inventáře"
+    },
+    "tooltips": {
+      "revenue": "Započítává potvrzené, probíhající a dokončené rezervace ve zvoleném období.",
+      "activeReservations": "Zahrnuje všechny právě probíhající rezervace (blokované, potvrzené, aktivní).",
+      "utilization": "Vytížení porovnává aktivní rezervace s dostupnými jednotkami inventáře.",
+      "rating": "Sbírej recenze od zákazníků a odemkni průměrné hodnocení."
+    },
+    "cards": {
+      "revenue": {
+        "title": "Tržby (aktuální měsíc)",
+        "subtitle": "Období {{start}} – {{end}}",
+        "trendLabel": "vs. minulý měsíc"
       },
-      "actions": {
-        "refresh": "Obnovit data",
-        "exportCustomers": "Exportovat zákazníky"
+      "activeReservations": {
+        "title": "Aktivní rezervace",
+        "subtitle": "Rezervace probíhající právě teď"
       },
-      "tooltips": {
-        "revenue": "Celkové tržby z potvrzených a dokončených rezervací",
-        "activeReservations": "Počet rezervací ve stavu hold, potvrzeno nebo aktivní",
-        "utilization": "Procento inventáře, které je aktuálně půjčeno",
-        "rating": "Funkce hodnocení bude brzy k dispozici"
+      "utilization": {
+        "title": "Vytížení inventáře",
+        "subtitle": "{{active}} z {{total}} jednotek využito",
+        "insightLow": "Vytížení je nízké – zvaž propagační akci.",
+        "insightHigh": "Skvělé! Inventář je téměř plně využit."
+      },
+      "rating": {
+        "title": "Průměrné hodnocení",
+        "subtitle": "Sbíráme zpětnou vazbu od zákazníků.",
+        "value": "Coming soon"
+      },
+      "insights": {
+        "title": "Doporučení a insighty",
+        "subtitle": "Brzy přidáme chytré tipy a upozornění – zůstaňte naladěni.",
+        "value": "Pracujeme na AI doporučeních"
+      },
+      "customerKpis": {
+        "title": "Zákaznické metriky",
+        "aov": "Průměrná hodnota objednávky",
+        "repeat": "Podíl vracejících se zákazníků",
+        "deposit": "Podíl rezervací se zálohou",
+        "counts": "Zákazníci a rezervace"
+      }
+    },
+    "charts": {
+      "revenueTrend": {
+        "title": "Vývoj tržeb",
+        "empty": "Žádná data za zvolené období."
+      },
+      "reservationStatus": {
+        "title": "Stav rezervací (posledních 30 dní)",
+        "empty": "Zatím žádné rezervace v tomto období.",
+        "total": "Celkem {{count}} rezervací za posledních 30 dní."
+      },
+      "categoryBreakdown": {
+        "title": "Tržby podle kategorií",
+        "empty": "V tomto období nejsou k dispozici data."
+      },
+      "utilizationHeatmap": {
+        "title": "Heatmapa vytížení",
+        "empty": "V tomto období nejsou zaznamenané rezervace."
+      },
+      "activityTimeline": {
+        "title": "Poslední aktivita",
+        "empty": "Žádná nedávná aktivita rezervací."
+      }
+    },
+    "tables": {
+      "topCustomers": {
+        "title": "Top zákazníci (posledních 90 dní)",
+        "empty": "Zatím žádní zákazníci s tržbami v tomto období.",
+        "columns": {
+          "customer": "Zákazník",
+          "email": "Email",
+          "phone": "Telefon",
+          "reservations": "Rezervace",
+          "revenue": "Tržby"
+        }
+      },
+      "topItems": {
+        "title": "Nejvýkonnější položky",
+        "subtitle": "Podle tržeb ve zvoleném období",
+        "empty": "Zatím nejsou zaznamenané tržby."
+      },
+      "deadInventory": {
+        "title": "Mrtvý inventář",
+        "threshold": "Položky nepůjčené 30 dní a déle",
+        "empty": "Skvělé! Všechny položky byly půjčené nedávno."
       }
     }
   }

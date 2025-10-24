@@ -30,6 +30,7 @@ export type Database = {
           condition: string | null;
           notes: string | null;
           last_serviced: string | null;
+          last_rented_at: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -52,6 +53,7 @@ export type Database = {
           condition?: string | null;
           notes?: string | null;
           last_serviced?: string | null;
+          last_rented_at?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -74,6 +76,7 @@ export type Database = {
           condition?: string | null;
           notes?: string | null;
           last_serviced?: string | null;
+          last_rented_at?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];
@@ -331,7 +334,47 @@ export type Database = {
     };
 
     Views: {
-      [_ in never]: never;
+      analytics_provider_activity_feed: {
+        Row: {
+          created_at: string | null;
+          customer_name: string;
+          end_date: string | null;
+          gear_name: string | null;
+          provider_id: string;
+          reservation_id: string;
+          start_date: string | null;
+          status: string | null;
+          updated_at: string | null;
+        };
+      };
+      analytics_provider_category_revenue: {
+        Row: {
+          category: string | null;
+          provider_id: string | null;
+          reservation_count: number | null;
+          revenue_cents: number | null;
+        };
+      };
+      analytics_provider_daily_utilisation: {
+        Row: {
+          active_units: number | null;
+          provider_id: string | null;
+          total_units: number | null;
+          usage_date: string | null;
+        };
+      };
+      analytics_provider_item_performance: {
+        Row: {
+          category: string | null;
+          gear_id: string | null;
+          gear_name: string | null;
+          last_rented_at: string | null;
+          provider_id: string | null;
+          quantity_available: number | null;
+          reservation_count: number | null;
+          revenue_cents: number | null;
+        };
+      };
     };
 
     Functions: {

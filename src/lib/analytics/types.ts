@@ -61,6 +61,12 @@ export interface ProviderAnalyticsPayload {
   reservationStatuses: ReservationStatusStat[];
   topCustomers: TopCustomerStat[];
   utilization: UtilizationMetrics;
+  topItems?: TopItemPerformance[];
+  categoryRevenue?: CategoryRevenueStat[];
+  deadInventory?: DeadInventoryStat[];
+  activityFeed?: ActivityEvent[];
+  utilizationHeatmap?: UtilizationHeatmapPoint[];
+  customerKpis?: CustomerKpis;
 }
 
 export interface DateRange {
@@ -84,3 +90,52 @@ export type AnalyticsPeriod =
   | "last30Days"
   | "thisMonth"
   | "lastMonth";
+
+export interface TopItemPerformance {
+  gearId: string;
+  gearName: string | null;
+  category: string | null;
+  revenueCents: number;
+  reservationCount: number;
+  lastRentedAt: string | null;
+  quantityAvailable: number | null;
+}
+
+export interface CategoryRevenueStat {
+  category: string;
+  revenueCents: number;
+  reservationCount: number;
+}
+
+export interface DeadInventoryStat {
+  gearId: string;
+  gearName: string | null;
+  category: string | null;
+  lastRentedAt: string | null;
+  daysSinceLastRental: number | null;
+  reservationCount: number;
+}
+
+export interface ActivityEvent {
+  reservationId: string;
+  gearName: string | null;
+  customerName: string;
+  status: string | null;
+  eventTime: string | null;
+  startDate: string | null;
+  endDate: string | null;
+}
+
+export interface UtilizationHeatmapPoint {
+  date: string;
+  activeUnits: number;
+  totalUnits: number;
+}
+
+export interface CustomerKpis {
+  averageOrderValueCents: number;
+  repeatCustomerRate: number;
+  depositRate: number;
+  totalCustomers: number;
+  totalReservations: number;
+}

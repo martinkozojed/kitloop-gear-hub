@@ -52,6 +52,24 @@ interface AgendaEvent {
   notes: string | null;
 }
 
+type GearSummary = {
+  name: string | null;
+  category: string | null;
+};
+
+type ReservationWithGear = {
+  id: string;
+  customer_name: string;
+  customer_phone: string | null;
+  pickup_time?: string | null;
+  return_time?: string | null;
+  status: string;
+  notes: string | null;
+  gear_items: GearSummary | GearSummary[] | null;
+};
+
+type ReturnCondition = 'good' | 'minor' | 'damaged';
+
 const DashboardOverview = () => {
   const { user, provider } = useAuth();
   const { t, i18n } = useTranslation();
@@ -70,7 +88,7 @@ const DashboardOverview = () => {
   const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [eventToReturn, setEventToReturn] = useState<AgendaEvent | null>(null);
-  const [returnCondition, setReturnCondition] = useState<'good' | 'minor' | 'damaged'>('good');
+  const [returnCondition, setReturnCondition] = useState<ReturnCondition>('good');
   const [returnNotes, setReturnNotes] = useState('');
   const [checklist, setChecklist] = useState<SetupChecklist>({
     profileCreated: true, // Always true if they're here
@@ -250,9 +268,14 @@ const DashboardOverview = () => {
           reservedTodayUnits = activeTodayResult.count || 0;
         }
 
+        const castGearInfo = (item: ReservationWithGear): GearSummary | null => {
+          if (!item.gear_items) return null;
+          return Array.isArray(item.gear_items) ? item.gear_items[0] ?? null : item.gear_items;
+        };
+
         if (!pickupsDataResult.error && pickupsDataResult.data) {
-          pickupsDataResult.data.forEach((pickup: any) => {
-            const gearInfo = Array.isArray(pickup.gear_items) ? pickup.gear_items[0] : pickup.gear_items;
+          pickupsDataResult.data.forEach((pickup: ReservationWithGear) => {
+            const gearInfo = castGearInfo(pickup);
             events.push({
               id: pickup.id,
               type: 'pickup',
@@ -260,7 +283,7 @@ const DashboardOverview = () => {
               customer_phone: pickup.customer_phone,
               gear_name: gearInfo?.name || 'Unknown',
               gear_category: gearInfo?.category || null,
-              time: pickup.pickup_time,
+              time: pickup.pickup_time ?? null,
               status: pickup.status,
               notes: pickup.notes,
             });
@@ -268,8 +291,8 @@ const DashboardOverview = () => {
         }
 
         if (!returnsDataResult.error && returnsDataResult.data) {
-          returnsDataResult.data.forEach((returnItem: any) => {
-            const gearInfo = Array.isArray(returnItem.gear_items) ? returnItem.gear_items[0] : returnItem.gear_items;
+          returnsDataResult.data.forEach((returnItem: ReservationWithGear) => {
+            const gearInfo = castGearInfo(returnItem);
             events.push({
               id: returnItem.id,
               type: 'return',
@@ -277,7 +300,7 @@ const DashboardOverview = () => {
               customer_phone: returnItem.customer_phone,
               gear_name: gearInfo?.name || 'Unknown',
               gear_category: gearInfo?.category || null,
-              time: returnItem.return_time,
+              time: returnItem.return_time ?? null,
               status: returnItem.status,
               notes: returnItem.notes,
             });
@@ -685,7 +708,11 @@ const DashboardOverview = () => {
           <div className="py-4 space-y-4">
             <div>
               <Label className="text-base font-medium">Stav vybavení</Label>
-              <RadioGroup value={returnCondition} onValueChange={(value: any) => setReturnCondition(value)} className="mt-2">
+              <RadioGroup
+                value={returnCondition}
+                onValueChange={(value) => setReturnCondition(value as ReturnCondition)}
+                className="mt-2"
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="good" id="good" />
                   <Label htmlFor="good" className="font-normal cursor-pointer">✅ Bez poškození</Label>
