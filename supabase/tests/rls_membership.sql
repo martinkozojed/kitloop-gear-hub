@@ -26,7 +26,6 @@ INSERT INTO auth.users (
   instance_id,
   email,
   encrypted_password,
-  email_confirmed_at,
   confirmation_sent_at,
   last_sign_in_at,
   raw_app_meta_data,
@@ -39,7 +38,6 @@ SELECT
   '00000000-0000-0000-0000-000000000000',
   label || '@test.local',
   'password',
-  now(),
   now(),
   now(),
   '{}'::jsonb,
@@ -61,7 +59,7 @@ WITH inserted AS (
   INSERT INTO public.providers (
     id,
     user_id,
-    rental_name,
+    name,
     contact_name,
     email,
     phone,
@@ -101,7 +99,7 @@ SELECT set_config('request.jwt.claim.role', 'authenticated', true);
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id FROM test_users WHERE label = 'owner'),
+  (SELECT id::text FROM test_users WHERE label = 'owner'),
   true
 );
 SELECT lives_ok($$
@@ -128,7 +126,7 @@ $$, 'Owner can insert gear items');
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id FROM test_users WHERE label = 'non_member'),
+  (SELECT id::text FROM test_users WHERE label = 'non_member'),
   true
 );
 SELECT throws_ok(
@@ -146,7 +144,7 @@ SELECT throws_ok(
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id FROM test_users WHERE label = 'owner'),
+  (SELECT id::text FROM test_users WHERE label = 'owner'),
   true
 );
 SELECT results_eq(
@@ -161,7 +159,7 @@ SELECT results_eq(
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id FROM test_users WHERE label = 'non_member'),
+  (SELECT id::text FROM test_users WHERE label = 'non_member'),
   true
 );
 SELECT results_eq(
@@ -176,13 +174,14 @@ SELECT results_eq(
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id FROM test_users WHERE label = 'owner'),
+  (SELECT id::text FROM test_users WHERE label = 'owner'),
   true
 );
 SELECT lives_ok($$
   WITH inserted AS (
     INSERT INTO public.reservations (
       provider_id,
+      user_id,
       gear_id,
       customer_name,
       start_date,
@@ -191,6 +190,7 @@ SELECT lives_ok($$
     )
     VALUES (
       (SELECT id FROM test_providers WHERE label = 'primary'),
+      (SELECT id FROM test_users WHERE label = 'owner'),
       (SELECT id FROM temp_gear LIMIT 1),
       'John Doe',
       now() + interval '1 day',
@@ -211,7 +211,7 @@ $$, 'Owner can update reservations');
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id FROM test_users WHERE label = 'non_member'),
+  (SELECT id::text FROM test_users WHERE label = 'non_member'),
   true
 );
 SELECT throws_ok(
