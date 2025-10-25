@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UtilizationHeatmapPoint } from "@/lib/analytics/types";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 
 interface UtilizationHeatmapProps {
   data: UtilizationHeatmapPoint[];
@@ -20,7 +20,7 @@ const intensityColors = [
   "#059669",
 ];
 
-export function UtilizationHeatmap({
+export const UtilizationHeatmap = memo(function UtilizationHeatmap({
   data,
   isLoading,
   title,
@@ -83,4 +83,4 @@ export function UtilizationHeatmap({
       </CardContent>
     </Card>
   );
-}
+});

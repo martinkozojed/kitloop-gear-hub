@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { DeadInventoryStat } from "@/lib/analytics/types";
 import { formatInteger } from "@/lib/analytics/formatters";
+import { useTranslation } from "react-i18next";
+import { memo } from "react";
 
 interface DeadInventoryTableProps {
   data: DeadInventoryStat[];
@@ -22,7 +24,7 @@ interface DeadInventoryTableProps {
   onExport?: () => void;
 }
 
-export function DeadInventoryTable({
+export const DeadInventoryTable = memo(function DeadInventoryTable({
   data,
   isLoading,
   title,
@@ -31,6 +33,8 @@ export function DeadInventoryTable({
   onViewItem,
   onExport,
 }: DeadInventoryTableProps) {
+  const { t } = useTranslation();
+
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -45,7 +49,7 @@ export function DeadInventoryTable({
           disabled={!data.length || isLoading}
           className="text-xs"
         >
-          Export CSV
+          {t("provider.analytics.tables.deadInventory.exportCsv")}
         </Button>
       </CardHeader>
       <CardContent>
@@ -60,22 +64,22 @@ export function DeadInventoryTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Item</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Days since last rental</TableHead>
-                  <TableHead className="text-right">Reservations total</TableHead>
+                  <TableHead>{t("provider.analytics.tables.deadInventory.columns.item")}</TableHead>
+                  <TableHead>{t("provider.analytics.tables.deadInventory.columns.category")}</TableHead>
+                  <TableHead className="text-right">{t("provider.analytics.tables.deadInventory.columns.daysSince")}</TableHead>
+                  <TableHead className="text-right">{t("provider.analytics.tables.deadInventory.columns.reservationsTotal")}</TableHead>
                   <TableHead className="text-right" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.map((item) => (
                   <TableRow key={item.gearId}>
-                    <TableCell className="font-medium">{item.gearName ?? "Unknown"}</TableCell>
+                    <TableCell className="font-medium">{item.gearName ?? t("provider.analytics.tables.deadInventory.unknown")}</TableCell>
                     <TableCell>{item.category ?? "—"}</TableCell>
                     <TableCell className="text-right">
                       {item.daysSinceLastRental === null
-                        ? "Never"
-                        : `${formatInteger(item.daysSinceLastRental)} days`}
+                        ? t("provider.analytics.tables.deadInventory.never")
+                        : t("provider.analytics.tables.deadInventory.daysCount", { days: formatInteger(item.daysSinceLastRental) })}
                     </TableCell>
                     <TableCell className="text-right">
                       {formatInteger(item.reservationCount)}
@@ -86,7 +90,7 @@ export function DeadInventoryTable({
                         size="sm"
                         onClick={() => onViewItem?.(item.gearId)}
                       >
-                        Open
+                        {t("provider.analytics.tables.deadInventory.openButton")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -98,4 +102,4 @@ export function DeadInventoryTable({
       </CardContent>
     </Card>
   );
-}
+});

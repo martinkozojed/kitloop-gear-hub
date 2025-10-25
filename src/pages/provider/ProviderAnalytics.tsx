@@ -28,6 +28,7 @@ import {
   formatLongDate,
   formatRelativeTimeFromNow,
 } from "@/lib/analytics/formatters";
+import { exportToCsv } from "@/lib/analytics/csvExport";
 import { AnalyticsPeriod, TopCustomerStat } from "@/lib/analytics/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -230,75 +231,49 @@ const ProviderAnalytics = () => {
       return;
     }
 
-    const header = "Customer,Email,Phone,Reservations,RevenueCZK";
-    const rows = analytics.customers.data.map((customer) =>
-      [
+    exportToCsv({
+      filename: `top-customers-${period}`,
+      headers: ["Customer", "Email", "Phone", "Reservations", "RevenueCZK"],
+      rows: analytics.customers.data.map((customer) => [
         customer.customerName,
         customer.customerEmail ?? "",
         customer.customerPhone ?? "",
         customer.reservationCount,
         (customer.totalCents / 100).toFixed(2),
-      ].join(",")
-    );
-
-    const csv = [header, ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `top-customers-${period}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      ]),
+    });
   }, [analytics.customers.data, period]);
 
   const handleExportTopItems = useCallback(() => {
     if (!topItems.data.length) return;
-    const header = "Rank,Item,Category,RevenueCZK,Reservations,LastRentedAt";
-    const rows = topItems.data.map((item, idx) =>
-      [
+
+    exportToCsv({
+      filename: `top-items-${period}`,
+      headers: ["Rank", "Item", "Category", "RevenueCZK", "Reservations", "LastRentedAt"],
+      rows: topItems.data.map((item, idx) => [
         idx + 1,
         item.gearName ?? "",
         item.category ?? "",
         (item.revenueCents / 100).toFixed(2),
         item.reservationCount,
         item.lastRentedAt ?? "",
-      ].join(",")
-    );
-    const csv = [header, ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `top-items-${period}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      ]),
+    });
   }, [period, topItems.data]);
 
   const handleExportDeadInventory = useCallback(() => {
     if (!deadInventory.data.length) return;
-    const header = "Item,Category,DaysSinceLast,Reservations";
-    const rows = deadInventory.data.map((item) =>
-      [
+
+    exportToCsv({
+      filename: `dead-inventory-${period}`,
+      headers: ["Item", "Category", "DaysSinceLast", "Reservations"],
+      rows: deadInventory.data.map((item) => [
         item.gearName ?? "",
         item.category ?? "",
         item.daysSinceLastRental ?? "",
         item.reservationCount,
-      ].join(",")
-    );
-    const csv = [header, ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `dead-inventory-${period}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      ]),
+    });
   }, [deadInventory.data, period]);
 
   const revenueIcon = (
@@ -357,7 +332,16 @@ const ProviderAnalytics = () => {
     <span className="rounded-full bg-sky-50 p-2 text-sky-500">💡</span>
   );
 
-  const errorMessage = analytics.isError
+  const hasAnyError =
+    analytics.isError ||
+    topItemsQuery.isError ||
+    categoryRevenueQuery.isError ||
+    deadInventoryQuery.isError ||
+    activityFeedQuery.isError ||
+    utilizationHeatmapQuery.isError ||
+    customerKpisQuery.isError;
+
+  const errorMessage = hasAnyError
     ? t("provider.analytics.error")
     : null;
 

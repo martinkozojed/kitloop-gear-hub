@@ -81,6 +81,24 @@ function resolveCurrency(records: RevenueRecord[]): string {
   return withCurrency?.currency ?? "CZK";
 }
 
+/**
+ * Detects if there are multiple currencies in the records.
+ * Returns null if single currency or no currency, otherwise returns warning message.
+ */
+function detectMixedCurrency(records: RevenueRecord[]): string | null {
+  const currencies = new Set(
+    records
+      .map((r) => r.currency)
+      .filter((c): c is string => Boolean(c))
+  );
+
+  if (currencies.size > 1) {
+    return `Warning: Multiple currencies detected (${Array.from(currencies).join(", ")}). Using ${Array.from(currencies)[0]} for aggregation.`;
+  }
+
+  return null;
+}
+
 function revenueCents(record: RevenueRecord): number {
   if (!record.status || !REVENUE_STATUSES.includes(record.status as RevenueStatus)) {
     return 0;
@@ -133,6 +151,13 @@ export async function fetchRevenueComparison(
     fetchRevenueRecords(providerId, range.previous),
   ]);
 
+  // Check for mixed currency scenario
+  const allRecords = [...currentRecords, ...previousRecords];
+  const currencyWarning = detectMixedCurrency(allRecords);
+  if (currencyWarning) {
+    console.warn("[Analytics]", currencyWarning);
+  }
+
   const currency =
     resolveCurrency(currentRecords) || resolveCurrency(previousRecords) || "CZK";
 
@@ -162,6 +187,13 @@ export async function fetchRevenueTrend(
   query: RevenueTrendQuery
 ): Promise<RevenueTrendPoint[]> {
   const records = await fetchRevenueRecords(providerId, query.range);
+
+  // Check for mixed currency scenario
+  const currencyWarning = detectMixedCurrency(records);
+  if (currencyWarning) {
+    console.warn("[Analytics - Revenue Trend]", currencyWarning);
+  }
+
   const bucketed = new Map<string, number>();
 
   records.forEach((record) => {
@@ -286,7 +318,21 @@ export async function fetchUtilizationMetrics(
       }
       return !endDate || endDate > now;
     }).length ?? 0;
-  const activeUnits = activeReservationCount; // 1 reservation = 1 unit (current assumption)
+
+  /**
+   * Calculate active units from reservations.
+   *
+   * CURRENT IMPLEMENTATION: 1 reservation = 1 unit
+   * This is correct for the current data model where reservations don't have a quantity field.
+   *
+   * FUTURE ENHANCEMENT: When adding quantity support to reservations:
+   * 1. Add quantity field to reservations table
+   * 2. Update query to SELECT quantity
+   * 3. Change calculation to: activeUnits = SUM(quantity) for active reservations
+   *
+   * For now, this accurately reflects that each reservation is for exactly 1 unit of gear.
+   */
+  const activeUnits = activeReservationCount;
 
   const utilizationRatio =
     totalUnits > 0 ? Math.min(1, activeUnits / totalUnits) : 0;

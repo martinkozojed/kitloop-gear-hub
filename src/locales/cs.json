@@ -470,16 +470,29 @@
     "charts": {
       "revenueTrend": {
         "title": "Vývoj tržeb",
-        "empty": "Žádná data za zvolené období."
+        "empty": "Žádná data za zvolené období.",
+        "label": "Tržby"
       },
       "reservationStatus": {
         "title": "Stav rezervací (posledních 30 dní)",
         "empty": "Zatím žádné rezervace v tomto období.",
-        "total": "Celkem {{count}} rezervací za posledních 30 dní."
+        "total": "Celkem {{count}} rezervací za posledních 30 dní.",
+        "statuses": {
+          "hold": "Blokováno",
+          "pending": "Čeká",
+          "confirmed": "Potvrzeno",
+          "active": "Probíhá",
+          "completed": "Dokončeno",
+          "cancelled": "Zrušeno"
+        }
       },
       "categoryBreakdown": {
         "title": "Tržby podle kategorií",
-        "empty": "V tomto období nejsou k dispozici data."
+        "empty": "V tomto období nejsou k dispozici data.",
+        "labels": {
+          "revenue": "Tržby",
+          "reservations": "Rezervace"
+        }
       },
       "utilizationHeatmap": {
         "title": "Heatmapa vytížení",
@@ -505,12 +518,45 @@
       "topItems": {
         "title": "Nejvýkonnější položky",
         "subtitle": "Podle tržeb ve zvoleném období",
-        "empty": "Zatím nejsou zaznamenané tržby."
+        "empty": "Zatím nejsou zaznamenané tržby.",
+        "exportCsv": "Exportovat CSV",
+        "unnamed": "Bez názvu",
+        "stockLabel": "{{count}} ks skladem",
+        "viewButton": "Zobrazit",
+        "columns": {
+          "item": "Položka",
+          "category": "Kategorie",
+          "reservations": "Rezervace",
+          "revenue": "Tržby",
+          "lastRental": "Poslední půjčení"
+        },
+        "badges": {
+          "hot": "🔥 Skvělé",
+          "good": "👍 Dobré",
+          "slow": "💤 Pomalé",
+          "dead": "⚠️ Neaktivní"
+        },
+        "lastRented": {
+          "never": "Nikdy",
+          "today": "Dnes",
+          "daysAgo": "před {{days}} dny"
+        }
       },
       "deadInventory": {
         "title": "Mrtvý inventář",
         "threshold": "Položky nepůjčené 30 dní a déle",
-        "empty": "Skvělé! Všechny položky byly půjčené nedávno."
+        "empty": "Skvělé! Všechny položky byly půjčené nedávno.",
+        "exportCsv": "Exportovat CSV",
+        "unknown": "Neznámý",
+        "never": "Nikdy",
+        "daysCount": "{{days}} dní",
+        "openButton": "Otevřít",
+        "columns": {
+          "item": "Položka",
+          "category": "Kategorie",
+          "daysSince": "Dní od posledního půjčení",
+          "reservationsTotal": "Celkový počet rezervací"
+        }
       }
     }
   }

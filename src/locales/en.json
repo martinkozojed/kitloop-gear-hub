@@ -298,16 +298,29 @@
       "charts": {
         "revenueTrend": {
           "title": "Revenue over time",
-          "empty": "No data for the selected period."
+          "empty": "No data for the selected period.",
+          "label": "Revenue"
         },
         "reservationStatus": {
           "title": "Reservation status (last 30 days)",
           "empty": "No reservations in this period.",
-          "total": "{{count}} reservations in the last 30 days."
+          "total": "{{count}} reservations in the last 30 days.",
+          "statuses": {
+            "hold": "On hold",
+            "pending": "Pending",
+            "confirmed": "Confirmed",
+            "active": "Active",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+          }
         },
         "categoryBreakdown": {
           "title": "Revenue by category",
-          "empty": "No revenue data available for this period."
+          "empty": "No revenue data available for this period.",
+          "labels": {
+            "revenue": "Revenue",
+            "reservations": "Reservations"
+          }
         },
         "utilizationHeatmap": {
           "title": "Utilization heatmap",
@@ -530,12 +543,45 @@
       "topItems": {
         "title": "Top performing items",
         "subtitle": "Based on revenue in the selected period",
-        "empty": "No revenue recorded yet for your items."
+        "empty": "No revenue recorded yet for your items.",
+        "exportCsv": "Export CSV",
+        "unnamed": "Unnamed",
+        "stockLabel": "{{count}} pcs in stock",
+        "viewButton": "View",
+        "columns": {
+          "item": "Item",
+          "category": "Category",
+          "reservations": "Reservations",
+          "revenue": "Revenue",
+          "lastRental": "Last rental"
+        },
+        "badges": {
+          "hot": "🔥 Hot",
+          "good": "👍 Good",
+          "slow": "💤 Slow",
+          "dead": "⚠️ Dead"
+        },
+        "lastRented": {
+          "never": "Never",
+          "today": "Today",
+          "daysAgo": "{{days}} days ago"
+        }
       },
       "deadInventory": {
         "title": "Dead inventory",
         "threshold": "Items not rented for 30 days or more",
-        "empty": "Great! All items were rented recently."
+        "empty": "Great! All items were rented recently.",
+        "exportCsv": "Export CSV",
+        "unknown": "Unknown",
+        "never": "Never",
+        "daysCount": "{{days}} days",
+        "openButton": "Open",
+        "columns": {
+          "item": "Item",
+          "category": "Category",
+          "daysSince": "Days since last rental",
+          "reservationsTotal": "Reservations total"
+        }
       }
     }
   }

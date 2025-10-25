@@ -4,6 +4,7 @@ import { formatLongDate } from "@/lib/analytics/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { memo } from "react";
 
 interface ActivityTimelineProps {
   data: ActivityEvent[];
@@ -21,7 +22,7 @@ const statusTone: Record<string, string> = {
   hold: "bg-amber-100 text-amber-700",
 };
 
-export function ActivityTimeline({
+export const ActivityTimeline = memo(function ActivityTimeline({
   data,
   isLoading,
   title,
@@ -87,4 +88,4 @@ export function ActivityTimeline({
       </CardContent>
     </Card>
   );
-}
+});

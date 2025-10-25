@@ -1,8 +1,9 @@
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import { CalendarRange } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { ReservationStatusStat } from "@/lib/analytics/types";
 import { formatInteger } from "@/lib/analytics/formatters";
+import { useTranslation } from "react-i18next";
 
 interface ActiveReservationsCardProps {
   activeCount?: number;
@@ -14,7 +15,7 @@ interface ActiveReservationsCardProps {
   iconComponent?: ReactNode;
 }
 
-export function ActiveReservationsCard({
+export const ActiveReservationsCard = memo(function ActiveReservationsCard({
   activeCount,
   statusStats,
   isLoading,
@@ -23,13 +24,14 @@ export function ActiveReservationsCard({
   statusLabels,
   iconComponent,
 }: ActiveReservationsCardProps) {
+  const { t } = useTranslation();
   const labels: Record<string, string> = {
-    hold: "Blokováno",
-    pending: "Čeká",
-    confirmed: "Potvrzeno",
-    active: "Probíhá",
-    completed: "Dokončeno",
-    cancelled: "Zrušeno",
+    hold: t("analytics.charts.reservationStatus.statuses.hold"),
+    pending: t("analytics.charts.reservationStatus.statuses.pending"),
+    confirmed: t("analytics.charts.reservationStatus.statuses.confirmed"),
+    active: t("analytics.charts.reservationStatus.statuses.active"),
+    completed: t("analytics.charts.reservationStatus.statuses.completed"),
+    cancelled: t("analytics.charts.reservationStatus.statuses.cancelled"),
     ...statusLabels,
   };
 
@@ -66,4 +68,4 @@ export function ActiveReservationsCard({
       ) : null}
     </MetricCard>
   );
-}
+});

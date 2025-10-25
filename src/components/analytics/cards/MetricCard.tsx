@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 
 interface TrendProps {
   value: string;
@@ -26,7 +26,7 @@ const trendToneClasses: Record<NonNullable<TrendProps["tone"]>, string> = {
   neutral: "text-slate-600 bg-slate-50 border border-slate-100",
 };
 
-export function MetricCard({
+export const MetricCard = memo(function MetricCard({
   title,
   value,
   subtitle,
@@ -80,4 +80,4 @@ export function MetricCard({
       </CardContent>
     </Card>
   );
-}
+});

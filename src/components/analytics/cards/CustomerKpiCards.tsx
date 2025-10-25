@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CustomerKpis } from "@/lib/analytics/types";
 import { formatCurrencyCZ, formatInteger, formatPercent } from "@/lib/analytics/formatters";
+import { memo } from "react";
 
 interface CustomerKpiCardsProps {
   data?: CustomerKpis;
@@ -15,7 +16,7 @@ interface CustomerKpiCardsProps {
   };
 }
 
-export function CustomerKpiCards({ data, isLoading, title, subtitles }: CustomerKpiCardsProps) {
+export const CustomerKpiCards = memo(function CustomerKpiCards({ data, isLoading, title, subtitles }: CustomerKpiCardsProps) {
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -57,4 +58,4 @@ export function CustomerKpiCards({ data, isLoading, title, subtitles }: Customer
       </CardContent>
     </Card>
   );
-}
+});

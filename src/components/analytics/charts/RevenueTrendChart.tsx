@@ -12,6 +12,8 @@ import {
 import { chartPalette } from "@/lib/chartConfig";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface RevenueTrendChartProps {
   data: RevenueTrendPoint[];
@@ -21,20 +23,21 @@ interface RevenueTrendChartProps {
   onSelectDate?: (isoDate: string) => void;
 }
 
-const chartConfig = {
-  revenue: {
-    label: "Tržby",
-    color: chartPalette[0],
-  },
-} as const;
-
-export function RevenueTrendChart({
+export const RevenueTrendChart = memo(function RevenueTrendChart({
   data,
   isLoading,
   title = "Vývoj tržeb",
   emptyMessage = "Žádná data za zvolené období.",
   onSelectDate,
 }: RevenueTrendChartProps) {
+  const { t } = useTranslation();
+
+  const chartConfig = {
+    revenue: {
+      label: t("analytics.charts.revenueTrend.label"),
+      color: chartPalette[0],
+    },
+  } as const;
   const chartData = data.map((point) => ({
     ...point,
     value: Math.round(point.totalCents / 100),
@@ -87,7 +90,7 @@ export function RevenueTrendChart({
               <Line
                 type="monotone"
                 dataKey="value"
-                name="Tržby"
+                name={t("analytics.charts.revenueTrend.label")}
                 stroke="var(--color-revenue)"
                 strokeWidth={2}
                 dot={false}
@@ -99,4 +102,4 @@ export function RevenueTrendChart({
       </CardContent>
     </Card>
   );
-}
+});

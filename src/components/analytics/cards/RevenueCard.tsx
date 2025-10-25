@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { RevenueComparison } from "@/lib/analytics/types";
@@ -13,7 +13,7 @@ interface RevenueCardProps {
   iconComponent?: ReactNode;
 }
 
-export function RevenueCard({
+export const RevenueCard = memo(function RevenueCard({
   data,
   isLoading,
   title = "Tržby (aktuální měsíc)",
@@ -76,4 +76,4 @@ export function RevenueCard({
       isLoading={isLoading}
     />
   );
-}
+});

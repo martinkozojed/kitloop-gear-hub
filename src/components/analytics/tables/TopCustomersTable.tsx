@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TopCustomerStat } from "@/lib/analytics/types";
 import { formatCurrencyCZ, formatInteger } from "@/lib/analytics/formatters";
+import { memo } from "react";
 
 interface TopCustomersTableProps {
   data: TopCustomerStat[];
@@ -29,7 +30,7 @@ interface TopCustomersTableProps {
   exportLabel?: string;
 }
 
-export function TopCustomersTable({
+export const TopCustomersTable = memo(function TopCustomersTable({
   data,
   isLoading,
   title = "Top zákazníci (posledních 90 dní)",
@@ -115,4 +116,4 @@ export function TopCustomersTable({
       </CardContent>
     </Card>
   );
-}
+});

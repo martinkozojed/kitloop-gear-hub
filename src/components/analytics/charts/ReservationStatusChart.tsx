@@ -11,6 +11,8 @@ import { chartPalette } from "@/lib/chartConfig";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatInteger } from "@/lib/analytics/formatters";
+import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ReservationStatusChartProps {
   data: ReservationStatusStat[];
@@ -22,7 +24,7 @@ interface ReservationStatusChartProps {
   onSelectStatus?: (status: string) => void;
 }
 
-export function ReservationStatusChart({
+export const ReservationStatusChart = memo(function ReservationStatusChart({
   data,
   isLoading,
   title = "Stav rezervací (posledních 30 dní)",
@@ -31,14 +33,15 @@ export function ReservationStatusChart({
   statusLabels,
   onSelectStatus,
 }: ReservationStatusChartProps) {
+  const { t } = useTranslation();
   const total = data.reduce((sum, item) => sum + item.count, 0);
   const labels: Record<string, string> = {
-    hold: "Blokováno",
-    pending: "Čeká",
-    confirmed: "Potvrzeno",
-    active: "Probíhá",
-    completed: "Dokončeno",
-    cancelled: "Zrušeno",
+    hold: t("analytics.charts.reservationStatus.statuses.hold"),
+    pending: t("analytics.charts.reservationStatus.statuses.pending"),
+    confirmed: t("analytics.charts.reservationStatus.statuses.confirmed"),
+    active: t("analytics.charts.reservationStatus.statuses.active"),
+    completed: t("analytics.charts.reservationStatus.statuses.completed"),
+    cancelled: t("analytics.charts.reservationStatus.statuses.cancelled"),
     ...statusLabels,
   };
   const chartData = data.map((item, index) => ({
@@ -116,4 +119,4 @@ export function ReservationStatusChart({
       </CardContent>
     </Card>
   );
-}
+});

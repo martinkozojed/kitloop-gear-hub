@@ -13,6 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CategoryRevenueStat } from "@/lib/analytics/types";
 import { formatCurrencyCZ, formatInteger } from "@/lib/analytics/formatters";
 import { chartPalette } from "@/lib/chartConfig";
+import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CategoryBreakdownChartProps {
   data: CategoryRevenueStat[];
@@ -21,12 +23,14 @@ interface CategoryBreakdownChartProps {
   emptyMessage: string;
 }
 
-export function CategoryBreakdownChart({
+export const CategoryBreakdownChart = memo(function CategoryBreakdownChart({
   data,
   isLoading,
   title,
   emptyMessage,
 }: CategoryBreakdownChartProps) {
+  const { t } = useTranslation();
+
   const chartData = data.map((row, index) => ({
     category: row.category,
     revenue: Math.round(row.revenueCents / 100),
@@ -77,14 +81,14 @@ export function CategoryBreakdownChart({
                 yAxisId="left"
                 dataKey="revenue"
                 fill="var(--color-revenue, #22c55e)"
-                name="Revenue"
+                name={t("analytics.charts.categoryBreakdown.labels.revenue")}
                 radius={[6, 6, 0, 0]}
               />
               <Bar
                 yAxisId="right"
                 dataKey="reservations"
                 fill="var(--color-reservations, #0ea5e9)"
-                name="Reservations"
+                name={t("analytics.charts.categoryBreakdown.labels.reservations")}
                 radius={[6, 6, 0, 0]}
               />
             </BarChart>
@@ -93,4 +97,4 @@ export function CategoryBreakdownChart({
       </CardContent>
     </Card>
   );
-}
+});

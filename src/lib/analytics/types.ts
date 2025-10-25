@@ -47,11 +47,15 @@ export interface TopCustomerStat {
 export interface UtilizationMetrics {
   /** Ratio of active units to total units (0-1). */
   utilizationRatio: number;
-  /** Number of individual units currently loaned out. */
+  /**
+   * Number of individual units currently loaned out.
+   * In the current data model: activeUnits equals activeReservationCount (1 reservation = 1 unit).
+   * Future: When quantity is added to reservations, this will be SUM(quantity) for active reservations.
+   */
   activeUnits: number;
-  /** Total number of available units in the provider inventory. */
+  /** Total number of available units in the provider inventory (sum of quantity_available for all active gear). */
   totalUnits: number;
-  /** Count of reservations considered active in the calculation. */
+  /** Count of reservations considered active (status: hold, confirmed, or active) and not yet ended. */
   activeReservationCount: number;
 }
 

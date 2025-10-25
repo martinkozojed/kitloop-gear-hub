@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { TopItemPerformance } from "@/lib/analytics/types";
 import { formatCurrencyCZ, formatInteger } from "@/lib/analytics/formatters";
 import { Button } from "@/components/ui/button";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface TopItemsTableProps {
   data: TopItemPerformance[];
@@ -46,14 +47,7 @@ const badgeStyle: Record<PerformanceBadge, string> = {
   dead: "bg-slate-200 text-slate-600",
 };
 
-const badgeLabel: Record<PerformanceBadge, string> = {
-  hot: "🔥 Hot",
-  good: "👍 Good",
-  slow: "💤 Slow",
-  dead: "⚠️ Dead",
-};
-
-export function TopItemsTable({
+export const TopItemsTable = memo(function TopItemsTable({
   data,
   isLoading,
   title,
@@ -62,7 +56,18 @@ export function TopItemsTable({
   onViewItem,
   onExport,
 }: TopItemsTableProps) {
+  const { t } = useTranslation();
   const rankedData = useMemo(() => data, [data]);
+
+  const badgeLabel: Record<PerformanceBadge, string> = useMemo(
+    () => ({
+      hot: t("provider.analytics.tables.topItems.badges.hot"),
+      good: t("provider.analytics.tables.topItems.badges.good"),
+      slow: t("provider.analytics.tables.topItems.badges.slow"),
+      dead: t("provider.analytics.tables.topItems.badges.dead"),
+    }),
+    [t]
+  );
 
   return (
     <Card className="h-full">
@@ -80,7 +85,7 @@ export function TopItemsTable({
           disabled={!data.length || isLoading}
           className="text-xs"
         >
-          Export CSV
+          {t("provider.analytics.tables.topItems.exportCsv")}
         </Button>
       </CardHeader>
       <CardContent>
@@ -96,11 +101,11 @@ export function TopItemsTable({
               <TableHeader>
                 <TableRow>
                   <TableHead>#</TableHead>
-                  <TableHead>Item</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Reservations</TableHead>
-                  <TableHead className="text-right">Revenue</TableHead>
-                  <TableHead className="text-right">Last rental</TableHead>
+                  <TableHead>{t("provider.analytics.tables.topItems.columns.item")}</TableHead>
+                  <TableHead>{t("provider.analytics.tables.topItems.columns.category")}</TableHead>
+                  <TableHead className="text-right">{t("provider.analytics.tables.topItems.columns.reservations")}</TableHead>
+                  <TableHead className="text-right">{t("provider.analytics.tables.topItems.columns.revenue")}</TableHead>
+                  <TableHead className="text-right">{t("provider.analytics.tables.topItems.columns.lastRental")}</TableHead>
                   <TableHead className="text-right" />
                 </TableRow>
               </TableHeader>
@@ -119,12 +124,12 @@ export function TopItemsTable({
                       <TableCell className="font-medium">#{index + 1}</TableCell>
                       <TableCell className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold">{item.gearName ?? "Unnamed"}</span>
+                          <span className="font-semibold">{item.gearName ?? t("provider.analytics.tables.topItems.unnamed")}</span>
                           <Badge className={badgeStyle[badge]}>{badgeLabel[badge]}</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">
                           {item.quantityAvailable != null
-                            ? `${formatInteger(item.quantityAvailable)} ks skladem`
+                            ? t("provider.analytics.tables.topItems.stockLabel", { count: formatInteger(item.quantityAvailable) })
                             : ""}
                         </p>
                       </TableCell>
@@ -137,10 +142,10 @@ export function TopItemsTable({
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground">
                         {days === null
-                          ? "Never"
+                          ? t("provider.analytics.tables.topItems.lastRented.never")
                           : days === 0
-                          ? "Today"
-                          : `${days} days ago`}
+                          ? t("provider.analytics.tables.topItems.lastRented.today")
+                          : t("provider.analytics.tables.topItems.lastRented.daysAgo", { days })}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -148,7 +153,7 @@ export function TopItemsTable({
                           size="sm"
                           onClick={() => onViewItem?.(item.gearId)}
                         >
-                          View
+                          {t("provider.analytics.tables.topItems.viewButton")}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -161,4 +166,4 @@ export function TopItemsTable({
       </CardContent>
     </Card>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import { Activity } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { UtilizationMetrics } from "@/lib/analytics/types";
@@ -13,7 +13,7 @@ interface UtilizationCardProps {
   iconComponent?: ReactNode;
 }
 
-export function UtilizationCard({
+export const UtilizationCard = memo(function UtilizationCard({
   data,
   isLoading,
   title = "Vytížení inventáře",
@@ -51,4 +51,4 @@ export function UtilizationCard({
       ) : null}
     </MetricCard>
   );
-}
+});
