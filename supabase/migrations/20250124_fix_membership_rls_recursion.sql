@@ -12,6 +12,7 @@
 -- =============================================================================
 
 -- Enable RLS (should already be on, but make sure)
+
 ALTER TABLE public.user_provider_memberships ENABLE ROW LEVEL SECURITY;
 
 -- Drop any existing policies (cleanup)
