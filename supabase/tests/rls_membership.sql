@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 BEGIN;
 
-SELECT plan(6);
+SELECT plan(7);
 
 -- ---------------------------------------------------------------------------
 -- Test fixtures

@@ -153,7 +153,7 @@ WITH expanded AS (
 gear_totals AS (
   SELECT
     provider_id,
-    SUM(COALESCE(quantity_available, 0)) AS total_units
+    SUM(COALESCE(quantity_total, 0)) AS total_units
   FROM public.gear_items
   WHERE active IS DISTINCT FROM FALSE
   GROUP BY provider_id

@@ -1,1 +1,4 @@
 project_id = "bkyokcjpelqwtndienos"
+
+[auth]
+jwt_secret = "a-very-secret-and-long-jwt-secret-for-testing-purposes"
