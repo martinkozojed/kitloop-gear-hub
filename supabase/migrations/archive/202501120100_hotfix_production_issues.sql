@@ -15,23 +15,18 @@
 -- Index on profiles.user_id for fast lookups
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id
 ON public.profiles(user_id);
-
 -- Index on providers.user_id for fast lookups
 CREATE INDEX IF NOT EXISTS idx_providers_user_id
 ON public.providers(user_id);
-
 -- Index on reservations.provider_id for fast provider queries
 CREATE INDEX IF NOT EXISTS idx_reservations_provider_id
 ON public.reservations(provider_id);
-
 -- Index on reservations.gear_id for JOIN performance
 CREATE INDEX IF NOT EXISTS idx_reservations_gear_id
 ON public.reservations(gear_id);
-
 -- Composite index for reservation queries with status filter
 CREATE INDEX IF NOT EXISTS idx_reservations_provider_status_dates
 ON public.reservations(provider_id, status, start_date DESC);
-
 -- ============================================================================
 -- 2. FIX RESERVATIONS RLS POLICY
 -- ============================================================================
@@ -41,7 +36,6 @@ ON public.reservations(provider_id, status, start_date DESC);
 
 -- Drop old complex policy
 DROP POLICY IF EXISTS "Providers can view their gear reservations" ON public.reservations;
-
 -- New simplified policy using provider_id directly
 CREATE POLICY "Providers can view own reservations by provider_id"
   ON public.reservations FOR SELECT
@@ -50,7 +44,6 @@ CREATE POLICY "Providers can view own reservations by provider_id"
       SELECT id FROM public.providers WHERE user_id = auth.uid()
     )
   );
-
 -- Keep user reservation policy for customers
 -- (already exists, no change needed)
 
@@ -60,7 +53,6 @@ CREATE POLICY "Providers can view own reservations by provider_id"
 -- Providers need to be able to create reservations for customers
 
 DROP POLICY IF EXISTS "Providers can create reservations" ON public.reservations;
-
 CREATE POLICY "Providers can create reservations"
   ON public.reservations FOR INSERT
   WITH CHECK (
@@ -68,14 +60,12 @@ CREATE POLICY "Providers can create reservations"
       SELECT id FROM public.providers WHERE user_id = auth.uid()
     )
   );
-
 -- ============================================================================
 -- 4. ADD POLICY FOR PROVIDERS TO UPDATE RESERVATIONS
 -- ============================================================================
 -- Providers need to update reservation status, notes, etc.
 
 DROP POLICY IF EXISTS "Providers can update own reservations" ON public.reservations;
-
 CREATE POLICY "Providers can update own reservations"
   ON public.reservations FOR UPDATE
   USING (
@@ -83,7 +73,6 @@ CREATE POLICY "Providers can update own reservations"
       SELECT id FROM public.providers WHERE user_id = auth.uid()
     )
   );
-
 -- ============================================================================
 -- 5. OPTIMIZE PROFILES RLS POLICY (Already optimal, but verify)
 -- ============================================================================
@@ -92,11 +81,9 @@ CREATE POLICY "Providers can update own reservations"
 
 -- Verify policy exists (recreate if needed)
 DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
-
 CREATE POLICY "Users can view own profile"
   ON public.profiles FOR SELECT
   USING (auth.uid() = user_id);
-
 -- ============================================================================
 -- 6. VERIFY ALL INDEXES ARE APPLIED
 -- ============================================================================
@@ -106,7 +93,6 @@ ANALYZE public.profiles;
 ANALYZE public.providers;
 ANALYZE public.reservations;
 ANALYZE public.gear_items;
-
 -- ============================================================================
 -- 7. DIAGNOSTIC QUERIES (Run these in SQL Editor to verify)
 -- ============================================================================
@@ -144,4 +130,4 @@ ORDER BY r.start_date DESC;
 --   - Profile queries: 10s → <1s ✅
 --   - Reservations queries: 400 error → 200 OK ✅
 --   - Reservations load time: N/A → <500ms ✅
--- ============================================================================
+-- ============================================================================;

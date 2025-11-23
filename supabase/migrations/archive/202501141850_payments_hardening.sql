@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS public.stripe_webhook_events (
   received_at timestamptz DEFAULT now(),
   processed boolean DEFAULT true
 );
-
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_reservations_payment_intent
   ON public.reservations(payment_intent_id)
   WHERE payment_intent_id IS NOT NULL;

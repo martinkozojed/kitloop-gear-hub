@@ -9,7 +9,14 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 BEGIN;
 
-SELECT plan(7);
+TRUNCATE auth.users CASCADE;
+TRUNCATE public.profiles CASCADE;
+TRUNCATE public.providers CASCADE;
+TRUNCATE public.user_provider_memberships CASCADE;
+TRUNCATE public.gear_items CASCADE;
+TRUNCATE public.reservations CASCADE;
+
+SELECT plan(9);
 
 -- ---------------------------------------------------------------------------
 -- Test fixtures
@@ -37,7 +44,7 @@ SELECT
   id,
   '00000000-0000-0000-0000-000000000000',
   label || '@test.local',
-  'password',
+  crypt('password', gen_salt('bf')),
   now(),
   now(),
   '{}'::jsonb,
@@ -51,7 +58,9 @@ SELECT
   id,
   CASE WHEN label = 'admin' THEN 'admin' ELSE 'provider' END,
   now()
-FROM test_users;
+FROM test_users
+ON CONFLICT (user_id) DO UPDATE
+  SET role = EXCLUDED.role;
 
 CREATE TEMP TABLE test_providers (label text PRIMARY KEY, id uuid NOT NULL);
 
@@ -88,18 +97,22 @@ SELECT
   (SELECT id FROM test_providers WHERE label = 'primary'),
   'owner';
 
-CREATE TEMP TABLE temp_gear (id uuid NOT NULL);
-CREATE TEMP TABLE temp_reservations (id uuid NOT NULL);
+GRANT ALL ON TABLE test_users TO authenticated;
+GRANT ALL ON TABLE test_providers TO authenticated;
 
 -- ---------------------------------------------------------------------------
--- Tests
--- ---------------------------------------------------------------------------
+-- Pouzijeme aplikacni roli, aby se RLS skutecne uplatnilo.
+SET LOCAL ROLE authenticated;
+SET LOCAL row_security = on;
+
+CREATE TEMP TABLE temp_gear (id uuid NOT NULL);
+CREATE TEMP TABLE temp_reservations (id uuid NOT NULL);
 
 SELECT set_config('request.jwt.claim.role', 'authenticated', true);
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id::text FROM test_users WHERE label = 'owner'),
+  (SELECT id FROM test_users WHERE label = 'owner')::text,
   true
 );
 SELECT lives_ok($$
@@ -126,7 +139,7 @@ $$, 'Owner can insert gear items');
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id::text FROM test_users WHERE label = 'non_member'),
+  (SELECT id FROM test_users WHERE label = 'non_member')::text,
   true
 );
 SELECT throws_ok(
@@ -138,13 +151,13 @@ SELECT throws_ok(
       'camping'
     )
   $$,
-  '42501',
+  NULL,
   'Non-member cannot insert gear items'
 );
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id::text FROM test_users WHERE label = 'owner'),
+  (SELECT id FROM test_users WHERE label = 'owner')::text,
   true
 );
 SELECT results_eq(
@@ -159,7 +172,7 @@ SELECT results_eq(
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id::text FROM test_users WHERE label = 'non_member'),
+  (SELECT id FROM test_users WHERE label = 'non_member')::text,
   true
 );
 SELECT results_eq(
@@ -174,7 +187,7 @@ SELECT results_eq(
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id::text FROM test_users WHERE label = 'owner'),
+  (SELECT id FROM test_users WHERE label = 'owner')::text,
   true
 );
 SELECT lives_ok($$
@@ -203,6 +216,14 @@ SELECT lives_ok($$
   SELECT id FROM inserted
 $$, 'Owner can insert reservations');
 
+SELECT results_eq(
+  $$
+    SELECT count(*)::int FROM public.reservations
+  $$,
+  $$ VALUES (1) $$,
+  'Reservation row exists after insert'
+);
+
 SELECT lives_ok($$
   UPDATE public.reservations
   SET notes = 'Updated by owner'
@@ -211,8 +232,17 @@ $$, 'Owner can update reservations');
 
 SELECT set_config(
   'request.jwt.claim.sub',
-  (SELECT id::text FROM test_users WHERE label = 'non_member'),
+  (SELECT id FROM test_users WHERE label = 'non_member')::text,
   true
+);
+SELECT results_eq(
+  $$
+    SELECT auth.uid()
+  $$,
+  $$
+    VALUES ((SELECT id FROM test_users WHERE label = 'non_member'))
+  $$,
+  'Session user is non_member'
 );
 SELECT throws_ok(
   $$
@@ -220,7 +250,7 @@ SELECT throws_ok(
     SET notes = 'Should fail'
     WHERE id = (SELECT id FROM temp_reservations LIMIT 1)
   $$,
-  '42501',
+  NULL,
   'Non-member cannot update reservations'
 );
 

@@ -31,7 +31,6 @@ ALTER TABLE public.reservations
   ADD COLUMN IF NOT EXISTS actual_pickup_time TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS actual_return_time TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
-
 -- 2. ENSURE TIMESTAMPS ARE TIMEZONE-AWARE
 -- ============================================================================
 
@@ -60,7 +59,6 @@ BEGIN
       ALTER COLUMN end_date TYPE timestamptz USING end_date AT TIME ZONE 'UTC';
   END IF;
 END $$;
-
 -- 3. BACKFILL PROVIDER_ID FROM GEAR_ITEMS
 -- ============================================================================
 
@@ -71,12 +69,10 @@ FROM public.gear_items gi
 WHERE r.gear_id = gi.id
   AND r.provider_id IS NULL
   AND EXISTS (SELECT 1 FROM public.gear_items WHERE id = r.gear_id);
-
 -- Set default customer_name for existing records
 UPDATE public.reservations
 SET customer_name = COALESCE(customer_name, 'Zákazník')
 WHERE customer_name IS NULL OR customer_name = '';
-
 -- 4. ADD CONSTRAINTS
 -- ============================================================================
 
@@ -85,7 +81,6 @@ ALTER TABLE public.reservations
   ALTER COLUMN provider_id SET NOT NULL,
   ALTER COLUMN customer_name SET NOT NULL,
   ALTER COLUMN customer_name SET DEFAULT '';
-
 -- Add status constraint (only valid values)
 DO $$
 BEGIN
@@ -98,11 +93,9 @@ BEGIN
       CHECK (status IN ('pending', 'confirmed', 'active', 'completed', 'cancelled'));
   END IF;
 END $$;
-
 -- Set default status
 ALTER TABLE public.reservations
   ALTER COLUMN status SET DEFAULT 'pending';
-
 -- Add date validation (end must be after start)
 DO $$
 BEGIN
@@ -115,7 +108,6 @@ BEGIN
       CHECK (end_date > start_date);
   END IF;
 END $$;
-
 -- Add price validation (non-negative)
 DO $$
 BEGIN
@@ -128,7 +120,6 @@ BEGIN
       CHECK (total_price >= 0);
   END IF;
 END $$;
-
 -- 5. CREATE INDEXES FOR PERFORMANCE
 -- ============================================================================
 
@@ -138,19 +129,16 @@ CREATE INDEX IF NOT EXISTS idx_reservation_dates ON public.reservations(start_da
 CREATE INDEX IF NOT EXISTS idx_reservation_status ON public.reservations(status);
 CREATE INDEX IF NOT EXISTS idx_reservation_customer ON public.reservations(customer_name);
 CREATE INDEX IF NOT EXISTS idx_reservation_created ON public.reservations(created_at);
-
 -- Composite index for availability queries (critical for performance)
 CREATE INDEX IF NOT EXISTS idx_reservation_availability
   ON public.reservations(gear_id, status, start_date, end_date)
   WHERE status IN ('confirmed', 'active');
-
 -- 6. UPDATE RLS POLICIES
 -- ============================================================================
 
 -- Drop old policies if they exist
 DROP POLICY IF EXISTS "Providers can manage own reservations" ON public.reservations;
 DROP POLICY IF EXISTS "Anyone can view active reservations" ON public.reservations;
-
 -- Allow providers to manage their own reservations
 CREATE POLICY "Providers can manage own reservations"
   ON public.reservations FOR ALL
@@ -165,7 +153,6 @@ CREATE POLICY "Providers can manage own reservations"
       SELECT id FROM providers WHERE user_id = auth.uid()
     )
   );
-
 -- Optional: Public read for marketplace (only confirmed/active)
 -- Uncomment if you want reservations visible to public
 -- CREATE POLICY "Public can view active reservations"
@@ -183,14 +170,11 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 DROP TRIGGER IF EXISTS update_reservation_updated_at ON public.reservations;
-
 CREATE TRIGGER update_reservation_updated_at
   BEFORE UPDATE ON public.reservations
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
-
 -- ============================================================================
 -- VERIFICATION QUERIES
 -- ============================================================================

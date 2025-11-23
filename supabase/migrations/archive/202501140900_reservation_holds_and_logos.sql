@@ -15,7 +15,6 @@
 ALTER TABLE public.reservations
   ADD COLUMN IF NOT EXISTS idempotency_key TEXT,
   ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
-
 -- Unique idempotency key (ignores NULL values by default)
 DO $$
 BEGIN
@@ -28,7 +27,6 @@ BEGIN
       UNIQUE (idempotency_key);
   END IF;
 END $$;
-
 -- Refresh status constraint to include HOLD state
 DO $$
 BEGIN
@@ -53,12 +51,10 @@ BEGIN
       )
     );
 END $$;
-
 -- Supporting partial index for availability checks (hold + confirmed + active)
 CREATE INDEX IF NOT EXISTS idx_reservations_active_hold
   ON public.reservations (gear_id, start_date, end_date)
   WHERE status IN ('hold', 'confirmed', 'active');
-
 -- =============================================================================
 -- 2. LOGO STORAGE BUCKET & RLS
 -- =============================================================================
@@ -73,13 +69,11 @@ BEGIN
     VALUES ('logos', 'logos', true);
   END IF;
 END $$;
-
 -- Grant providers ability to manage their own logos
 -- (Drop policies first to keep migration idempotent)
 DROP POLICY IF EXISTS "Providers can upload logos" ON storage.objects;
 DROP POLICY IF EXISTS "Providers can update own logos" ON storage.objects;
 DROP POLICY IF EXISTS "Providers can delete own logos" ON storage.objects;
-
 CREATE POLICY "Providers can upload logos"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -90,7 +84,6 @@ WITH CHECK (
     WHERE p.user_id = auth.uid()
   )
 );
-
 CREATE POLICY "Providers can update own logos"
 ON storage.objects FOR UPDATE
 USING (
@@ -101,7 +94,6 @@ USING (
     WHERE p.user_id = auth.uid()
   )
 );
-
 CREATE POLICY "Providers can delete own logos"
 ON storage.objects FOR DELETE
 USING (
@@ -112,7 +104,6 @@ USING (
     WHERE p.user_id = auth.uid()
   )
 );
-
 -- =============================================================================
 -- END OF MIGRATION
--- =============================================================================
+-- =============================================================================;
