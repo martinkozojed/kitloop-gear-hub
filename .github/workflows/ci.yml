@@ -55,7 +55,8 @@ jobs:
       - name: Run stripe_webhook unit tests
         run: deno test --quiet supabase/functions/stripe_webhook
       - name: TODO Supabase RLS tests
-        run: echo "TODO: configure Supabase CLI db test to run supabase/tests/rls_membership.sql"
+        run: |
+          echo "TODO: configure Supabase CLI db test to run supabase/tests/rls_membership.sql"
 
   test_db:
     runs-on: ubuntu-latest
