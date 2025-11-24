@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0";
 import { Pool } from "https://deno.land/x/postgres@v0.17.1/mod.ts";
-import { z } from "npm:zod@3.23.8";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 import {
   assertMaxBodySize,
   rateLimit,

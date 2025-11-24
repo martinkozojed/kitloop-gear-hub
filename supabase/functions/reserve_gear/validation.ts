@@ -1,4 +1,4 @@
-import { z } from "npm:zod@3.23.8";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 export const reservationRequestSchema = z.object({
   gear_id: z.string().uuid(),
