@@ -108,9 +108,27 @@ AS $$
   );
 $$;
 
--- REMOVE is_provider_member() function to prevent accidental circular dependencies
--- We'll inline the membership checks directly in policies for clarity
-DROP FUNCTION IF EXISTS public.is_provider_member(uuid);
+-- Keep is_provider_member() for compatibility with application code.
+-- It returns true for provider owners or members.
+CREATE OR REPLACE FUNCTION public.is_provider_member(pid uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.providers p
+    WHERE p.id = pid
+      AND p.user_id = auth.uid()
+  )
+  OR EXISTS (
+    SELECT 1
+    FROM public.user_provider_memberships m
+    WHERE m.provider_id = pid
+      AND m.user_id = auth.uid()
+  );
+$$;
 
 -- =============================================================================
 -- STEP 3: USER_PROVIDER_MEMBERSHIPS POLICIES (Layer 2 - Foundation)
@@ -755,7 +773,7 @@ SELECT
   r.status,
   r.created_at AS created_at,
   r.updated_at AS updated_at,
-  COALESCE(r.start_date, r.created_at) AS start_.date,
+  COALESCE(r.start_date, r.created_at) AS start_date,
   r.end_date
 FROM public.reservations r
 LEFT JOIN public.gear_items gi
