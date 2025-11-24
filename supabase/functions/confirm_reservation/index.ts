@@ -8,20 +8,36 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-const databaseUrl =
-  Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
+type EnvConfig = {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+  databaseUrl: string;
+};
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing required Supabase environment variables");
+function getEnv(): EnvConfig {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const databaseUrl =
+    Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Missing required Supabase environment variables");
+  }
+
+  if (!databaseUrl) {
+    throw new Error("Missing SUPABASE_DB_URL or DATABASE_URL for Postgres access");
+  }
+
+  return { supabaseUrl, supabaseAnonKey, databaseUrl };
 }
 
-if (!databaseUrl) {
-  throw new Error("Missing SUPABASE_DB_URL or DATABASE_URL for Postgres access");
+let pool: Pool | null = null;
+function getPool(databaseUrl: string) {
+  if (!pool) {
+    pool = new Pool(databaseUrl, 3, true);
+  }
+  return pool;
 }
-
-const pool = new Pool(databaseUrl, 3, true);
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) {
@@ -61,12 +77,14 @@ const jsonResponse = (
     },
   });
 
-Deno.serve(async (req) => {
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
+    const { supabaseUrl, supabaseAnonKey, databaseUrl } = getEnv();
+
     if (req.method !== "POST") {
       throw new HttpError(405, "Method not allowed");
     }
@@ -93,7 +111,7 @@ Deno.serve(async (req) => {
     const paymentIntentId =
       parsed.payment_intent_id === undefined ? null : parsed.payment_intent_id;
 
-    const client = await pool.connect();
+    const client = await getPool(databaseUrl).connect();
     let transactionStarted = false;
 
     try {
@@ -196,4 +214,8 @@ Deno.serve(async (req) => {
     console.error("Unhandled confirm_reservation error:", error);
     return jsonResponse({ error: "Internal server error" }, 500);
   }
-});
+}
+
+if (import.meta.main) {
+  Deno.serve(handle);
+}

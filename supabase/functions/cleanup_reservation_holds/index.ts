@@ -6,14 +6,22 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const databaseUrl =
-  Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
-
-if (!databaseUrl) {
-  throw new Error("Missing SUPABASE_DB_URL or DATABASE_URL for Postgres access");
+function getDatabaseUrl() {
+  const url =
+    Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
+  if (!url) {
+    throw new Error("Missing SUPABASE_DB_URL or DATABASE_URL for Postgres access");
+  }
+  return url;
 }
 
-const pool = new Pool(databaseUrl, 2, true);
+let pool: Pool | null = null;
+function getPool() {
+  if (!pool) {
+    pool = new Pool(getDatabaseUrl(), 2, true);
+  }
+  return pool;
+}
 
 export function summarizeCleanupResult(deleted: number) {
   return { deleted_count: deleted };
@@ -41,7 +49,7 @@ const jsonResponse = (
  *   - To execute manually: `supabase functions invoke cleanup_reservation_holds --no-verify-jwt`.
  *   - Scheduler configuration files in repo: NENALEZENO (manage via Supabase UI).
  */
-Deno.serve(async (req) => {
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -56,7 +64,7 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
-    const client = await pool.connect();
+    const client = await getPool().connect();
 
     try {
       await client.queryObject`BEGIN`;
@@ -86,4 +94,8 @@ Deno.serve(async (req) => {
     console.error("Unhandled cleanup_reservation_holds error:", error);
     return jsonResponse({ error: "Internal server error" }, 500);
   }
-});
+}
+
+if (import.meta.main) {
+  Deno.serve(handle);
+}

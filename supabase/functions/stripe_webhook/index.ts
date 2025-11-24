@@ -13,20 +13,38 @@ const HEADERS = {
 };
 const TOLERANCE = 300;
 
-const databaseUrl =
-  Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
-const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "";
-const sentryDsn = Deno.env.get("SENTRY_DSN") ?? "";
-
-if (!databaseUrl) throw new Error("Missing SUPABASE_DB_URL");
-const pool = new Pool(databaseUrl, 3, true);
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
+
+function getDatabaseUrl() {
+  const url =
+    Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
+  if (!url) throw new Error("Missing SUPABASE_DB_URL");
+  return url;
+}
+
+function requireStripeWebhookSecret() {
+  const secret = Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "";
+  if (!secret) throw new Error("Stripe webhook secret not configured");
+  return secret;
+}
+
+function getSentryDsn() {
+  return Deno.env.get("SENTRY_DSN") ?? "";
+}
+
+let pool: Pool | null = null;
+function getPool() {
+  if (!pool) {
+    pool = new Pool(getDatabaseUrl(), 3, true);
+  }
+  return pool;
+}
 
 const respond = (msg: string, status: number) =>
   new Response(msg, { status, headers: HEADERS });
 
-async function capture(err: unknown) {
+async function capture(err: unknown, sentryDsn: string) {
   if (!sentryDsn) {
     console.error("stripe_webhook error:", err);
     return;
@@ -151,10 +169,12 @@ export function decideStripeWebhookOutcome(input: StripeDecisionInput): StripeDe
   };
 }
 
-export async function verifyStripeSignature(body: string, header: string) {
-  if (!stripeWebhookSecret) {
-    throw new Error("Stripe webhook secret not configured");
-  }
+export async function verifyStripeSignature(
+  body: string,
+  header: string,
+  secretOverride?: string,
+) {
+  const stripeWebhookSecret = secretOverride ?? requireStripeWebhookSecret();
   const entries = new Map(
     header.split(",").map((chunk) => {
       const [key, value] = chunk.split("=");
@@ -190,7 +210,10 @@ export async function verifyStripeSignature(body: string, header: string) {
   }
 }
 
-async function handle(req: Request): Promise<Response> {
+async function handle(
+  req: Request,
+  sentryDsn: string,
+): Promise<Response> {
   if (req.method !== "POST") return respond("Method not allowed", 405);
 
   const signature = req.headers.get("Stripe-Signature");
@@ -201,9 +224,10 @@ async function handle(req: Request): Promise<Response> {
   const rawBody = decoder.decode(rawBuffer);
 
   try {
-    await verifyStripeSignature(rawBody, signature);
+    const secret = requireStripeWebhookSecret();
+    await verifyStripeSignature(rawBody, signature, secret);
   } catch (error) {
-    await capture(error);
+    await capture(error, sentryDsn);
     return respond("Invalid signature", 403);
   }
 
@@ -251,7 +275,7 @@ async function handle(req: Request): Promise<Response> {
     );
   }
 
-  const client = await pool.connect();
+  const client = await getPool().connect();
   let inTxn = false;
   try {
     await client.queryObject`BEGIN`;
@@ -384,18 +408,21 @@ async function handle(req: Request): Promise<Response> {
   }
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return respond("ok", 200);
-  try {
-    return await handle(req);
-  } catch (error) {
-    const status = (error as { status?: number }).status ?? 500;
-    if (status >= 500) await capture(error);
-    const message = status >= 500
-      ? "Internal server error"
-      : error instanceof Error
-        ? error.message
-        : "Request failed";
-    return respond(message, status);
-  }
-});
+if (import.meta.main) {
+  Deno.serve(async (req) => {
+    const sentryDsn = getSentryDsn();
+    if (req.method === "OPTIONS") return respond("ok", 200);
+    try {
+      return await handle(req, sentryDsn);
+    } catch (error) {
+      const status = (error as { status?: number }).status ?? 500;
+      if (status >= 500) await capture(error, sentryDsn);
+      const message = status >= 500
+        ? "Internal server error"
+        : error instanceof Error
+          ? error.message
+          : "Request failed";
+      return respond(message, status);
+    }
+  });
+}

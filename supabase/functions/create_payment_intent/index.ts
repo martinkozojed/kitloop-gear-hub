@@ -13,22 +13,40 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-const databaseUrl =
-  Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
-const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
-const sentryDsn = Deno.env.get("SENTRY_DSN") ?? "";
+type EnvConfig = {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+  databaseUrl: string;
+  stripeSecret: string;
+  sentryDsn: string;
+};
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing required Supabase environment variables");
+function getEnv(): EnvConfig {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const databaseUrl =
+    Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
+  const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+  const sentryDsn = Deno.env.get("SENTRY_DSN") ?? "";
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Missing required Supabase environment variables");
+  }
+
+  if (!databaseUrl) {
+    throw new Error("Missing SUPABASE_DB_URL or DATABASE_URL for Postgres access");
+  }
+
+  return { supabaseUrl, supabaseAnonKey, databaseUrl, stripeSecret, sentryDsn };
 }
 
-if (!databaseUrl) {
-  throw new Error("Missing SUPABASE_DB_URL or DATABASE_URL for Postgres access");
+let pool: Pool | null = null;
+function getPool(databaseUrl: string) {
+  if (!pool) {
+    pool = new Pool(databaseUrl, 3, true);
+  }
+  return pool;
 }
-
-const pool = new Pool(databaseUrl, 3, true);
 
 const requestSchema = z.object({
   reservation_id: z.string().uuid(),
@@ -45,7 +63,7 @@ const jsonResponse = (body: unknown, status = 200) =>
     },
   });
 
-async function reportError(error: unknown) {
+async function reportError(error: unknown, sentryDsn: string) {
   if (!sentryDsn) {
     console.error("create_payment_intent error:", error);
     return;
@@ -95,10 +113,18 @@ function getRequestIp(req: Request) {
   return forwarded || req.headers.get("cf-connecting-ip") || "unknown";
 }
 
-Deno.serve(async (req) => {
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  const {
+    supabaseUrl,
+    supabaseAnonKey,
+    databaseUrl,
+    stripeSecret,
+    sentryDsn,
+  } = getEnv();
 
   try {
     if (req.method !== "POST") {
@@ -167,7 +193,7 @@ Deno.serve(async (req) => {
 
     const { reservation_id } = requestSchema.parse(parsedBody);
 
-    const client = await pool.connect();
+    const client = await getPool(databaseUrl).connect();
     let transactionStarted = false;
 
     try {
@@ -323,7 +349,7 @@ Deno.serve(async (req) => {
 
     const status = (error as { status?: number }).status ?? 500;
     if (status >= 500) {
-      await reportError(error);
+      await reportError(error, sentryDsn);
     } else {
       console.error("create_payment_intent error:", error);
     }
@@ -339,4 +365,8 @@ Deno.serve(async (req) => {
       status,
     );
   }
-});
+}
+
+if (import.meta.main) {
+  Deno.serve(handle);
+}
