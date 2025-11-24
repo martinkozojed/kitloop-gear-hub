@@ -243,8 +243,9 @@ async function handle(
   const intent = (event.data as Record<string, unknown> | undefined)
     ?.object as Record<string, unknown> | undefined;
   const intentId = intent?.id as string | undefined;
-  const reservationId = intent?.metadata?.reservation_id as string | undefined;
-  const providerId = intent?.metadata?.provider_id as string | undefined;
+  const metadata = intent?.metadata as Record<string, unknown> | undefined;
+  const reservationId = metadata?.reservation_id as string | undefined;
+  const providerId = metadata?.provider_id as string | undefined;
 
   if (!eventId || !eventType || !intentId || !reservationId) {
     return respond("Missing metadata", 400);

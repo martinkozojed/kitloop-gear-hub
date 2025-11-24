@@ -3,5 +3,5 @@ import { summarizeCleanupResult } from "./index.ts";
 
 Deno.test("summarizeCleanupResult returns removed count", () => {
   const result = summarizeCleanupResult(5);
-  assertEquals(result, { removed: 5 });
+  assertEquals(result, { deleted_count: 5 });
 });

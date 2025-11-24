@@ -1,5 +1,6 @@
 import {
   assertEquals,
+  assertRejects,
   assertThrows,
 } from "https://deno.land/std@0.224.0/testing/asserts.ts";
 import {
@@ -9,11 +10,11 @@ import {
 } from "./index.ts";
 
 const { createPaymentIntentRequestSchema } = await import(
-  "./create_payment_intent/index.ts"
+  "../create_payment_intent/index.ts"
 );
 
 Deno.env.set("STRIPE_WEBHOOK_SECRET", "unit_test_secret");
-const { verifyStripeSignature } = await import("./stripe_webhook/index.ts");
+const { verifyStripeSignature } = await import("../stripe_webhook/index.ts");
 
 Deno.test("validateConfirmPayload accepts valid body", () => {
   const reservationId = crypto.randomUUID();
@@ -70,9 +71,10 @@ Deno.test("createPaymentIntentRequestSchema validates reservation_id", () => {
 
 Deno.test("verifyStripeSignature rejects invalid signatures", async () => {
   const payload = JSON.stringify({ test: true });
-  await assertThrows(
+  const timestamp = Math.floor(Date.now() / 1000);
+  await assertRejects(
     async () => {
-      await verifyStripeSignature(payload, "t=123,v1=bad");
+      await verifyStripeSignature(payload, `t=${timestamp},v1=bad`);
     },
     Error,
     "Invalid Stripe signature",
