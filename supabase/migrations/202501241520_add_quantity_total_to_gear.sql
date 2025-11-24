@@ -15,20 +15,20 @@ SET quantity_total = quantity_available
 WHERE quantity_total IS NULL;
 
 -- 3. Add a check constraint to ensure total >= available
--- DO $$
--- BEGIN
---   IF NOT EXISTS (
---     SELECT 1
---     FROM pg_constraint
---     WHERE conname = 'quantity_total_gte_available'
---       AND conrelid = 'public.gear_items'::regclass
---   ) THEN
---     ALTER TABLE public.gear_items
---     ADD CONSTRAINT quantity_total_gte_available
---     CHECK (quantity_total >= quantity_available);
---   END IF;
--- END;
--- $$;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'quantity_total_gte_available'
+      AND conrelid = 'public.gear_items'::regclass
+  ) THEN
+    ALTER TABLE public.gear_items
+    ADD CONSTRAINT quantity_total_gte_available
+    CHECK (quantity_total >= quantity_available);
+  END IF;
+END;
+$$;
 
 -- 4. Update the column to be NOT NULL and have a default
 ALTER TABLE public.gear_items
