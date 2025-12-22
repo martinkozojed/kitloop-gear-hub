@@ -72,6 +72,7 @@ WITH inserted AS (
     contact_name,
     email,
     phone,
+    rental_name,
     status,
     verified,
     created_at
@@ -83,6 +84,7 @@ WITH inserted AS (
     'Owner User',
     'owner@test.local',
     '+420123456789',
+    'Test Rental Name',
     'pending',
     false,
     now()
@@ -244,13 +246,13 @@ SELECT results_eq(
   $$,
   'Session user is non_member'
 );
-SELECT throws_ok(
+SELECT is_empty(
   $$
     UPDATE public.reservations
     SET notes = 'Should fail'
     WHERE id = (SELECT id FROM temp_reservations LIMIT 1)
+    RETURNING id
   $$,
-  NULL,
   'Non-member cannot update reservations'
 );
 

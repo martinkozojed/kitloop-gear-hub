@@ -354,3 +354,49 @@ export const createReservationHold = async (
     }
   }
 };
+
+export interface CreatePaymentIntentInput {
+  reservationId: string;
+}
+
+export interface PaymentIntentResult {
+  reservationId: string;
+  paymentIntentId: string;
+  clientSecret: string;
+}
+
+export const createPaymentIntent = async (
+  input: CreatePaymentIntentInput
+): Promise<PaymentIntentResult> => {
+  const { data, error } = await supabase.functions.invoke(
+    "create_payment_intent",
+    {
+      body: {
+        reservation_id: input.reservationId,
+      },
+    }
+  );
+
+  if (error) {
+    throw new ReservationError(
+      "edge_failed",
+      typeof error.message === "string"
+        ? error.message
+        : getErrorMessage(error) || "Failed to create payment intent.",
+      error
+    );
+  }
+
+  if (!data || !data.client_secret) {
+    throw new ReservationError(
+      "edge_failed",
+      "Edge function returned invalid payment data."
+    );
+  }
+
+  return {
+    reservationId: data.reservation_id,
+    paymentIntentId: data.payment_intent_id,
+    clientSecret: data.client_secret,
+  };
+};

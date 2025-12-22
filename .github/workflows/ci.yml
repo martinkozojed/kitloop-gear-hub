@@ -46,11 +46,12 @@ jobs:
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install npm deps for Deno npm: resolution
+      - name: "Install npm deps for Deno npm: resolution"
         run: npm ci
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: "v2.x"
+          # Pin to a Deno version that supports lockfile version 5
+          deno-version: "v2.5.6"
       - name: Deno version
         run: deno --version
       - name: Run reserve_gear unit tests
@@ -79,11 +80,22 @@ jobs:
       - name: Run Supabase DB tests
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: supabase db test --db-url "$SUPABASE_DB_URL"
+        run: |
+          # Sanitize and ensure schema
+          CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
+          if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
+            CLEAN_DB_URL="postgresql://$CLEAN_DB_URL"
+          fi
+          supabase db test --db-url "$CLEAN_DB_URL"
       - name: Apply Supabase migrations (main only)
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: supabase db push --db-url "$SUPABASE_DB_URL"
+        run: |
+          CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
+          if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
+            CLEAN_DB_URL="postgresql://$CLEAN_DB_URL"
+          fi
+          supabase db push --db-url "$CLEAN_DB_URL"
 
   build:
     runs-on: ubuntu-latest

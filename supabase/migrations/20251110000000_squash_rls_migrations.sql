@@ -826,6 +826,11 @@ CREATE POLICY "Providers can update own reservations"
   );
 
 DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_admin_all" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_insert_self" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_select_owner" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_update_self" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 
 CREATE POLICY "Users can view own profile"
   ON public.profiles FOR SELECT
