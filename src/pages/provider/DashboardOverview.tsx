@@ -1,11 +1,9 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,138 +17,108 @@ import {
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Package, Calendar, CheckCircle, Clock, Phone, ArrowDownToLine, ArrowUpFromLine, Loader2 } from 'lucide-react';
+import {
+  Calendar,
+  CheckCircle,
+  Clock,
+  Phone,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  AlertTriangle,
+  AlertCircle,
+  ArrowRight,
+  TrendingUp,
+  LayoutDashboard
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
-interface DashboardStats {
-  totalItems: number;
-  activeReservations: number;
+// --- Types ---
+
+interface DashboardKPIs {
   todayPickups: number;
   todayReturns: number;
-  pendingReservations: number;
-  availableItems: number;
+  overdueCount: number;
+  overdueExposure: number; // e.g. estimated value or deposit
+  capacityRiskCount: number; // items with >90% utilization tomorrow
 }
 
-interface SetupChecklist {
-  profileCreated: boolean;
-  firstItemAdded: boolean;
-  testReservation: boolean;
-  teamInvited: boolean;
-  pricingConfigured: boolean;
-}
-
-interface AgendaEvent {
+interface AgendaItem {
   id: string;
   type: 'pickup' | 'return';
-  customer_name: string;
-  customer_phone: string | null;
-  gear_name: string;
-  gear_category: string | null;
-  time: string | null;
+  time: string | null; // start_date for pickup, end_date for return
+  customer: {
+    name: string;
+    phone: string | null;
+  };
+  gear: {
+    name: string;
+    count: number;
+  };
   status: string;
   notes: string | null;
 }
 
-type GearSummary = {
-  name: string | null;
-  category: string | null;
-};
-
-type ReservationWithGear = {
+interface AlertItem {
   id: string;
-  customer_name: string;
-  customer_phone: string | null;
-  pickup_time?: string | null;
-  return_time?: string | null;
+  type: 'approval' | 'overdue' | 'conflict';
+  title: string; // "Žádost o rezervaci", "Po splatnosti"
+  description: string; // Customer name, or "2 dny po vrácení"
+  severity: 'high' | 'medium' | 'low';
+  date: string;
+}
+
+// Helper type for Supabase query results
+interface DbReservation {
+  id: string;
+  start_date: string;
+  end_date: string;
   status: string;
   notes: string | null;
-  gear_items: GearSummary | GearSummary[] | null;
-};
+  customer_name: string;
+  customer_phone: string | null;
+  gear?: { name: string } | null;
+}
 
-type ReturnCondition = 'good' | 'minor' | 'damaged';
+interface KpiCardProps {
+  title: string;
+  value: number;
+  subtitle?: string;
+  icon: React.ReactNode;
+  color: string;
+  alert?: boolean;
+}
+
+// --- Component ---
 
 const DashboardOverview = () => {
   const { user, provider } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalItems: 0,
-    activeReservations: 0,
-    todayPickups: 0,
-    todayReturns: 0,
-    pendingReservations: 0,
-    availableItems: 0,
-  });
   const isMountedRef = useRef(true);
   const [loading, setLoading] = useState(true);
-  const [todayEvents, setTodayEvents] = useState<AgendaEvent[]>([]);
-  const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
-  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
-  const [eventToReturn, setEventToReturn] = useState<AgendaEvent | null>(null);
-  const [returnCondition, setReturnCondition] = useState<ReturnCondition>('good');
-  const [returnNotes, setReturnNotes] = useState('');
-  const [checklist, setChecklist] = useState<SetupChecklist>({
-    profileCreated: true, // Always true if they're here
-    firstItemAdded: false,
-    testReservation: false,
-    teamInvited: false,
-    pricingConfigured: false,
+
+  // Data State
+  const [kpis, setKpis] = useState<DashboardKPIs>({
+    todayPickups: 0,
+    todayReturns: 0,
+    overdueCount: 0,
+    overdueExposure: 0,
+    capacityRiskCount: 0,
   });
+  const [agenda, setAgenda] = useState<AgendaItem[]>([]);
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+
+  // Action State
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<AgendaItem | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
+    if (!provider?.id) return;
+    setLoading(true);
+
     try {
-      if (!provider?.id) {
-        if (isMountedRef.current) {
-          setStats({
-            totalItems: 0,
-            activeReservations: 0,
-            todayPickups: 0,
-            todayReturns: 0,
-            pendingReservations: 0,
-            availableItems: 0,
-          });
-          setTodayEvents([]);
-          setChecklist(prev => ({
-            ...prev,
-            firstItemAdded: false,
-            testReservation: false,
-          }));
-          setLoading(false);
-        }
-        return;
-      }
-
-      // Fetch provider gear items with quantities
-      const { data: gearItems, error: itemsError } = await supabase
-        .from('gear_items')
-        .select('id, quantity_available, active')
-        .eq('provider_id', provider.id);
-
-      if (itemsError) {
-        console.error('❌ Error fetching items:', itemsError);
-        return;
-      }
-
-      type GearItemRow = {
-        id: string;
-        quantity_available: number | null;
-        active: boolean | null;
-      };
-
-      const typedGearItems = (gearItems ?? []) as GearItemRow[];
-      const activeGear = typedGearItems.filter(item => item.active);
-      const totalItemsCount = activeGear.length;
-      const totalQuantity = activeGear.reduce((sum, item) => sum + (item.quantity_available ?? 0), 0);
-      const gearIds = activeGear.map(item => item.id);
-
-      let activeReservationsCount = 0;
-      let pendingReservationsCount = 0;
-      let todayPickupsCount = 0;
-      let todayReturnsCount = 0;
-      let reservedTodayUnits = 0;
-      let events: AgendaEvent[] = [];
-
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString();
@@ -159,820 +127,489 @@ const DashboardOverview = () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
       const tomorrowIso = tomorrow.toISOString();
 
-      if (gearIds.length > 0) {
-        const [
-          activeCountResult,
-          pendingCountResult,
-          pickupsCountResult,
-          returnsCountResult,
-          activeTodayResult,
-          pickupsDataResult,
-          returnsDataResult,
-        ] = await Promise.all([
-          supabase
-            .from('reservations')
-            .select('id', { count: 'exact', head: true })
-            .in('gear_id', gearIds)
-            .in('status', ['hold', 'confirmed', 'active']),
-          supabase
-            .from('reservations')
-            .select('id', { count: 'exact', head: true })
-            .in('gear_id', gearIds)
-            .in('status', ['pending', 'hold']),
-          supabase
-            .from('reservations')
-            .select('id', { count: 'exact', head: true })
-            .in('gear_id', gearIds)
-            .gte('start_date', todayIso)
-            .lt('start_date', tomorrowIso)
-            .in('status', ['confirmed', 'hold']),
-          supabase
-            .from('reservations')
-            .select('id', { count: 'exact', head: true })
-            .in('gear_id', gearIds)
-            .gte('end_date', todayIso)
-            .lt('end_date', tomorrowIso)
-            .in('status', ['active']),
-          supabase
-            .from('reservations')
-            .select('id', { count: 'exact', head: true })
-            .in('gear_id', gearIds)
-            .in('status', ['hold', 'confirmed', 'active'])
-            .lt('start_date', tomorrowIso)
-            .gt('end_date', todayIso),
-          supabase
-            .from('reservations')
-            .select(`
-              id,
-              customer_name,
-              customer_phone,
-              pickup_time,
-              status,
-              notes,
-              gear_items:gear_id (
-                name,
-                category
-              )
-            `)
-            .in('gear_id', gearIds)
-            .gte('start_date', todayIso)
-            .lt('start_date', tomorrowIso)
-            .in('status', ['confirmed', 'hold']),
-          supabase
-            .from('reservations')
-            .select(`
-              id,
-              customer_name,
-              customer_phone,
-              return_time,
-              status,
-              notes,
-              gear_items:gear_id (
-                name,
-                category
-              )
-            `)
-            .in('gear_id', gearIds)
-            .gte('end_date', todayIso)
-            .lt('end_date', tomorrowIso)
-            .in('status', ['active']),
-        ]);
+      // 1. Fetch KPIs
+      // Pickups Today: confirmed + start_date == today
+      const { count: pickCount } = await supabase
+        .from('reservations')
+        .select('id', { count: 'exact', head: true })
+        .eq('provider_id', provider.id)
+        .eq('status', 'confirmed')
+        .gte('start_date', todayIso)
+        .lt('start_date', tomorrowIso);
 
-        if (activeCountResult.error) {
-          console.error('❌ Error fetching active reservations:', activeCountResult.error);
-        } else {
-          activeReservationsCount = activeCountResult.count || 0;
-        }
+      // Returns Today: checked_out/active + end_date == today
+      const { count: returnCount } = await supabase
+        .from('reservations')
+        .select('id', { count: 'exact', head: true })
+        .eq('provider_id', provider.id)
+        .in('status', ['checked_out', 'active']) // Handle legacy 'active'
+        .gte('end_date', todayIso)
+        .lt('end_date', tomorrowIso);
 
-        if (pendingCountResult.error) {
-          console.error('❌ Error fetching pending reservations:', pendingCountResult.error);
-        } else {
-          pendingReservationsCount = pendingCountResult.count || 0;
-        }
+      // Overdue: checked_out/active + end_date < today
+      const { count: overCount } = await supabase
+        .from('reservations')
+        .select('id', { count: 'exact', head: true })
+        .eq('provider_id', provider.id)
+        .in('status', ['checked_out', 'active'])
+        .lt('end_date', todayIso);
 
-        if (pickupsCountResult.error) {
-          console.error('❌ Error fetching today\'s pickups:', pickupsCountResult.error);
-        } else {
-          todayPickupsCount = pickupsCountResult.count || 0;
-        }
+      // Capacity Risk (simplified): Count items fully booked tomorrow
+      // This is complex, for now we will just count active reservations for tomorrow
+      // TODO: Implement precise availability calculation
+      const { count: riskCount } = await supabase
+        .from('reservations')
+        .select('id', { count: 'exact', head: true })
+        .eq('provider_id', provider.id)
+        .in('status', ['confirmed', 'checked_out', 'active'])
+        .gte('start_date', tomorrowIso)
+        .lt('start_date', new Date(tomorrow.getTime() + 86400000).toISOString());
 
-        if (returnsCountResult.error) {
-          console.error('❌ Error fetching today\'s returns:', returnsCountResult.error);
-        } else {
-          todayReturnsCount = returnsCountResult.count || 0;
-        }
 
-        if (activeTodayResult.error) {
-          console.error('❌ Error fetching active today:', activeTodayResult.error);
-        } else {
-          reservedTodayUnits = activeTodayResult.count || 0;
-        }
-
-        const castGearInfo = (item: ReservationWithGear): GearSummary | null => {
-          if (!item.gear_items) return null;
-          return Array.isArray(item.gear_items) ? item.gear_items[0] ?? null : item.gear_items;
-        };
-
-        if (!pickupsDataResult.error && pickupsDataResult.data) {
-          pickupsDataResult.data.forEach((pickup: ReservationWithGear) => {
-            const gearInfo = castGearInfo(pickup);
-            events.push({
-              id: pickup.id,
-              type: 'pickup',
-              customer_name: pickup.customer_name,
-              customer_phone: pickup.customer_phone,
-              gear_name: gearInfo?.name || 'Unknown',
-              gear_category: gearInfo?.category || null,
-              time: pickup.pickup_time ?? null,
-              status: pickup.status,
-              notes: pickup.notes,
-            });
-          });
-        }
-
-        if (!returnsDataResult.error && returnsDataResult.data) {
-          returnsDataResult.data.forEach((returnItem: ReservationWithGear) => {
-            const gearInfo = castGearInfo(returnItem);
-            events.push({
-              id: returnItem.id,
-              type: 'return',
-              customer_name: returnItem.customer_name,
-              customer_phone: returnItem.customer_phone,
-              gear_name: gearInfo?.name || 'Unknown',
-              gear_category: gearInfo?.category || null,
-              time: returnItem.return_time ?? null,
-              status: returnItem.status,
-              notes: returnItem.notes,
-            });
-          });
-        }
-
-        events.sort((a, b) => {
-          if (!a.time) return 1;
-          if (!b.time) return -1;
-          return a.time.localeCompare(b.time);
-        });
-      } else {
-        events = [];
-      }
-
-      if (!isMountedRef.current) return;
-
-      setTodayEvents(events);
-      setStats({
-        totalItems: totalItemsCount,
-        activeReservations: activeReservationsCount,
-        todayPickups: todayPickupsCount,
-        todayReturns: todayReturnsCount,
-        pendingReservations: pendingReservationsCount,
-        availableItems: Math.max(0, totalQuantity - reservedTodayUnits),
+      setKpis({
+        todayPickups: pickCount || 0,
+        todayReturns: returnCount || 0,
+        overdueCount: overCount || 0,
+        overdueExposure: 0, // Placeholder
+        capacityRiskCount: riskCount || 0,
       });
 
-      setChecklist(prev => ({
-        ...prev,
-        firstItemAdded: totalItemsCount > 0,
-        testReservation: activeReservationsCount > 0,
-      }));
+      // 2. Fetch Agenda (Pickups & Returns Today)
+      const { data: pickupData } = await supabase
+        .from('reservations')
+        .select(`
+          id, start_date, status, notes,
+          customer_name, customer_phone,
+          gear:gear_id ( name )
+        `)
+        .eq('provider_id', provider.id)
+        .eq('status', 'confirmed')
+        .gte('start_date', todayIso)
+        .lt('start_date', tomorrowIso)
+        .order('start_date', { ascending: true })
+        .returns<DbReservation[]>();
+
+      const { data: returnData } = await supabase
+        .from('reservations')
+        .select(`
+          id, end_date, status, notes,
+          customer_name, customer_phone,
+          gear:gear_id ( name )
+        `)
+        .eq('provider_id', provider.id)
+        .in('status', ['checked_out', 'active'])
+        .gte('end_date', todayIso)
+        .lt('end_date', tomorrowIso)
+        .order('end_date', { ascending: true })
+        .returns<DbReservation[]>();
+
+      const agendaItems: AgendaItem[] = [];
+
+      pickupData?.forEach((r: DbReservation) => {
+        agendaItems.push({
+          id: r.id,
+          type: 'pickup',
+          time: r.start_date,
+          customer: { name: r.customer_name, phone: r.customer_phone },
+          gear: { name: r.gear?.name || 'Unknown', count: 1 },
+          status: r.status,
+          notes: r.notes
+        });
+      });
+
+      returnData?.forEach((r: DbReservation) => {
+        agendaItems.push({
+          id: r.id,
+          type: 'return',
+          time: r.end_date,
+          customer: { name: r.customer_name, phone: r.customer_phone },
+          gear: { name: r.gear?.name || 'Unknown', count: 1 },
+          status: r.status,
+          notes: r.notes
+        });
+      });
+
+      // Sort chronological
+      agendaItems.sort((a, b) => new Date(a.time || '').getTime() - new Date(b.time || '').getTime());
+      setAgenda(agendaItems);
+
+      // 3. Fetch Alerts (Pending Approvals & Overdue Details)
+      const { data: pendingData } = await supabase
+        .from('reservations')
+        .select(`
+          id, start_date, end_date, status, notes,
+          customer_name, customer_phone,
+          gear:gear_id ( name )
+        `)
+        .eq('provider_id', provider.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: true })
+        .limit(5)
+        .returns<DbReservation[]>();
+
+      const { data: overdueData } = await supabase
+        .from('reservations')
+        .select(`
+          id, start_date, end_date, status, notes,
+          customer_name, customer_phone,
+          gear:gear_id ( name )
+        `)
+        .eq('provider_id', provider.id)
+        .in('status', ['checked_out', 'active'])
+        .lt('end_date', todayIso)
+        .order('end_date', { ascending: true })
+        .limit(5)
+        .returns<DbReservation[]>();
+
+      const alertItems: AlertItem[] = [];
+
+      overdueData?.forEach((r: DbReservation) => {
+        alertItems.push({
+          id: r.id,
+          type: 'overdue',
+          title: 'Po splatnosti',
+          description: `${r.customer_name} - ${r.gear?.name}`,
+          severity: 'high',
+          date: r.end_date
+        });
+      });
+
+      pendingData?.forEach((r: DbReservation) => {
+        alertItems.push({
+          id: r.id,
+          type: 'approval',
+          title: 'Nová rezervace',
+          description: `${r.customer_name} - ${r.gear?.name}`,
+          severity: 'medium',
+          date: r.start_date
+        });
+      });
+
+      setAlerts(alertItems);
+
     } catch (error) {
-      console.error('💥 Unexpected error fetching dashboard data:', error);
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Nepodařilo se načíst data dashboardu');
     } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-      }
+      if (isMountedRef.current) setLoading(false);
     }
   }, [provider?.id]);
 
   useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
     fetchDashboardData();
+    return () => { isMountedRef.current = false; };
   }, [fetchDashboardData]);
 
-  const handleConfirmPickup = async (reservationId: string) => {
-    // Find the event to check its current status
-    const event = todayEvents.find(e => e.id === reservationId);
 
-    // Prevent if already confirmed
-    if (event?.status === 'confirmed') {
-      toast({
-        title: t('provider.dashboard.agenda.alreadyConfirmed'),
-        description: t('provider.dashboard.agenda.alreadyConfirmedDesc'),
-      });
-      return;
-    }
+  // --- Actions ---
 
-    setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
-
-    // Optimistic update
-    setTodayEvents(prev =>
-      prev.map(e => e.id === reservationId ? { ...e, status: 'confirmed' } : e)
-    );
-
+  const handleCheckOut = async (id: string) => {
+    setProcessingId(id);
     try {
       const { error } = await supabase
         .from('reservations')
-        .update({
-          status: 'confirmed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', reservationId);
+        .update({ status: 'checked_out', updated_at: new Date().toISOString() })
+        .eq('id', id);
 
       if (error) throw error;
-
-      toast({
-        title: t('provider.dashboard.agenda.success'),
-        description: t('provider.dashboard.agenda.pickupConfirmed'),
-      });
-
-      await fetchDashboardData();
-    } catch (error) {
-      console.error('Error confirming pickup:', error);
-
-      // Rollback optimistic update
-      setTodayEvents(prev =>
-        prev.map(e => e.id === reservationId ? { ...e, status: event?.status || 'hold' } : e)
-      );
-
-      toast({
-        title: t('error'),
-        description: t('provider.dashboard.agenda.errorConfirming'),
-        variant: 'destructive',
-      });
+      toast.success('Vybavení bylo vydáno (Checked Out)');
+      fetchDashboardData();
+    } catch (e) {
+      console.error(e);
+      toast.error('Chyba při vydávání');
     } finally {
-      setLoadingActions(prev => ({ ...prev, [reservationId]: false }));
+      setProcessingId(null);
     }
   };
 
-  const handleReschedule = (reservationId: string) => {
-    // Navigate to reservations page with this reservation selected
-    // For now, just navigate to reservations list
-    navigate(`/provider/reservations?highlight=${reservationId}`);
-  };
-
-  const handleReportDamage = (reservationId: string) => {
-    // For now, navigate to reservations page
-    // Future: open damage report modal
-    navigate(`/provider/reservations?damage=${reservationId}`);
-  };
-
-  const handleMarkReturned = (reservationId: string) => {
-    const event = todayEvents.find(e => e.id === reservationId);
-    if (!event) return;
-
-    // Show confirmation dialog with condition selector
-    setEventToReturn(event);
-    setReturnCondition('good');
-    setReturnNotes('');
+  const handleOpenReturnDialog = (item: AgendaItem) => {
+    setSelectedItem(item);
     setReturnDialogOpen(true);
   };
 
-  const confirmMarkReturned = async () => {
-    if (!eventToReturn) return;
-
-    setLoadingActions(prev => ({ ...prev, [eventToReturn.id]: true }));
+  const handleConfirmReturn = async () => {
+    if (!selectedItem) return;
+    setProcessingId(selectedItem.id);
     setReturnDialogOpen(false);
 
     try {
       const { error } = await supabase
         .from('reservations')
+        // We assume 'returned' allows for next step 'inspection'
+        // For simplicity in this iteration, we set to 'returned'
         .update({
-          status: 'completed',
+          status: 'returned',
           actual_return_time: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          notes: returnNotes ? `${eventToReturn.notes || ''}\n\nVráceno (${returnCondition}): ${returnNotes}`.trim() : eventToReturn.notes
+          updated_at: new Date().toISOString()
         })
-        .eq('id', eventToReturn.id);
+        .eq('id', selectedItem.id);
 
       if (error) throw error;
-
-      toast({
-        title: t('provider.dashboard.agenda.success'),
-        description: t('provider.dashboard.agenda.markedAsReturned'),
-      });
-
-      // Remove from today's events
-      setTodayEvents(prev => prev.filter(e => e.id !== eventToReturn.id));
-      await fetchDashboardData();
-    } catch (error) {
-      console.error('Error marking as returned:', error);
-      toast({
-        title: t('error'),
-        description: t('provider.dashboard.agenda.errorMarkingReturned'),
-        variant: 'destructive',
-      });
+      toast.success('Vybavení přijato (Returned)');
+      fetchDashboardData();
+    } catch (e) {
+      console.error(e);
+      toast.error('Chyba při vracení');
     } finally {
-      setLoadingActions(prev => ({ ...prev, [eventToReturn.id]: false }));
-      setEventToReturn(null);
-      setReturnNotes('');
+      setProcessingId(null);
+      setSelectedItem(null);
     }
   };
 
-  const completedTasks = Object.values(checklist).filter(Boolean).length;
-  const totalTasks = Object.keys(checklist).length;
-  const progressPercent = (completedTasks / totalTasks) * 100;
-  const formattedToday = new Intl.DateTimeFormat(i18n.language, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(new Date());
+  const handleApprove = async (id: string) => {
+    setProcessingId(id);
+    try {
+      const { error } = await supabase
+        .from('reservations')
+        .update({ status: 'confirmed' })
+        .eq('id', id);
+      if (error) throw error;
+      toast.success('Rezervace schválena');
+      fetchDashboardData();
+    } catch (e) {
+      console.error(e);
+      toast.error('Chyba při schvalování');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+
+  // --- Rendering ---
+
+  // Helper to format time
+  const formatTime = (iso: string | null) => {
+    if (!iso) return '--:--';
+    return new Date(iso).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+  };
+  const formatDate = (iso: string | null) => {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' });
+  }
+
 
   if (loading) {
-    return (
-      <ProviderLayout>
-        <div className="space-y-6">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-64 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-48"></div>
-          </div>
-        </div>
-      </ProviderLayout>
-    );
+    return <ProviderLayout><div className="p-8">Načítám dashboard...</div></ProviderLayout>;
   }
 
-  // Empty State - No Data
-  if (stats.totalItems === 0) {
-    return (
-      <ProviderLayout>
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">
-            {t('provider.dashboard.empty.welcome', { name: provider?.rental_name || user?.email })}
-          </h1>
-          <p className="text-muted-foreground mb-8">{t('provider.dashboard.empty.subtitle')}</p>
-
-          {/* Main CTA Card */}
-          <Card className="mb-8 border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {t('provider.dashboard.empty.ctaTitle')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                {t('provider.dashboard.empty.ctaDescription')}
-              </p>
-              <div className="flex gap-3">
-                <Button variant="primary" asChild>
-                  <Link to="/provider/inventory/new">
-                    <Package className="w-4 h-4 mr-2" />
-                    {t('provider.dashboard.empty.ctaAdd')}
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/provider/inventory/import">
-                    {t('provider.dashboard.empty.ctaImport')}
-                  </Link>
-                </Button>
-              </div>
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-700">
-                  {t('provider.dashboard.empty.tutorial')}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Setup Checklist */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {t('provider.dashboard.empty.checklistTitle', {
-                  completed: completedTasks,
-                  total: totalTasks
-                })}
-              </CardTitle>
-              <Progress value={progressPercent} className="h-2 mt-2" />
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <ChecklistItem
-                completed={checklist.profileCreated}
-                labelKey="provider.dashboard.empty.profile"
-              />
-              <ChecklistItem
-                completed={checklist.firstItemAdded}
-                labelKey="provider.dashboard.empty.firstItem"
-                action={
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/provider/inventory/new">{t('provider.dashboard.empty.ctaAdd')}</Link>
-                  </Button>
-                }
-              />
-              <ChecklistItem
-                completed={checklist.testReservation}
-                labelKey="provider.dashboard.empty.testReservation"
-                action={
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/provider/reservations/new">{t('provider.dashboard.empty.create')}</Link>
-                  </Button>
-                }
-              />
-              <ChecklistItem
-                completed={checklist.teamInvited}
-                labelKey="provider.dashboard.empty.team"
-                action={
-                  <Button variant="ghost" size="sm" disabled>
-                    {t('provider.dashboard.empty.comingSoon')}
-                  </Button>
-                }
-              />
-              <ChecklistItem
-                completed={checklist.pricingConfigured}
-                labelKey="provider.dashboard.empty.pricing"
-                action={
-                  <Button variant="ghost" size="sm" disabled>
-                    {t('provider.dashboard.empty.comingSoon')}
-                  </Button>
-                }
-              />
-            </CardContent>
-          </Card>
-
-          <div className="mt-6 text-center">
-            <Button variant="outline" asChild>
-              <Link to="/provider/settings">{t('provider.dashboard.empty.continueSetup')}</Link>
-            </Button>
-          </div>
-        </div>
-      </ProviderLayout>
-    );
-  }
-
-  // Filled State - With Data
   return (
     <ProviderLayout>
-      <div className="space-y-6">
-      <div>
-          <h1 className="text-3xl font-bold mb-2">{t('provider.dashboard.title')}</h1>
-          <p className="text-muted-foreground">
-            {t('provider.dashboard.todayLabel', { date: formattedToday })}
-          </p>
+      <div className="space-y-6 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Přehled</h1>
+            <p className="text-muted-foreground">Operační panel pro {new Date().toLocaleDateString('cs-CZ')}</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={fetchDashboardData}>
+              <LayoutDashboard className="w-4 h-4 mr-2" /> Refresh
+            </Button>
+          </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard
-            icon={<Calendar className="w-5 h-5" />}
-            titleKey="provider.dashboard.stats.pickups"
-            value={stats.todayPickups}
-            subtitleKey="provider.dashboard.stats.today"
-            color="blue"
+        {/* 1. KPIs Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <KpiCard
+            title="Dnešní Vydání"
+            value={kpis.todayPickups}
+            icon={<ArrowDownToLine className="w-5 h-5 text-blue-500" />}
+            color="border-blue-100 bg-blue-50/20"
           />
-          <StatCard
-            icon={<CheckCircle className="w-5 h-5" />}
-            titleKey="provider.dashboard.stats.returns"
-            value={stats.todayReturns}
-            subtitleKey="provider.dashboard.stats.today"
-            color="green"
+          <KpiCard
+            title="Dnešní Vrácení"
+            value={kpis.todayReturns}
+            icon={<ArrowUpFromLine className="w-5 h-5 text-green-500" />}
+            color="border-green-100 bg-green-50/20"
           />
-          <StatCard
-            icon={<Package className="w-5 h-5" />}
-            titleKey="provider.dashboard.stats.available"
-            value={`${stats.availableItems}/${stats.totalItems}`}
-            subtitleKey="provider.dashboard.stats.items"
-            color="purple"
+          <KpiCard
+            title="Po Splatnosti"
+            value={kpis.overdueCount}
+            subtitle={kpis.overdueExposure > 0 ? `${kpis.overdueExposure} Kč risk` : 'Žádné kritické'}
+            icon={<AlertCircle className="w-5 h-5 text-red-500" />}
+            color="border-red-100 bg-red-50/20"
+            alert={kpis.overdueCount > 0}
+          />
+          <KpiCard
+            title="Zítřejší Riziko"
+            value={kpis.capacityRiskCount}
+            subtitle="Položek s >90% obsazeností"
+            icon={<TrendingUp className="w-5 h-5 text-amber-500" />}
+            color="border-amber-100 bg-amber-50/20"
           />
         </div>
 
-        {/* Today's Agenda */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('provider.dashboard.agenda.title')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {todayEvents.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p>{t('provider.dashboard.agenda.empty')}</p>
-                <Button variant="ghost" asChild className="mt-2">
-                  <Link to="/provider/reservations">{t('provider.dashboard.agenda.viewAll')}</Link>
-                </Button>
-              </div>
+        {/* 2. Operational Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* LEFT: Agenda (Work Queue) - 2/3 width */}
+          <div className="lg:col-span-2 space-y-4">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Dnešní Agenda ({agenda.length})
+            </h2>
+
+            {agenda.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Žádné plánované akce na dnešek.
+                </CardContent>
+              </Card>
             ) : (
               <div className="space-y-3">
-                {todayEvents.map((event) => (
-                  <AgendaEventCard
-                    key={event.id}
-                    event={event}
-                    onConfirmPickup={handleConfirmPickup}
-                    onReschedule={handleReschedule}
-                    onMarkReturned={handleMarkReturned}
-                    onReportDamage={handleReportDamage}
-                    isLoading={loadingActions[event.id] || false}
-                  />
+                {agenda.map(item => (
+                  <Card key={item.id} className="overflow-hidden">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4">
+                      {/* Time & Type */}
+                      <div className="flex items-start gap-4 min-w-[150px]">
+                        <div className={`p-2 rounded-full ${item.type === 'pickup' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                          {item.type === 'pickup' ? <ArrowDownToLine className="w-4 h-4" /> : <ArrowUpFromLine className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <div className="font-bold text-lg">{formatTime(item.time)}</div>
+                          <div className="text-xs uppercase font-semibold text-muted-foreground tracking-wide">
+                            {item.type === 'pickup' ? 'Výdej' : 'Příjem'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex-1">
+                        <div className="font-medium text-base">{item.customer.name}</div>
+                        <div className="text-sm text-muted-foreground">{item.gear.name}</div>
+                        {item.customer.phone && <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><Phone className="w-3 h-3" /> {item.customer.phone}</div>}
+                      </div>
+
+                      {/* Action */}
+                      <div>
+                        {item.type === 'pickup' ? (
+                          <Button
+                            size="sm"
+                            onClick={() => handleCheckOut(item.id)}
+                            disabled={processingId === item.id}
+                            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                          >
+                            {processingId === item.id ? 'Vydávám...' : 'Vydat (Check-out)'}
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => handleOpenReturnDialog(item)}
+                            disabled={processingId === item.id}
+                            variant="outline"
+                            className="w-full sm:w-auto border-green-600 text-green-700 hover:bg-green-50"
+                          >
+                            {processingId === item.id ? 'Zpracuji...' : 'Přijmout (Return)'}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
                 ))}
-                <div className="pt-2 text-center">
-                  <Button variant="ghost" asChild>
-                    <Link to="/provider/reservations">{t('provider.dashboard.agenda.viewAll')}</Link>
-                  </Button>
-                </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Upcoming */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('provider.dashboard.upcoming.title')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <span>{t('provider.dashboard.upcoming.reservations', { count: stats.activeReservations })}</span>
+          {/* RIGHT: Decisions (Alerts) - 1/3 width */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+              Vyžaduje pozornost ({alerts.length})
+            </h2>
+
+            <div className="space-y-3">
+              {alerts.length === 0 ? (
+                <Card className="bg-gray-50 border-none">
+                  <CardContent className="py-6 text-center text-sm text-muted-foreground">
+                    Vše vyřešeno. Žádné urgentní události.
+                  </CardContent>
+                </Card>
+              ) : (
+                alerts.map(alert => (
+                  <Card key={alert.id} className={`border-l-4 ${alert.severity === 'high' ? 'border-l-red-500' : 'border-l-amber-400'}`}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <Badge variant={alert.severity === 'high' ? "destructive" : "secondary"}>
+                          {alert.title}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">{formatDate(alert.date)}</span>
+                      </div>
+                      <p className="font-medium mb-1">{alert.description}</p>
+
+                      <div className="mt-3 flex gap-2 justify-end">
+                        {alert.type === 'approval' && (
+                          <Button size="sm" variant="default" onClick={() => handleApprove(alert.id)}>Schválit</Button>
+                        )}
+                        <Button size="sm" variant="ghost" asChild>
+                          <Link to={`/provider/reservations?id=${alert.id}`}>Detail <ArrowRight className="w-3 h-3 ml-1" /></Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <span>{t('provider.dashboard.upcoming.pending', { count: stats.pendingReservations })}</span>
-            </div>
-            <Button variant="ghost" asChild className="p-0 mt-4">
-              <Link to="/provider/reservations">{t('provider.dashboard.upcoming.viewAll')}</Link>
-            </Button>
-          </CardContent>
-        </Card>
+
+            {/* Quick Links / Context */}
+            <Card className="mt-8 bg-slate-50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Rychlá akce</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-2">
+                <Button variant="outline" className="justify-start w-full" asChild>
+                  <Link to="/provider/reservations/new">+ Nová Rezervace</Link>
+                </Button>
+                <Button variant="outline" className="justify-start w-full" asChild>
+                  <Link to="/provider/inventory">+ Přidat Vybavení</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+          </div>
+        </div>
       </div>
 
-      {/* Mark as Returned Confirmation Dialog */}
+
+      {/* Return Confirmation Dialog */}
       <AlertDialog open={returnDialogOpen} onOpenChange={setReturnDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Označit jako vráceno</AlertDialogTitle>
+            <AlertDialogTitle>Potvrdit vrácení</AlertDialogTitle>
             <AlertDialogDescription>
-              Potvrďte vrácení vybavení od <strong>{eventToReturn?.customer_name}</strong>
+              Opravdu chcete označit tuto výpůjčku jako vrácenou? <br />
+              <strong>{selectedItem?.customer.name} - {selectedItem?.gear.name}</strong>
+              <br /><br />
+              Položka bude přesunuta do stavu 'Returned' a bude čekat na inspekci.
             </AlertDialogDescription>
           </AlertDialogHeader>
-
-          <div className="py-4 space-y-4">
-            <div>
-              <Label className="text-base font-medium">Stav vybavení</Label>
-              <RadioGroup
-                value={returnCondition}
-                onValueChange={(value) => setReturnCondition(value as ReturnCondition)}
-                className="mt-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="good" id="good" />
-                  <Label htmlFor="good" className="font-normal cursor-pointer">✅ Bez poškození</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="minor" id="minor" />
-                  <Label htmlFor="minor" className="font-normal cursor-pointer">⚠️ Drobné opotřebení</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="damaged" id="damaged" />
-                  <Label htmlFor="damaged" className="font-normal cursor-pointer">❌ Poškozeno</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div>
-              <Label htmlFor="returnNotes">Poznámka (volitelně)</Label>
-              <Textarea
-                id="returnNotes"
-                placeholder="Např. škrábnutí na pravé lyži..."
-                rows={3}
-                value={returnNotes}
-                onChange={(e) => setReturnNotes(e.target.value)}
-                className="mt-2"
-              />
-            </div>
-          </div>
-
           <AlertDialogFooter>
-            <AlertDialogCancel>Zpět</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmMarkReturned}>
-              ✓ Potvrdit vrácení
-            </AlertDialogAction>
+            <AlertDialogCancel>Zrušit</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmReturn}>Potvrdit</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
     </ProviderLayout>
   );
 };
 
-// Helper Components
+// --- Subcomponents ---
 
-interface AgendaEventCardProps {
-  event: AgendaEvent;
-  onConfirmPickup?: (id: string) => void;
-  onReschedule?: (id: string) => void;
-  onMarkReturned?: (id: string) => void;
-  onReportDamage?: (id: string) => void;
-  isLoading?: boolean;
-}
-
-const AgendaEventCard = ({
-  event,
-  onConfirmPickup,
-  onReschedule,
-  onMarkReturned,
-  onReportDamage,
-  isLoading = false
-}: AgendaEventCardProps) => {
-  const { t } = useTranslation();
-
-  const formatTime = (time: string | null) => {
-    if (!time) return t('provider.dashboard.agenda.anytimeToday');
-    return new Date(time).toLocaleTimeString(t('locale'), {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const isPickup = event.type === 'pickup';
-  const Icon = isPickup ? ArrowDownToLine : ArrowUpFromLine;
-  const bgColor = isPickup ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200';
-  const iconColor = isPickup ? 'text-blue-600' : 'text-green-600';
-
-  return (
-    <div className={`border-2 rounded-lg p-4 ${bgColor}`}>
-      <div className="flex items-start gap-3">
-        <Icon className={`w-5 h-5 mt-1 ${iconColor}`} />
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-semibold text-sm">
-              {formatTime(event.time)}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {event.gear_category}
-            </span>
-          </div>
-
-          <div className="font-medium">{event.customer_name}</div>
-
-          {event.customer_phone && (
-            <a
-              href={`tel:${event.customer_phone}`}
-              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mt-1"
-            >
-              <Phone className="w-3 h-3" />
-              {event.customer_phone}
-            </a>
-          )}
-
-          <div className="text-sm mt-2">
-            <span className="font-medium">{event.gear_name}</span>
-          </div>
-
-          {event.notes && (
-            <div className="text-xs text-muted-foreground mt-2 italic">
-              {event.notes}
-            </div>
-          )}
-
-          {/* Status Badge */}
-          <div className="mt-2">
-            <StatusBadge status={event.status} />
-          </div>
-
-          {/* Action Buttons - Status-based rendering */}
-          <div className="flex gap-2 mt-3">
-            {isPickup ? (
-              // Pickup actions based on status
-              event.status === 'confirmed' ? (
-                // Already confirmed - show status and edit option
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-green-600 font-medium">✓ {t('provider.dashboard.agenda.alreadyConfirmed')}</span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onReschedule && onReschedule(event.id)}
-                  >
-                    {t('provider.dashboard.agenda.edit')}
-                  </Button>
-                </div>
-              ) : (
-                // Not confirmed yet - show confirm button
-                <>
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => onConfirmPickup && onConfirmPickup(event.id)}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? t('provider.dashboard.agenda.confirming') : t('provider.dashboard.agenda.confirm')}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onReschedule && onReschedule(event.id)}
-                    disabled={isLoading}
-                  >
-                    {t('provider.dashboard.agenda.reschedule')}
-                  </Button>
-                </>
-              )
-            ) : (
-              // Return actions
-              <>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => onMarkReturned && onMarkReturned(event.id)}
-                  disabled={isLoading}
-                >
-                  {isLoading ? t('provider.dashboard.agenda.processing') : t('provider.dashboard.agenda.markReturned')}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onReportDamage && onReportDamage(event.id)}
-                  disabled={isLoading}
-                >
-                  {t('provider.dashboard.agenda.reportDamage')}
-                </Button>
-              </>
-            )}
-          </div>
+const KpiCard = ({ title, value, subtitle, icon, color, alert }: KpiCardProps) => (
+  <Card className={`${color} border shadow-sm ${alert ? 'animate-pulse ring-1 ring-red-400' : ''}`}>
+    <CardContent className="p-6">
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
+          <div className="text-3xl font-bold">{value}</div>
+          {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
         </div>
-      </div>
-    </div>
-  );
-};
-
-interface StatusBadgeProps {
-  status: string;
-}
-
-const StatusBadge = ({ status }: StatusBadgeProps) => {
-  const { t } = useTranslation();
-
-  const variants: Record<string, { color: string; icon: string; label: string }> = {
-    hold: { color: 'bg-orange-100 text-orange-800 border-orange-200', icon: '⏰', label: t('provider.dashboard.status.hold') },
-    pending: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: '⏳', label: t('provider.dashboard.status.pending') },
-    confirmed: { color: 'bg-blue-100 text-blue-800 border-blue-200', icon: '✓', label: t('provider.dashboard.status.confirmed') },
-    active: { color: 'bg-green-100 text-green-800 border-green-200', icon: '🔄', label: t('provider.dashboard.status.active') },
-    completed: { color: 'bg-gray-100 text-gray-800 border-gray-200', icon: '✅', label: t('provider.dashboard.status.completed') },
-    cancelled: { color: 'bg-red-100 text-red-800 border-red-200', icon: '❌', label: t('provider.dashboard.status.cancelled') }
-  };
-
-  const variant = variants[status] || variants.pending;
-
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${variant.color}`}>
-      <span>{variant.icon}</span>
-      <span>{variant.label}</span>
-    </span>
-  );
-};
-
-interface ChecklistItemProps {
-  completed: boolean;
-  labelKey: string;
-  action?: React.ReactNode;
-}
-
-const ChecklistItem = ({ completed, labelKey, action }: ChecklistItemProps) => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex items-center justify-between py-2">
-      <div className="flex items-center gap-3">
-        {completed ? (
-          <CheckCircle className="w-5 h-5 text-green-600" />
-        ) : (
-          <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
-        )}
-        <span className={completed ? 'line-through text-muted-foreground' : ''}>
-          {t(labelKey)}
-        </span>
-      </div>
-      {!completed && action}
-    </div>
-  );
-};
-
-interface StatCardProps {
-  icon: React.ReactNode;
-  titleKey: string;
-  value: number | string;
-  subtitleKey: string;
-  color: 'blue' | 'green' | 'purple';
-}
-
-const StatCard = ({ icon, titleKey, value, subtitleKey, color }: StatCardProps) => {
-  const { t } = useTranslation();
-  const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    green: 'bg-green-50 text-green-600 border-green-200',
-    purple: 'bg-purple-50 text-purple-600 border-purple-200',
-  };
-
-  return (
-    <Card className={`border-2 ${colorClasses[color]}`}>
-      <CardContent className="pt-6">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="p-2 bg-white rounded-lg shadow-sm">
           {icon}
-          <span className="text-sm font-medium">{t(titleKey)}</span>
         </div>
-        <div className="text-3xl font-bold">{value}</div>
-        <div className="text-sm text-muted-foreground">{t(subtitleKey)}</div>
-      </CardContent>
-    </Card>
-  );
-};
+      </div>
+    </CardContent>
+  </Card>
+);
 
 export default DashboardOverview;

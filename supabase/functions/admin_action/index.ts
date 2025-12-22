@@ -60,7 +60,11 @@ serve(async (req) => {
             // The current providers table has 'status' column in types.ts (Row: status: string | null).
             const { error: updateError } = await supabaseAdmin
                 .from("providers")
-                .update({ status: "approved" })
+                .update({
+                    status: "approved",
+                    verified: true,
+                    approved_at: new Date().toISOString()
+                })
                 .eq("id", target_id);
 
             if (updateError) throw updateError;
@@ -69,7 +73,11 @@ serve(async (req) => {
         } else if (action === "reject_provider") {
             const { error: updateError } = await supabaseAdmin
                 .from("providers")
-                .update({ status: "rejected" })
+                .update({
+                    status: "rejected",
+                    verified: false,
+                    approved_at: null
+                })
                 .eq("id", target_id);
 
             if (updateError) throw updateError;
@@ -89,8 +97,9 @@ serve(async (req) => {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: 200,
         });
-    } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message || "Unknown error" }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: 400,
         });

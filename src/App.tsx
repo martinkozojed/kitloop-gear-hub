@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Index from "./pages/Index";
+import MarketplaceHome from "./pages/MarketplaceHome";
 import HowItWorks from "./pages/HowItWorks";
 import BrowseGear from "./pages/BrowseGear";
 import AddRental from "./pages/AddRental";
@@ -30,6 +31,8 @@ import ProviderVerify from "./pages/provider/ProviderVerify";
 import AdminApprovals from "./pages/AdminApprovals";
 import { cn } from "./lib/utils";
 import ProviderAnalytics from "./pages/provider/ProviderAnalytics";
+import ProviderCalendar from "./pages/provider/ProviderCalendar";
+import ProviderCustomers from "./pages/provider/ProviderCustomers";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +60,7 @@ const AppRoutes = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/admin/approvals" element={<AdminApprovals />} />
+          <Route path="/marketplace" element={<MarketplaceHome />} />
 
           {/* Provider Routes */}
           <Route path="/provider/setup" element={<ProviderSetup />} />
@@ -137,6 +141,22 @@ const AppRoutes = () => {
             element={
               <ProviderRoute>
                 <ProviderVerify />
+              </ProviderRoute>
+            }
+          />
+          <Route
+            path="/provider/calendar"
+            element={
+              <ProviderRoute>
+                <ProviderCalendar />
+              </ProviderRoute>
+            }
+          />
+          <Route
+            path="/provider/customers"
+            element={
+              <ProviderRoute>
+                <ProviderCustomers />
               </ProviderRoute>
             }
           />

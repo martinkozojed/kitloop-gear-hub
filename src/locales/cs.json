@@ -144,7 +144,16 @@
     "have_account": "Už máte účet?",
     "sign_in": "Přihlásit se",
     "success": "Účet byl úspěšně vytvořen!",
-    "password_mismatch": "Hesla se neshodují"
+    "password_mismatch": "Hesla se neshodují",
+    "account_type": {
+      "customer": "Zákazník",
+      "provider": "Půjčovna"
+    },
+    "hero": {
+      "title": "Začni své outdoorové podnikání dnes.",
+      "description": "Komplexní platforma pro půjčovny vybavení. Spravuj inventář, rezervace a zákazníky na jednom místě.",
+      "copyright": "© {{year}} Kitloop. Všechna práva vyhrazena."
+    }
   },
   "provider": {
     "sidebar": {

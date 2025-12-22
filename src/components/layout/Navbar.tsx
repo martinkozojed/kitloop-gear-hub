@@ -51,7 +51,7 @@ const Navbar = () => {
   return (
     <header className="py-4 px-6 md:px-10 bg-white text-green-600 fixed top-0 left-0 right-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        
+
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/" className="text-2xl font-bold flex items-center">
@@ -65,9 +65,9 @@ const Navbar = () => {
           <Link to="/how-it-works" className="hover:underline transition-colors duration-200">
             {t('navbar.how_it_works')}
           </Link>
-          <Link to="/browse" className="hover:underline transition-colors duration-200">
+          {/* <Link to="/browse" className="hover:underline transition-colors duration-200">
             {t('navbar.browse_gear')}
-          </Link>
+          </Link> */}
           <Link to="/about" className="hover:underline transition-colors duration-200">
             {t('navbar.about_us')}
           </Link>
@@ -145,7 +145,7 @@ const Navbar = () => {
             <DrawerContent className="p-6 space-y-6">
               <nav className="flex flex-col space-y-4 text-center text-text">
                 <Link to="/how-it-works">{t('navbar.how_it_works')}</Link>
-                <Link to="/browse">{t('navbar.browse_gear')}</Link>
+                {/* <Link to="/browse">{t('navbar.browse_gear')}</Link> */}
                 <Link to="/about">{t('navbar.about_us')}</Link>
                 <button onClick={() => scrollToSection('faq')}>{t('navbar.faq')}</button>
               </nav>

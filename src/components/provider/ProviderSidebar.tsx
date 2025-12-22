@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Home, Package, Calendar, BarChart3, Settings, Plus, FileText } from 'lucide-react';
+import { Home, Package, Calendar, BarChart3, Settings, Plus, FileText, Users, List, CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const ProviderSidebar = () => {
@@ -10,10 +10,11 @@ const ProviderSidebar = () => {
 
   const navItems = [
     { path: '/provider/dashboard', label: 'provider.sidebar.nav.dashboard', icon: Home },
-    { path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 },
+    { path: '/provider/calendar', label: 'Kalendář', icon: CalendarDays }, // TODO: Add translation key
+    { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: List },
+    { path: '/provider/customers', label: 'Zákazníci (CRM)', icon: Users }, // TODO: Add translation key
     { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
-    { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: Calendar },
-    { path: '/provider/reports', label: 'provider.sidebar.nav.reports', icon: FileText },
+    { path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 },
     { path: '/provider/settings', label: 'provider.sidebar.nav.settings', icon: Settings },
   ];
 
@@ -40,16 +41,14 @@ const ProviderSidebar = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all ${
-                isActive
+              className={`group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all ${isActive
                   ? 'bg-emerald-50 text-emerald-700 shadow-[inset_0_0_0_1px_rgba(25,85,52,0.12)]'
                   : 'text-emerald-800/80 hover:bg-emerald-50/70'
-              }`}
+                }`}
             >
               <span
-                className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full transition-opacity ${
-                  isActive ? 'bg-emerald-500 opacity-100' : 'opacity-0 group-hover:opacity-60'
-                }`}
+                className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full transition-opacity ${isActive ? 'bg-emerald-500 opacity-100' : 'opacity-0 group-hover:opacity-60'
+                  }`}
               />
               <Icon className="w-5 h-5" />
               {t(item.label)}

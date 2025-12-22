@@ -144,7 +144,16 @@
     "have_account": "Already have an account?",
     "sign_in": "Sign in",
     "success": "Account created successfully!",
-    "password_mismatch": "Passwords do not match"
+    "password_mismatch": "Passwords do not match",
+    "account_type": {
+      "customer": "Customer",
+      "provider": "Rental Shop"
+    },
+    "hero": {
+      "title": "Start your outdoor adventure business today.",
+      "description": "The all-in-one platform for gear rental shops. Manage inventory, reservations, and customers in one place.",
+      "copyright": "© {{year}} Kitloop. All rights reserved."
+    }
   },
   "provider": {
     "sidebar": {

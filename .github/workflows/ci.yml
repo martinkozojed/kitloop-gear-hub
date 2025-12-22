@@ -38,12 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+      SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
+      SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
+      SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+      STRIPE_SECRET_KEY: "${{ secrets.STRIPE_SECRET_KEY }}"
+      SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
     steps:
       - uses: actions/checkout@v4
       - name: "Install npm deps for Deno npm: resolution"
@@ -79,7 +79,7 @@ jobs:
           version: latest
       - name: Run Supabase DB tests
         env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
         run: |
           # Sanitize and ensure schema
           CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
@@ -89,7 +89,7 @@ jobs:
           supabase db test --db-url "$CLEAN_DB_URL"
       - name: Apply Supabase migrations (main only)
         env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
         run: |
           CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
           if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
@@ -125,6 +125,6 @@ jobs:
         run: npm ci
       - name: Netlify deploy preview
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: "${{ secrets.NETLIFY_AUTH_TOKEN }}"
+          NETLIFY_SITE_ID: "${{ secrets.NETLIFY_SITE_ID }}"
         run: npx netlify deploy --dir=dist --build --message "PR #${{ github.event.number }}"
