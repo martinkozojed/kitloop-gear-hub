@@ -34,15 +34,28 @@ import ProviderAnalytics from "./pages/provider/ProviderAnalytics";
 import ProviderCalendar from "./pages/provider/ProviderCalendar";
 import ProviderCustomers from "./pages/provider/ProviderCustomers";
 
+import { CommandMenu } from "./components/ui/command-menu";
+import { useNavigate } from "react-router-dom";
+import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
+
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
+
+  // Global Shortcut: 'c' -> New Reservation
+  useKeyboardShortcut(
+    { key: 'c' },
+    () => navigate('/provider/reservations/new'),
+    { enabled: isProviderRoute } // Only active in provider area
+  );
 
   return (
     <>
       <Navbar />
+      <CommandMenu />
       <main
         className={cn(
           "min-h-screen pt-16",

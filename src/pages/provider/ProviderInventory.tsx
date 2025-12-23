@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { GEAR_CATEGORIES, ITEM_STATES, CONDITIONS } from '@/lib/categories';
 import { Plus, Search, Package, Edit, Trash2, X, FilterX } from 'lucide-react';
+import { EmptyState } from "@/components/ui/empty-state";
 import { toast } from 'sonner';
 import { isFetchError } from '@/lib/error-utils';
 import { useTranslation } from 'react-i18next';
@@ -251,25 +252,27 @@ const ProviderInventory = () => {
   if (items.length === 0) {
     return (
       <ProviderLayout>
-        <div className="max-w-2xl mx-auto text-center py-12">
-          <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold mb-2">{t('provider.inventory.empty.title')}</h2>
-          <p className="text-muted-foreground mb-6">
-            {t('provider.inventory.empty.description')}
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button asChild>
-              <Link to="/provider/inventory/new">
-                <Plus className="w-4 h-4 mr-2" />
-                {t('provider.inventory.buttons.addFirst')}
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/provider/inventory/import">
-                {t('provider.inventory.buttons.import')}
-              </Link>
-            </Button>
-          </div>
+        <div className="max-w-2xl mx-auto py-12">
+          <EmptyState
+            icon={Package}
+            title={t('provider.inventory.empty.title')}
+            description={t('provider.inventory.empty.description')}
+            className="bg-transparent border-0"
+          >
+            <div className="flex gap-3 justify-center mt-6">
+              <Button asChild>
+                <Link to="/provider/inventory/new">
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t('provider.inventory.buttons.addFirst')}
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/provider/inventory/import">
+                  {t('provider.inventory.buttons.import')}
+                </Link>
+              </Button>
+            </div>
+          </EmptyState>
         </div>
       </ProviderLayout>
     );
@@ -347,69 +350,69 @@ const ProviderInventory = () => {
             </Select>
           </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('provider.inventory.filters.condition')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('provider.inventory.filters.condition')}</SelectItem>
-              {CONDITIONS.map(cond => (
-                <SelectItem key={cond.value} value={cond.value}>
-                  {cond.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+              <SelectTrigger>
+                <SelectValue placeholder={t('provider.inventory.filters.condition')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('provider.inventory.filters.condition')}</SelectItem>
+                {CONDITIONS.map(cond => (
+                  <SelectItem key={cond.value} value={cond.value}>
+                    {cond.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFilters}
-              className="md:col-start-4"
-            >
-              <FilterX className="w-4 h-4 mr-2" />
-              {t('provider.inventory.filters.clear')}
-            </Button>
-          )}
-        </div>
-
-        {hasActiveFilters && (
-          <div className="flex gap-2 flex-wrap">
-            {debouncedSearch && (
-              <Badge variant="secondary" className="gap-1">
-                {t('provider.inventory.filters.badge', { value: debouncedSearch })}
-                <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery('')} />
-              </Badge>
-            )}
-            {selectedCategory !== 'all' && (
-              <Badge variant="secondary" className="gap-1">
-                {t('provider.inventory.filters.categoryBadge', {
-                  value: GEAR_CATEGORIES.find(c => c.value === selectedCategory)?.label || selectedCategory
-                })}
-                <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory('all')} />
-              </Badge>
-            )}
-            {selectedStatus !== 'all' && (
-              <Badge variant="secondary" className="gap-1">
-                {t('provider.inventory.filters.statusBadge', {
-                  value: statusLabelMap[selectedStatus as keyof typeof statusLabelMap] || selectedStatus
-                })}
-                <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedStatus('all')} />
-              </Badge>
-            )}
-            {selectedCondition !== 'all' && (
-              <Badge variant="secondary" className="gap-1">
-                {t('provider.inventory.filters.conditionBadge', {
-                  value: CONDITIONS.find(c => c.value === selectedCondition)?.label || selectedCondition
-                })}
-                <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCondition('all')} />
-              </Badge>
+            {hasActiveFilters && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFilters}
+                className="md:col-start-4"
+              >
+                <FilterX className="w-4 h-4 mr-2" />
+                {t('provider.inventory.filters.clear')}
+              </Button>
             )}
           </div>
-        )}
-      </div>
+
+          {hasActiveFilters && (
+            <div className="flex gap-2 flex-wrap">
+              {debouncedSearch && (
+                <Badge variant="secondary" className="gap-1">
+                  {t('provider.inventory.filters.badge', { value: debouncedSearch })}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery('')} />
+                </Badge>
+              )}
+              {selectedCategory !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  {t('provider.inventory.filters.categoryBadge', {
+                    value: GEAR_CATEGORIES.find(c => c.value === selectedCategory)?.label || selectedCategory
+                  })}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory('all')} />
+                </Badge>
+              )}
+              {selectedStatus !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  {t('provider.inventory.filters.statusBadge', {
+                    value: statusLabelMap[selectedStatus as keyof typeof statusLabelMap] || selectedStatus
+                  })}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedStatus('all')} />
+                </Badge>
+              )}
+              {selectedCondition !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  {t('provider.inventory.filters.conditionBadge', {
+                    value: CONDITIONS.find(c => c.value === selectedCondition)?.label || selectedCondition
+                  })}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCondition('all')} />
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Desktop: Table */}
         <div className="hidden md:block border rounded-lg overflow-hidden">
@@ -457,12 +460,11 @@ const ProviderInventory = () => {
                     </span>
                   </td>
                   <td className="p-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      item.item_state === 'available' ? 'bg-green-100 text-green-700' :
+                    <span className={`px-2 py-1 rounded text-xs ${item.item_state === 'available' ? 'bg-green-100 text-green-700' :
                       item.item_state === 'reserved' ? 'bg-blue-100 text-blue-700' :
-                      item.item_state === 'maintenance' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
+                        item.item_state === 'maintenance' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                      }`}>
                       {statusLabelMap[item.item_state as keyof typeof statusLabelMap] || item.item_state}
                     </span>
                   </td>
@@ -516,15 +518,14 @@ const ProviderInventory = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge
                       variant="secondary"
-                      className={`text-xs ${
-                        item.item_state === 'available' ? 'bg-green-100 text-green-700 border-green-200' :
+                      className={`text-xs ${item.item_state === 'available' ? 'bg-green-100 text-green-700 border-green-200' :
                         item.item_state === 'reserved' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                    item.item_state === 'maintenance' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                    'bg-gray-100 text-gray-700'
-                  }`}
-                >
-                  {statusLabelMap[item.item_state as keyof typeof statusLabelMap] || item.item_state}
-                </Badge>
+                          item.item_state === 'maintenance' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                            'bg-gray-100 text-gray-700'
+                        }`}
+                    >
+                      {statusLabelMap[item.item_state as keyof typeof statusLabelMap] || item.item_state}
+                    </Badge>
                     {item.condition && (
                       <Badge variant="outline" className="text-xs">
                         {CONDITIONS.find(c => c.value === item.condition)?.label || item.condition}

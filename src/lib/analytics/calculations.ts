@@ -16,7 +16,7 @@ export function calculatePercentChange(
 }
 
 export function sumCents(values: Array<number | null | undefined>): number {
-  return values.reduce((sum, value) => {
+  return values.reduce<number>((sum, value) => {
     if (typeof value === "number" && !Number.isNaN(value)) {
       return sum + Math.round(value);
     }

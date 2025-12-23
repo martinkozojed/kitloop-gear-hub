@@ -1,15 +1,25 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'react-i18next';
-import { ReactNode } from 'react';
-import { TranslationSchema } from '../locales/resources';
+import type { TranslationSchema } from '../locales/resources';
 
 declare module 'react-i18next' {
   interface CustomTypeOptions {
-    // custom resources type
     resources: {
       translation: TranslationSchema;
     };
-    // force children to be treated as ReactNode to avoid type conflicts
-    reactI18nextChildrenType: ReactNode;
+    defaultNS: 'translation';
+    returnNull: false;
+  }
+}
+
+// Override ReactI18NextChildren to fix type incompatibility with Radix UI components
+declare module 'react-i18next/TransWithoutContext' {
+  export type ReactI18NextChildren = React.ReactNode;
+}
+
+declare global {
+  namespace React {
+    // Extend to ensure compatibility
+    type ReactI18NextChildren = React.ReactNode;
   }
 }

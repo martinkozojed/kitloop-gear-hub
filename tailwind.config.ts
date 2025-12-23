@@ -21,20 +21,43 @@ export default {
 			}
 		},
 		extend: {
-                        colors: {
-                                background: '#FAF9F6',
-                                text: '#1F1F1F',
-                                primary: '#2E7D32',
-                                primaryDark: '#27632A',
-                                white: '#FFFFFF',
-                                kitloop: {
-                                        accent: '#2E7D32',
-                                        'accent-hover': '#27632A',
-                                        background: '#FAF9F6',
-                                        text: '#1F1F1F'
-                                }
-                       },
-                       borderRadius: {
+			colors: {
+				background: 'hsl(var(--background))',
+				foreground: 'hsl(var(--foreground))',
+				primary: {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
+				},
+				semantic: {
+					brand: {
+						50: 'hsl(var(--semantic-brand-50))',
+						500: 'hsl(var(--semantic-brand-500))',
+						900: 'hsl(var(--semantic-brand-900))',
+					},
+					success: {
+						50: 'hsl(var(--semantic-success-50))',
+						500: 'hsl(var(--semantic-success-500))',
+						text: 'hsl(var(--semantic-success-text))',
+					},
+					warning: {
+						50: 'hsl(var(--semantic-warning-50))',
+						500: 'hsl(var(--semantic-warning-500))',
+						text: 'hsl(var(--semantic-warning-text))',
+					},
+					danger: {
+						50: 'hsl(var(--semantic-danger-50))',
+						500: 'hsl(var(--semantic-danger-500))',
+						text: 'hsl(var(--semantic-danger-text))',
+					}
+				},
+				kitloop: {
+					accent: '#2E7D32',
+					'accent-hover': '#27632A',
+					background: '#FAF9F6',
+					text: '#1F1F1F'
+				}
+			},
+			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
@@ -83,11 +106,11 @@ export default {
 				'fade-in': 'fade-in 0.4s ease-out',
 				'fade-out': 'fade-out 0.4s ease-out'
 			},
-                        fontFamily: {
-                                sans: ["Inter", ...fontFamily.sans],
-                                heading: ["Poppins", "sans-serif"],
-                        }
-               }
-       },
-       plugins: [tailwindcssAnimate],
+			fontFamily: {
+				sans: ["Inter", ...fontFamily.sans],
+				heading: ["Poppins", "sans-serif"],
+			}
+		}
+	},
+	plugins: [tailwindcssAnimate],
 } satisfies Config;
