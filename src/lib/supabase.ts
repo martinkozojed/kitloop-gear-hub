@@ -22,11 +22,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Database types for type safety
-export type UserRole = 'customer' | 'provider' | 'admin';
+export type UserRole = 'customer' | 'provider' | 'admin' | 'operator' | 'manager';
 
 export interface Profile {
   user_id: string;
   role: UserRole;
+  is_admin?: boolean;
+  is_verified?: boolean;
   created_at: string;
   updated_at?: string;
 }

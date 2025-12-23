@@ -26,23 +26,15 @@ import {
 } from "@/components/ui/command"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
+import { useCommand } from "@/context/CommandContext"
 
 export function CommandMenu() {
-    const [open, setOpen] = React.useState(false)
+    const { open, setOpen } = useCommand()
     const navigate = useNavigate()
-    const { logout, user } = useAuth()
+    const { logout } = useAuth()
 
-    React.useEffect(() => {
-        const down = (e: KeyboardEvent) => {
-            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault()
-                setOpen((open) => !open)
-            }
-        }
+    // Keyboard listener moved to context
 
-        document.addEventListener("keydown", down)
-        return () => document.removeEventListener("keydown", down)
-    }, [])
 
     const runCommand = React.useCallback((command: () => unknown) => {
         setOpen(false)

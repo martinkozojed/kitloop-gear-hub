@@ -17,6 +17,8 @@ const buttonVariants = cva(
           "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/70",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive",
+        secondary:
+          "bg-emerald-100 text-emerald-900 hover:bg-emerald-200/80 border border-transparent",
         primarySolid:
           "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 hover:shadow-md active:bg-emerald-800 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:bg-emerald-400 disabled:text-white/80 disabled:cursor-not-allowed dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:active:bg-emerald-700",
       },
@@ -37,7 +39,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 

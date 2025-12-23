@@ -113,7 +113,8 @@ const ProviderSetup = () => {
     try {
       const providerData = {
         user_id: user.id,
-        rental_name: formData.rental_name,
+        rental_name: formData.rental_name, // explicitly set rental_name
+        name: formData.rental_name, // map to name column
         contact_name: formData.contact_name,
         email: formData.email,
         phone: formData.phone,
@@ -128,7 +129,6 @@ const ProviderSetup = () => {
         seasonal_mode: formData.seasonal_mode,
         onboarding_completed: true,
         onboarding_step: 4,
-        status: 'pending',
         verified: false,
         current_season: 'all-year',
       };

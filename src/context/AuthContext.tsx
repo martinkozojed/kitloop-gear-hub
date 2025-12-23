@@ -17,6 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isProvider: boolean;
   isAdmin: boolean;
+  isVerified: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, role: UserRole) => Promise<void>;
@@ -31,11 +32,12 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isProvider: false,
   isAdmin: false,
+  isVerified: false,
   loading: true,
-  login: async () => {},
-  signUp: async () => {},
-  logout: async () => {},
-  refreshProfile: async () => {},
+  login: async () => { },
+  signUp: async () => { },
+  logout: async () => { },
+  refreshProfile: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -130,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const profilePromise = supabase
         .from('profiles')
-        .select('*')
+        .select('*, is_admin, is_verified')
         .eq('user_id', userId)
         .single();
 
@@ -487,8 +489,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     profile,
     provider,
     isAuthenticated: !!user,
-    isProvider: profile?.role === 'provider',
-    isAdmin: profile?.role === 'admin',
+    isProvider: profile?.role === 'provider' || profile?.role === 'operator' || profile?.role === 'manager' || profile?.role === 'admin' || profile?.is_admin === true,
+    isAdmin: profile?.role === 'admin' || profile?.is_admin === true,
+    isVerified: profile?.is_verified === true,
     loading,
     login,
     signUp,

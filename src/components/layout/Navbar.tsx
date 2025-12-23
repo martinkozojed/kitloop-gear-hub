@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, Search } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {
   Drawer,
@@ -18,12 +18,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/context/AuthContext';
+import { useCommand } from "@/context/CommandContext";
 import { toast } from "sonner";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, profile, isAuthenticated, logout } = useAuth();
+  const { user, profile, isAuthenticated, logout, isAdmin, isProvider } = useAuth();
+  const { setOpen } = useCommand();
 
   const scrollToSection = (sectionId: string) => {
     if (window.location.pathname !== '/') {
@@ -49,7 +51,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 bg-white text-green-600 fixed top-0 left-0 right-0 z-50 shadow-sm">
+    <header className="py-4 px-6 md:px-10 glass fixed top-0 left-0 right-0 z-50 shadow-sm/50 transition-all duration-300">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* Logo */}
@@ -61,23 +63,39 @@ const Navbar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 hidden md:flex justify-center items-center gap-8 text-text">
-          <Link to="/how-it-works" className="hover:underline transition-colors duration-200">
-            {t('navbar.how_it_works')}
-          </Link>
-          {/* <Link to="/browse" className="hover:underline transition-colors duration-200">
-            {t('navbar.browse_gear')}
-          </Link> */}
-          <Link to="/about" className="hover:underline transition-colors duration-200">
-            {t('navbar.about_us')}
-          </Link>
-          <button
-            onClick={() => scrollToSection('faq')}
-            className="hover:underline transition-colors duration-200"
-          >
-            {t('navbar.faq')}
-          </button>
-        </nav>
+        {/* Navigation / Search */}
+        <div className="flex-1 hidden md:flex justify-center items-center px-4">
+          {isAuthenticated && profile?.role === 'provider' ? (
+            <div className="w-full max-w-md relative group">
+              <Button
+                variant="outline"
+                className="w-full justify-start text-muted-foreground bg-muted/50 hover:bg-white border-transparent hover:border-gray-200 transition-all"
+                onClick={() => setOpen(true)}
+              >
+                <Search className="mr-2 h-4 w-4" />
+                <span className="inline-flex">Search...</span>
+                <kbd className="pointer-events-none absolute right-2 top-2 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                  <span className="text-xs">⌘</span>K
+                </kbd>
+              </Button>
+            </div>
+          ) : (
+            <nav className="flex justify-center items-center gap-8 text-text">
+              <Link to="/how-it-works" className="hover:underline transition-colors duration-200">
+                {t('navbar.how_it_works')}
+              </Link>
+              <Link to="/about" className="hover:underline transition-colors duration-200">
+                {t('navbar.about_us')}
+              </Link>
+              <button
+                onClick={() => scrollToSection('faq')}
+                className="hover:underline transition-colors duration-200"
+              >
+                {t('navbar.faq')}
+              </button>
+            </nav>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="flex items-center gap-3">
@@ -96,16 +114,16 @@ const Navbar = () => {
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{user?.email}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      {profile?.role === 'provider' ? 'Provider' : profile?.role === 'admin' ? 'Admin' : 'Customer'}
+                      {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
-                {profile?.role === 'provider' && (
+                {(isProvider || isAdmin) && (
                   <DropdownMenuItem asChild>
                     <Link to="/provider/dashboard" className="cursor-pointer">
-                      Provider Dashboard
+                      {isAdmin ? 'Admin Dashboard' : 'Provider Dashboard'}
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -155,13 +173,15 @@ const Navbar = () => {
                   <div className="text-center py-2 border-b">
                     <p className="text-sm font-medium">{user?.email}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      {profile?.role === 'provider' ? 'Provider' : profile?.role === 'admin' ? 'Admin' : 'Customer'}
+                      {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
                     </p>
                   </div>
 
-                  {profile?.role === 'provider' && (
+                  {(isProvider || isAdmin) && (
                     <Button variant="outline" asChild className="w-full">
-                      <Link to="/provider/dashboard">Provider Dashboard</Link>
+                      <Link to="/provider/dashboard">
+                        {isAdmin ? 'Admin Dashboard' : 'Provider Dashboard'}
+                      </Link>
                     </Button>
                   )}
 

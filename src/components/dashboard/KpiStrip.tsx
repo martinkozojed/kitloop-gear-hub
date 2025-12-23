@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
 import { ArrowUpRight, ArrowDownRight, Activity, RotateCcw, Euro } from "lucide-react";
 
 interface KpiMetric {
@@ -9,9 +8,12 @@ interface KpiMetric {
     trendDir: 'up' | 'down' | 'neutral';
     icon: React.ElementType;
     color: string;
+    description?: string;
 }
 
 import { KpiData } from "@/types/dashboard";
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function KpiStrip({ data }: { data?: KpiData }) {
     const metrics: KpiMetric[] = [
@@ -21,7 +23,8 @@ export function KpiStrip({ data }: { data?: KpiData }) {
             trend: data?.activeTrend || "stable",
             trendDir: data?.activeTrendDir || "neutral",
             icon: Activity,
-            color: "text-blue-500"
+            color: "text-blue-500",
+            description: "Total items currently out with customers."
         },
         {
             label: "Returns Today",
@@ -29,7 +32,8 @@ export function KpiStrip({ data }: { data?: KpiData }) {
             trend: data?.returnsTrend || "pending",
             trendDir: data?.returnsTrendDir || "neutral",
             icon: RotateCcw,
-            color: "text-orange-500"
+            color: "text-orange-500",
+            description: "Items scheduled to be returned by 23:59 today."
         },
         {
             label: "Daily Revenue",
@@ -37,36 +41,47 @@ export function KpiStrip({ data }: { data?: KpiData }) {
             trend: data?.revenueTrend || "stable",
             trendDir: data?.revenueTrendDir || "neutral",
             icon: Euro,
-            color: "text-emerald-500"
+            color: "text-emerald-500",
+            description: "Estimated revenue from active daily rates."
         }
     ];
 
     return (
-        <div className="grid gap-4 md:grid-cols-3 mb-6">
-            {metrics.map((metric, i) => (
-                <Card key={i} className="p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
-                    <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">
-                            {metric.label}
-                        </p>
-                        <div className="flex items-baseline gap-2">
-                            <h2 className="text-2xl font-bold tracking-tight">
-                                {metric.value}
-                            </h2>
-                        </div>
-                        <div className={`flex items-center text-xs ${metric.trendDir === 'up' ? 'text-emerald-600' :
-                            metric.trendDir === 'down' ? 'text-red-500' : 'text-muted-foreground'
-                            }`}>
-                            {metric.trendDir === 'up' && <ArrowUpRight className="h-3 w-3 mr-1" />}
-                            {metric.trendDir === 'down' && <ArrowDownRight className="h-3 w-3 mr-1" />}
-                            {metric.trend}
-                        </div>
-                    </div>
-                    <div className={`p-3 rounded-full bg-muted/50 ${metric.color}`}>
-                        <metric.icon className="h-5 w-5" />
-                    </div>
-                </Card>
-            ))}
-        </div>
+        <TooltipProvider>
+            <div className="grid gap-4 md:grid-cols-3 mb-6">
+                {metrics.map((metric, i) => (
+                    <Tooltip key={i} delayDuration={200}>
+                        <TooltipTrigger asChild>
+                            <div className="bento-card p-6 flex flex-col justify-between group relative overflow-hidden h-[150px] cursor-help">
+                                <div className="flex justify-between items-start">
+                                    <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                                        {metric.label}
+                                    </span>
+                                    <div className={`p-2 rounded-lg bg-zinc-50 border border-zinc-100 group-hover:bg-white group-hover:scale-110 transition-all duration-300`}>
+                                        <metric.icon className={`h-5 w-5 ${metric.color}`} />
+                                    </div>
+                                </div>
+
+                                <div className="mt-auto flex items-baseline gap-3">
+                                    <h2 className="text-4xl font-semibold tracking-tighter text-foreground">
+                                        {metric.value}
+                                    </h2>
+                                    <div className={`flex items-center text-xs font-semibold ${metric.trendDir === 'up' ? 'text-emerald-600' :
+                                        metric.trendDir === 'down' ? 'text-red-600' : 'text-zinc-400'
+                                        }`}>
+                                        {metric.trendDir === 'up' && <ArrowUpRight className="h-3 w-3 mr-0.5" />}
+                                        {metric.trendDir === 'down' && <ArrowDownRight className="h-3 w-3 mr-0.5" />}
+                                        {metric.trend}
+                                    </div>
+                                </div>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start" className="text-xs max-w-[200px]">
+                            {metric.description}
+                        </TooltipContent>
+                    </Tooltip>
+                ))}
+            </div>
+        </TooltipProvider>
     );
 }

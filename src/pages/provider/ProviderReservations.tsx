@@ -64,6 +64,7 @@ const ProviderReservations = () => {
   const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch reservations
   useEffect(() => {
@@ -319,58 +320,72 @@ const ProviderReservations = () => {
               Spravujte rezervace vašeho vybavení
             </p>
           </div>
-          <Button asChild className="w-full sm:w-auto">
-            <Link to="/provider/reservations/new">
-              <Plus className="w-4 h-4 mr-2" />
-              Nová rezervace
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant={showFilters ? "secondary" : "outline"}
+              onClick={() => setShowFilters(!showFilters)}
+              className="relative"
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filtry
+              {(searchQuery || statusFilter !== 'all') && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-white" />
+              )}
+            </Button>
+            <Button asChild className="w-full sm:w-auto">
+              <Link to="/provider/reservations/new">
+                <Plus className="w-4 h-4 mr-2" />
+                Nová rezervace
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Hledat zákazníka nebo vybavení..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+        {showFilters && (
+          <Card className="animate-in slide-in-from-top-2 duration-200">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Hledat zákazníka nebo vybavení..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-              {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4" />
-                    <SelectValue placeholder="Všechny stavy" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Všechny stavy</SelectItem>
-                  <SelectItem value="hold">Blokováno</SelectItem>
-                  <SelectItem value="pending">Čeká</SelectItem>
-                  <SelectItem value="confirmed">Potvrzeno</SelectItem>
-                  <SelectItem value="active">Aktivní</SelectItem>
-                  <SelectItem value="completed">Dokončeno</SelectItem>
-                  <SelectItem value="cancelled">Zrušeno</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+                {/* Status Filter */}
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <div className="flex items-center gap-2">
+                      <Filter className="w-4 h-4" />
+                      <SelectValue placeholder="Všechny stavy" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Všechny stavy</SelectItem>
+                    <SelectItem value="hold">Blokováno</SelectItem>
+                    <SelectItem value="pending">Čeká</SelectItem>
+                    <SelectItem value="confirmed">Potvrzeno</SelectItem>
+                    <SelectItem value="active">Aktivní</SelectItem>
+                    <SelectItem value="completed">Dokončeno</SelectItem>
+                    <SelectItem value="cancelled">Zrušeno</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Results Count */}
         <div className="text-sm text-muted-foreground">
           {filteredReservations.length === 0 ? (
             'Žádné rezervace'
           ) : (
-            `Zobrazeno: ${filteredReservations.length} ${
-              filteredReservations.length === 1 ? 'rezervace' : 'rezervací'
+            `Zobrazeno: ${filteredReservations.length} ${filteredReservations.length === 1 ? 'rezervace' : 'rezervací'
             }`
           )}
         </div>
@@ -870,9 +885,9 @@ const ProviderReservations = () => {
                       <strong>Termín:</strong>{' '}
                       {reservationToCancel.start_date && reservationToCancel.end_date
                         ? formatDateRange(
-                            new Date(reservationToCancel.start_date),
-                            new Date(reservationToCancel.end_date)
-                          )
+                          new Date(reservationToCancel.start_date),
+                          new Date(reservationToCancel.end_date)
+                        )
                         : 'N/A'}
                     </span>
                   </div>

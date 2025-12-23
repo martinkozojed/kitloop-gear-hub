@@ -43,6 +43,7 @@ const ProviderInventory = () => {
   const [selectedCondition, setSelectedCondition] = useState('all');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -299,120 +300,133 @@ const ProviderInventory = () => {
                 {t('provider.inventory.buttons.add')}
               </Link>
             </Button>
+            <Button
+              variant={showFilters ? "secondary" : "outline"}
+              onClick={() => setShowFilters(!showFilters)}
+              className="relative"
+            >
+              <FilterX className="w-4 h-4 mr-2" />
+              {t('provider.inventory.buttons.filter', 'Filter')}
+              {hasActiveFilters && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-white" />
+              )}
+            </Button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <div className="relative md:col-span-2">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder={t('provider.inventory.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        {showFilters && (
+          <div className="space-y-3 bg-muted/30 p-4 rounded-lg animate-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div className="relative md:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder={t('provider.inventory.searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('provider.inventory.filters.categories')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('provider.inventory.filters.categories')}</SelectItem>
+                  {GEAR_CATEGORIES.map(cat => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('provider.inventory.filters.status')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('provider.inventory.filters.status')}</SelectItem>
+                  {ITEM_STATES.map(state => (
+                    <SelectItem key={state.value} value={state.value}>
+                      {statusLabelMap[state.value as keyof typeof statusLabelMap] || state.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('provider.inventory.filters.condition')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('provider.inventory.filters.condition')}</SelectItem>
+                  {CONDITIONS.map(cond => (
+                    <SelectItem key={cond.value} value={cond.value}>
+                      {cond.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="md:col-start-4"
                 >
-                  <X className="w-4 h-4" />
-                </button>
+                  <FilterX className="w-4 h-4 mr-2" />
+                  {t('provider.inventory.filters.clear')}
+                </Button>
               )}
             </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder={t('provider.inventory.filters.categories')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('provider.inventory.filters.categories')}</SelectItem>
-                {GEAR_CATEGORIES.map(cat => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder={t('provider.inventory.filters.status')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('provider.inventory.filters.status')}</SelectItem>
-                {ITEM_STATES.map(state => (
-                  <SelectItem key={state.value} value={state.value}>
-                    {statusLabelMap[state.value as keyof typeof statusLabelMap] || state.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-              <SelectTrigger>
-                <SelectValue placeholder={t('provider.inventory.filters.condition')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('provider.inventory.filters.condition')}</SelectItem>
-                {CONDITIONS.map(cond => (
-                  <SelectItem key={cond.value} value={cond.value}>
-                    {cond.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
             {hasActiveFilters && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearFilters}
-                className="md:col-start-4"
-              >
-                <FilterX className="w-4 h-4 mr-2" />
-                {t('provider.inventory.filters.clear')}
-              </Button>
+              <div className="flex gap-2 flex-wrap">
+                {debouncedSearch && (
+                  <Badge variant="secondary" className="gap-1">
+                    {t('provider.inventory.filters.badge', { value: debouncedSearch })}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery('')} />
+                  </Badge>
+                )}
+                {selectedCategory !== 'all' && (
+                  <Badge variant="secondary" className="gap-1">
+                    {t('provider.inventory.filters.categoryBadge', {
+                      value: GEAR_CATEGORIES.find(c => c.value === selectedCategory)?.label || selectedCategory
+                    })}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory('all')} />
+                  </Badge>
+                )}
+                {selectedStatus !== 'all' && (
+                  <Badge variant="secondary" className="gap-1">
+                    {t('provider.inventory.filters.statusBadge', {
+                      value: statusLabelMap[selectedStatus as keyof typeof statusLabelMap] || selectedStatus
+                    })}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedStatus('all')} />
+                  </Badge>
+                )}
+                {selectedCondition !== 'all' && (
+                  <Badge variant="secondary" className="gap-1">
+                    {t('provider.inventory.filters.conditionBadge', {
+                      value: CONDITIONS.find(c => c.value === selectedCondition)?.label || selectedCondition
+                    })}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCondition('all')} />
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
-
-          {hasActiveFilters && (
-            <div className="flex gap-2 flex-wrap">
-              {debouncedSearch && (
-                <Badge variant="secondary" className="gap-1">
-                  {t('provider.inventory.filters.badge', { value: debouncedSearch })}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery('')} />
-                </Badge>
-              )}
-              {selectedCategory !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
-                  {t('provider.inventory.filters.categoryBadge', {
-                    value: GEAR_CATEGORIES.find(c => c.value === selectedCategory)?.label || selectedCategory
-                  })}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory('all')} />
-                </Badge>
-              )}
-              {selectedStatus !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
-                  {t('provider.inventory.filters.statusBadge', {
-                    value: statusLabelMap[selectedStatus as keyof typeof statusLabelMap] || selectedStatus
-                  })}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedStatus('all')} />
-                </Badge>
-              )}
-              {selectedCondition !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
-                  {t('provider.inventory.filters.conditionBadge', {
-                    value: CONDITIONS.find(c => c.value === selectedCondition)?.label || selectedCondition
-                  })}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCondition('all')} />
-                </Badge>
-              )}
-            </div>
-          )}
-        </div>
+        )}
 
         {/* Desktop: Table */}
         <div className="hidden md:block border rounded-lg overflow-hidden">
@@ -634,7 +648,7 @@ const ProviderInventory = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </ProviderLayout>
+    </ProviderLayout >
   );
 };
 

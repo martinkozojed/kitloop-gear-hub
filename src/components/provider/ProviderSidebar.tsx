@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from "@/components/ui/button";
 import {
   Home,
@@ -12,7 +13,8 @@ import {
   List,
   CalendarDays,
   Search,
-  ChevronDown
+  ChevronDown,
+  ShieldAlert
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DENSITY } from '@/components/ui/density';
@@ -21,6 +23,7 @@ import { DENSITY } from '@/components/ui/density';
 const ProviderSidebar = () => {
   const location = useLocation();
   const { t } = useTranslation();
+  const { isAdmin } = useAuth();
 
   // Use Desktop Density by default for Sidebar
   const d = DENSITY.desktop;
@@ -49,6 +52,16 @@ const ProviderSidebar = () => {
       ]
     }
   ];
+
+  if (isAdmin) {
+    navGroups.push({
+      title: 'Admin',
+      items: [
+        { path: '/admin/approvals', label: 'Approvals', icon: ShieldAlert }
+      ]
+    });
+  }
+
 
   return (
     <div className="flex h-full flex-col bg-muted/30 border-r border-border">

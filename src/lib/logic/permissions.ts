@@ -6,6 +6,7 @@ export type Action = 'create' | 'read' | 'update' | 'delete' | 'override';
 interface UserContext {
     role: UserRole;
     id: string;
+    is_verified?: boolean;
 }
 
 /**
@@ -19,6 +20,11 @@ export const can = (
 ): boolean => {
     if (!user) return false;
     if (user.role === 'admin') return true;
+
+    // Gatekeeper: Unverified users cannot create or update anything
+    if (user.is_verified === false && (action === 'create' || action === 'update')) {
+        return false;
+    }
 
     // Manager Rules
     if (user.role === 'manager') {

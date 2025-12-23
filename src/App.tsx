@@ -28,15 +28,17 @@ import InventoryImport from "./pages/provider/InventoryImport";
 import ProviderReservations from "./pages/provider/ProviderReservations";
 import ReservationForm from "./pages/provider/ReservationForm";
 import ProviderVerify from "./pages/provider/ProviderVerify";
-import AdminApprovals from "./pages/AdminApprovals";
+import AdminApprovals from "./pages/admin/AdminApprovals";
 import { cn } from "./lib/utils";
 import ProviderAnalytics from "./pages/provider/ProviderAnalytics";
 import ProviderCalendar from "./pages/provider/ProviderCalendar";
 import ProviderCustomers from "./pages/provider/ProviderCustomers";
+import DemoDashboard from "./pages/DemoDashboard";
 
 import { CommandMenu } from "./components/ui/command-menu";
 import { useNavigate } from "react-router-dom";
 import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
+import { CommandProvider } from "./context/CommandContext";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const AppRoutes = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
+
+  const isDemoRoute = location.pathname.startsWith("/demo");
 
   // Global Shortcut: 'c' -> New Reservation
   useKeyboardShortcut(
@@ -54,16 +58,18 @@ const AppRoutes = () => {
 
   return (
     <>
-      <Navbar />
-      <CommandMenu />
+      {!isDemoRoute && <Navbar />}
+      {!isDemoRoute && <CommandMenu />}
       <main
         className={cn(
-          "min-h-screen pt-16",
+          "min-h-screen",
+          !isDemoRoute && "pt-16",
           isProviderRoute && "bg-[#F6FAF4]"
         )}
       >
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/demo/dashboard" element={<DemoDashboard />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/browse" element={<BrowseGear />} />
           <Route path="/add-rental" element={<AddRental />} />
@@ -185,13 +191,15 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <CommandProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </CommandProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

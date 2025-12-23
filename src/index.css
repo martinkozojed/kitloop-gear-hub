@@ -6,97 +6,106 @@
 @tailwind utilities;
 
 @layer base {
+
+  /* --- PROFESSIONAL SAAS THEME (Linear/Bento Style) --- */
   :root {
-    --background: 45 20% 98%;
-    /* Slightly cooler/brighter than before for crispness */
-    --foreground: 0 0% 10%;
+    --background: 210 20% 98%;
+    /* Cool Gray/Zinc 50 - Distinct from white */
+    --surface: 0 0% 100%;
+    /* Pure White */
+    --foreground: 220 15% 15%;
+    /* High stiffness text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 200 80% 8%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 220 10% 45%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 200 80% 8%;
+    --border: 220 13% 91%;
+    /* Subtle but visible border */
+    --input: 220 13% 91%;
+    --ring: 142 76% 36%;
 
-    --primary: 173 80% 40%;
-    /* Using Semantic Teal 500 as Primary */
+    --radius: 0.75rem;
+    /* 12px for modern feel */
+
+    /* Brand Colors - Outdoor Emerald */
+    --primary: 142 76% 36%;
+    /* Emerald 600 - Perfect for Outdoor/Nature */
     --primary-foreground: 0 0% 100%;
-
-
-    --muted: 60 5% 94%;
-    /* Neutral gray-ish, distinct from warm background */
-    --muted-foreground: 200 10% 45%;
-
+    /* Pure White */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 200 20% 88%;
-    --input: 200 20% 88%;
-    --ring: 123 46% 34%;
-
-    --radius: 0.5rem;
-
-    /* Strict Semantics - Brand (Teal) */
-    --semantic-brand-50: 236 72% 96%;
-    --semantic-brand-500: 173 80% 40%;
-    /* Primary Teal */
-    --semantic-brand-900: 168 88% 12%;
-
-    /* Strict Semantics - Success (Green) */
-    --semantic-success-50: 138 76% 97%;
-    --semantic-success-500: 142 76% 36%;
-    --semantic-success-text: 142 76% 24%;
-
-    /* Strict Semantics - Warning/Pending (Orange) */
-    --semantic-warning-50: 34 100% 96%;
-    --semantic-warning-500: 24 94% 50%;
-    --semantic-warning-text: 32 86% 28%;
-
-    /* Strict Semantics - Danger/Error (Red) */
-    --semantic-danger-50: 0 86% 97%;
-    --semantic-danger-500: 347 77% 50%;
-    --semantic-danger-text: 350 89% 30%;
   }
-
 
   body {
-    @apply bg-kitloop-background text-kitloop-text overflow-x-hidden;
-    font-family: 'Inter', sans-serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    @apply antialiased overflow-x-hidden;
+    font-family: 'Inter', system-ui, sans-serif;
+    /* Subtle dot pattern */
+    background-image: radial-gradient(hsl(220 13% 91%) 1px, transparent 1px);
+    background-size: 32px 32px;
   }
 
-  h1 {
-    @apply font-heading text-4xl font-bold;
-  }
-
-  h2 {
-    @apply font-heading text-3xl font-semibold;
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply tracking-tight text-foreground font-semibold;
+    font-family: 'Poppins', sans-serif;
   }
 
   p {
     @apply text-base leading-relaxed;
+    color: hsl(var(--muted-foreground));
   }
 
-  /* Custom utility classes */
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* --- BENTO CARD UTILITIES --- */
+  .bento-card {
+    background-color: hsl(var(--surface));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.02),
+      0 4px 8px rgba(0, 0, 0, 0.02);
+    @apply transition-all duration-200;
   }
 
-  .hover-lift {
-    @apply transition-transform duration-300 hover:-translate-y-1;
+  .bento-card:hover {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transform: translateY(-1px);
+    border-color: hsl(var(--primary) / 0.2);
+  }
+
+  /* --- MAPPINGS FOR COMPATIBILITY --- */
+  .glass {
+    @apply bg-white shadow-sm;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .glass-card {
+    @apply bento-card;
+  }
+
+  .text-kitloop-text {
+    @apply text-foreground;
+  }
+
+  .bg-kitloop-background {
+    @apply bg-background;
   }
 }
 
-/* Animation classes */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease forwards;
+/* Animations */
+.animate-enter {
+  animation: enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(8px);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
+@keyframes enter {
   to {
     opacity: 1;
     transform: translateY(0);

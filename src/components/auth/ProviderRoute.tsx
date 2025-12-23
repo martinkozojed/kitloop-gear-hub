@@ -8,7 +8,7 @@ interface ProviderRouteProps {
 }
 
 const ProviderRoute = ({ children }: ProviderRouteProps) => {
-  const { user, profile, provider, loading } = useAuth();
+  const { user, profile, provider, loading, isProvider, isAdmin } = useAuth();
 
   // Show loading while checking auth
   if (loading) {
@@ -28,20 +28,21 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Not a provider - redirect to home
-  if (profile?.role !== 'provider') {
-    console.log('🚫 ProviderRoute: User is not a provider, redirecting to home');
+  // Not a provider/admin - redirect to home
+  // We use the robust isProvider check from context which includes operators, managers, and admins
+  if (!isProvider && !isAdmin) {
+    console.log('🚫 ProviderRoute: User is not a provider or admin, redirecting to home');
     return <Navigate to="/" replace />;
   }
 
   // Missing provider profile - finish onboarding
-  if (!provider) {
+  if (!provider && !isAdmin) {
     console.log('🚧 ProviderRoute: No provider record, redirecting to setup');
     return <Navigate to="/provider/setup" replace />;
   }
 
-  // Check approval status
-  if (provider.status !== 'approved') {
+  // Check approval status (only if provider exists - admins bypass this if they don't have a provider profile)
+  if (provider && provider.status !== 'approved') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
