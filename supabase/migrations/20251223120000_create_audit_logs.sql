@@ -16,13 +16,13 @@ CREATE POLICY "Providers can view own audit logs"
     ON public.audit_logs
     FOR SELECT
     USING (provider_id IN (
-        SELECT id FROM public.providers WHERE owner_id = auth.uid()
-    ));
+        SELECT provider_id FROM public.user_provider_memberships WHERE user_id = auth.uid()
+    ));;
 
 -- Allow providers to insert logs (e.g. via backend functions or direct if needed)
 CREATE POLICY "Providers can insert audit logs"
     ON public.audit_logs
     FOR INSERT
     WITH CHECK (provider_id IN (
-        SELECT id FROM public.providers WHERE owner_id = auth.uid()
+        SELECT provider_id FROM public.user_provider_memberships WHERE user_id = auth.uid()
     ));
