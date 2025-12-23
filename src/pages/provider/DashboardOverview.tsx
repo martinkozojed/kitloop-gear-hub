@@ -538,7 +538,7 @@ const DashboardOverview = () => {
 
                       <div className="mt-3 flex gap-2 justify-end">
                         {alert.type === 'approval' && (
-                          <Button size="sm" variant="default" onClick={() => handleApprove(alert.id)}>Schválit</Button>
+                          <Button size="sm" variant="primary" onClick={() => handleApprove(alert.id)}>Schválit</Button>
                         )}
                         <Button size="sm" variant="ghost" asChild>
                           <Link to={`/provider/reservations?id=${alert.id}`}>Detail <ArrowRight className="w-3 h-3 ml-1" /></Link>

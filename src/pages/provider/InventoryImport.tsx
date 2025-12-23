@@ -118,7 +118,7 @@ const InventoryImport = () => {
         setParsedData(results.data);
         validateData(results.data);
       },
-      error: (error: ParseError) => {
+      error: (error: Error) => {
         console.error('❌ CSV parse error:', error);
         const message = getErrorMessage(error);
 

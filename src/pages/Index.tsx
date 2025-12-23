@@ -95,7 +95,7 @@ const Index = () => {
                 <div className="container px-4 md:px-6 mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to modernize your rental business?</h2>
                     <p className="text-xl text-green-100 mb-10 max-w-2xl mx-auto">Join the growing network of rental providers using Kitloop to save time and increase revenue.</p>
-                    <Button size="lg" variant="secondary" className="h-14 px-10 text-lg text-green-900" asChild>
+                    <Button size="lg" variant="outline" className="h-14 px-10 text-lg text-green-900 bg-white hover:bg-green-50" asChild>
                         <Link to="/signup">Get Started for Free</Link>
                     </Button>
                 </div>

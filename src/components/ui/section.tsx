@@ -1,8 +1,12 @@
 import { cn } from "@/lib/utils";
 import { HTMLAttributes } from "react";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-export default function Section({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+type SectionProps = Omit<HTMLMotionProps<"section">, "ref"> & {
+  className?: string;
+};
+
+export default function Section({ className, ...props }: SectionProps) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 30 }}

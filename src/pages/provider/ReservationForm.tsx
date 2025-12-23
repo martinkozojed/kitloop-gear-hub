@@ -339,7 +339,7 @@ const ReservationForm = () => {
   };
 
   // Handle input changes
-  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error for this field
     if (errors[field as keyof FormErrors]) {
@@ -512,7 +512,7 @@ const ReservationForm = () => {
                   <div className="flex items-center gap-4">
                     <Select
                       value={formData.quantity.toString()}
-                      onValueChange={(value) => handleInputChange('quantity', parseInt(value))}
+                      onValueChange={(value) => handleInputChange('quantity', parseInt(value, 10))}
                     >
                       <SelectTrigger className="w-32">
                         <SelectValue />
