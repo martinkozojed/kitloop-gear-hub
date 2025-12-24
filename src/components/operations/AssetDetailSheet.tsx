@@ -4,8 +4,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Wrench, History, Info, Save } from 'lucide-react';
+import { Loader2, Wrench, History, Info, Save, Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { InventoryAsset } from './InventoryGrid';
 import { Separator } from '@/components/ui/separator';
@@ -16,6 +17,7 @@ interface AssetDetailSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onUpdate?: () => void;
+    onEditProduct?: (productId: string) => void;
 }
 
 interface MaintenanceRecord {
@@ -34,11 +36,16 @@ interface EventRecord {
     new_status: string | null;
 }
 
-export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate }: AssetDetailSheetProps) {
+export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEditProduct }: AssetDetailSheetProps) {
     const [asset, setAsset] = useState<InventoryAsset | null>(null);
     const [history, setHistory] = useState<EventRecord[]>([]);
     const [maintenance, setMaintenance] = useState<MaintenanceRecord[]>([]);
     const [loading, setLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+
+    // Edit State
+    const [editLocation, setEditLocation] = useState('');
+    const [editCondition, setEditCondition] = useState('');
 
     useEffect(() => {
         if (assetId && open) {
@@ -54,7 +61,8 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate }: Asse
                 .from('assets')
                 .select(`
           id, asset_tag, status, condition_score, location,
-          product_variants ( name, sku, products ( name, image_url, category ) )
+          id, asset_tag, status, condition_score, location,
+          product_variants ( name, sku, product_id, products ( name, image_url, category ) )
         `)
                 .eq('id', id)
                 .single();
@@ -70,13 +78,18 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate }: Asse
                 status: row.status,
                 condition_score: row.condition_score,
                 location: row.location,
-                variant: { name: row.product_variants.name, sku: row.product_variants.sku },
+                variant: { name: row.product_variants.name, sku: row.product_variants.sku, product_id: row.product_variants.product_id },
                 product: {
                     name: row.product_variants.products.name,
                     image_url: row.product_variants.products.image_url,
                     category: row.product_variants.products.category
                 }
             });
+
+            // Init Edit State
+            setEditLocation(row.location || '');
+            setEditCondition(row.condition_score?.toString() || '');
+            setIsEditing(false);
 
             // 2. Fetch History (Mocked somewhat if data checks fail, but let's try real)
             const { data: hData } = await supabase
@@ -102,6 +115,27 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate }: Asse
         }
     };
 
+    const handleSaveAsset = async () => {
+        if (!assetId) return;
+        setLoading(true);
+        try {
+            const { error } = await supabase.from('assets').update({
+                location: editLocation,
+                condition_score: parseInt(editCondition) || null
+            }).eq('id', assetId);
+
+            if (error) throw error;
+            toast.success('Asset updated');
+            setIsEditing(false);
+            fetchDetails(assetId);
+            if (onUpdate) onUpdate(); // Refresh parent grid
+        } catch (err: any) {
+            toast.error('Update failed', { description: err.message });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (!assetId) return null;
 
     return (
@@ -113,18 +147,36 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate }: Asse
                             <img src={asset.product.image_url} className="w-16 h-16 rounded object-cover border" />
                         )}
                         <div>
-                            <SheetTitle className="text-xl">{asset?.product.name || 'Loading...'}</SheetTitle>
+                            <SheetTitle className="text-xl flex items-center gap-2">
+                                {asset?.product.name || 'Loading...'}
+                                {onEditProduct && (
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => (asset as any)?.variant?.product_id && onEditProduct((asset as any).variant.product_id)}>
+                                        <Edit className="w-4 h-4 text-muted-foreground" />
+                                    </Button>
+                                )}
+                            </SheetTitle>
                             <SheetDescription>
-                                Tag: <span className="font-mono text-foreground font-medium">{asset?.asset_tag}</span> • Limitless potential
+                                Tag: <span className="font-mono text-foreground font-medium">{asset?.asset_tag}</span>
                             </SheetDescription>
                         </div>
                     </div>
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2 mt-2 items-center">
                         <Badge variant="outline">{asset?.variant.name}</Badge>
                         <Badge className={asset?.status === 'available' ? 'bg-green-600' : 'bg-gray-600'}>
                             {asset?.status}
                         </Badge>
                         <Badge variant="secondary">Health: {asset?.condition_score}%</Badge>
+                        <div className="flex-1" />
+                        {!isEditing ? (
+                            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                                Edit Details
+                            </Button>
+                        ) : (
+                            <div className="flex gap-2">
+                                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancel</Button>
+                                <Button size="sm" onClick={handleSaveAsset}>Save</Button>
+                            </div>
+                        )}
                     </div>
                 </SheetHeader>
 
@@ -141,19 +193,31 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate }: Asse
 
                             <TabsContent value="details" className="space-y-4 pt-4">
                                 <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
+                                    <div className="space-y-1">
                                         <label className="text-muted-foreground">Location</label>
-                                        <div className="font-medium">{asset?.location || 'Unassigned'}</div>
+                                        {isEditing ? (
+                                            <Input value={editLocation} onChange={e => setEditLocation(e.target.value)} className="h-8" />
+                                        ) : (
+                                            <div className="font-medium">{asset?.location || 'Unassigned'}</div>
+                                        )}
                                     </div>
-                                    <div>
+                                    <div className="space-y-1">
                                         <label className="text-muted-foreground">Category</label>
                                         <div className="font-medium capitalize">{asset?.product.category}</div>
                                     </div>
-                                    <div>
+                                    <div className="space-y-1">
                                         <label className="text-muted-foreground">SKU (Variant)</label>
                                         <div className="font-medium font-mono">{asset?.variant.sku || '—'}</div>
                                     </div>
-                                    <div>
+                                    <div className="space-y-1">
+                                        <label className="text-muted-foreground">Condition Score</label>
+                                        {isEditing ? (
+                                            <Input type="number" value={editCondition} onChange={e => setEditCondition(e.target.value)} className="h-8 w-20" />
+                                        ) : (
+                                            <div className="font-medium">{asset?.condition_score ? `${asset.condition_score}%` : 'N/A'}</div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1">
                                         <label className="text-muted-foreground">System ID</label>
                                         <div className="font-mono text-xs text-muted-foreground truncate" title={asset?.id}>{asset?.id}</div>
                                     </div>
@@ -227,3 +291,4 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate }: Asse
         </Sheet>
     );
 }
+

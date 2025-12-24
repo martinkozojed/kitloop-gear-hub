@@ -17,6 +17,13 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { format, addDays, differenceInCalendarDays } from "date-fns";
 import { Calendar as CalendarIcon, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,7 +42,12 @@ import PaymentForm from "./PaymentForm";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Initialize Stripe outside of component
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ""); // Ensure env var exists or provide fallback if acceptable (though likely fail)
+// Initialize Stripe outside of component
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+if (!stripeKey) {
+    console.error("Missing VITE_STRIPE_PUBLISHABLE_KEY");
+}
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 interface ReservationModalProps {
     isOpen: boolean;
@@ -79,6 +91,27 @@ const ReservationModal = ({
         null
     );
     const [clientSecret, setClientSecret] = useState<string | null>(null);
+
+    // Inventory 2.0 Variants
+    const [variants, setVariants] = useState<{ id: string, name: string }[]>([]);
+    const [selectedVariantId, setSelectedVariantId] = useState<string>("");
+
+    useEffect(() => {
+        if (isOpen && gearItem.id) {
+            const fetchVariants = async () => {
+                const { data } = await supabase
+                    .from('product_variants')
+                    .select('id, name')
+                    .eq('product_id', gearItem.id);
+
+                if (data && data.length > 0) {
+                    setVariants(data);
+                    if (data.length === 1) setSelectedVariantId(data[0].id);
+                }
+            };
+            fetchVariants();
+        }
+    }, [isOpen, gearItem.id]);
 
     // Reset state on open
     useEffect(() => {
@@ -132,6 +165,11 @@ const ReservationModal = ({
             setError("Please provide your name and email.");
             return;
         }
+        // Inventory 2.0: Require Variant if variants exist
+        if (variants.length > 0 && !selectedVariantId) {
+            setError("Please select a size/variant.");
+            return;
+        }
 
         setLoading(true);
         setError(null);
@@ -140,11 +178,19 @@ const ReservationModal = ({
             const totalPrice = calculateTotal();
             const rentalDays = calculateDays();
 
+            // Prepare ID: Use Variant ID if available. 
+            // If No variants found (legacy item?), fall back to gearItem.id as 'gearId'.
+            const useVariant = variants.length > 0;
+            const targetVariantId = useVariant ? selectedVariantId : undefined;
+            const targetGearId = useVariant ? undefined : gearItem.id;
+
             const result = await createReservationHold({
                 providerId: gearItem.provider_id,
-                gearId: gearItem.id,
+                gearId: targetGearId,
+                productVariantId: targetVariantId,
                 startDate: dateRange.from,
                 endDate: dateRange.to,
+                // ... rest same ...
                 totalPrice: totalPrice,
                 depositPaid: false,
                 notes: notes,
@@ -244,6 +290,22 @@ const ReservationModal = ({
 
                 {step === "dates" && (
                     <div className="space-y-4 py-4">
+                        {variants.length > 0 && (
+                            <div className="space-y-2">
+                                <Label>Option / Size</Label>
+                                <Select value={selectedVariantId} onValueChange={setSelectedVariantId}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select variant" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {variants.map(v => (
+                                            <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
                         <div className="flex justify-center">
                             <Calendar
                                 mode="range"
@@ -265,7 +327,7 @@ const ReservationModal = ({
                         <Button
                             className="w-full"
                             onClick={() => setStep("details")}
-                            disabled={!dateRange.from || !dateRange.to}
+                            disabled={!dateRange.from || !dateRange.to || (variants.length > 0 && !selectedVariantId)}
                         >
                             Continue
                         </Button>
@@ -333,13 +395,19 @@ const ReservationModal = ({
                                 <span className="font-mono font-bold text-lg">{formatTime(timeLeft)}</span>
                             </div>
                         )}
-                        <Elements stripe={stripePromise} options={{ clientSecret }}>
-                            <PaymentForm
-                                onSuccess={handlePaymentSuccess}
-                                onError={handlePaymentError}
-                                totalPrice={calculateTotal()}
-                            />
-                        </Elements>
+                        {stripePromise ? (
+                            <Elements stripe={stripePromise} options={{ clientSecret }}>
+                                <PaymentForm
+                                    onSuccess={handlePaymentSuccess}
+                                    onError={handlePaymentError}
+                                    totalPrice={calculateTotal()}
+                                />
+                            </Elements>
+                        ) : (
+                            <div className="p-4 bg-red-50 text-red-800 rounded-md">
+                                Error: Payment system not configured (Missing Stripe Key).
+                            </div>
+                        )}
                         <Button
                             variant="ghost"
                             className="mt-2 w-full text-muted-foreground text-sm"

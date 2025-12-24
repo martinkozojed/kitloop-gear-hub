@@ -1,31 +1,26 @@
-export type ReservationStatus =
+// Status for UI pills in the dashboard
+export type DashboardStatus =
     | 'pending'
     | 'confirmed'
-    | 'active'
-    | 'checked_out'
-    | 'returned'
-    | 'completed'
+    | 'active'    // Was checked_out
+    | 'completed' // Was returned
     | 'cancelled'
-    | 'unpaid'
-    | 'conflict';
+    | 'expired';
 
 export interface DashboardReservation {
     id: string;
+    customer_name: string;
     start_date: string;
     end_date: string;
-    status: ReservationStatus;
-    customer_name: string;
-    customer_phone?: string;
-    payment_status: 'paid' | 'unpaid' | 'refunded';
-    gear?: {
-        name: string;
-    } | null;
+    status: DashboardStatus;
+    items: string[];
 }
 
 export interface KpiData {
     activeRentals: number;
     returnsToday: number;
     dailyRevenue: number;
+    // Trends for UI (optional)
     activeTrend?: string;
     activeTrendDir?: 'up' | 'down' | 'neutral';
     returnsTrend?: string;
@@ -39,9 +34,9 @@ export interface AgendaItemProps {
     type: 'pickup' | 'return';
     customerName: string;
     itemCount: number;
-    status: 'ready' | 'conflict' | 'unpaid' | 'active' | 'returned';
+    status: 'ready' | 'conflict' | 'unpaid' | 'active' | 'completed'; // UI state for the agenda row
     reservationId: string;
     startDate?: string;
     endDate?: string;
-    paymentStatus?: string;
+    paymentStatus?: 'paid' | 'unpaid' | 'deposit_paid';
 }

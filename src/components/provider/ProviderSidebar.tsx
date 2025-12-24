@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from "@/components/ui/button";
 import {
   Home,
@@ -14,7 +15,8 @@ import {
   CalendarDays,
   Search,
   ChevronDown,
-  ShieldAlert
+  ShieldAlert,
+  Wrench
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DENSITY } from '@/components/ui/density';
@@ -24,6 +26,7 @@ const ProviderSidebar = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { isAdmin } = useAuth();
+  const { canViewFinancials, canEditSettings } = usePermissions();
 
   // Use Desktop Density by default for Sidebar
   const d = DENSITY.desktop;
@@ -34,7 +37,8 @@ const ProviderSidebar = () => {
       items: [
         { path: '/provider/dashboard', label: 'provider.sidebar.nav.dashboard', icon: Home },
         { path: '/provider/calendar', label: 'Kalendář', icon: CalendarDays },
-        { path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 },
+        // Only show Analytics if permitted
+        ...(canViewFinancials ? [{ path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 }] : []),
       ]
     },
     {
@@ -42,13 +46,15 @@ const ProviderSidebar = () => {
       items: [
         { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: List },
         { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
+        { path: '/provider/maintenance', label: 'Servis', icon: Wrench },
         { path: '/provider/customers', label: 'Zákazníci (CRM)', icon: Users },
       ]
     },
     {
       title: 'System',
       items: [
-        { path: '/provider/settings', label: 'provider.sidebar.nav.settings', icon: Settings },
+        // Only show Settings if permitted
+        ...(canEditSettings ? [{ path: '/provider/settings', label: 'provider.sidebar.nav.settings', icon: Settings }] : []),
       ]
     }
   ];

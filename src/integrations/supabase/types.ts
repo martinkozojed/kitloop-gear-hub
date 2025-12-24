@@ -620,6 +620,7 @@ export type Database = {
           is_admin: boolean | null
           is_verified: boolean | null
           role: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -627,6 +628,7 @@ export type Database = {
           is_admin?: boolean | null
           is_verified?: boolean | null
           role?: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -634,6 +636,7 @@ export type Database = {
           is_admin?: boolean | null
           is_verified?: boolean | null
           role?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -734,6 +737,73 @@ export type Database = {
         }
         Relationships: []
       }
+      reservation_assignments: {
+        Row: {
+          asset_id: string
+          assigned_at: string | null
+          checked_in_by: string | null
+          checked_out_by: string | null
+          condition_in_score: number | null
+          condition_note: string | null
+          condition_out_score: number | null
+          created_at: string | null
+          id: string
+          reservation_id: string
+          returned_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          asset_id: string
+          assigned_at?: string | null
+          checked_in_by?: string | null
+          checked_out_by?: string | null
+          condition_in_score?: number | null
+          condition_note?: string | null
+          condition_out_score?: number | null
+          created_at?: string | null
+          id?: string
+          reservation_id: string
+          returned_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          asset_id?: string
+          assigned_at?: string | null
+          checked_in_by?: string | null
+          checked_out_by?: string | null
+          condition_in_score?: number | null
+          condition_note?: string | null
+          condition_out_score?: number | null
+          created_at?: string | null
+          id?: string
+          reservation_id?: string
+          returned_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_assignments_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_assignments_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_provider_activity_feed"
+            referencedColumns: ["reservation_id"]
+          },
+          {
+            foreignKeyName: "reservation_assignments_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reservations: {
         Row: {
           actual_pickup_time: string | null
@@ -751,7 +821,7 @@ export type Database = {
           deposit_paid: boolean | null
           end_date: string
           expires_at: string | null
-          gear_id: string
+          gear_id: string | null
           id: string
           idempotency_key: string | null
           notes: string | null
@@ -761,6 +831,7 @@ export type Database = {
           payment_status: string
           pickup_time: string | null
           pricing_snapshot: Json | null
+          product_variant_id: string | null
           provider_id: string
           quantity: number | null
           return_time: string | null
@@ -786,7 +857,7 @@ export type Database = {
           deposit_paid?: boolean | null
           end_date: string
           expires_at?: string | null
-          gear_id: string
+          gear_id?: string | null
           id?: string
           idempotency_key?: string | null
           notes?: string | null
@@ -796,6 +867,7 @@ export type Database = {
           payment_status?: string
           pickup_time?: string | null
           pricing_snapshot?: Json | null
+          product_variant_id?: string | null
           provider_id: string
           quantity?: number | null
           return_time?: string | null
@@ -821,7 +893,7 @@ export type Database = {
           deposit_paid?: boolean | null
           end_date?: string
           expires_at?: string | null
-          gear_id?: string
+          gear_id?: string | null
           id?: string
           idempotency_key?: string | null
           notes?: string | null
@@ -831,6 +903,7 @@ export type Database = {
           payment_status?: string
           pickup_time?: string | null
           pricing_snapshot?: Json | null
+          product_variant_id?: string | null
           provider_id?: string
           quantity?: number | null
           return_time?: string | null
@@ -860,6 +933,13 @@ export type Database = {
             columns: ["gear_id"]
             isOneToOne: false
             referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
           {
@@ -1159,6 +1239,11 @@ export type Database = {
             Returns: string
           }
       approve_provider: { Args: { target_user_id: string }; Returns: undefined }
+      check_is_admin: { Args: never; Returns: boolean }
+      check_variant_availability: {
+        Args: { p_end_date: string; p_start_date: string; p_variant_id: string }
+        Returns: boolean
+      }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
@@ -1372,7 +1457,7 @@ export type Database = {
           deposit_paid: boolean | null
           end_date: string
           expires_at: string | null
-          gear_id: string
+          gear_id: string | null
           id: string
           idempotency_key: string | null
           notes: string | null
@@ -1382,6 +1467,7 @@ export type Database = {
           payment_status: string
           pickup_time: string | null
           pricing_snapshot: Json | null
+          product_variant_id: string | null
           provider_id: string
           quantity: number | null
           return_time: string | null

@@ -46,6 +46,7 @@ export type InventoryAsset = {
     variant: {
         name: string;
         sku: string | null;
+        product_id?: string;
     };
 };
 
@@ -56,9 +57,10 @@ interface InventoryGridProps {
     onEdit: (asset: InventoryAsset) => void;
     onDelete: (ids: string[]) => void;
     onStatusChange: (ids: string[], status: string) => void;
+    canDelete?: boolean;
 }
 
-export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange }: InventoryGridProps) {
+export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange, canDelete = true }: InventoryGridProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -175,10 +177,14 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange 
                                 <DropdownMenuItem onClick={() => onStatusChange([asset.id], 'maintenance')}>
                                     Mark for Maintenance
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onDelete([asset.id])} className="text-red-600">
-                                    Delete
-                                </DropdownMenuItem>
+                                {canDelete && (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => onDelete([asset.id])} className="text-red-600">
+                                            Delete
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     );
@@ -228,9 +234,11 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange 
                         <div className="flex items-center gap-2 mr-4 bg-muted/50 p-1 rounded-md px-3 animate-in fade-in">
                             <span className="text-sm font-medium">{selectedIds.length} selected</span>
                             <div className="h-4 w-px bg-border mx-2" />
-                            <Button size="sm" variant="destructive" onClick={() => onDelete(selectedIds)}>
-                                Delete
-                            </Button>
+                            {canDelete && (
+                                <Button size="sm" variant="destructive" onClick={() => onDelete(selectedIds)}>
+                                    Delete
+                                </Button>
+                            )}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button size="sm" variant="outline">Set Status</Button>

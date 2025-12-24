@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { cs } from "date-fns/locale";
 import { Link } from 'react-router-dom';
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { usePermissions } from "@/hooks/usePermissions";
 import { SyncIndicator } from "@/components/ui/sync-indicator";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -22,6 +23,8 @@ import ProviderLayout from "@/components/provider/ProviderLayout";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
+  const { canViewFinancials } = usePermissions();
+
   // Use Custom Hook for Data & Mutations
   const {
     kpiData,
@@ -159,8 +162,8 @@ const DashboardOverview = () => {
             </div>
           </div>
 
-          {/* 2. KPI Strip (Hidden in Operations Mode) */}
-          {viewMode === 'overview' && (
+          {/* 2. KPI Strip (Hidden in Operations Mode or Restricted) */}
+          {viewMode === 'overview' && canViewFinancials && (
             <KpiStrip data={kpiData} />
           )}
 

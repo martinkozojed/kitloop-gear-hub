@@ -171,26 +171,42 @@ const BrowseGear = () => {
 
   useEffect(() => {
     const fetchGear = async () => {
+      // Inventory 2.0 Query: Fetch Products
+      // TODO: Filter only products that have at least one 'available' asset?
+      // For MVP, just show all products.
       const { data, error } = await supabase
-        .from("gear_items")
-        .select("*, gear_images(url, sort_order)")
-        .order("sort_order", { foreignTable: "gear_images", ascending: true });
+        .from("products")
+        .select(`
+          id,
+          name,
+          category,
+          description,
+          image_url,
+          base_price_cents,
+          provider_id,
+          product_variants (
+            id,
+            name
+          )
+        `);
 
-      if (error) console.error("Error fetching gear items:", error.message);
-      else {
-        const normalized = (data as GearItem[] | null)?.map((item) => {
-          const sortedImages = [...(item.gear_images ?? [])].sort((a, b) => {
-            const orderA = a.sort_order ?? Number.MAX_SAFE_INTEGER;
-            const orderB = b.sort_order ?? Number.MAX_SAFE_INTEGER;
-            return orderA - orderB;
-          });
-          return {
-            ...item,
-            gear_images: sortedImages,
-            display_image_url: item.image_url || sortedImages[0]?.url || null,
-          };
-        });
-        setGearList(normalized ?? []);
+      if (error) {
+        console.error("Error fetching products:", error.message);
+      } else {
+        const normalized: GearItem[] = (data || []).map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          description: p.description,
+          price_per_day: p.base_price_cents ? p.base_price_cents / 100 : 0,
+          image_url: p.image_url,
+          provider_id: p.provider_id,
+          // Legacy compatibility
+          gear_images: [],
+          rating: 5.0, // Default for new items
+          location: "Prague" // Placeholder until we join Provider address
+        } as unknown as GearItem));
+        setGearList(normalized);
       }
     };
     fetchGear();

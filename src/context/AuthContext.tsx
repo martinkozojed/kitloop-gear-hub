@@ -155,21 +155,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (profileData?.role === 'provider') {
         console.log(`[${timestamp}] 👤 User is provider, fetching provider data...`);
 
-        const providerPromise = supabase
-          .from('providers')
-          .select('*')
+        // Fetch provider via membership (New Inventory 2.0 Logic)
+        const membershipPromise = supabase
+          .from('user_provider_memberships')
+          .select('provider:providers!inner(*)')
           .eq('user_id', userId)
           .maybeSingle();
 
-        const { data: providerData, error: providerError } = await withTimeout(
-          providerPromise,
+        const { data: membershipData, error: membershipError } = await withTimeout(
+          membershipPromise,
           30000,
-          'Provider fetch timeout after 30s'
+          'Provider membership fetch timeout'
         );
 
-        if (providerError && providerError.code !== 'PGRST116') {
-          console.warn(`[${timestamp}] ⚠️ Provider fetch error:`, providerError);
-        }
+        if (membershipError) console.warn(`[${timestamp}] ⚠️ Membership fetch error:`, membershipError);
+
+        const providerData = membershipData?.provider as unknown as Provider | null;
+
+
 
         if (providerData) {
           console.log(`[${timestamp}] ✅ Provider data fetched:`, { id: providerData.id, rental_name: providerData.rental_name });

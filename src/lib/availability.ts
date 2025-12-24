@@ -122,6 +122,91 @@ export async function checkAvailability(
 }
 
 /**
+ * Check availability for a specific Product Variant (Inventory 2.0)
+ */
+export async function checkVariantAvailability(
+  variantId: string,
+  startDate: Date,
+  endDate: Date,
+  excludeReservationId?: string
+): Promise<AvailabilityResult> {
+  // Validate dates
+  if (endDate <= startDate) {
+    throw new Error('Konec musí být po začátku');
+  }
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - 1);
+  if (startDate < now) {
+    throw new Error('Nelze rezervovat v minulosti');
+  }
+
+  // 1. Get Total Assets for this Variant
+  // We count existing assets that are not retired or lost.
+  const { count: totalAssets, error: assetError } = await supabase
+    .from('assets')
+    .select('*', { count: 'exact', head: true })
+    .eq('variant_id', variantId)
+    .not('status', 'in', '("retired","lost")'); // Use Query Filter syntax properly
+
+  if (assetError) {
+    console.error('Asset count error:', assetError);
+    throw new Error('Chyba při kontrole kapacity varianty');
+  }
+
+  const quantityTotal = totalAssets || 0;
+
+  if (quantityTotal === 0) {
+    return {
+      available: 0,
+      total: 0,
+      quantityAvailable: 0,
+      isAvailable: false,
+      overlappingCount: 0,
+      message: 'Žádné kusy skladem',
+    };
+  }
+
+  // 2. Get overlapping reservations for this variant
+  const { data: reservations, error: reservationError } = await supabase
+    .from('reservations')
+    .select('id, start_date, end_date, status')
+    .eq('product_variant_id', variantId)
+    .in('status', ['hold', 'confirmed', 'active'])
+    .lt('start_date', endDate.toISOString())
+    .gt('end_date', startDate.toISOString());
+
+  if (reservationError) {
+    console.error('Reservation fetch error:', reservationError);
+    throw new Error('Chyba při kontrole dostupnosti rezervací');
+  }
+
+  // 3. Count overlapping
+  const overlapping = (reservations || []).filter(r =>
+    excludeReservationId ? r.id !== excludeReservationId : true
+  );
+
+  const overlappingCount = overlapping.length;
+  // Available = Total Assets - Booked Slots
+  const available = Math.max(0, quantityTotal - overlappingCount);
+
+  let message: string;
+  if (available > 0) {
+    message = `Volné: ${available} z ${quantityTotal} ks`;
+  } else {
+    message = `Obsazeno (${overlappingCount} rezervací)`;
+  }
+
+  return {
+    available,
+    total: quantityTotal,
+    quantityAvailable: quantityTotal, // "quantityAvailable" in legacy context meant total active. 
+    isAvailable: available > 0,
+    overlappingCount,
+    message,
+  };
+}
+
+/**
  * Calculate number of days between dates (minimum 1)
  * Partial day = 1 full day charge
  */

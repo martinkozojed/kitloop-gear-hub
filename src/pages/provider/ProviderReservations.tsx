@@ -6,12 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -20,7 +18,8 @@ import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { formatDateRange, formatPrice } from "@/lib/availability";
-import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle, ArrowRightLeft, LayoutGrid, List } from "lucide-react";
+import ReservationCalendar from "@/components/reservations/ReservationCalendar";
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
 
@@ -36,20 +35,20 @@ interface Reservation {
   total_price: number | null;
   deposit_paid: boolean | null;
   notes: string | null;
+  // Legacy
   gear_items: {
     name: string | null;
     category: string | null;
   } | null;
+  // Inventory 2.0
+  product_variants: {
+    name: string;
+    products: {
+      name: string;
+      category: string;
+    } | null;
+  } | null;
 }
-
-type GearItemRelation = {
-  name: string | null;
-  category: string | null;
-};
-
-type SupabaseReservation = Omit<Reservation, 'gear_items'> & {
-  gear_items: GearItemRelation | GearItemRelation[] | null;
-};
 
 const ProviderReservations = () => {
   const { provider } = useAuth();
@@ -62,8 +61,7 @@ const ProviderReservations = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
-  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
+
   const [showFilters, setShowFilters] = useState(false);
 
   // Fetch reservations
@@ -92,6 +90,13 @@ const ProviderReservations = () => {
             gear_items:gear_id (
               name,
               category
+            ),
+            product_variants:product_variant_id (
+              name,
+              products (
+                name,
+                category
+              )
             )
           `)
           .eq('provider_id', provider.id)
@@ -99,13 +104,12 @@ const ProviderReservations = () => {
 
         if (error) throw error;
 
-        const normalizedReservations: Reservation[] = ((data ?? []) as SupabaseReservation[])
-          .map((reservation) => ({
-            ...reservation,
-            gear_items: Array.isArray(reservation.gear_items)
-              ? reservation.gear_items[0] ?? null
-              : reservation.gear_items,
-          }));
+        // Normalize response
+        const normalizedReservations: Reservation[] = (data || []).map((r: any) => ({
+          ...r,
+          gear_items: Array.isArray(r.gear_items) ? r.gear_items[0] : r.gear_items,
+          product_variants: Array.isArray(r.product_variants) ? r.product_variants[0] : r.product_variants
+        }));
 
         setReservations(normalizedReservations);
         setFilteredReservations(normalizedReservations);
@@ -129,34 +133,28 @@ const ProviderReservations = () => {
       filtered = filtered.filter(r => r.status === statusFilter);
     }
 
-    // Search filter (customer name, email, phone, gear name)
+    // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(r =>
-        r.customer_name?.toLowerCase().includes(query) ||
-        r.customer_email?.toLowerCase().includes(query) ||
-        r.customer_phone?.toLowerCase().includes(query) ||
-        r.gear_items?.name?.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter(r => {
+        const gearName = r.gear_items?.name || '';
+        const prodName = r.product_variants?.products?.name || '';
+        const variantName = r.product_variants?.name || '';
+
+        return (
+          r.customer_name?.toLowerCase().includes(query) ||
+          r.customer_email?.toLowerCase().includes(query) ||
+          r.customer_phone?.toLowerCase().includes(query) ||
+          gearName.toLowerCase().includes(query) ||
+          prodName.toLowerCase().includes(query) ||
+          variantName.toLowerCase().includes(query)
+        );
+      });
     }
 
     setFilteredReservations(filtered);
   }, [reservations, searchQuery, statusFilter]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape to close expanded rows
-      if (e.key === 'Escape' && expandedRows.size > 0) {
-        setExpandedRows(new Set());
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [expandedRows]);
-
-  // Toggle row expansion
   const toggleRowExpansion = (reservationId: string) => {
     setExpandedRows(prev => {
       const newSet = new Set(prev);
@@ -169,104 +167,37 @@ const ProviderReservations = () => {
     });
   };
 
-  // Action handlers
-  const handleConfirmReservation = async (reservationId: string) => {
-    const reservation = filteredReservations.find(r => r.id === reservationId);
-    if (reservation?.status === 'confirmed' || reservation?.status === 'active') {
-      toast.info(t('provider.reservations.alreadyConfirmed'));
-      return;
-    }
-
+  const handleAction = async (reservationId: string, action: 'confirm' | 'cancel') => {
     setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
-
     try {
-      const { error } = await supabase
-        .from('reservations')
-        .update({
-          status: 'confirmed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', reservationId);
-
+      const status = action === 'confirm' ? 'confirmed' : 'cancelled';
+      const { error } = await supabase.from('reservations').update({ status }).eq('id', reservationId);
       if (error) throw error;
 
-      // Update local state
-      setReservations(prev =>
-        prev.map(r => r.id === reservationId ? { ...r, status: 'confirmed' } : r)
-      );
-
-      toast.success(t('provider.reservations.confirmSuccess'));
-    } catch (error) {
-      console.error('Error confirming reservation:', error);
-      toast.error(t('provider.reservations.confirmError'));
+      setReservations(prev => prev.map(r => r.id === reservationId ? { ...r, status } : r));
+      toast.success(`Rezervace ${action === 'confirm' ? 'potvrzena' : 'zrušena'}`);
+    } catch (e) {
+      console.error(e);
+      toast.error('Akce se nezdařila');
     } finally {
       setLoadingActions(prev => ({ ...prev, [reservationId]: false }));
     }
   };
 
-  const handleCancelReservation = (reservationId: string) => {
-    const reservation = filteredReservations.find(r => r.id === reservationId);
-    if (!reservation) return;
-
-    if (reservation.status === 'cancelled' || reservation.status === 'completed') {
-      toast.info(t('provider.reservations.cannotCancel'));
-      return;
+  const getItemName = (r: Reservation) => {
+    if (r.product_variants) {
+      return `${r.product_variants.products?.name || 'Produkt'} - ${r.product_variants.name}`;
     }
-
-    // Show confirmation dialog
-    setReservationToCancel(reservation);
-    setCancelDialogOpen(true);
+    return r.gear_items?.name || 'Neznámá položka';
   };
 
-  const confirmCancelReservation = async () => {
-    if (!reservationToCancel) return;
-
-    setLoadingActions(prev => ({ ...prev, [reservationToCancel.id]: true }));
-    setCancelDialogOpen(false);
-
-    try {
-      const { error } = await supabase
-        .from('reservations')
-        .update({
-          status: 'cancelled',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', reservationToCancel.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setReservations(prev =>
-        prev.map(r => r.id === reservationToCancel.id ? { ...r, status: 'cancelled' } : r)
-      );
-
-      toast.success(t('provider.reservations.cancelSuccess'));
-    } catch (error) {
-      console.error('Error cancelling reservation:', error);
-      toast.error(t('provider.reservations.cancelError'));
-    } finally {
-      setLoadingActions(prev => ({ ...prev, [reservationToCancel.id]: false }));
-      setReservationToCancel(null);
+  const getItemCategory = (r: Reservation) => {
+    if (r.product_variants) {
+      return r.product_variants.products?.category;
     }
+    return r.gear_items?.category;
   };
 
-  const handleCallCustomer = (phone: string | null) => {
-    if (phone) {
-      window.location.href = `tel:${phone}`;
-    }
-  };
-
-  const handleEmailCustomer = (email: string | null) => {
-    if (email) {
-      window.location.href = `mailto:${email}`;
-    }
-  };
-
-  const handleEditReservation = (reservationId: string) => {
-    navigate(`/provider/reservations/edit/${reservationId}`);
-  };
-
-  // Status badge styling
   const getStatusBadge = (status: string | null) => {
     const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
       hold: { label: t('provider.dashboard.status.hold'), variant: 'outline' },
@@ -279,24 +210,6 @@ const ProviderReservations = () => {
 
     const config = statusMap[status || 'pending'] || { label: status || 'Neznámý', variant: 'outline' };
     return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
-
-  // Get available actions based on status
-  const getAvailableActions = (status: string | null) => {
-    switch (status) {
-      case 'hold':
-      case 'pending':
-        return ['confirm', 'edit', 'cancel'];
-      case 'confirmed':
-        return ['edit', 'cancel'];
-      case 'active':
-        return ['edit'];
-      case 'completed':
-      case 'cancelled':
-        return [];
-      default:
-        return ['edit'];
-    }
   };
 
   if (loading) {
@@ -312,26 +225,12 @@ const ProviderReservations = () => {
   return (
     <ProviderLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Rezervace</h1>
-            <p className="text-muted-foreground">
-              Spravujte rezervace vašeho vybavení
-            </p>
+            <p className="text-muted-foreground">Spravujte rezervace vašeho vybavení</p>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant={showFilters ? "secondary" : "outline"}
-              onClick={() => setShowFilters(!showFilters)}
-              className="relative"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Filtry
-              {(searchQuery || statusFilter !== 'all') && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-white" />
-              )}
-            </Button>
             <Button asChild className="w-full sm:w-auto">
               <Link to="/provider/reservations/new">
                 <Plus className="w-4 h-4 mr-2" />
@@ -341,585 +240,121 @@ const ProviderReservations = () => {
           </div>
         </div>
 
-        {/* Filters */}
-        {showFilters && (
-          <Card className="animate-in slide-in-from-top-2 duration-200">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Search */}
+        <Tabs defaultValue="list" className="w-full">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList>
+              <TabsTrigger value="list"><List className="w-4 h-4 mr-2" /> Seznam</TabsTrigger>
+              <TabsTrigger value="calendar"><LayoutGrid className="w-4 h-4 mr-2" /> Kalendář</TabsTrigger>
+            </TabsList>
+
+            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
+              <Filter className="w-4 h-4 mr-2" /> Filtry
+            </Button>
+          </div>
+
+          {showFilters && (
+            <Card className="mb-4 bg-muted/30">
+              <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Hledat zákazníka nebo vybavení..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
+                  <Input placeholder="Hledat..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
                 </div>
-
-                {/* Status Filter */}
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger>
-                    <div className="flex items-center gap-2">
-                      <Filter className="w-4 h-4" />
-                      <SelectValue placeholder="Všechny stavy" />
-                    </div>
+                    <SelectValue placeholder="Stav" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Všechny stavy</SelectItem>
-                    <SelectItem value="hold">Blokováno</SelectItem>
-                    <SelectItem value="pending">Čeká</SelectItem>
+                    <SelectItem value="all">Vše</SelectItem>
                     <SelectItem value="confirmed">Potvrzeno</SelectItem>
                     <SelectItem value="active">Aktivní</SelectItem>
                     <SelectItem value="completed">Dokončeno</SelectItem>
                     <SelectItem value="cancelled">Zrušeno</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Results Count */}
-        <div className="text-sm text-muted-foreground">
-          {filteredReservations.length === 0 ? (
-            'Žádné rezervace'
-          ) : (
-            `Zobrazeno: ${filteredReservations.length} ${filteredReservations.length === 1 ? 'rezervace' : 'rezervací'
-            }`
+              </CardContent>
+            </Card>
           )}
-        </div>
 
-        {/* Reservations List */}
-        {filteredReservations.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-30" />
-              {reservations.length === 0 ? (
-                <>
-                  <h3 className="text-lg font-medium mb-2">Žádné rezervace</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Začněte vytvořením první rezervace pro zákazníka
-                  </p>
-                  <Button asChild>
-                    <Link to="/provider/reservations/new">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Vytvořit rezervaci
-                    </Link>
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-lg font-medium mb-2">Žádné výsledky</h3>
-                  <p className="text-muted-foreground">
-                    Zkuste upravit filtry nebo hledaný výraz
-                  </p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {/* Desktop: Expandable Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="w-12"></th>
-                    <th className="text-left py-3 px-4 font-medium">Zákazník</th>
-                    <th className="text-left py-3 px-4 font-medium">Vybavení</th>
-                    <th className="text-left py-3 px-4 font-medium">Termín</th>
-                    <th className="text-left py-3 px-4 font-medium">Cena</th>
-                    <th className="text-left py-3 px-4 font-medium">Stav</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredReservations.map((reservation) => {
-                    const isExpanded = expandedRows.has(reservation.id);
-                    const availableActions = getAvailableActions(reservation.status);
-                    const isLoading = loadingActions[reservation.id];
-
-                    return (
-                      <React.Fragment key={reservation.id}>
-                        {/* Main Row */}
-                        <tr
-                          className="border-b hover:bg-muted/50 transition-colors cursor-pointer"
-                          onClick={() => toggleRowExpansion(reservation.id)}
-                        >
-                          <td className="py-4 px-4">
-                            {isExpanded ? (
-                              <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                            )}
+          <TabsContent value="list" className="space-y-4">
+            {filteredReservations.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">Žádné rezervace k zobrazení.</div>
+            ) : (
+              <div className="rounded-md border bg-card">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-muted/50 border-b">
+                    <tr>
+                      <th className="p-4 font-medium">Zákazník</th>
+                      <th className="p-4 font-medium">Vybavení</th>
+                      <th className="p-4 font-medium">Termín</th>
+                      <th className="p-4 font-medium">Stav</th>
+                      <th className="p-4 font-medium w-[50px]"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredReservations.map(r => (
+                      <React.Fragment key={r.id}>
+                        <tr className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => toggleRowExpansion(r.id)}>
+                          <td className="p-4 font-medium">{r.customer_name}</td>
+                          <td className="p-4">
+                            <div className="font-medium">{getItemName(r)}</div>
+                            <div className="text-xs text-muted-foreground">{getItemCategory(r)}</div>
                           </td>
-                          <td className="py-4 px-4">
-                            <div>
-                              <div className="font-medium">{reservation.customer_name}</div>
-                              {reservation.customer_phone && (
-                                <div className="text-sm text-muted-foreground">
-                                  {reservation.customer_phone}
-                                </div>
-                              )}
-                            </div>
+                          <td className="p-4">
+                            {r.start_date && r.end_date && formatDateRange(new Date(r.start_date), new Date(r.end_date))}
                           </td>
-                          <td className="py-4 px-4">
-                            <div>
-                              <div className="font-medium">{reservation.gear_items?.name || 'N/A'}</div>
-                              {reservation.gear_items?.category && (
-                                <div className="text-sm text-muted-foreground">
-                                  {reservation.gear_items.category}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            {reservation.start_date && reservation.end_date ? (
-                              <div className="text-sm">
-                                {formatDateRange(
-                                  new Date(reservation.start_date),
-                                  new Date(reservation.end_date)
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground">N/A</span>
-                            )}
-                          </td>
-                          <td className="py-4 px-4">
-                            <div>
-                              <div className="font-medium">
-                                {formatPrice(reservation.total_price || 0)}
-                              </div>
-                              {reservation.deposit_paid && (
-                                <div className="text-xs text-green-600">Záloha ✓</div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            {getStatusBadge(reservation.status)}
-                          </td>
+                          <td className="p-4">{getStatusBadge(r.status)}</td>
+                          <td className="p-4">{expandedRows.has(r.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</td>
                         </tr>
-
-                        {/* Expanded Details Row */}
-                        {isExpanded && (
-                          <tr className="border-b bg-muted/30">
-                            <td colSpan={6} className="py-4 px-4">
-                              <div className="space-y-4 ml-8">
-                                {/* Contact & Details Section */}
-                                <div className="grid grid-cols-2 gap-4">
-                                  {/* Contact Info */}
-                                  <div className="space-y-2">
-                                    <h4 className="font-semibold text-sm flex items-center gap-2">
-                                      <Mail className="w-4 h-4" />
-                                      Kontaktní informace
-                                    </h4>
-                                    <div className="text-sm space-y-1 pl-6">
-                                      {reservation.customer_email && (
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-muted-foreground">Email:</span>
-                                          <span>{reservation.customer_email}</span>
-                                        </div>
-                                      )}
-                                      {reservation.customer_phone && (
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-muted-foreground">Telefon:</span>
-                                          <span>{reservation.customer_phone}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {/* Reservation Details */}
-                                  <div className="space-y-2">
-                                    <h4 className="font-semibold text-sm flex items-center gap-2">
-                                      <AlertCircle className="w-4 h-4" />
-                                      Detaily rezervace
-                                    </h4>
-                                    <div className="text-sm space-y-1 pl-6">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-muted-foreground">ID:</span>
-                                        <span className="font-mono text-xs">{reservation.id.slice(0, 8)}...</span>
-                                      </div>
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-muted-foreground">Záloha:</span>
-                                        <span>{reservation.deposit_paid ? '✓ Zaplaceno' : '✗ Nezaplaceno'}</span>
-                                      </div>
-                                      {reservation.created_at && (
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-muted-foreground">Vytvořeno:</span>
-                                          <span>{new Date(reservation.created_at).toLocaleDateString('cs-CZ')}</span>
-                                        </div>
-                                      )}
-                                    </div>
+                        {expandedRows.has(r.id) && (
+                          <tr className="bg-muted/20">
+                            <td colSpan={5} className="p-4">
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                  <h4 className="font-semibold mb-2">Kontakt</h4>
+                                  <div className="text-sm space-y-1">
+                                    <div>{r.customer_email}</div>
+                                    <div>{r.customer_phone}</div>
                                   </div>
                                 </div>
-
-                                {/* Notes */}
-                                {reservation.notes && (
-                                  <div>
-                                    <h4 className="font-semibold text-sm mb-2">Poznámky:</h4>
-                                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                                      {reservation.notes}
-                                    </p>
-                                  </div>
-                                )}
-
-                                <Separator />
-
-                                {/* Action Buttons */}
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  {/* Contact Actions - Always available */}
-                                  {reservation.customer_phone && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleCallCustomer(reservation.customer_phone);
-                                      }}
-                                    >
-                                      <Phone className="w-4 h-4 mr-2" />
-                                      Zavolat
+                                <div className="flex gap-2 items-start justify-end">
+                                  {r.status === 'hold' || r.status === 'pending' ? (
+                                    <Button size="sm" onClick={() => handleAction(r.id, 'confirm')} disabled={loadingActions[r.id]}>
+                                      {loadingActions[r.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                                      Potvrdit
                                     </Button>
-                                  )}
-                                  {reservation.customer_email && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleEmailCustomer(reservation.customer_email);
-                                      }}
-                                    >
-                                      <Mail className="w-4 h-4 mr-2" />
-                                      Email
-                                    </Button>
-                                  )}
-
-                                  <div className="flex-1" />
-
-                                  {/* Status-based Actions */}
-                                  {availableActions.includes('confirm') && (
-                                    <Button
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleConfirmReservation(reservation.id);
-                                      }}
-                                      disabled={isLoading}
-                                    >
-                                      {isLoading ? (
-                                        <>
-                                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                          Potvrzuji...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <CheckCircle className="w-4 h-4 mr-2" />
-                                          Potvrdit
-                                        </>
-                                      )}
-                                    </Button>
-                                  )}
-                                  {availableActions.includes('edit') && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleEditReservation(reservation.id);
-                                      }}
-                                    >
-                                      <Edit className="w-4 h-4 mr-2" />
-                                      Upravit
-                                    </Button>
-                                  )}
-                                  {availableActions.includes('cancel') && (
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleCancelReservation(reservation.id);
-                                      }}
-                                      disabled={isLoading}
-                                    >
-                                      {isLoading ? (
-                                        <>
-                                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                          Ruším...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <XCircle className="w-4 h-4 mr-2" />
-                                          Zrušit
-                                        </>
-                                      )}
-                                    </Button>
-                                  )}
+                                  ) : null}
+                                  <Button size="sm" variant="outline" asChild>
+                                    <Link to={`/provider/reservations/edit/${r.id}`}>
+                                      <Edit className="w-4 h-4 mr-2" /> Detail
+                                    </Link>
+                                  </Button>
                                 </div>
                               </div>
+                              {r.notes && (
+                                <div className="mt-4 p-3 bg-background rounded border text-sm text-muted-foreground">
+                                  <span className="font-medium text-foreground">Poznámka: </span> {r.notes}
+                                </div>
+                              )}
                             </td>
                           </tr>
                         )}
                       </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </TabsContent>
 
-            {/* Mobile: Expandable Card View */}
-            <div className="md:hidden space-y-3">
-              {filteredReservations.map((reservation) => {
-                const isExpanded = expandedRows.has(reservation.id);
-                const availableActions = getAvailableActions(reservation.status);
-                const isLoading = loadingActions[reservation.id];
-
-                return (
-                  <Card key={reservation.id} className="overflow-hidden">
-                    <CardContent className="p-4 space-y-3">
-                      {/* Header - Clickable to expand */}
-                      <div
-                        className="flex items-start justify-between gap-2 cursor-pointer"
-                        onClick={() => toggleRowExpansion(reservation.id)}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold truncate">
-                              {reservation.customer_name}
-                            </h3>
-                            {isExpanded ? (
-                              <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {reservation.gear_items?.name || 'N/A'}
-                          </p>
-                        </div>
-                        {getStatusBadge(reservation.status)}
-                      </div>
-
-                      {/* Basic Details - Always visible */}
-                      <div className="space-y-2 text-sm">
-                        {reservation.customer_phone && (
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-muted-foreground" />
-                            <span>{reservation.customer_phone}</span>
-                          </div>
-                        )}
-                        {reservation.start_date && reservation.end_date && (
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <span>
-                              {formatDateRange(
-                                new Date(reservation.start_date),
-                                new Date(reservation.end_date)
-                              )}
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <span className="font-medium">
-                            {formatPrice(reservation.total_price || 0)}
-                          </span>
-                          {reservation.deposit_paid && (
-                            <span className="text-xs text-green-600">Záloha zaplacena</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Expanded Details */}
-                      {isExpanded && (
-                        <div className="space-y-3 pt-3 border-t">
-                          {/* Additional Details */}
-                          <div className="space-y-2 text-sm">
-                            {reservation.customer_email && (
-                              <div className="flex items-center gap-2">
-                                <Mail className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-xs">{reservation.customer_email}</span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2">
-                              <span className="text-muted-foreground">ID:</span>
-                              <span className="font-mono text-xs">{reservation.id.slice(0, 12)}...</span>
-                            </div>
-                            {reservation.created_at && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground">Vytvořeno:</span>
-                                <span className="text-xs">{new Date(reservation.created_at).toLocaleDateString('cs-CZ')}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Notes */}
-                          {reservation.notes && (
-                            <div className="bg-muted/50 p-3 rounded-md">
-                              <p className="text-xs text-muted-foreground">
-                                <strong>Poznámky:</strong> {reservation.notes}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Action Buttons */}
-                          <div className="grid grid-cols-2 gap-2">
-                            {/* Contact buttons - always available */}
-                            {reservation.customer_phone && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="w-full"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCallCustomer(reservation.customer_phone);
-                                }}
-                              >
-                                <Phone className="w-4 h-4 mr-1" />
-                                Zavolat
-                              </Button>
-                            )}
-                            {reservation.customer_email && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="w-full"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEmailCustomer(reservation.customer_email);
-                                }}
-                              >
-                                <Mail className="w-4 h-4 mr-1" />
-                                Email
-                              </Button>
-                            )}
-
-                            {/* Status-based actions */}
-                            {availableActions.includes('confirm') && (
-                              <Button
-                                size="sm"
-                                className="w-full col-span-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleConfirmReservation(reservation.id);
-                                }}
-                                disabled={isLoading}
-                              >
-                                {isLoading ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                    Potvrzuji...
-                                  </>
-                                ) : (
-                                  <>
-                                    <CheckCircle className="w-4 h-4 mr-1" />
-                                    Potvrdit
-                                  </>
-                                )}
-                              </Button>
-                            )}
-                            {availableActions.includes('edit') && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="w-full"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditReservation(reservation.id);
-                                }}
-                              >
-                                <Edit className="w-4 h-4 mr-1" />
-                                Upravit
-                              </Button>
-                            )}
-                            {availableActions.includes('cancel') && (
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="w-full"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCancelReservation(reservation.id);
-                                }}
-                                disabled={isLoading}
-                              >
-                                {isLoading ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                    Ruším...
-                                  </>
-                                ) : (
-                                  <>
-                                    <XCircle className="w-4 h-4 mr-1" />
-                                    Zrušit
-                                  </>
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
+          <TabsContent value="calendar">
+            {provider?.id && (
+              <div className="h-[600px] border rounded-lg shadow-sm">
+                <ReservationCalendar providerId={provider.id} />
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Cancel Reservation Confirmation Dialog */}
-      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Zrušit rezervaci?</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>Opravdu chcete zrušit rezervaci pro <strong>{reservationToCancel?.customer_name}</strong>?</p>
-
-              {reservationToCancel && (
-                <div className="bg-muted/50 p-4 rounded-md space-y-1 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span>
-                      <strong>Termín:</strong>{' '}
-                      {reservationToCancel.start_date && reservationToCancel.end_date
-                        ? formatDateRange(
-                          new Date(reservationToCancel.start_date),
-                          new Date(reservationToCancel.end_date)
-                        )
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">🎿</span>
-                    <span>
-                      <strong>Vybavení:</strong> {reservationToCancel.gear_items?.name || 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">💰</span>
-                    <span>
-                      <strong>Cena:</strong> {formatPrice(reservationToCancel.total_price || 0)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <p className="text-destructive font-medium pt-2">Tato akce je nevratná.</p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Zpět</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmCancelReservation}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Ano, zrušit rezervaci
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </ProviderLayout>
   );
 };

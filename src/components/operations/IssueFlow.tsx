@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { supabase } from "@/lib/supabase";
 import {
     Dialog,
     DialogContent,
@@ -25,12 +25,35 @@ interface IssueFlowProps {
 export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueFlowProps) {
     const [loading, setLoading] = useState(false);
 
-    // 1. Mock Items State (In real app, this would come from props or query)
-    // For now, we assume items are generally ready, but we check payment status from reservation
-    const mockItems: ItemState[] = [{ id: '1', status: 'reserved' }];
+    // 1. Fetch Real Items State
+    const [items, setItems] = useState<ItemState[]>([]);
+    const [fetchingItems, setFetchingItems] = useState(false);
+
+    React.useEffect(() => {
+        if (open && reservation.id) {
+            setFetchingItems(true);
+            const fetchItems = async () => {
+                const { data } = await supabase
+                    .from('reservation_assignments')
+                    .select('asset_id, assets(id, status)')
+                    .eq('reservation_id', reservation.id)
+                    .is('returned_at', null);
+
+                const realItems = (data || []).map((d: any) => ({
+                    id: d.asset_id,
+                    status: d.assets?.status
+                }));
+                setItems(realItems);
+                setFetchingItems(false);
+            };
+            fetchItems();
+        }
+    }, [open, reservation.id]);
 
     // 2. Guardrail Check
-    const isAllowed = canIssue(reservation, mockItems);
+    // If no items assigned, we can't issue anything (unless we allow "Demand Only" issue, but for now strict)
+    const hasAssets = items.length > 0;
+    const isAllowed = canIssue(reservation, items) && hasAssets;
     const [overrideMode, setOverrideMode] = useState(false);
 
     const handleConfirm = async () => {
@@ -38,7 +61,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         try {
             await onConfirm(reservation.id, overrideMode);
             onOpenChange(false);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
             toast.error("Failed to issue reservation");
         } finally {
@@ -75,7 +98,18 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                 </DialogHeader>
 
                 <div className="py-4">
-                    {!isAllowed && !overrideMode ? (
+                    {!hasAssets && !overrideMode ? (
+                        <div className="p-4 rounded-md bg-amber-50 border border-amber-200 text-amber-800 flex flex-col gap-2">
+                            <div className="flex items-center gap-2 font-semibold">
+                                <AlertTriangle className="w-4 h-4" />
+                                No Assets Assigned
+                            </div>
+                            <p className="text-sm">
+                                This reservation has no specific items assigned yet.
+                                Please assign assets in the calendar before issuing.
+                            </p>
+                        </div>
+                    ) : !isAllowed && !overrideMode ? (
                         <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-800 flex flex-col gap-2">
                             <div className="flex items-center gap-2 font-semibold">
                                 <AlertTriangle className="w-4 h-4" />

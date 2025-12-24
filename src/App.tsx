@@ -26,6 +26,7 @@ import ProviderInventory from "./pages/provider/ProviderInventory";
 import InventoryForm from "./pages/provider/InventoryForm";
 import InventoryImport from "./pages/provider/InventoryImport";
 import ProviderReservations from "./pages/provider/ProviderReservations";
+import ProviderMaintenance from "./pages/provider/ProviderMaintenance";
 import ReservationForm from "./pages/provider/ReservationForm";
 import ProviderVerify from "./pages/provider/ProviderVerify";
 import AdminApprovals from "./pages/admin/AdminApprovals";
@@ -136,6 +137,14 @@ const AppRoutes = () => {
             element={
               <ProviderRoute>
                 <ProviderAnalytics />
+              </ProviderRoute>
+            }
+          />
+          <Route
+            path="/provider/maintenance"
+            element={
+              <ProviderRoute>
+                <ProviderMaintenance />
               </ProviderRoute>
             }
           />

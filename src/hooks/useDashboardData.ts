@@ -36,7 +36,7 @@ export const useDashboardData = () => {
                 .from('reservations')
                 .select('*', { count: 'exact', head: true })
                 .eq('provider_id', provider.id)
-                .in('status', ['active', 'checked_out', 'returned', 'completed'])
+                .in('status', ['active', 'completed'])
                 .gte('end_date', todayIso)
                 .lt('end_date', tomorrowIso);
 
@@ -114,14 +114,14 @@ export const useDashboardData = () => {
                 }
 
                 // Return Agenda
-                if (isTodayEnd && ['checked_out', 'active', 'returned'].includes(r.status)) {
-                    const isReturned = r.status === 'returned';
+                if (isTodayEnd && ['active', 'completed'].includes(r.status)) {
+                    const isReturned = r.status === 'completed';
                     mappedAgenda.push({
                         time: format(eDate, 'HH:mm'),
                         type: 'return',
                         customerName: r.customer_name || 'Unknown',
                         itemCount: 1, // Placeholder
-                        status: isReturned ? 'returned' : 'active',
+                        status: isReturned ? 'completed' : 'active',
                         reservationId: r.id,
                         startDate: r.start_date,
                         endDate: r.end_date,
@@ -146,7 +146,7 @@ export const useDashboardData = () => {
                 .from('reservations')
                 .select('id, end_date, customer_name')
                 .eq('provider_id', provider.id)
-                .in('status', ['checked_out', 'active'])
+                .in('status', ['active']) // only active items can be overdue, checked_out is gone
                 .lt('end_date', todayIso);
 
             interface RawException {
@@ -171,24 +171,20 @@ export const useDashboardData = () => {
 
     const issueMutation = useMutation({
         mutationFn: async ({ id, isOverride }: { id: string; isOverride: boolean }) => {
-            // 1. Update Reservation
-            const { error } = await supabase
-                .from('reservations')
-                .update({ status: 'checked_out', updated_at: new Date().toISOString() })
-                .eq('id', id);
+            if (!provider?.id) throw new Error("Missing provider ID");
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("No authenticated user");
+
+            const { data, error } = await supabase.rpc('issue_reservation', {
+                p_reservation_id: id,
+                p_provider_id: provider.id,
+                p_user_id: user.id,
+                p_override: isOverride
+            });
 
             if (error) throw error;
-
-            // 2. Audit Log (if Override)
-            if (isOverride && provider?.id) {
-                const user = await supabase.auth.getUser();
-                await supabase.from('audit_logs').insert({
-                    provider_id: provider.id,
-                    user_id: user.data.user?.id,
-                    action: 'issue_override',
-                    resource_id: id,
-                    metadata: { reason: 'Unpaid reservation issued via override' }
-                });
+            if (data && !(data as any).success) {
+                throw new Error((data as any).error || 'Issue failed');
             }
         },
         onMutate: async ({ id }) => {
@@ -222,12 +218,16 @@ export const useDashboardData = () => {
 
     const returnMutation = useMutation({
         mutationFn: async ({ id, damage }: { id: string; damage: boolean }) => {
-            const { error } = await supabase
-                .from('reservations')
-                .update({ status: 'returned', updated_at: new Date().toISOString() })
-                .eq('id', id);
+            const { data, error } = await supabase
+                .rpc('process_return', {
+                    p_reservation_id: id,
+                    p_has_damage: damage
+                });
 
             if (error) throw error;
+            if (data && !(data as any).success) {
+                throw new Error((data as any).error || 'Return failed');
+            }
         },
         onMutate: async ({ id }) => {
             await queryClient.cancelQueries({ queryKey: ['dashboard', 'agenda', provider?.id] });
@@ -235,9 +235,9 @@ export const useDashboardData = () => {
 
             queryClient.setQueryData(['dashboard', 'agenda', provider?.id], (old: AgendaItemProps[] | undefined) => {
                 if (!old) return [];
-                // Update the item status to 'returned' so the pill changes color instantly
+                // Update the item status to 'completed' so the pill changes color instantly
                 return old.map(item =>
-                    item.reservationId === id ? { ...item, status: 'returned' } : item
+                    item.reservationId === id ? { ...item, status: 'completed' } : item
                 );
             });
 

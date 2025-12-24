@@ -10,27 +10,35 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { checkAvailability, calculatePrice, calculateDays, validatePhone, formatPrice } from "@/lib/availability";
+import { checkVariantAvailability, calculatePrice, calculateDays, validatePhone, formatPrice } from "@/lib/availability";
 import { createReservationHold, ReservationError } from "@/services/reservations";
 import { toast } from "sonner";
 import { CalendarIcon, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
 
-interface GearItem {
+interface Variant {
   id: string;
   name: string;
-  category: string | null;
-  price_per_day: number | null;
-  quantity_available: number | null;
-  active: boolean | null;
+  price_override_cents: number | null;
+  is_active: boolean | null;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  base_price_cents: number | null;
+  image_url: string | null;
+  product_variants: Variant[];
 }
 
 interface FormData {
   customer_name: string;
   customer_email: string;
   customer_phone: string;
-  gear_id: string;
-  quantity: number;
+  product_id: string;
+  variant_id: string;
+  quantity: number; // For now typically 1, but we could support bulk
   start_date: string;
   end_date: string;
   notes: string;
@@ -41,7 +49,8 @@ interface FormErrors {
   customer_name?: string;
   customer_email?: string;
   customer_phone?: string;
-  gear_id?: string;
+  product_id?: string;
+  variant_id?: string;
   start_date?: string;
   end_date?: string;
 }
@@ -59,8 +68,7 @@ const ReservationForm = () => {
   const navigate = useNavigate();
   const { provider } = useAuth();
 
-  const [gearItems, setGearItems] = useState<GearItem[]>([]);
-  const [selectedGear, setSelectedGear] = useState<GearItem | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -68,7 +76,8 @@ const ReservationForm = () => {
     customer_name: '',
     customer_email: '',
     customer_phone: '+420 ',
-    gear_id: '',
+    product_id: '',
+    variant_id: '',
     quantity: 1,
     start_date: '',
     end_date: '',
@@ -82,9 +91,9 @@ const ReservationForm = () => {
     result: null,
   });
 
-  // Fetch gear items
+  // Fetch Products & Variants
   useEffect(() => {
-    const fetchGearItems = async () => {
+    const fetchProducts = async () => {
       if (!provider?.id) {
         setLoading(false);
         return;
@@ -92,39 +101,46 @@ const ReservationForm = () => {
 
       try {
         const { data, error } = await supabase
-          .from('gear_items')
-          .select('id, name, category, price_per_day, quantity_available, active')
+          .from('products')
+          .select(`
+            id, name, category, base_price_cents, image_url,
+            product_variants (
+              id, name, price_override_cents, is_active
+            )
+          `)
           .eq('provider_id', provider.id)
+          .eq('is_active', true)
           .order('name');
 
         if (error) throw error;
 
-        // Filter to only active items with availability > 0
-        const activeItems = (data || []).filter(
-          item => item.active && (item.quantity_available || 0) > 0
-        );
+        // Filter and organize
+        const validProducts = (data || []).map((p: any) => ({
+          ...p,
+          product_variants: (p.product_variants || []).filter((v: Variant) => v.is_active !== false)
+        })).filter((p: Product) => p.product_variants.length > 0);
 
-        setGearItems(activeItems);
+        setProducts(validProducts);
       } catch (error) {
-        console.error('Error fetching gear items:', error);
-        toast.error(getErrorMessage(error) || 'Chyba při načítání vybavení');
+        console.error('Error fetching products:', error);
+        toast.error(getErrorMessage(error) || 'Chyba při načítání produktů');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGearItems();
+    fetchProducts();
   }, [provider?.id]);
 
-  // Check availability when dates or gear change
+  // Check availability when Variant or Date changes
   useEffect(() => {
     const checkAvail = async () => {
-      if (!formData.gear_id || !formData.start_date || !formData.end_date) {
+      // Need variant and dates
+      if (!formData.variant_id || !formData.start_date || !formData.end_date) {
         setAvailability({ checking: false, result: null });
         return;
       }
 
-      // Validate dates first
       const start = new Date(formData.start_date);
       const end = new Date(formData.end_date);
 
@@ -139,8 +155,8 @@ const ReservationForm = () => {
       setAvailability({ checking: true, result: null });
 
       try {
-        const result = await checkAvailability(
-          formData.gear_id,
+        const result = await checkVariantAvailability(
+          formData.variant_id,
           start,
           end
         );
@@ -166,21 +182,15 @@ const ReservationForm = () => {
     };
 
     checkAvail();
-  }, [formData.gear_id, formData.start_date, formData.end_date]);
+  }, [formData.variant_id, formData.start_date, formData.end_date]);
 
-  // Update selected gear when gear_id changes
-  useEffect(() => {
-    if (formData.gear_id) {
-      const gear = gearItems.find(item => item.id === formData.gear_id);
-      setSelectedGear(gear || null);
-    } else {
-      setSelectedGear(null);
-    }
-  }, [formData.gear_id, gearItems]);
+  // Helper to get selected product/variant
+  const selectedProduct = products.find(p => p.id === formData.product_id);
+  const selectedVariant = selectedProduct?.product_variants.find(v => v.id === formData.variant_id);
 
-  // Calculate price
+  // Price Calculation
   const calculateTotalPrice = useCallback(() => {
-    if (!selectedGear?.price_per_day || !formData.start_date || !formData.end_date) {
+    if (!selectedProduct || !selectedVariant || !formData.start_date || !formData.end_date) {
       return 0;
     }
 
@@ -189,40 +199,37 @@ const ReservationForm = () => {
 
     if (end <= start) return 0;
 
-    const basePrice = calculatePrice(selectedGear.price_per_day, start, end);
+    // Use variant override price if exists, else base product price
+    const priceCents = selectedVariant.price_override_cents ?? selectedProduct.base_price_cents ?? 0;
+    const pricePerDay = priceCents / 100;
+
+    const basePrice = calculatePrice(pricePerDay, start, end);
     return basePrice * formData.quantity;
-  }, [selectedGear, formData.start_date, formData.end_date, formData.quantity]);
+  }, [selectedProduct, selectedVariant, formData.start_date, formData.end_date, formData.quantity]);
 
   const totalPrice = calculateTotalPrice();
   const rentalDays = formData.start_date && formData.end_date && new Date(formData.end_date) > new Date(formData.start_date)
     ? calculateDays(new Date(formData.start_date), new Date(formData.end_date))
     : 0;
 
+  const pricePerDay = selectedVariant
+    ? (selectedVariant.price_override_cents ?? selectedProduct?.base_price_cents ?? 0) / 100
+    : 0;
+
   // Validation
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Customer name
-    if (!formData.customer_name.trim()) {
-      newErrors.customer_name = 'Jméno zákazníka je povinné';
-    }
-
-    // Email (optional but validate if provided)
+    if (!formData.customer_name.trim()) newErrors.customer_name = 'Jméno zákazníka je povinné';
     if (formData.customer_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customer_email)) {
       newErrors.customer_email = 'Neplatná e-mailová adresa';
     }
-
-    // Phone
     if (!validatePhone(formData.customer_phone)) {
-      newErrors.customer_phone = 'Neplatné telefonní číslo (formát: +420 XXX XXX XXX)';
+      newErrors.customer_phone = 'Neplatné telefonní číslo';
     }
+    if (!formData.product_id) newErrors.product_id = 'Vyberte produkt';
+    if (!formData.variant_id) newErrors.variant_id = 'Vyberte variantu';
 
-    // Gear selection
-    if (!formData.gear_id) {
-      newErrors.gear_id = 'Vyberte vybavení';
-    }
-
-    // Start date
     if (!formData.start_date) {
       newErrors.start_date = 'Vyberte datum začátku';
     } else {
@@ -234,57 +241,48 @@ const ReservationForm = () => {
       }
     }
 
-    // End date
     if (!formData.end_date) {
       newErrors.end_date = 'Vyberte datum konce';
     } else if (formData.start_date) {
       const start = new Date(formData.start_date);
       const end = new Date(formData.end_date);
-      if (end <= start) {
-        newErrors.end_date = 'Konec musí být po začátku';
-      }
+      if (end <= start) newErrors.end_date = 'Konec musí být po začátku';
     }
 
-    // Availability
-    if (!availability.result?.isAvailable && formData.gear_id && formData.start_date && formData.end_date) {
-      newErrors.gear_id = 'Vybavení není dostupné v tomto termínu';
+    if (!availability.result?.isAvailable && formData.variant_id && formData.start_date && formData.end_date) {
+      newErrors.variant_id = 'Varianta není dostupná v tomto termínu';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
       toast.error('Opravte chyby ve formuláři');
       return;
     }
 
-    if (!provider?.id) {
-      toast.error('Chyba: Poskytovatel nebyl nalezen');
-      return;
-    }
+    if (!provider?.id) return;
 
     setSubmitting(true);
-
     try {
       const start = new Date(formData.start_date);
       const end = new Date(formData.end_date);
 
-      // Double-check availability before submitting
-      const availCheck = await checkAvailability(formData.gear_id, start, end);
+      // Re-check availability
+      const availCheck = await checkVariantAvailability(formData.variant_id, start, end);
       if (!availCheck.isAvailable) {
-        toast.error('Vybavení již není dostupné v tomto termínu');
+        toast.error('Varianta již není dostupná');
         setSubmitting(false);
         return;
       }
 
       const reservationResult = await createReservationHold({
         providerId: provider.id,
-        gearId: formData.gear_id,
+        // gearId is explicitly excluded or null for Inventory 2.0 reservations
+        productVariantId: formData.variant_id,
         startDate: start,
         endDate: end,
         totalPrice,
@@ -296,64 +294,34 @@ const ReservationForm = () => {
           phone: formData.customer_phone.trim(),
         },
         rentalDays,
-        pricePerDay: selectedGear?.price_per_day ?? 0,
+        pricePerDay,
         customerUserId: null,
       });
 
-      const expiresAt = reservationResult.expires_at
-        ? new Date(reservationResult.expires_at)
-        : null;
-      const holdMessage = expiresAt
-        ? `Rezervace je podržena do ${expiresAt.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}.`
-        : 'Rezervace byla podržena.';
-
-      toast.success(`${holdMessage} Dokončete potvrzení v detailu rezervace.`);
+      toast.success(`Rezervace vytvořena. Status: ${reservationResult.status}`);
       navigate('/provider/reservations');
-    } catch (error) {
-      console.error('Error creating reservation:', error);
 
-      if (error instanceof ReservationError) {
-        switch (error.code) {
-          case 'conflict':
-            toast.error('Termín je právě obsazený jinou rezervací.');
-            break;
-          case 'idempotent':
-            toast.success('Rezervace již existuje a byla znovu načtena.');
-            navigate('/provider/reservations');
-            break;
-          case 'rls_denied':
-            toast.error('Nemáte oprávnění dokončit rezervaci. Zkontrolujte své členství v týmu.');
-            break;
-          case 'edge_failed':
-            toast.error(error.message || 'Edge funkce pro vytvoření rezervace se nezdařila.');
-            break;
-          default:
-            toast.error(error.message || 'Rezervaci se nepodařilo vytvořit.');
-        }
-      } else {
-        toast.error(getErrorMessage(error) || 'Chyba při vytváření rezervace');
-      }
+    } catch (error: any) {
+      console.error('Reservation creation failed', error);
+      toast.error(error.message || 'Nepodařilo se vytvořit rezervaci');
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Handle input changes
-  const handleInputChange = (field: keyof FormData, value: string | boolean | number) => {
+  const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error for this field
     if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
-  // Group gear by category
-  const gearByCategory = gearItems.reduce((acc, item) => {
-    const category = item.category || 'Ostatní';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(item);
+  // Group products by category
+  const productsByCategory = products.reduce((acc, p) => {
+    if (!acc[p.category]) acc[p.category] = [];
+    acc[p.category].push(p);
     return acc;
-  }, {} as Record<string, GearItem[]>);
+  }, {} as Record<string, Product[]>);
 
   if (loading) {
     return (
@@ -365,275 +333,171 @@ const ReservationForm = () => {
     );
   }
 
-  if (gearItems.length === 0) {
-    return (
-      <ProviderLayout>
-        <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>Žádné dostupné vybavení</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Před vytvořením rezervace musíte přidat alespoň jednu aktivní položku vybavení s dostupností {'>'} 0.
-              </p>
-              <Button onClick={() => navigate('/provider/inventory/new')}>
-                Přidat vybavení
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </ProviderLayout>
-    );
-  }
-
   return (
     <ProviderLayout>
       <div className="max-w-3xl mx-auto">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Nová rezervace</h1>
-          <p className="text-muted-foreground">
-            Vytvořte manuální rezervaci pro zákazníka
-          </p>
+          <p className="text-muted-foreground">Vytvořte manuální rezervaci pro zákazníka</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Customer Information */}
+          {/* Customer Info */}
           <Card>
-            <CardHeader>
-              <CardTitle>Informace o zákazníkovi</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Informace o zákazníkovi</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="customer_name">
-                  Jméno zákazníka <span className="text-red-500">*</span>
-                </Label>
+                <Label htmlFor="customer_name">Jméno zákazníka *</Label>
                 <Input
                   id="customer_name"
                   value={formData.customer_name}
-                  onChange={(e) => handleInputChange('customer_name', e.target.value)}
-                  placeholder="Jan Novák"
+                  onChange={e => handleInputChange('customer_name', e.target.value)}
                   className={errors.customer_name ? 'border-red-500' : ''}
                 />
-                {errors.customer_name && (
-                  <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.customer_name}
-                  </p>
-                )}
+                {errors.customer_name && <p className="text-sm text-red-500 mt-1">{errors.customer_name}</p>}
               </div>
-
               <div>
-                <Label htmlFor="customer_phone">
-                  Telefon <span className="text-red-500">*</span>
-                </Label>
+                <Label htmlFor="customer_phone">Telefon *</Label>
                 <Input
                   id="customer_phone"
-                  type="tel"
                   value={formData.customer_phone}
-                  onChange={(e) => handleInputChange('customer_phone', e.target.value)}
-                  placeholder="+420 123 456 789"
+                  onChange={e => handleInputChange('customer_phone', e.target.value)}
                   className={errors.customer_phone ? 'border-red-500' : ''}
                 />
-                {errors.customer_phone && (
-                  <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.customer_phone}
-                  </p>
-                )}
+                {errors.customer_phone && <p className="text-sm text-red-500 mt-1">{errors.customer_phone}</p>}
               </div>
-
               <div>
-                <Label htmlFor="customer_email">E-mail (volitelné)</Label>
+                <Label htmlFor="customer_email">E-mail</Label>
                 <Input
-                  id="customer_email"
-                  type="email"
+                  id="customer_email" type="email"
                   value={formData.customer_email}
-                  onChange={(e) => handleInputChange('customer_email', e.target.value)}
-                  placeholder="jan.novak@example.com"
-                  className={errors.customer_email ? 'border-red-500' : ''}
+                  onChange={e => handleInputChange('customer_email', e.target.value)}
                 />
-                {errors.customer_email && (
-                  <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.customer_email}
-                  </p>
-                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Rental Details */}
+          {/* Product Selection */}
           <Card>
-            <CardHeader>
-              <CardTitle>Detaily půjčení</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Výběr vybavení</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="gear_id">
-                  Vybavení <span className="text-red-500">*</span>
-                </Label>
+                <Label>Produkt *</Label>
                 <Select
-                  value={formData.gear_id}
-                  onValueChange={(value) => handleInputChange('gear_id', value)}
+                  value={formData.product_id}
+                  onValueChange={v => {
+                    handleInputChange('product_id', v);
+                    handleInputChange('variant_id', ''); // Reset variant
+                  }}
                 >
-                  <SelectTrigger className={errors.gear_id ? 'border-red-500' : ''}>
-                    <SelectValue placeholder="Vyberte vybavení" />
+                  <SelectTrigger className={errors.product_id ? 'border-red-500' : ''}>
+                    <SelectValue placeholder="Vyberte produkt" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(gearByCategory).map(([category, items]) => (
-                      <SelectGroup key={category}>
-                        <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
-                          {category}
-                        </SelectLabel>
-                        {items.map((item) => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.name} ({formatPrice(item.price_per_day || 0)}/den)
-                          </SelectItem>
+                    {Object.entries(productsByCategory).map(([cat, prods]) => (
+                      <SelectGroup key={cat}>
+                        <SelectLabel>{cat}</SelectLabel>
+                        {prods.map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                         ))}
                       </SelectGroup>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.gear_id && (
-                  <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.gear_id}
-                  </p>
-                )}
               </div>
 
-              {/* Quantity Selector */}
-              {selectedGear && (
+              {selectedProduct && (
                 <div>
-                  <Label htmlFor="quantity">
-                    Množství <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="flex items-center gap-4">
-                    <Select
-                      value={formData.quantity.toString()}
-                      onValueChange={(value) => handleInputChange('quantity', parseInt(value, 10))}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[...Array(Math.min(selectedGear.quantity_available || 1, 10))].map((_, i) => (
-                          <SelectItem key={i + 1} value={(i + 1).toString()}>
-                            {i + 1}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <span className="text-sm text-muted-foreground">
-                      Dostupné: {availability.result?.available ?? selectedGear.quantity_available ?? 0} ks
-                    </span>
-                  </div>
+                  <Label>Varianta *</Label>
+                  <Select
+                    value={formData.variant_id}
+                    onValueChange={v => handleInputChange('variant_id', v)}
+                  >
+                    <SelectTrigger className={errors.variant_id ? 'border-red-500' : ''}>
+                      <SelectValue placeholder="Vyberte variantu" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedProduct.product_variants.map(v => (
+                        <SelectItem key={v.id} value={v.id}>
+                          {v.name}
+                          {v.price_override_cents
+                            ? ` (${formatPrice(v.price_override_cents / 100)}/den)`
+                            : ` (${formatPrice((selectedProduct.base_price_cents || 0) / 100)}/den)`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.variant_id && <p className="text-sm text-red-500 mt-1">{errors.variant_id}</p>}
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="start_date">
-                    Začátek <span className="text-red-500">*</span>
-                  </Label>
+                  <Label>Začátek *</Label>
                   <div className="relative">
                     <Input
-                      id="start_date"
                       type="datetime-local"
                       value={formData.start_date}
-                      onChange={(e) => handleInputChange('start_date', e.target.value)}
+                      onChange={e => handleInputChange('start_date', e.target.value)}
                       className={errors.start_date ? 'border-red-500' : ''}
                     />
-                    <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
-                  {errors.start_date && (
-                    <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.start_date}
-                    </p>
-                  )}
+                  {errors.start_date && <p className="text-sm text-red-500 mt-1">{errors.start_date}</p>}
                 </div>
-
                 <div>
-                  <Label htmlFor="end_date">
-                    Konec <span className="text-red-500">*</span>
-                  </Label>
+                  <Label>Konec *</Label>
                   <div className="relative">
                     <Input
-                      id="end_date"
                       type="datetime-local"
                       value={formData.end_date}
-                      onChange={(e) => handleInputChange('end_date', e.target.value)}
+                      onChange={e => handleInputChange('end_date', e.target.value)}
                       className={errors.end_date ? 'border-red-500' : ''}
                     />
-                    <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
-                  {errors.end_date && (
-                    <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.end_date}
-                    </p>
-                  )}
+                  {errors.end_date && <p className="text-sm text-red-500 mt-1">{errors.end_date}</p>}
                 </div>
               </div>
 
-              {/* Availability Indicator */}
-              {formData.gear_id && formData.start_date && formData.end_date && (
-                <div className="p-4 border rounded-lg">
+              {/* Availability Status */}
+              {formData.variant_id && formData.start_date && formData.end_date && (
+                <div className={`p-4 border rounded-lg flex items-center gap-2 ${availability.checking ? 'text-muted-foreground' :
+                    availability.result?.isAvailable ? 'text-green-600 bg-green-50/50' : 'text-red-600 bg-red-50/50'
+                  }`}>
                   {availability.checking ? (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Kontrola dostupnosti...</span>
-                    </div>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Kontrola dostupnosti...</>
                   ) : availability.result ? (
-                    <div className={`flex items-center gap-2 ${
-                      availability.result.isAvailable ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {availability.result.isAvailable ? (
-                        <CheckCircle2 className="w-5 h-5" />
-                      ) : (
-                        <AlertCircle className="w-5 h-5" />
-                      )}
+                    <>
+                      {availability.result.isAvailable ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                       <span className="font-medium">{availability.result.message}</span>
-                    </div>
+                    </>
                   ) : null}
                 </div>
               )}
 
-              {/* Price Calculation */}
-              {selectedGear && rentalDays > 0 && (
-                <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Cena za den:</span>
-                    <span className="font-medium">{formatPrice(selectedGear.price_per_day || 0)}</span>
+              {/* Price Summary */}
+              {selectedVariant && rentalDays > 0 && (
+                <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Sazba:</span>
+                    <span className="font-medium">{formatPrice(pricePerDay)} / den</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Počet dní:</span>
-                    <span className="font-medium">× {rentalDays}</span>
+                  <div className="flex justify-between">
+                    <span>Doba:</span>
+                    <span className="font-medium">{rentalDays} dny</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Množství:</span>
-                    <span className="font-medium">× {formData.quantity}</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                    <span>Celková cena:</span>
+                  <div className="border-t pt-2 flex justify-between text-lg font-bold">
+                    <span>Celkem:</span>
                     <span>{formatPrice(totalPrice)}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatPrice(selectedGear.price_per_day || 0)} × {rentalDays} {rentalDays === 1 ? 'den' : rentalDays < 5 ? 'dny' : 'dní'} × {formData.quantity} ks
                   </div>
                 </div>
               )}
 
               <div>
-                <Label htmlFor="notes">Poznámky (volitelné)</Label>
+                <Label htmlFor="notes">Poznámky</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  placeholder="Speciální požadavky, poznámky..."
-                  rows={3}
+                  onChange={e => handleInputChange('notes', e.target.value)}
                 />
               </div>
 
@@ -641,42 +505,19 @@ const ReservationForm = () => {
                 <Checkbox
                   id="deposit_paid"
                   checked={formData.deposit_paid}
-                  onCheckedChange={(checked) => handleInputChange('deposit_paid', checked as boolean)}
+                  onCheckedChange={c => handleInputChange('deposit_paid', c)}
                 />
-                <Label
-                  htmlFor="deposit_paid"
-                  className="text-sm font-normal cursor-pointer"
-                >
-                  Záloha zaplacena
-                </Label>
+                <Label htmlFor="deposit_paid">Záloha zaplacena</Label>
               </div>
             </CardContent>
           </Card>
 
-          {/* Actions */}
-          <div className="flex flex-col-reverse sm:flex-row gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/provider/reservations')}
-              disabled={submitting}
-              className="w-full sm:w-auto"
-            >
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" onClick={() => navigate('/provider/reservations')}>
               Zrušit
             </Button>
-            <Button
-              type="submit"
-              disabled={submitting || !availability.result?.isAvailable}
-              className="w-full sm:w-auto"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Vytváření...
-                </>
-              ) : (
-                'Vytvořit rezervaci'
-              )}
+            <Button type="submit" disabled={submitting || (availability.result && !availability.result.isAvailable)}>
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Vytvořit rezervaci'}
             </Button>
           </div>
         </form>
