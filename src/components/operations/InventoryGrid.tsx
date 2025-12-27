@@ -6,6 +6,8 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    getFacetedUniqueValues,
+    getFacetedRowModel,
     ColumnDef,
     flexRender,
     SortingState,
@@ -26,12 +28,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, MoreHorizontal, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { ChevronDown, MoreHorizontal, SlidersHorizontal, ArrowUpDown, Wrench, CircleCheck, CircleAlert, CircleX, Home } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { DataTableFacetedFilter } from '@/components/ui/data-table-faceted-filter';
+import { LogMaintenanceModal } from './LogMaintenanceModal';
 
 // Derived Type for the Join View
-// standard Supabase approach: create a View or just select with join in query
-// BUT for Typescript, we define the shape we expect from the joined query
 export type InventoryAsset = {
     id: string;
     asset_tag: string;
@@ -60,11 +62,15 @@ interface InventoryGridProps {
     canDelete?: boolean;
 }
 
-export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange, canDelete = true }: InventoryGridProps) {
+export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onStatusChange, canDelete = true }: InventoryGridProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
+
+    // Maintenance Modal State
+    const [showMaintenance, setShowMaintenance] = useState(false);
+    const [maintenanceIds, setMaintenanceIds] = useState<string[]>([]);
 
     const columns = useMemo<ColumnDef<InventoryAsset>[]>(
         () => [
@@ -118,18 +124,30 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
                 ),
             },
             {
+                id: 'category',
+                accessorFn: (row) => row.product.category,
+                header: 'Category',
+                cell: ({ row }) => <Badge variant="secondary" className="capitalize">{row.original.product.category}</Badge>,
+                filterFn: (row, id, value) => {
+                    return value.includes(row.original.product.category);
+                },
+            },
+            {
                 accessorKey: 'status',
                 header: 'Status',
+                filterFn: (row, id, value) => {
+                    return value.includes(row.getValue(id));
+                },
                 cell: ({ row }) => {
                     const status = row.getValue('status') as string;
                     const colorStyles = {
-                        available: 'bg-green-100 text-green-700 border-green-200',
-                        active: 'bg-blue-100 text-blue-700 border-blue-200',
-                        maintenance: 'bg-amber-100 text-amber-700 border-amber-200',
-                        lost: 'bg-red-100 text-red-700 border-red-200',
+                        available: 'bg-green-50 text-green-700 border-green-200',
+                        active: 'bg-blue-50 text-blue-700 border-blue-200',
+                        maintenance: 'bg-amber-50 text-amber-700 border-amber-200',
+                        lost: 'bg-red-50 text-red-700 border-red-200',
                         retired: 'bg-gray-100 text-gray-700 border-gray-200',
-                        reserved: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-                        quarantine: 'bg-purple-100 text-purple-700 border-purple-200',
+                        reserved: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                        quarantine: 'bg-purple-50 text-purple-700 border-purple-200',
                     };
 
                     return (
@@ -148,6 +166,7 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
                 header: 'Health',
                 cell: ({ row }) => {
                     const score = row.getValue('condition_score') as number;
+                    if (!score) return <span className="text-muted-foreground text-xs">-</span>;
                     return (
                         <div className={`text-xs font-bold ${score < 70 ? 'text-red-500' : 'text-green-600'}`}>
                             {score}%
@@ -174,8 +193,12 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => onEdit(asset)}>Edit Details</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onStatusChange([asset.id], 'maintenance')}>
-                                    Mark for Maintenance
+                                <DropdownMenuItem onClick={() => {
+                                    setMaintenanceIds([asset.id]);
+                                    setShowMaintenance(true);
+                                }}>
+                                    <Wrench className="w-4 h-4 mr-2" />
+                                    Log Maintenance
                                 </DropdownMenuItem>
                                 {canDelete && (
                                     <>
@@ -191,7 +214,7 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
                 },
             },
         ],
-        [onDelete, onEdit, onStatusChange]
+        [onDelete, onEdit]
     );
 
     const table = useReactTable({
@@ -203,6 +226,8 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getFacetedRowModel: getFacetedRowModel(),
+        getFacetedUniqueValues: getFacetedUniqueValues(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
         state: {
@@ -215,33 +240,86 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
 
     const selectedIds = Object.keys(rowSelection).map(index => data[parseInt(index)]?.id).filter(Boolean);
 
+    // Extract unique categories for filter
+    const categories = Array.from(new Set(data.map(item => item.product.category))).map(cat => ({
+        label: cat.charAt(0).toUpperCase() + cat.slice(1),
+        value: cat
+    }));
+
+    const statuses = [
+        { label: 'Available', value: 'available', icon: CircleCheck },
+        { label: 'Active', value: 'active', icon: Home },
+        { label: 'Maintenance', value: 'maintenance', icon: Wrench },
+        { label: 'Reserved', value: 'reserved', icon: CircleAlert },
+        { label: 'Retired', value: 'retired', icon: CircleX },
+    ];
+
     return (
         <div className="w-full space-y-4">
-            <div className="flex items-center justify-between py-4">
-                {/* Search Filter */}
-                <Input
-                    placeholder="Filter tags or products..."
-                    value={(table.getColumn('product_name')?.getFilterValue() as string) ?? ''}
-                    onChange={(event) =>
-                        table.getColumn('product_name')?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between py-4">
+                {/* Search & Filters */}
+                <div className="flex flex-1 items-center gap-2">
+                    <Input
+                        placeholder="Search assets..."
+                        value={(table.getColumn('product_name')?.getFilterValue() as string) ?? ''}
+                        onChange={(event) =>
+                            table.getColumn('product_name')?.setFilterValue(event.target.value)
+                        }
+                        className="max-w-[250px] bg-white h-8"
+                    />
+
+                    {table.getColumn('status') && (
+                        <DataTableFacetedFilter
+                            column={table.getColumn('status')}
+                            title="Status"
+                            options={statuses}
+                        />
+                    )}
+
+                    {table.getColumn('category') && categories.length > 0 && (
+                        <DataTableFacetedFilter
+                            column={table.getColumn('category')}
+                            title="Category"
+                            options={categories}
+                        />
+                    )}
+
+                    {/* Clear Filters */}
+                    {columnFilters.length > 0 && (
+                        <Button
+                            variant="ghost"
+                            onClick={() => table.resetColumnFilters()}
+                            className="h-8 px-2 lg:px-3"
+                        >
+                            Reset
+                            <CircleX className="ml-2 h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
 
                 {/* View Options */}
                 <div className="flex gap-2">
-                    {selectedIds.length > 0 && (
-                        <div className="flex items-center gap-2 mr-4 bg-muted/50 p-1 rounded-md px-3 animate-in fade-in">
-                            <span className="text-sm font-medium">{selectedIds.length} selected</span>
-                            <div className="h-4 w-px bg-border mx-2" />
-                            {canDelete && (
-                                <Button size="sm" variant="destructive" onClick={() => onDelete(selectedIds)}>
-                                    Delete
-                                </Button>
-                            )}
+                    {selectedIds.length > 0 ? (
+                        <div className="flex items-center gap-2 mr-4 bg-primary/10 p-1 rounded-md px-3 animate-in fade-in">
+                            <span className="text-sm font-medium text-primary">{selectedIds.length} selected</span>
+                            <div className="h-4 w-px bg-primary/20 mx-2" />
+
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-7"
+                                onClick={() => {
+                                    setMaintenanceIds(selectedIds);
+                                    setShowMaintenance(true);
+                                }}
+                            >
+                                <Wrench className="w-3.5 h-3.5 mr-2" />
+                                Maintenance
+                            </Button>
+
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button size="sm" variant="outline">Set Status</Button>
+                                    <Button size="sm" variant="outline" className="h-7 bg-white">Status</Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
                                     {['available', 'maintenance', 'retired'].map(s => (
@@ -251,40 +329,46 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
                                     ))}
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                        </div>
-                    )}
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                <SlidersHorizontal className="mr-2 h-4 w-4" />
-                                View
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    );
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            {canDelete && (
+                                <Button size="sm" variant="destructive" className="h-7" onClick={() => onDelete(selectedIds)}>
+                                    Delete
+                                </Button>
+                            )}
+                        </div>
+                    ) : (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="ml-auto h-8 bg-white">
+                                    <SlidersHorizontal className="mr-2 h-4 w-4" />
+                                    View
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {table
+                                    .getAllColumns()
+                                    .filter((column) => column.getCanHide())
+                                    .map((column) => {
+                                        return (
+                                            <DropdownMenuCheckboxItem
+                                                key={column.id}
+                                                className="capitalize"
+                                                checked={column.getIsVisible()}
+                                                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                                            >
+                                                {column.id}
+                                            </DropdownMenuCheckboxItem>
+                                        );
+                                    })}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </div>
             </div>
 
-            <div className="rounded-md border bg-white shadow-sm">
+            <div className="rounded-md border bg-white shadow-sm overflow-hidden">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-muted/50">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
@@ -330,25 +414,42 @@ export function InventoryGrid({ data, loading, onEdit, onDelete, onStatusChange,
                 </Table>
             </div>
 
-            {/* Pagination Controls could go here */}
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
+            <div className="flex items-center justify-between py-4">
+                <div className="text-xs text-muted-foreground">
+                    Showing {table.getFilteredRowModel().rows.length} of {data.length} items
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Previous
+                    </Button>
+                    <div className="text-sm font-medium">
+                        Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Next
+                    </Button>
+                </div>
             </div>
+
+            <LogMaintenanceModal
+                open={showMaintenance}
+                onOpenChange={setShowMaintenance}
+                assetIds={maintenanceIds}
+                onSuccess={() => {
+                    setRowSelection({});
+                    onRefresh();
+                }}
+            />
         </div>
     );
 }

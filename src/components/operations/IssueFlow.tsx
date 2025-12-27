@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { canIssue, ReservationState, ItemState } from "@/lib/logic/reservation-state";
 import { AlertTriangle, Lock, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { PrintContractButton } from '@/components/contracts/PrintContractButton';
+import { useTranslation } from 'react-i18next';
 
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 
@@ -23,6 +25,7 @@ interface IssueFlowProps {
 }
 
 export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueFlowProps) {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
 
     // 1. Fetch Real Items State
@@ -63,7 +66,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
             onOpenChange(false);
         } catch (e: any) {
             console.error(e);
-            toast.error("Failed to issue reservation");
+            toast.error(t('error'));
         } finally {
             setLoading(false);
         }
@@ -90,7 +93,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                         ) : (
                             <Lock className="w-5 h-5 text-red-600" />
                         )}
-                        Issue Reservation #{reservation.id}
+                        {t('operations.issueFlow.title')} #{reservation.id}
                     </DialogTitle>
                     <DialogDescription>
                         {reservation.customerName} - {reservation.itemName}
@@ -102,22 +105,21 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                         <div className="p-4 rounded-md bg-amber-50 border border-amber-200 text-amber-800 flex flex-col gap-2">
                             <div className="flex items-center gap-2 font-semibold">
                                 <AlertTriangle className="w-4 h-4" />
-                                No Assets Assigned
+                                {t('operations.issueFlow.noAssets.title')}
                             </div>
                             <p className="text-sm">
-                                This reservation has no specific items assigned yet.
-                                Please assign assets in the calendar before issuing.
+                                {t('operations.issueFlow.noAssets.desc')}
                             </p>
                         </div>
                     ) : !isAllowed && !overrideMode ? (
                         <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-800 flex flex-col gap-2">
                             <div className="flex items-center gap-2 font-semibold">
                                 <AlertTriangle className="w-4 h-4" />
-                                Action Blocked
+                                {t('operations.issueFlow.blocked.title')}
                             </div>
                             <p className="text-sm">
-                                This reservation is <strong>{reservation.paymentStatus}</strong>.
-                                You cannot issue items until payment is settled.
+                                {t('operations.issueFlow.blocked.desc')} <strong>{reservation.paymentStatus}</strong>.
+                                {t('operations.issueFlow.blocked.descSuffix')}
                             </p>
                             <Button
                                 variant="destructive"
@@ -125,18 +127,18 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                                 className="mt-2 w-full"
                                 onClick={() => setOverrideMode(true)}
                             >
-                                Admin Override (Log Event)
+                                {t('operations.issueFlow.blocked.override')}
                             </Button>
                         </div>
                     ) : (
                         <div className="space-y-4">
                             <div className="p-4 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-800 text-sm">
-                                Ready for issue. ID Check passed?
+                                {t('operations.issueFlow.ready')}
                             </div>
 
                             {overrideMode && (
                                 <p className="text-xs text-orange-600 font-medium text-center">
-                                    ⚠️ Override Active - This action will be logged.
+                                    {t('operations.issueFlow.overrideActive')}
                                 </p>
                             )}
                         </div>
@@ -144,15 +146,17 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                 </div>
 
                 <DialogFooter className="flex gap-2 sm:justify-between">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
-                        Cancel
-                    </Button>
-                    <Button
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => onOpenChange(false)}>
+                            {t('operations.issueFlow.cancel')}
+                        </Button>
+                        <PrintContractButton reservationId={reservation.id} label={t('operations.issueFlow.contract')} />
+                    </div>                    <Button
                         onClick={handleConfirm}
                         disabled={(!isAllowed && !overrideMode) || loading}
                         className={overrideMode ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"}
                     >
-                        {loading ? "Processing..." : "Confirm Issue"}
+                        {loading ? t('provider.dashboard.agenda.processing') : t('operations.issueFlow.confirm')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

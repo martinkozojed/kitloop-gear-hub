@@ -1,12 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Wrench, History, Info, Save, Edit } from 'lucide-react';
+import { Loader2, Wrench, History, Info, Save, Edit, Plus } from 'lucide-react';
+import { LogMaintenanceModal } from './LogMaintenanceModal';
 import { supabase } from '@/lib/supabase';
 import { InventoryAsset } from './InventoryGrid';
 import { Separator } from '@/components/ui/separator';
@@ -46,6 +48,9 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
     // Edit State
     const [editLocation, setEditLocation] = useState('');
     const [editCondition, setEditCondition] = useState('');
+
+    // Maintenance Modal
+    const [showLogMaintenance, setShowLogMaintenance] = useState(false);
 
     useEffect(() => {
         if (assetId && open) {
@@ -237,10 +242,16 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                                         <div className="text-center py-10 text-muted-foreground">
                                             <Wrench className="w-10 h-10 mx-auto mb-2 opacity-20" />
                                             <p>No cleanings or repairs recorded.</p>
-                                            <Button variant="ghost" className="mt-2 text-primary hover:text-primary/80">Log Maintenance</Button>
+                                            <Button variant="ghost" className="mt-2 text-primary hover:text-primary/80" onClick={() => setShowLogMaintenance(true)}>
+                                                Log Maintenance
+                                            </Button>
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
+                                            <Button size="sm" variant="outline" className="w-full mb-4" onClick={() => setShowLogMaintenance(true)}>
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                Add Log Entry
+                                            </Button>
                                             {maintenance.map(m => (
                                                 <div key={m.id} className="flex gap-3 border-b pb-3">
                                                     <div className="bg-orange-100 p-2 rounded-full h-fit">
@@ -287,6 +298,15 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                         </Tabs>
                     )}
                 </div>
+
+                {assetId && (
+                    <LogMaintenanceModal
+                        open={showLogMaintenance}
+                        onOpenChange={setShowLogMaintenance}
+                        assetIds={[assetId]}
+                        onSuccess={() => fetchDetails(assetId)}
+                    />
+                )}
             </SheetContent>
         </Sheet>
     );

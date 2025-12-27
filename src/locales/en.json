@@ -6,7 +6,7 @@
     "search_placeholder": "What gear are you looking for?",
     "location_placeholder": "Where? (City or postal code)",
     "cta": "Find Gear",
-    "add_rental": "Add Your Rental",
+    "add_rental": "List Your Gear",
     "description": "Book outdoor gear from locals in seconds.",
     "image_alt": "Outdoor landscape",
     "title": "Your next adventure starts here",
@@ -453,6 +453,47 @@
       "cancelConfirm": "Are you sure you want to cancel this reservation?",
       "cancelSuccess": "Reservation cancelled successfully",
       "cancelError": "Failed to cancel reservation"
+    },
+    "reservationDetail": {
+      "header": {
+        "reservation": "Reservation",
+        "manage": "Manage reservation details and communication"
+      },
+      "tabs": {
+        "details": "Details",
+        "messages": "Messages"
+      },
+      "cards": {
+        "rentalInfo": "Rental Info",
+        "customer": "Customer",
+        "actions": "Actions",
+        "history": "Communication History",
+        "historyDesc": "Automated emails sent to this customer",
+        "noMessages": "No messages sent yet."
+      },
+      "labels": {
+        "item": "Item",
+        "totalPrice": "Total Price",
+        "start": "Start",
+        "end": "End",
+        "notes": "Notes"
+      },
+      "actions": {
+        "edit": "Edit",
+        "resend": "Resend Confirmation",
+        "resendSuccess": "Confirmation email resent",
+        "resendError": "Failed to resend email"
+      },
+      "status": {
+        "sent": "Sent",
+        "failed": "Failed"
+      },
+      "messageTypes": {
+        "confirmation": "Confirmation",
+        "pickup_reminder": "Pickup Reminder",
+        "return_reminder": "Return Reminder",
+        "review_request": "Review Request"
+      }
     }
   },
   "analytics": {
@@ -592,6 +633,64 @@
           "reservationsTotal": "Reservations total"
         }
       }
+    }
+  },
+  "operations": {
+    "customerSheet": {
+      "tabs": {
+        "overview": "Overview",
+        "timeline": "Timeline",
+        "profile": "Profile"
+      },
+      "risk": {
+        "title": "Risk Management",
+        "safe": "Safe",
+        "warning": "Warning",
+        "blacklist": "BLACKLIST",
+        "trusted": "Trusted",
+        "verified": "Verified",
+        "highRisk": "High Risk",
+        "markSafe": "Mark Safe",
+        "markWarning": "Warning",
+        "markBlacklist": "BLACKLIST CUSTOMER",
+        "notesLabel": "Risk Notes (Why?)",
+        "notesPlaceholder": "Reason for flagging..."
+      },
+      "stats": {
+        "totalSpend": "Total Spend",
+        "activeReservations": "Reservations",
+        "activeNow": "Active now"
+      },
+      "internalNotes": {
+        "label": "Internal Notes",
+        "placeholder": "Add general notes...",
+        "save": "Save Notes",
+        "saving": "Saving..."
+      },
+      "profile": {
+        "shoeSize": "Shoe Size",
+        "height": "Height (cm)",
+        "skill": "Skill Level",
+        "tags": "Tags"
+      }
+    },
+    "issueFlow": {
+      "title": "Issue Reservation",
+      "noAssets": {
+        "title": "No Assets Assigned",
+        "desc": "This reservation has no specific items assigned yet. Please assign assets in the calendar before issuing."
+      },
+      "blocked": {
+        "title": "Action Blocked",
+        "desc": "This reservation is",
+        "descSuffix": "You cannot issue items until payment is settled.",
+        "override": "Admin Override (Log Event)"
+      },
+      "ready": "Ready for pickup. ID verified?",
+      "overrideActive": "⚠️ Override Active - This action will be logged.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Issue",
+      "contract": "Contract"
     }
   }
 }

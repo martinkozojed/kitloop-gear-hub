@@ -65,8 +65,9 @@ export const useDashboardData = () => {
             const { data: rawAgenda, error } = await supabase
                 .from('reservations')
                 .select(`
-                    id, start_date, end_date, status, customer_name, customer_phone, payment_status,
-                    gear:gear_id ( name )
+                    id, start_date, end_date, status, customer_name, customer_phone, payment_status, crm_customer_id,
+                    gear:gear_id ( name ),
+                    crm_customer:customers ( risk_status )
                 `)
                 .eq('provider_id', provider.id)
                 .or(`start_date.gte.${todayIso},end_date.gte.${todayIso}`)
@@ -83,9 +84,9 @@ export const useDashboardData = () => {
                 customer_name: string | null;
                 customer_phone: string | null;
                 payment_status: string;
-                gear: {
-                    name: string;
-                } | null; // gear can be null if join fails or empty, though ideally not
+                crm_customer_id: string | null;
+                gear: { name: string } | null;
+                crm_customer: { risk_status: string } | null;
             }
 
             const mappedAgenda: AgendaItemProps[] = [];
@@ -95,6 +96,8 @@ export const useDashboardData = () => {
                 const eDate = new Date(r.end_date);
                 const isTodayStart = sDate >= today && sDate < tomorrow;
                 const isTodayEnd = eDate >= today && eDate < tomorrow;
+
+                const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
 
                 // Pickup Agenda
                 if (isTodayStart && (r.status === 'confirmed' || r.status === 'unpaid')) {
@@ -109,7 +112,9 @@ export const useDashboardData = () => {
                         reservationId: r.id,
                         startDate: r.start_date,
                         endDate: r.end_date,
-                        paymentStatus: r.payment_status as 'paid' | 'unpaid' | 'deposit_paid'
+                        paymentStatus: r.payment_status as 'paid' | 'unpaid' | 'deposit_paid',
+                        crmCustomerId: r.crm_customer_id || undefined,
+                        customerRiskStatus: riskStatus
                     });
                 }
 

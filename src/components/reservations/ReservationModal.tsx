@@ -43,10 +43,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Initialize Stripe outside of component
 // Initialize Stripe outside of component
+// Initialize Stripe outside of component
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-if (!stripeKey) {
-    console.error("Missing VITE_STRIPE_PUBLISHABLE_KEY");
-}
+// Gracefully handle missing key without error logging spam
 const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 interface ReservationModalProps {

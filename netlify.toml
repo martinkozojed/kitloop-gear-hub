@@ -1,7 +1,7 @@
 [[headers]]
 for = "/*"
   [headers.values]
-  Content-Security-Policy = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://*.supabase.co https://api.stripe.com https://r.stripe.com https://*.sentry.io https://*.ingest.sentry.io; frame-ancestors 'self'; base-uri 'self';"
+  Content-Security-Policy = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.gpteng.co https://js.stripe.com; connect-src 'self' https://*.supabase.co https://api.stripe.com https://r.stripe.com https://*.sentry.io https://*.ingest.sentry.io http://127.0.0.1:54321 ws://127.0.0.1:54321; frame-src 'self' https://js.stripe.com; frame-ancestors 'self'; base-uri 'self';"
   Referrer-Policy = "no-referrer"
   Permissions-Policy = "geolocation=(), camera=(), microphone=()"
   X-Content-Type-Options = "nosniff"

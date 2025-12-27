@@ -16,7 +16,8 @@ import {
   Search,
   ChevronDown,
   ShieldAlert,
-  Wrench
+  Wrench,
+  Building2
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DENSITY } from '@/components/ui/density';
@@ -48,6 +49,7 @@ const ProviderSidebar = () => {
         { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
         { path: '/provider/maintenance', label: 'Servis', icon: Wrench },
         { path: '/provider/customers', label: 'Zákazníci (CRM)', icon: Users },
+        { path: '/provider/accounts', label: 'Organizace (B2B)', icon: Building2 },
       ]
     },
     {

@@ -15,6 +15,8 @@ import { createReservationHold, ReservationError } from "@/services/reservations
 import { toast } from "sonner";
 import { CalendarIcon, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
+import { CustomerPicker, CustomerOption } from '@/components/crm/CustomerPicker';
+import { Separator } from '@/components/ui/separator';
 
 interface Variant {
   id: string;
@@ -346,6 +348,36 @@ const ReservationForm = () => {
           <Card>
             <CardHeader><CardTitle>Informace o zákazníkovi</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+
+              <div className="bg-muted/10 p-4 rounded-lg border border-dashed mb-4">
+                <Label className="mb-2 block">Vybrat z databáze (CRM)</Label>
+                <CustomerPicker
+                  value={undefined} // We don't strictly bind ID yet, just pre-fill
+                  onSelect={(c) => {
+                    if (c) {
+                      setFormData(prev => ({
+                        ...prev,
+                        customer_name: c.full_name,
+                        customer_email: c.email || '',
+                        customer_phone: c.phone || '+420 ',
+                      }));
+                      // Clear errors
+                      setErrors(prev => ({ ...prev, customer_name: undefined, customer_phone: undefined }));
+                      toast.success("Údaje zákazníka načteny");
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">Nebo vyplňte ručně</span>
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="customer_name">Jméno zákazníka *</Label>
                 <Input
@@ -461,7 +493,7 @@ const ReservationForm = () => {
               {/* Availability Status */}
               {formData.variant_id && formData.start_date && formData.end_date && (
                 <div className={`p-4 border rounded-lg flex items-center gap-2 ${availability.checking ? 'text-muted-foreground' :
-                    availability.result?.isAvailable ? 'text-green-600 bg-green-50/50' : 'text-red-600 bg-red-50/50'
+                  availability.result?.isAvailable ? 'text-green-600 bg-green-50/50' : 'text-red-600 bg-red-50/50'
                   }`}>
                   {availability.checking ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Kontrola dostupnosti...</>

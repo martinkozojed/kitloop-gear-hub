@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { usePermissions } from "@/hooks/usePermissions";
 import { SyncIndicator } from "@/components/ui/sync-indicator";
+import { CustomerDetailSheet } from "@/components/crm/CustomerDetailSheet";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LayoutDashboard, ListTodo, CheckCircle2 } from "lucide-react";
@@ -41,6 +42,10 @@ const DashboardOverview = () => {
   const [returnOpen, setReturnOpen] = useState(false);
   const [activeReservation, setActiveReservation] = useState<AgendaItemProps | null>(null);
 
+  // CRM Sheet State
+  const [crmSheetOpen, setCrmSheetOpen] = useState(false);
+  const [selectedCrmId, setSelectedCrmId] = useState<string | null>(null);
+
   // --- View Mode State (Persisted) ---
   const [viewMode, setViewMode] = useState<'overview' | 'operations'>(() => {
     return (localStorage.getItem('dashboard.viewMode') as 'overview' | 'operations') || 'overview';
@@ -62,6 +67,11 @@ const DashboardOverview = () => {
   const handleReturnClick = (reservation: AgendaItemProps) => {
     setActiveReservation(reservation);
     setReturnOpen(true);
+  };
+
+  const handleCustomerClick = (crmId: string) => {
+    setSelectedCrmId(crmId);
+    setCrmSheetOpen(true);
   };
 
   const executeIssue = async (id: string, isOverride: boolean) => {
@@ -203,6 +213,7 @@ const DashboardOverview = () => {
                     data={item}
                     onIssue={handleIssueClick}
                     onReturn={handleReturnClick}
+                    onCustomerClick={handleCustomerClick}
                   />
                 ))}
               </div>
@@ -251,6 +262,13 @@ const DashboardOverview = () => {
               />
             </>
           )}
+
+          <CustomerDetailSheet
+            customerId={selectedCrmId}
+            open={crmSheetOpen}
+            onOpenChange={setCrmSheetOpen}
+            onUpdate={() => refresh()}
+          />
 
         </div>
       </TooltipProvider>

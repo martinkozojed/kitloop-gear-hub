@@ -26,14 +26,17 @@ import ProviderInventory from "./pages/provider/ProviderInventory";
 import InventoryForm from "./pages/provider/InventoryForm";
 import InventoryImport from "./pages/provider/InventoryImport";
 import ProviderReservations from "./pages/provider/ProviderReservations";
+import ReservationDetail from "./pages/provider/ReservationDetail";
 import ProviderMaintenance from "./pages/provider/ProviderMaintenance";
 import ReservationForm from "./pages/provider/ReservationForm";
 import ProviderVerify from "./pages/provider/ProviderVerify";
 import AdminApprovals from "./pages/admin/AdminApprovals";
+import Observability from "./pages/admin/Observability";
 import { cn } from "./lib/utils";
 import ProviderAnalytics from "./pages/provider/ProviderAnalytics";
 import ProviderCalendar from "./pages/provider/ProviderCalendar";
 import ProviderCustomers from "./pages/provider/ProviderCustomers";
+import ProviderAccounts from "./pages/provider/ProviderAccounts";
 import DemoDashboard from "./pages/DemoDashboard";
 
 import { CommandMenu } from "./components/ui/command-menu";
@@ -80,6 +83,7 @@ const AppRoutes = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/admin/approvals" element={<AdminApprovals />} />
+          <Route path="/admin/observability" element={<Observability />} />
           <Route path="/marketplace" element={<MarketplaceHome />} />
 
           {/* Provider Routes */}
@@ -129,6 +133,14 @@ const AppRoutes = () => {
             element={
               <ProviderRoute>
                 <ProviderReservations />
+              </ProviderRoute>
+            }
+          />
+          <Route
+            path="/provider/reservations/edit/:id"
+            element={
+              <ProviderRoute>
+                <ReservationDetail />
               </ProviderRoute>
             }
           />
@@ -185,6 +197,14 @@ const AppRoutes = () => {
             element={
               <ProviderRoute>
                 <ProviderCustomers />
+              </ProviderRoute>
+            }
+          />
+          <Route
+            path="/provider/accounts"
+            element={
+              <ProviderRoute>
+                <ProviderAccounts />
               </ProviderRoute>
             }
           />

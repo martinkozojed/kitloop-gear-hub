@@ -39,4 +39,6 @@ export interface AgendaItemProps {
     startDate?: string;
     endDate?: string;
     paymentStatus?: 'paid' | 'unpaid' | 'deposit_paid';
+    crmCustomerId?: string;
+    customerRiskStatus?: 'safe' | 'warning' | 'blacklist';
 }

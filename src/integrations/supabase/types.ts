@@ -34,6 +34,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          billing_address: Json | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          id: string
+          name: string
+          notes: string | null
+          provider_id: string
+          risk_score: number | null
+          status: string | null
+          tax_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_address?: Json | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          provider_id: string
+          risk_score?: number | null
+          status?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_address?: Json | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          provider_id?: string
+          risk_score?: number | null
+          status?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -118,6 +171,7 @@ export type Database = {
           condition_note: string | null
           condition_score: number | null
           created_at: string | null
+          deleted_at: string | null
           id: string
           location: string | null
           provider_id: string
@@ -133,6 +187,7 @@ export type Database = {
           condition_note?: string | null
           condition_score?: number | null
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           location?: string | null
           provider_id: string
@@ -148,6 +203,7 @@ export type Database = {
           condition_note?: string | null
           condition_score?: number | null
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           location?: string | null
           provider_id?: string
@@ -206,6 +262,141 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "audit_logs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_events: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          customer_id: string
+          data: Json | null
+          id: string
+          provider_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          customer_id: string
+          data?: Json | null
+          id?: string
+          provider_id: string
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          customer_id?: string
+          data?: Json | null
+          id?: string
+          provider_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_events_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_events_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          account_id: string | null
+          completed_rentals_count: number | null
+          consents: Json | null
+          created_at: string | null
+          email: string | null
+          full_name: string
+          id: string
+          is_contact_person: boolean | null
+          lifetime_value_cents: number | null
+          notes: string | null
+          phone: string | null
+          preferences: Json | null
+          provider_id: string
+          risk_notes: string | null
+          risk_status:
+            | Database["public"]["Enums"]["customer_risk_status"]
+            | null
+          status: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          completed_rentals_count?: number | null
+          consents?: Json | null
+          created_at?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          is_contact_person?: boolean | null
+          lifetime_value_cents?: number | null
+          notes?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          provider_id: string
+          risk_notes?: string | null
+          risk_status?:
+            | Database["public"]["Enums"]["customer_risk_status"]
+            | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          completed_rentals_count?: number | null
+          consents?: Json | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_contact_person?: boolean | null
+          lifetime_value_cents?: number | null
+          notes?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          provider_id?: string
+          risk_notes?: string | null
+          risk_status?:
+            | Database["public"]["Enums"]["customer_risk_status"]
+            | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customers_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
@@ -462,6 +653,70 @@ export type Database = {
           },
         ]
       }
+      notification_logs: {
+        Row: {
+          content_preview: string | null
+          error_message: string | null
+          id: string
+          meta_data: Json | null
+          provider_id: string | null
+          recipient_email: string | null
+          reservation_id: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["notification_status"] | null
+          subject: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Insert: {
+          content_preview?: string | null
+          error_message?: string | null
+          id?: string
+          meta_data?: Json | null
+          provider_id?: string | null
+          recipient_email?: string | null
+          reservation_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"] | null
+          subject?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Update: {
+          content_preview?: string | null
+          error_message?: string | null
+          id?: string
+          meta_data?: Json | null
+          provider_id?: string | null
+          recipient_email?: string | null
+          reservation_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"] | null
+          subject?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_logs_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_provider_activity_feed"
+            referencedColumns: ["reservation_id"]
+          },
+          {
+            foreignKeyName: "notification_logs_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -529,7 +784,9 @@ export type Database = {
       product_variants: {
         Row: {
           attributes: Json | null
+          buffer_minutes: number | null
           created_at: string | null
+          deleted_at: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -539,7 +796,9 @@ export type Database = {
         }
         Insert: {
           attributes?: Json | null
+          buffer_minutes?: number | null
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -549,7 +808,9 @@ export type Database = {
         }
         Update: {
           attributes?: Json | null
+          buffer_minutes?: number | null
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
@@ -572,6 +833,7 @@ export type Database = {
           base_price_cents: number | null
           category: string
           created_at: string | null
+          deleted_at: string | null
           description: string | null
           id: string
           image_url: string | null
@@ -584,6 +846,7 @@ export type Database = {
           base_price_cents?: number | null
           category: string
           created_at?: string | null
+          deleted_at?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -596,6 +859,7 @@ export type Database = {
           base_price_cents?: number | null
           category?: string
           created_at?: string | null
+          deleted_at?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -641,6 +905,41 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_members: {
+        Row: {
+          created_at: string | null
+          id: string
+          provider_id: string
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          provider_id: string
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          provider_id?: string
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_members_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       providers: {
         Row: {
           address: string | null
@@ -667,6 +966,8 @@ export type Database = {
           rental_name: string
           seasonal_mode: boolean | null
           status: string | null
+          tax_id: string | null
+          terms_text: string | null
           time_zone: string
           updated_at: string
           user_id: string | null
@@ -698,6 +999,8 @@ export type Database = {
           rental_name: string
           seasonal_mode?: boolean | null
           status?: string | null
+          tax_id?: string | null
+          terms_text?: string | null
           time_zone?: string
           updated_at?: string
           user_id?: string | null
@@ -729,6 +1032,8 @@ export type Database = {
           rental_name?: string
           seasonal_mode?: boolean | null
           status?: string | null
+          tax_id?: string | null
+          terms_text?: string | null
           time_zone?: string
           updated_at?: string
           user_id?: string | null
@@ -804,6 +1109,55 @@ export type Database = {
           },
         ]
       }
+      reservation_lines: {
+        Row: {
+          created_at: string | null
+          id: string
+          price_per_item_cents: number | null
+          product_variant_id: string
+          quantity: number
+          reservation_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          price_per_item_cents?: number | null
+          product_variant_id: string
+          quantity?: number
+          reservation_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          price_per_item_cents?: number | null
+          product_variant_id?: string
+          quantity?: number
+          reservation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_lines_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_lines_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_provider_activity_feed"
+            referencedColumns: ["reservation_id"]
+          },
+          {
+            foreignKeyName: "reservation_lines_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reservations: {
         Row: {
           actual_pickup_time: string | null
@@ -812,13 +1166,16 @@ export type Database = {
           cancel_reason: string | null
           cancelled_at: string | null
           created_at: string
+          crm_customer_id: string | null
           currency: string
           customer_email: string | null
           customer_id: string | null
           customer_name: string
           customer_phone: string | null
+          deleted_at: string | null
           deposit_amount: number | null
           deposit_paid: boolean | null
+          documents_status: Json | null
           end_date: string
           expires_at: string | null
           gear_id: string | null
@@ -848,13 +1205,16 @@ export type Database = {
           cancel_reason?: string | null
           cancelled_at?: string | null
           created_at?: string
+          crm_customer_id?: string | null
           currency?: string
           customer_email?: string | null
           customer_id?: string | null
           customer_name?: string
           customer_phone?: string | null
+          deleted_at?: string | null
           deposit_amount?: number | null
           deposit_paid?: boolean | null
+          documents_status?: Json | null
           end_date: string
           expires_at?: string | null
           gear_id?: string | null
@@ -884,13 +1244,16 @@ export type Database = {
           cancel_reason?: string | null
           cancelled_at?: string | null
           created_at?: string
+          crm_customer_id?: string | null
           currency?: string
           customer_email?: string | null
           customer_id?: string | null
           customer_name?: string
           customer_phone?: string | null
+          deleted_at?: string | null
           deposit_amount?: number | null
           deposit_paid?: boolean | null
+          documents_status?: Json | null
           end_date?: string
           expires_at?: string | null
           gear_id?: string | null
@@ -914,6 +1277,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reservations_crm_customer_id_fkey"
+            columns: ["crm_customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reservations_customer_id_fkey"
             columns: ["customer_id"]
@@ -950,6 +1320,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rpc_logs: {
+        Row: {
+          created_at: string | null
+          duration_ms: number | null
+          error_details: string | null
+          id: string
+          params: Json | null
+          rpc_name: string
+          success: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_ms?: number | null
+          error_details?: string | null
+          id?: string
+          params?: Json | null
+          rpc_name: string
+          success?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_ms?: number | null
+          error_details?: string | null
+          id?: string
+          params?: Json | null
+          rpc_name?: string
+          success?: boolean | null
+        }
+        Relationships: []
       }
       spatial_ref_sys: {
         Row: {
@@ -1277,6 +1677,10 @@ export type Database = {
         | { Args: { table_name: string }; Returns: string }
       enablelongtransactions: { Args: never; Returns: string }
       equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+      expire_stale_holds: {
+        Args: { retention_minutes?: number }
+        Returns: Json
+      }
       geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
         Args: { geom1: unknown; geom2: unknown }
@@ -1375,6 +1779,8 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_customer_360: { Args: { p_customer_id: string }; Returns: Json }
+      get_my_role: { Args: { limit_provider_id: string }; Returns: string }
       gettransactionid: { Args: never; Returns: unknown }
       is_admin: { Args: never; Returns: boolean }
       is_available:
@@ -1392,7 +1798,23 @@ export type Database = {
             Returns: boolean
           }
       is_provider_member: { Args: { pid: string }; Returns: boolean }
+      issue_reservation: {
+        Args: {
+          p_override?: boolean
+          p_provider_id: string
+          p_reservation_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       longtransactionsenabled: { Args: never; Returns: boolean }
+      mock_send_notification: {
+        Args: {
+          p_reservation_id: string
+          p_type: Database["public"]["Enums"]["notification_type"]
+        }
+        Returns: string
+      }
       populate_geometry_columns:
         | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }
         | { Args: { use_typmod?: boolean }; Returns: string }
@@ -1433,6 +1855,14 @@ export type Database = {
       }
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
+      process_return: {
+        Args: {
+          p_has_damage?: boolean
+          p_notes?: string
+          p_reservation_id: string
+        }
+        Returns: Json
+      }
       reserve_if_available: {
         Args: {
           p_customer_id: string
@@ -1448,13 +1878,16 @@ export type Database = {
           cancel_reason: string | null
           cancelled_at: string | null
           created_at: string
+          crm_customer_id: string | null
           currency: string
           customer_email: string | null
           customer_id: string | null
           customer_name: string
           customer_phone: string | null
+          deleted_at: string | null
           deposit_amount: number | null
           deposit_paid: boolean | null
+          documents_status: Json | null
           end_date: string
           expires_at: string | null
           gear_id: string | null
@@ -2078,6 +2511,17 @@ export type Database = {
         }
         Returns: string
       }
+      upsert_crm_customer: {
+        Args: {
+          p_account_id?: string
+          p_email?: string
+          p_full_name: string
+          p_notes?: string
+          p_phone?: string
+          p_tags?: string[]
+        }
+        Returns: string
+      }
     }
     Enums: {
       asset_status_type:
@@ -2088,8 +2532,27 @@ export type Database = {
         | "quarantine"
         | "retired"
         | "lost"
+      customer_risk_status:
+        | "safe"
+        | "warning"
+        | "blacklist"
+        | "trusted"
+        | "verified"
       maintenance_priority: "critical" | "high" | "normal" | "low" | "cosmetic"
       maintenance_type: "cleaning" | "repair" | "inspection" | "quality_hold"
+      notification_status: "pending" | "sent" | "failed"
+      notification_type:
+        | "confirmation"
+        | "pickup_reminder"
+        | "return_reminder"
+        | "review_request"
+      payment_status_type:
+        | "unpaid"
+        | "authorized"
+        | "paid"
+        | "refunded"
+        | "partially_refunded"
+        | "failed"
     }
     CompositeTypes: {
       geometry_dump: {
@@ -2237,8 +2700,30 @@ export const Constants = {
         "retired",
         "lost",
       ],
+      customer_risk_status: [
+        "safe",
+        "warning",
+        "blacklist",
+        "trusted",
+        "verified",
+      ],
       maintenance_priority: ["critical", "high", "normal", "low", "cosmetic"],
       maintenance_type: ["cleaning", "repair", "inspection", "quality_hold"],
+      notification_status: ["pending", "sent", "failed"],
+      notification_type: [
+        "confirmation",
+        "pickup_reminder",
+        "return_reminder",
+        "review_request",
+      ],
+      payment_status_type: [
+        "unpaid",
+        "authorized",
+        "paid",
+        "refunded",
+        "partially_refunded",
+        "failed",
+      ],
     },
   },
 } as const

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, CheckCircle2, AlertTriangle, Package } from "lucide-react";
+import { Phone, CheckCircle2, AlertTriangle, Package, ShieldCheck } from "lucide-react";
 import { DENSITY } from "@/components/ui/density";
 import { cn } from "@/lib/utils";
 
@@ -17,9 +17,10 @@ import { AgendaItemProps } from "@/types/dashboard";
 interface AgendaRowActions {
     onIssue?: (item: AgendaItemProps) => void;
     onReturn?: (item: AgendaItemProps) => void;
+    onCustomerClick?: (crmId: string) => void;
 }
 
-export function AgendaRow({ data, onIssue, onReturn }: { data: AgendaItemProps } & AgendaRowActions) {
+export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: AgendaItemProps } & AgendaRowActions) {
     // Determine actionable state
     const isPickup = data.type === 'pickup';
     const isBlocker = data.status === 'unpaid' || data.status === 'conflict';
@@ -59,7 +60,36 @@ export function AgendaRow({ data, onIssue, onReturn }: { data: AgendaItemProps }
             {/* Customer & Details */}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-sm text-foreground truncate">{data.customerName}</h4>
+                    <button
+                        onClick={() => onCustomerClick && data.crmCustomerId && onCustomerClick(data.crmCustomerId)}
+                        className={cn(
+                            "font-semibold text-sm truncate text-left flex items-center gap-1.5",
+                            data.crmCustomerId ? "text-primary cursor-pointer hover:underline" : "text-foreground"
+                        )}
+                        disabled={!data.crmCustomerId}
+                    >
+                        {data.customerName}
+                        {data.customerRiskStatus === 'blacklist' && (
+                            <Badge variant="destructive" className="h-5 px-1.5 text-[10px] gap-0.5 animate-pulse">
+                                <AlertTriangle className="w-3 h-3" /> STOP
+                            </Badge>
+                        )}
+                        {data.customerRiskStatus === 'warning' && (
+                            <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-amber-700 bg-amber-50 border-amber-200 gap-0.5">
+                                <AlertTriangle className="w-3 h-3" /> RISK
+                            </Badge>
+                        )}
+                        {data.customerRiskStatus === 'trusted' && (
+                            <Badge variant="default" className="h-5 px-1.5 text-[10px] bg-emerald-600 hover:bg-emerald-700 gap-0.5 border-transparent">
+                                <ShieldCheck className="w-3 h-3" /> VIP
+                            </Badge>
+                        )}
+                        {data.customerRiskStatus === 'verified' && (
+                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] text-blue-700 bg-blue-50 border-blue-200 gap-0.5">
+                                <ShieldCheck className="w-3 h-3" /> ID OK
+                            </Badge>
+                        )}
+                    </button>
                     <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
                         <Phone className="w-3 h-3" />
                     </Button>

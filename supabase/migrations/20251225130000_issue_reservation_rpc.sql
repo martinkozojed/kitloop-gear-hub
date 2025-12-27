@@ -62,7 +62,7 @@ BEGIN
         
         -- Update Asset Status
         UPDATE public.assets 
-        SET status = 'rented'::asset_status_type, -- Casting just in case
+        SET status = 'active'::asset_status_type, -- Casting just in case
             location = 'Customer' 
         WHERE id = v_assignment.asset_id;
         
