@@ -173,6 +173,11 @@ async function handle(req: Request): Promise<Response> {
         RETURNING id, status, paid_at
       `;
 
+      // Trigger Notification (Mock)
+      await client.queryObject`
+        SELECT public.mock_send_notification(${reservation.id}::uuid, 'confirmation'::notification_type)
+      `;
+
       await client.queryObject`COMMIT`;
 
       const updated = updateResult.rows[0];

@@ -26,6 +26,8 @@ const ProviderSettings = () => {
     email: '',
     currency: 'CZK',
     time_zone: 'Europe/Prague',
+    tax_id: '',
+    terms_text: '',
   });
 
   useEffect(() => {
@@ -41,6 +43,8 @@ const ProviderSettings = () => {
         email: provider.email || '',
         currency: provider.currency || 'CZK',
         time_zone: provider.time_zone || 'Europe/Prague',
+        tax_id: provider.tax_id || '',
+        terms_text: provider.terms_text || '',
       });
     }
   }, [provider]);
@@ -142,6 +146,17 @@ const ProviderSettings = () => {
                     value={formData.company_id}
                     onChange={(e) => updateField('company_id', e.target.value)}
                     maxLength={8}
+                  />
+                </div>
+
+                {/* DIC (Tax ID) */}
+                <div className="space-y-2">
+                  <Label htmlFor="tax_id">DIČ (Tax ID)</Label>
+                  <Input
+                    id="tax_id"
+                    value={formData.tax_id}
+                    onChange={(e) => updateField('tax_id', e.target.value)}
+                    placeholder="CZ12345678"
                   />
                 </div>
 
@@ -256,6 +271,25 @@ const ProviderSettings = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
+                </div>
+
+                {/* Legal Settings */}
+                <div className="pt-6 border-t">
+                  <h3 className="text-lg font-semibold mb-4">Legal Documents</h3>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="terms_text">Custom Terms & Conditions</Label>
+                    <textarea
+                      id="terms_text"
+                      className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={formData.terms_text}
+                      onChange={(e) => updateField('terms_text', e.target.value)}
+                      placeholder="Add any specific rental conditions here. These will appear on the printed contract."
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This text will be appended to the standard rental agreement. Only plain text is supported.
+                    </p>
                   </div>
                 </div>
 

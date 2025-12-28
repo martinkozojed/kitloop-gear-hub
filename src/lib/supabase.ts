@@ -55,4 +55,6 @@ export interface Provider {
   onboarding_completed?: boolean | null;
   onboarding_step?: number | null;
   current_season?: string | null;
+  tax_id?: string | null;
+  terms_text?: string | null;
 }
