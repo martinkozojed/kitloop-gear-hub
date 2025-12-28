@@ -5,13 +5,7 @@ import { AlertCircle, Clock, CreditCard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export interface ExceptionItem {
-    id: string;
-    type: 'overdue' | 'unpaid';
-    message: string;
-    priority: 'high' | 'medium';
-    customer: string;
-}
+import { ExceptionItem } from "@/types/dashboard";
 
 interface ExceptionsQueueProps {
     exceptions?: ExceptionItem[];

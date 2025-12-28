@@ -69,7 +69,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
         }
     };
 
-    const updateRiskStatus = async (status: 'safe' | 'warning' | 'blacklist' | 'trusted' | 'verified') => {
+    const updateRiskStatus = async (status: 'safe' | 'warning' | 'blacklist') => {
         if (!customerId) return;
         try {
             const { error } = await supabase
@@ -208,7 +208,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                     <CardContent className="space-y-4">
                                         <div className="grid grid-cols-2 gap-2">
                                             <Button
-                                                variant={profile.risk_status === 'safe' ? 'default' : 'outline'}
+                                                variant={profile.risk_status === 'safe' ? 'primary' : 'outline'}
                                                 size="sm"
                                                 onClick={() => updateRiskStatus('safe')}
                                                 className="bg-green-600 hover:bg-green-700 text-white border-none"
@@ -216,7 +216,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                                 {t('operations.customerSheet.risk.markSafe')}
                                             </Button>
                                             <Button
-                                                variant={profile.risk_status === 'warning' ? 'default' : 'outline'}
+                                                variant={profile.risk_status === 'warning' ? 'primary' : 'outline'}
                                                 size="sm"
                                                 onClick={() => updateRiskStatus('warning')}
                                                 className={profile.risk_status === 'warning' ? "bg-amber-600 hover:bg-amber-700" : "text-amber-600 border-amber-200 hover:bg-amber-50"}
@@ -224,7 +224,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                                 {t('operations.customerSheet.risk.markWarning')}
                                             </Button>
                                             <Button
-                                                variant={profile.risk_status === 'blacklist' ? 'default' : 'outline'}
+                                                variant={profile.risk_status === 'blacklist' ? 'primary' : 'outline'}
                                                 size="sm"
                                                 onClick={() => updateRiskStatus('blacklist')}
                                                 className="col-span-2 bg-red-600 hover:bg-red-700 text-white"

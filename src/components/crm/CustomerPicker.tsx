@@ -58,7 +58,7 @@ export function CustomerPicker({ value, onSelect }: CustomerPickerProps) {
             return data as CustomerOption[];
         },
         enabled: !!provider?.id,
-        keepPreviousData: true
+        placeholderData: (previousData) => previousData
     });
 
     const selectedCustomer = customers.find((c) => c.id === value);

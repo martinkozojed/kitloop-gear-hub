@@ -42,3 +42,11 @@ export interface AgendaItemProps {
     crmCustomerId?: string;
     customerRiskStatus?: 'safe' | 'warning' | 'blacklist';
 }
+
+export interface ExceptionItem {
+    id: string;
+    type: 'overdue' | 'unpaid';
+    message: string;
+    priority: 'high' | 'medium';
+    customer: string;
+}

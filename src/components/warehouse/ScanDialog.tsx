@@ -132,7 +132,7 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                                 <p className="text-sm text-blue-700 mb-3">
                                     Customer: <strong>{result.activeAssignment.reservations?.customer_name}</strong>
                                 </p>
-                                <Button className="w-full gap-2" variant="default">
+                                <Button className="w-full gap-2" variant="primary">
                                     <ArrowLeft className="w-4 h-4" />
                                     Return Item
                                 </Button>

@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
 import { AgendaItemProps, DashboardReservation, KpiData } from "@/types/dashboard";
-import { ExceptionItem } from "@/components/dashboard/ExceptionsQueue";
+import { ExceptionItem } from "@/types/dashboard";
 import { toast } from "sonner";
 
 export const useDashboardData = () => {

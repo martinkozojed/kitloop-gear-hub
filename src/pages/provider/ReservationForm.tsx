@@ -548,7 +548,7 @@ const ReservationForm = () => {
             <Button type="button" variant="outline" onClick={() => navigate('/provider/reservations')}>
               Zrušit
             </Button>
-            <Button type="submit" disabled={submitting || (availability.result && !availability.result.isAvailable)}>
+            <Button type="submit" disabled={submitting || (availability.result !== null && !availability.result.isAvailable)}>
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Vytvořit rezervaci'}
             </Button>
           </div>
