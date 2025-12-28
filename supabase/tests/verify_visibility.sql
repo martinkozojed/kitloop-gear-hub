@@ -4,6 +4,9 @@
 BEGIN;
 
 -- 1. Setup Data
+TRUNCATE auth.users CASCADE;
+TRUNCATE public.providers CASCADE;
+
 INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-111111111111', 'visible@test.com');
 INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-222222222222', 'hidden@test.com');
 
