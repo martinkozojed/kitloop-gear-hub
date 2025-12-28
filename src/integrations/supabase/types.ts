@@ -1384,6 +1384,33 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          revoked_at: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          revoked_at?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          revoked_at?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       analytics_provider_activity_feed: {
@@ -1762,6 +1789,13 @@ export type Database = {
       get_customer_360: { Args: { p_customer_id: string }; Returns: Json }
       get_my_role: { Args: { limit_provider_id: string }; Returns: string }
       gettransactionid: { Args: never; Returns: unknown }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: { Args: never; Returns: boolean }
       is_available:
         | {
@@ -2505,6 +2539,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "provider" | "customer"
       asset_status_type:
         | "available"
         | "reserved"
@@ -2669,6 +2704,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "provider", "customer"],
       asset_status_type: [
         "available",
         "reserved",
