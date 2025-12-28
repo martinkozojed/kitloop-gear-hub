@@ -79,16 +79,6 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                                 <AlertTriangle className="w-3 h-3" /> RISK
                             </Badge>
                         )}
-                        {data.customerRiskStatus === 'trusted' && (
-                            <Badge variant="default" className="h-5 px-1.5 text-[10px] bg-emerald-600 hover:bg-emerald-700 gap-0.5 border-transparent">
-                                <ShieldCheck className="w-3 h-3" /> VIP
-                            </Badge>
-                        )}
-                        {data.customerRiskStatus === 'verified' && (
-                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] text-blue-700 bg-blue-50 border-blue-200 gap-0.5">
-                                <ShieldCheck className="w-3 h-3" /> ID OK
-                            </Badge>
-                        )}
                     </button>
                     <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
                         <Phone className="w-3 h-3" />

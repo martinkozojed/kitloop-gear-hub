@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { KpiStrip } from "@/components/dashboard/KpiStrip";
 import { ExceptionsQueue } from "@/components/dashboard/ExceptionsQueue";
 import { AgendaRow } from "@/components/dashboard/AgendaRow";
-import { AgendaItemProps } from "@/types/dashboard";
+import { AgendaItemProps, ExceptionItem } from "@/types/dashboard";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, Filter, Plus, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
@@ -30,7 +30,7 @@ const mockAgendaItems: AgendaItemProps[] = [
         reservationId: "demo-1",
         customerName: "Jan Novák",
         itemCount: 2,
-        status: "confirmed",
+        status: "ready",
         type: "pickup",
         time: "09:00",
         paymentStatus: "paid",
@@ -52,7 +52,7 @@ const mockAgendaItems: AgendaItemProps[] = [
         reservationId: "demo-3",
         customerName: "Martin Dvořák",
         itemCount: 3,
-        status: "confirmed",
+        status: "ready",
         type: "pickup",
         time: "11:00",
         paymentStatus: "paid",
@@ -61,14 +61,13 @@ const mockAgendaItems: AgendaItemProps[] = [
     },
 ];
 
-const mockExceptions = [
+const mockExceptions: ExceptionItem[] = [
     {
         id: "exc-1",
-        type: "overdue" as const,
-        customerName: "Karel Procházka",
-        itemName: "Turistický stan 4os.",
-        daysOverdue: 2,
-        severity: "high" as const,
+        type: "overdue",
+        message: "Turistický stan 4os. - Karel Procházka",
+        priority: "high",
+        customer: "Karel Procházka",
     },
 ];
 
