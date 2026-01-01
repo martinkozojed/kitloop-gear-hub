@@ -11,8 +11,20 @@ import { supabase } from '@/lib/supabase';
 import { CustomerDetailSheet } from '@/components/crm/CustomerDetailSheet';
 import { formatDistanceToNow } from 'date-fns';
 
+interface Customer {
+    id: string;
+    full_name: string;
+    email: string | null;
+    phone: string | null;
+    status: string | null;
+    updated_at: string | null;
+    accounts: {
+        name: string;
+    } | null;
+}
+
 const ProviderCustomers = () => {
-    const [customers, setCustomers] = useState<any[]>([]);
+    const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
 

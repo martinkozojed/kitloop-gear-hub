@@ -116,10 +116,6 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
         'cancelled': 'bg-slate-300'
     };
 
-    if (isLoading) {
-        return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin" /></div>;
-    }
-
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [selectedCalendarStatus, setSelectedCalendarStatus] = useState<string>('all');
 
@@ -133,6 +129,10 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
         const cats = new Set(variants.map(v => v.product.category));
         return Array.from(cats);
     }, [variants]);
+
+    if (isLoading) {
+        return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin" /></div>;
+    }
 
     return (
         <div className="flex flex-col h-full bg-background border rounded-lg overflow-hidden">

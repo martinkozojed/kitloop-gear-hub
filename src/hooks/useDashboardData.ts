@@ -6,6 +6,11 @@ import { AgendaItemProps, DashboardReservation, KpiData } from "@/types/dashboar
 import { ExceptionItem } from "@/types/dashboard";
 import { toast } from "sonner";
 
+interface RpcResponse {
+    success: boolean;
+    error?: string;
+}
+
 export const useDashboardData = () => {
     const { provider, logout } = useAuth();
     const queryClient = useQueryClient();
@@ -188,8 +193,9 @@ export const useDashboardData = () => {
             });
 
             if (error) throw error;
-            if (data && !(data as any).success) {
-                throw new Error((data as any).error || 'Issue failed');
+            const res = data as unknown as RpcResponse;
+            if (res && !res.success) {
+                throw new Error(res.error || 'Issue failed');
             }
         },
         onMutate: async ({ id }) => {
@@ -230,8 +236,9 @@ export const useDashboardData = () => {
                 });
 
             if (error) throw error;
-            if (data && !(data as any).success) {
-                throw new Error((data as any).error || 'Return failed');
+            const res = data as unknown as RpcResponse;
+            if (res && !res.success) {
+                throw new Error(res.error || 'Return failed');
             }
         },
         onMutate: async ({ id }) => {
