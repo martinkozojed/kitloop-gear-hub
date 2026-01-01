@@ -1,6 +1,8 @@
 
 -- Seed Data for Kitloop Inventory 2.0 (Outdoor Edition)
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+
 -- 0. Create Auth User (demo@kitloop.cz / password123)
 INSERT INTO auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, 
