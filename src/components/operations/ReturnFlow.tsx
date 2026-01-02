@@ -66,6 +66,9 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
             } else {
                 onOpenChange(false);
             }
+
+            // Ensure status reflects return completion (defensive, RPC should handle)
+            await supabase.from('reservations').update({ status: 'completed' }).eq('id', reservation.id);
         } catch (e) {
             console.error(e);
             toast.error(t('error', 'Failed to return reservation'));
@@ -151,4 +154,3 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
         </>
     );
 }
-

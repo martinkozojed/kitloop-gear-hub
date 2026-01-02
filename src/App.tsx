@@ -3,10 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Index from "./pages/Index";
-import MarketplaceHome from "./pages/MarketplaceHome";
 import HowItWorks from "./pages/HowItWorks";
 import BrowseGear from "./pages/BrowseGear";
 import AddRental from "./pages/AddRental";
@@ -30,7 +29,6 @@ import ReservationDetail from "./pages/provider/ReservationDetail";
 import ProviderMaintenance from "./pages/provider/ProviderMaintenance";
 import ReservationForm from "./pages/provider/ReservationForm";
 import ProviderVerify from "./pages/provider/ProviderVerify";
-import AdminApprovals from "./pages/admin/AdminApprovals";
 import Observability from "./pages/admin/Observability";
 import { cn } from "./lib/utils";
 import ProviderAnalytics from "./pages/provider/ProviderAnalytics";
@@ -77,14 +75,15 @@ const AppRoutes = () => {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/browse" element={<BrowseGear />} />
           <Route path="/add-rental" element={<AddRental />} />
+          <Route path="/my-reservations" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/admin/approvals" element={<AdminApprovals />} />
+          {/* Admin approvals removed for MVP (auto-approve) */}
           <Route path="/admin/observability" element={<Observability />} />
-          <Route path="/marketplace" element={<MarketplaceHome />} />
+          <Route path="/marketplace" element={<Navigate to="/" replace />} />
 
           {/* Provider Routes */}
           <Route path="/provider/setup" element={<ProviderSetup />} />

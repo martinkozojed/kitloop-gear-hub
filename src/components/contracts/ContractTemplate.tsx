@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
+import { formatPrice } from '@/lib/availability';
 
 interface ContractTemplateProps {
     reservation: any;
@@ -64,13 +65,13 @@ export const ContractTemplate = forwardRef<HTMLDivElement, ContractTemplateProps
                                     {item.gear?.asset_tag && <span className="text-gray-500 text-xs ml-2">({item.gear.asset_tag})</span>}
                                 </td>
                                 <td className="py-2 text-right">
-                                    {(item.price_cents / 100).toLocaleString('cs-CZ')} Kč
+                                    {formatPrice((item.price_cents || 0) / 100)}
                                 </td>
                             </tr>
                         )) : (
                             <tr>
                                 <td className="py-2 font-italic text-gray-500">Dle specifikace rezervace (viz systém)</td>
-                                <td className="py-2 text-right">{(totalPrice).toLocaleString('cs-CZ')} Kč</td>
+                                <td className="py-2 text-right">{formatPrice(totalPrice)}</td>
                             </tr>
                         )}
                     </tbody>
@@ -85,7 +86,7 @@ export const ContractTemplate = forwardRef<HTMLDivElement, ContractTemplateProps
                     </div>
                     <div className="text-right">
                         <span className="block text-gray-500 text-xs">Celková cena:</span>
-                        <span className="font-bold text-lg">{(totalPrice).toLocaleString('cs-CZ')} Kč</span>
+                        <span className="font-bold text-lg">{formatPrice(totalPrice)}</span>
                         <span className="block text-xs text-gray-500">{isPaid ? 'Hrazeno' : 'K úhradě'}</span>
                     </div>
                 </div>

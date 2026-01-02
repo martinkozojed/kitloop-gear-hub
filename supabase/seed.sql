@@ -72,15 +72,50 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- 4. Insert Assets (Physical Items)
-INSERT INTO public.assets (provider_id, variant_id, asset_tag, status, condition_score, location)
+INSERT INTO public.assets (id, provider_id, variant_id, asset_tag, status, condition_score, location)
 VALUES
     -- Ferrata Sets
-    ('11111111-1111-1111-1111-111111111111', 'd1000000-0000-0000-0000-000000000001', 'FER-001', 'available', 100, 'Shelf A1'),
-    ('11111111-1111-1111-1111-111111111111', 'd1000000-0000-0000-0000-000000000001', 'FER-002', 'active', 95, 'Rent (Adam)'),
-    ('11111111-1111-1111-1111-111111111111', 'd1000000-0000-0000-0000-000000000001', 'FER-003', 'maintenance', 80, 'Safety Check'),
+    ('55555555-5555-5555-5555-000000000001', '11111111-1111-1111-1111-111111111111', 'd1000000-0000-0000-0000-000000000001', 'FER-001', 'available', 100, 'Shelf A1'),
+    ('55555555-5555-5555-5555-000000000002', '11111111-1111-1111-1111-111111111111', 'd1000000-0000-0000-0000-000000000001', 'FER-002', 'active', 95, 'Rent (Adam)'),
+    ('55555555-5555-5555-5555-000000000003', '11111111-1111-1111-1111-111111111111', 'd1000000-0000-0000-0000-000000000001', 'FER-003', 'maintenance', 80, 'Safety Check'),
     -- Harnesses
-    ('11111111-1111-1111-1111-111111111111', 'd2000000-0000-0000-0000-000000000001', 'HAR-S1-01', 'available', 90, 'Shelf A2'),
-    ('11111111-1111-1111-1111-111111111111', 'd2000000-0000-0000-0000-000000000002', 'HAR-S2-01', 'available', 100, 'Shelf A2'),
+    ('55555555-5555-5555-5555-000000000004', '11111111-1111-1111-1111-111111111111', 'd2000000-0000-0000-0000-000000000001', 'HAR-S1-01', 'available', 90, 'Shelf A2'),
+    ('55555555-5555-5555-5555-000000000005', '11111111-1111-1111-1111-111111111111', 'd2000000-0000-0000-0000-000000000002', 'HAR-S2-01', 'available', 100, 'Shelf A2'),
     -- Tent
-    ('11111111-1111-1111-1111-111111111111', 'd3000000-0000-0000-0000-000000000001', 'TNT-001', 'available', 85, 'Shelf B1')
+    ('55555555-5555-5555-5555-000000000006', '11111111-1111-1111-1111-111111111111', 'd3000000-0000-0000-0000-000000000001', 'TNT-001', 'available', 85, 'Shelf B1')
+ON CONFLICT DO NOTHING;
+
+-- 5. Seed Customers (CRM)
+INSERT INTO public.accounts (id, provider_id, name, contact_email)
+VALUES
+    ('22222222-2222-2222-2222-222222222221', '11111111-1111-1111-1111-111111111111', 'Horská škola', 'kontakt@horska-skola.cz'),
+    ('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'Bike Klub Praha', 'info@bk-praha.cz')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.customers (id, provider_id, full_name, email, phone, account_id, status)
+VALUES
+    ('33333333-3333-3333-3333-333333333331', '11111111-1111-1111-1111-111111111111', 'Adam Horský', 'adam@hory.cz', '+420111222333', '22222222-2222-2222-2222-222222222221', 'vip'),
+    ('33333333-3333-3333-3333-333333333332', '11111111-1111-1111-1111-111111111111', 'Bára Jezerní', 'bara@jezerni.cz', '+420222333444', null, 'active')
+ON CONFLICT (id) DO NOTHING;
+
+-- 6. Seed Reservations (one future, one active)
+INSERT INTO public.reservations (id, provider_id, product_variant_id, customer_name, customer_email, customer_phone, start_date, end_date, status, payment_status, total_price, deposit_paid, pricing_snapshot, amount_total_cents, currency, idempotency_key, expires_at)
+VALUES
+    ('44444444-4444-4444-4444-444444444441', '11111111-1111-1111-1111-111111111111', 'd1000000-0000-0000-0000-000000000001',
+     'Adam Horský', 'adam@hory.cz', '+420111222333',
+     (NOW() + interval '1 day'), (NOW() + interval '2 day'),
+     'hold', 'unpaid', 1200, false,
+     '{"daily_rate_cents":1200,"days":1,"currency":"CZK","subtotal_cents":1200}',
+     120000, 'CZK', 'seed-hold-1', NOW() + interval '30 minute'),
+    ('44444444-4444-4444-4444-444444444442', '11111111-1111-1111-1111-111111111111', 'd2000000-0000-0000-0000-000000000002',
+     'Bára Jezerní', 'bara@jezerni.cz', '+420222333444',
+     (NOW() - interval '1 day'), (NOW() + interval '1 day'),
+     'active', 'paid', 1800, true,
+     '{"daily_rate_cents":1800,"days":2,"currency":"CZK","subtotal_cents":3600}',
+     180000, 'CZK', 'seed-active-1', NOW() + interval '30 minute')
+ON CONFLICT (id) DO NOTHING;
+
+-- Assign asset to active reservation
+INSERT INTO public.reservation_assignments (reservation_id, asset_id)
+VALUES ('44444444-4444-4444-4444-444444444442', '55555555-5555-5555-5555-000000000005')
 ON CONFLICT DO NOTHING;

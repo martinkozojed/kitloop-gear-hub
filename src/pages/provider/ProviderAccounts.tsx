@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Plus, Search, Building2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { UpsertAccountModal } from '@/components/crm/UpsertAccountModal';
 import { formatDistanceToNow } from 'date-fns';
 import {
@@ -22,23 +23,32 @@ const ProviderAccounts = () => {
     const [accounts, setAccounts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const { provider } = useAuth();
 
     // Modal State
     const [modalOpen, setModalOpen] = useState(false);
     const [editingAccount, setEditingAccount] = useState<any | null>(null);
 
     useEffect(() => {
-        fetchAccounts();
-    }, []);
+        if (provider?.id) {
+            fetchAccounts();
+        } else {
+            setAccounts([]);
+            setLoading(false);
+        }
+    }, [provider?.id]);
 
     const fetchAccounts = async () => {
+        if (!provider?.id) return;
         setLoading(true);
         const { data, error } = await supabase
             .from('accounts')
             .select('*')
+            .eq('provider_id', provider.id)
             .order('name', { ascending: true });
 
         if (data) setAccounts(data);
+        if (error) console.error('Failed to fetch accounts', error);
         setLoading(false);
     };
 
@@ -55,7 +65,7 @@ const ProviderAccounts = () => {
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure? This will unlink all customers from this organization.')) return;
 
-        const { error } = await supabase.from('accounts').delete().eq('id', id);
+        const { error } = await supabase.from('accounts').delete().eq('id', id).eq('provider_id', provider?.id || '');
         if (error) {
             toast.error("Failed to delete");
         } else {

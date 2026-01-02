@@ -8,8 +8,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Loader2, Plus, Search, Building2, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { CustomerDetailSheet } from '@/components/crm/CustomerDetailSheet';
 import { formatDistanceToNow } from 'date-fns';
+import { UpsertCustomerModal } from '@/components/crm/UpsertCustomerModal';
 
 interface Customer {
     id: string;
@@ -27,23 +29,33 @@ const ProviderCustomers = () => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const { provider } = useAuth();
+    const [createOpen, setCreateOpen] = useState(false);
 
     // Sheet State
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     useEffect(() => {
-        fetchCustomers();
-    }, []);
+        if (provider?.id) {
+            fetchCustomers();
+        } else {
+            setCustomers([]);
+            setLoading(false);
+        }
+    }, [provider?.id]);
 
     const fetchCustomers = async () => {
+        if (!provider?.id) return;
         setLoading(true);
         const { data, error } = await supabase
             .from('customers')
             .select('*, accounts(name)') // Join with accounts to show org name
+            .eq('provider_id', provider?.id || '')
             .order('updated_at', { ascending: false });
 
         if (data) setCustomers(data);
+        if (error) console.error('Failed to fetch customers', error);
         setLoading(false);
     };
 
@@ -66,7 +78,7 @@ const ProviderCustomers = () => {
                         <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
                         <p className="text-muted-foreground">Manage operational contacts and organizations.</p>
                     </div>
-                    <Button onClick={() => { /* Open create modal - TODO */ }}>
+                    <Button onClick={() => setCreateOpen(true)}>
                         <Plus className="w-4 h-4 mr-2" />
                         Add Customer
                     </Button>
@@ -161,6 +173,12 @@ const ProviderCustomers = () => {
                     open={isSheetOpen}
                     onOpenChange={setIsSheetOpen}
                     onUpdate={fetchCustomers}
+                />
+
+                <UpsertCustomerModal
+                    open={createOpen}
+                    onOpenChange={setCreateOpen}
+                    onSuccess={fetchCustomers}
                 />
             </div>
         </ProviderLayout>

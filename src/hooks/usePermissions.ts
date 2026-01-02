@@ -38,7 +38,7 @@ export const usePermissions = () => {
             // Let's check both for safety.
 
             try {
-                // Check direct ownership first (Legacy/Compat)
+                // Owner path (MVP)
                 if (provider.user_id === user.id) {
                     if (isMounted) {
                         setRole('owner');
@@ -47,9 +47,9 @@ export const usePermissions = () => {
                     return;
                 }
 
-                // Check Members Table
+                // Fallback: membership table (legacy/staff, though MVP targets owners)
                 const { data, error } = await supabase
-                    .from('provider_members')
+                    .from('user_provider_memberships')
                     .select('role')
                     .eq('provider_id', provider.id)
                     .eq('user_id', user.id)

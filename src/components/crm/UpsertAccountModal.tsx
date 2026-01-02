@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea"; // Assuming you have this or use standard textarea
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { toast } from "sonner";
 
 interface UpsertAccountModalProps {
@@ -20,6 +21,7 @@ export function UpsertAccountModal({ open, onOpenChange, accountToEdit, onSucces
     const [taxId, setTaxId] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [notes, setNotes] = useState('');
+    const { provider } = useAuth();
 
     useEffect(() => {
         if (open) {
@@ -43,12 +45,7 @@ export function UpsertAccountModal({ open, onOpenChange, accountToEdit, onSucces
         setLoading(true);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("No user");
-
-            // Look up provider
-            const { data: provider } = await supabase.from('providers').select('id').eq('user_id', user.id).single();
-            if (!provider) throw new Error("No provider profile");
+            if (!provider?.id) throw new Error("No provider profile");
 
             const payload = {
                 provider_id: provider.id,

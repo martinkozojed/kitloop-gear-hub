@@ -151,6 +151,7 @@ const insertReservationDirectly = async (
     start_date: startIso,
     end_date: endIso,
     status: "hold" as const,
+    payment_status: "unpaid" as const,
     notes: input.notes?.trim() || null,
     total_price: input.totalPrice ?? null,
     deposit_paid: input.depositPaid ?? false,

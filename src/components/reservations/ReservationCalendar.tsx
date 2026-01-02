@@ -224,7 +224,6 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                     <span className={`font-bold ${isSameDay(day, new Date()) ? 'text-blue-600' : ''}`}>{format(day, 'd')}</span>
                                 </div>
                             ))}
-                            ```
                         </div>
                     </div>
 

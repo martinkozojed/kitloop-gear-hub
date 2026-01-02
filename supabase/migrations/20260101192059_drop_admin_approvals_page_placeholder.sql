@@ -1,0 +1,2 @@
+-- No-op migration placeholder (Admin approvals UI removed in app). Keeping for traceability.
+-- If there were DB objects tied to approvals, drop/cleanup here.

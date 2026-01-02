@@ -41,27 +41,7 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     return <Navigate to="/provider/setup" replace />;
   }
 
-  // Check approval status (only if provider exists - admins bypass this if they don't have a provider profile)
-  if (provider && provider.status !== 'approved') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="mx-auto w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4">
-            <span className="text-xl">⏳</span>
-          </div>
-          <h2 className="text-2xl font-bold mb-2">Verification Pending</h2>
-          <p className="text-muted-foreground mb-6">
-            Your provider account is currently under review. access to the dashboard will be granted once an administrator approves your application.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Status: <span className="font-mono font-medium">{provider.status || 'pending'}</span>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // All checks passed - render protected route
+  // All checks passed - render protected route (allow pending providers for faster MVP iteration)
   console.log('✅ ProviderRoute: Access granted');
   return <>{children}</>;
 };

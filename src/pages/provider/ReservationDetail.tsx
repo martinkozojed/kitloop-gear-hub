@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ArrowLeft, Mail, Calendar, User, ShoppingBag, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
+import { formatPrice } from "@/lib/availability";
 
 import { useTranslation } from 'react-i18next';
 
@@ -140,7 +141,7 @@ export default function ReservationDetail() {
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium text-muted-foreground">{t('reservationDetail.labels.totalPrice')}</label>
-                                                <div className="font-medium text-lg">{(reservation.total_price / 100).toFixed(2)} Kč</div>
+                                                <div className="font-medium text-lg">{formatPrice(reservation.total_price || 0)}</div>
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium text-muted-foreground">{t('reservationDetail.labels.start')}</label>

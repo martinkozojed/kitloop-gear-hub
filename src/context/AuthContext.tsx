@@ -151,28 +151,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log(`[${timestamp}] ✅ Profile fetched:`, { role: profileData?.role, user_id: profileData?.user_id });
       setProfile(profileData);
 
-      // If user is a provider, fetch provider data
-      if (profileData?.role === 'provider') {
-        console.log(`[${timestamp}] 👤 User is provider, fetching provider data...`);
+      // If user is an operator/owner/admin, fetch provider data.
+      if (profileData?.role && ['provider', 'operator', 'manager', 'admin'].includes(profileData.role)) {
+        console.log(`[${timestamp}] 👤 User is provider/admin, fetching provider data...`);
 
-        // Fetch provider via membership (New Inventory 2.0 Logic)
-        const membershipPromise = supabase
-          .from('user_provider_memberships')
-          .select('provider:providers!inner(*)')
+        // Primary: ownership via providers.user_id (owner)
+        const ownedProviderPromise = supabase
+          .from('providers')
+          .select('*')
           .eq('user_id', userId)
           .maybeSingle();
 
-        const { data: membershipData, error: membershipError } = await withTimeout(
-          membershipPromise,
+        const { data: ownedProvider, error: ownedError } = await withTimeout(
+          ownedProviderPromise,
           30000,
-          'Provider membership fetch timeout'
+          'Provider fetch timeout'
         );
 
-        if (membershipError) console.warn(`[${timestamp}] ⚠️ Membership fetch error:`, membershipError);
+        if (ownedError) {
+          console.warn(`[${timestamp}] ⚠️ Owned provider fetch error:`, ownedError);
+        }
 
-        const providerData = membershipData?.provider as unknown as Provider | null;
+        let providerData = ownedProvider as Provider | null;
 
+        // Fallback: membership mapping (for legacy/staff)
+        if (!providerData) {
+          const membershipPromise = supabase
+            .from('user_provider_memberships')
+            .select('provider:providers!inner(*)')
+            .eq('user_id', userId)
+            .maybeSingle();
 
+          const { data: membershipData, error: membershipError } = await withTimeout(
+            membershipPromise,
+            30000,
+            'Provider membership fetch timeout'
+          );
+
+          if (membershipError) console.warn(`[${timestamp}] ⚠️ Membership fetch error:`, membershipError);
+          providerData = membershipData?.provider as unknown as Provider | null;
+        }
 
         if (providerData) {
           console.log(`[${timestamp}] ✅ Provider data fetched:`, { id: providerData.id, rental_name: providerData.rental_name });

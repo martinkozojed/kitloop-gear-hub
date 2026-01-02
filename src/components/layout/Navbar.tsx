@@ -128,12 +128,6 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 )}
 
-                <DropdownMenuItem asChild>
-                  <Link to="/my-reservations" className="cursor-pointer">
-                    My Reservations
-                  </Link>
-                </DropdownMenuItem>
-
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
@@ -184,10 +178,6 @@ const Navbar = () => {
                       </Link>
                     </Button>
                   )}
-
-                  <Button variant="outline" asChild className="w-full">
-                    <Link to="/my-reservations">My Reservations</Link>
-                  </Button>
 
                   <Button variant="destructive" onClick={handleLogout} className="w-full">
                     <LogOut className="mr-2 h-4 w-4" />

@@ -35,13 +35,13 @@ export const useDashboardData = () => {
                 .from('reservations')
                 .select('*', { count: 'exact', head: true })
                 .eq('provider_id', provider.id)
-                .in('status', ['confirmed', 'unpaid']);
+                .eq('status', 'active');
 
             const { count: returnsTodayCount } = await supabase
                 .from('reservations')
                 .select('*', { count: 'exact', head: true })
                 .eq('provider_id', provider.id)
-                .in('status', ['active', 'completed'])
+                .eq('status', 'active')
                 .gte('end_date', todayIso)
                 .lt('end_date', tomorrowIso);
 
@@ -75,6 +75,7 @@ export const useDashboardData = () => {
                     crm_customer:customers ( risk_status )
                 `)
                 .eq('provider_id', provider.id)
+                .in('status', ['hold', 'confirmed', 'active', 'completed'])
                 .or(`start_date.gte.${todayIso},end_date.gte.${todayIso}`)
                 .limit(50);
 
@@ -105,8 +106,9 @@ export const useDashboardData = () => {
                 const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
 
                 // Pickup Agenda
-                if (isTodayStart && (r.status === 'confirmed' || r.status === 'unpaid')) {
-                    const uiStatus = r.payment_status === 'unpaid' ? 'unpaid' : 'ready';
+                if (isTodayStart && (r.status === 'confirmed' || r.status === 'hold')) {
+                    const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
+                    const uiStatus = ['paid', 'deposit_paid'].includes(paymentStatus) ? 'ready' : 'unpaid';
 
                     mappedAgenda.push({
                         time: format(sDate, 'HH:mm'),
@@ -117,7 +119,7 @@ export const useDashboardData = () => {
                         reservationId: r.id,
                         startDate: r.start_date,
                         endDate: r.end_date,
-                        paymentStatus: r.payment_status as 'paid' | 'unpaid' | 'deposit_paid',
+                        paymentStatus,
                         crmCustomerId: r.crm_customer_id || undefined,
                         customerRiskStatus: riskStatus
                     });
@@ -126,6 +128,7 @@ export const useDashboardData = () => {
                 // Return Agenda
                 if (isTodayEnd && ['active', 'completed'].includes(r.status)) {
                     const isReturned = r.status === 'completed';
+                    const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
                     mappedAgenda.push({
                         time: format(eDate, 'HH:mm'),
                         type: 'return',
@@ -135,7 +138,7 @@ export const useDashboardData = () => {
                         reservationId: r.id,
                         startDate: r.start_date,
                         endDate: r.end_date,
-                        paymentStatus: r.payment_status as 'paid' | 'unpaid' | 'deposit_paid'
+                        paymentStatus
                     });
                 }
             });
