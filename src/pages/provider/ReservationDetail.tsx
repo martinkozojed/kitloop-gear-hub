@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, ArrowLeft, Mail, Calendar, User, ShoppingBag, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, ArrowLeft, Mail, Calendar, User, ShoppingBag, Clock, CheckCircle2, AlertCircle, LogOut, LogIn } from "lucide-react";
 import { format } from "date-fns";
 import { formatPrice } from "@/lib/availability";
-
 import { useTranslation } from 'react-i18next';
+import { IssueModal, ReturnModal } from './ReservationFlows';
 
 export default function ReservationDetail() {
     const { id } = useParams<{ id: string }>();
@@ -20,16 +20,17 @@ export default function ReservationDetail() {
     const { provider } = useAuth();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [reservation, setReservation] = useState<any>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [assignments, setAssignments] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [logs, setLogs] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (id && provider?.id) {
-            fetchData();
-        }
-    }, [id, provider?.id]);
+    const [issueOpen, setIssueOpen] = useState(false);
+    const [returnOpen, setReturnOpen] = useState(false);
 
-    const fetchData = async () => {
+    const fetchData = React.useCallback(async () => {
         setLoading(true);
         try {
             // 1. Fetch Reservation
@@ -47,22 +48,44 @@ export default function ReservationDetail() {
             setReservation(res);
 
             // 2. Fetch Logs
-            const { data: logData, error: logError } = await supabase
+            const { data: logData } = await supabase
                 .from('notification_logs')
                 .select('*')
                 .eq('reservation_id', id)
                 .order('sent_at', { ascending: false });
 
-            if (logError) throw logError;
             setLogs(logData || []);
 
-        } catch (e: any) {
+            // 3. Fetch Assignments (Assets)
+            const { data: assignData } = await supabase
+                .from('reservation_assignments')
+                .select(`
+                    id, 
+                    asset_id,
+                    asset:assets (
+                        id, 
+                        asset_tag, 
+                        status,
+                        product_variants (name)
+                    )
+                `)
+                .eq('reservation_id', id);
+
+            setAssignments(assignData || []);
+
+        } catch (e: unknown) {
             console.error(e);
             toast.error(t('error'));
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, t]);
+
+    useEffect(() => {
+        if (id && provider?.id) {
+            fetchData();
+        }
+    }, [id, provider?.id, fetchData]);
 
     const handleResendConfirmation = async () => {
         try {
@@ -95,6 +118,9 @@ export default function ReservationDetail() {
         ? `${reservation.product_variants.products?.name} - ${reservation.product_variants.name}`
         : reservation.gear?.name || t('provider.inventory.unknown');
 
+    const canIssue = reservation.status === 'confirmed';
+    const canReturn = reservation.status === 'active';
+
     return (
         <ProviderLayout>
             <div className="max-w-4xl mx-auto space-y-6">
@@ -122,6 +148,11 @@ export default function ReservationDetail() {
                                     <Mail className="w-4 h-4" />
                                     {t('reservationDetail.tabs.messages')}
                                     <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-[10px]">{logs.length}</Badge>
+                                </TabsTrigger>
+                                <TabsTrigger value="assets" className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Vybavení
+                                    <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-[10px]">{assignments.length}</Badge>
                                 </TabsTrigger>
                             </TabsList>
 
@@ -201,7 +232,6 @@ export default function ReservationDetail() {
                                             <div className="space-y-6 relative border-l-2 border-muted ml-3 pl-6 py-2">
                                                 {logs.map((log) => (
                                                     <div key={log.id} className="relative">
-                                                        {/* Timeline Dot */}
                                                         <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 ${log.status === 'sent' ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600'
                                                             }`} />
 
@@ -219,21 +249,30 @@ export default function ReservationDetail() {
                                                             <div className="bg-muted p-3 rounded-md text-sm text-muted-foreground mt-1">
                                                                 {log.content_preview}
                                                             </div>
-                                                            <div className="mt-1">
-                                                                {log.status === 'sent' ? (
-                                                                    <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200 gap-1 pl-1">
-                                                                        <CheckCircle2 className="w-3 h-3" /> {t('reservationDetail.status.sent')}
-                                                                    </Badge>
-                                                                ) : (
-                                                                    <Badge variant="destructive" className="gap-1 pl-1">
-                                                                        <AlertCircle className="w-3 h-3" /> {t('reservationDetail.status.failed')}
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 ))}
                                             </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+
+                            <TabsContent value="assets" className="pt-4">
+                                <Card>
+                                    <CardHeader><CardTitle>Přiřazené Vybavení</CardTitle></CardHeader>
+                                    <CardContent>
+                                        {assignments.length === 0 ? (
+                                            <p className="text-muted-foreground italic">Žádné kusy zatím nebyly přiřazeny.</p>
+                                        ) : (
+                                            <ul className="space-y-2">
+                                                {assignments.map(a => (
+                                                    <li key={a.id} className="flex justify-between p-2 border rounded">
+                                                        <span className="font-medium">{a.asset?.asset_tag || 'N/A'}</span>
+                                                        <Badge variant="outline">{a.asset?.status || 'Unknown'}</Badge>
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         )}
                                     </CardContent>
                                 </Card>
@@ -243,10 +282,22 @@ export default function ReservationDetail() {
 
                     {/* Sidebar / Actions */}
                     <div className="space-y-6">
-                        <Card>
+                        <Card className="border-primary/20 bg-primary/5">
                             <CardHeader><CardTitle>{t('reservationDetail.cards.actions')}</CardTitle></CardHeader>
                             <CardContent className="space-y-3">
-                                {/* <Button className="w-full" variant="outline">Upravit rezervaci</Button> */}
+                                {canIssue && (
+                                    <Button className="w-full text-lg h-12" onClick={() => setIssueOpen(true)}>
+                                        <LogOut className="w-5 h-5 mr-2" /> Vydat Zákazníkovi
+                                    </Button>
+                                )}
+                                {canReturn && (
+                                    <Button className="w-full text-lg h-12" onClick={() => setReturnOpen(true)} variant="outline">
+                                        <LogIn className="w-5 h-5 mr-2" /> Přijmout Vrácení
+                                    </Button>
+                                )}
+
+                                <div className="h-px bg-border my-2" />
+
                                 <Button
                                     className="w-full"
                                     variant="secondary"
@@ -259,6 +310,26 @@ export default function ReservationDetail() {
                         </Card>
                     </div>
                 </div>
+
+                {id && provider?.id && (
+                    <>
+                        <IssueModal
+                            open={issueOpen}
+                            onClose={() => setIssueOpen(false)}
+                            reservationId={id}
+                            providerId={provider.id}
+                            onSuccess={fetchData}
+                        />
+                        <ReturnModal
+                            open={returnOpen}
+                            onClose={() => setReturnOpen(false)}
+                            reservationId={id}
+                            providerId={provider.id}
+                            assets={assignments}
+                            onSuccess={fetchData}
+                        />
+                    </>
+                )}
             </div>
         </ProviderLayout>
     );

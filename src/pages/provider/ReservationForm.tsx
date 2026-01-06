@@ -120,6 +120,7 @@ const ReservationForm = () => {
         const validProducts = (data || []).map((p: unknown) => ({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ...(p as any),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           product_variants: ((p as any).product_variants || []).filter((v: Variant) => v.is_active !== false)
         })).filter((p: Product) => p.product_variants.length > 0);
 

@@ -13,6 +13,7 @@ export const RPC_ERROR_CODES = {
     UNAUTHORIZED: '42501', // Standard Postgres RLS
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapRpcError = (error: any): RpcError => {
     // Supabase error object usually has 'code', 'message', 'details'
     const code = error?.code || 'UNKNOWN';
