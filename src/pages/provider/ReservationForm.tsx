@@ -117,9 +117,10 @@ const ReservationForm = () => {
         if (error) throw error;
 
         // Filter and organize
-        const validProducts = (data || []).map((p: any) => ({
-          ...p,
-          product_variants: (p.product_variants || []).filter((v: Variant) => v.is_active !== false)
+        const validProducts = (data || []).map((p: unknown) => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ...(p as any),
+          product_variants: ((p as any).product_variants || []).filter((v: Variant) => v.is_active !== false)
         })).filter((p: Product) => p.product_variants.length > 0);
 
         setProducts(validProducts);
@@ -303,15 +304,15 @@ const ReservationForm = () => {
       toast.success(`Rezervace vytvořena. Status: ${reservationResult.status}`);
       navigate('/provider/reservations');
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Reservation creation failed', error);
-      toast.error(error.message || 'Nepodařilo se vytvořit rezervaci');
+      toast.error(getErrorMessage(error) || 'Nepodařilo se vytvořit rezervaci');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
