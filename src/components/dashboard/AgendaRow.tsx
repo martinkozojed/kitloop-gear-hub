@@ -1,18 +1,16 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, CheckCircle2, AlertTriangle, Package, ShieldCheck } from "lucide-react";
+import { Phone, CheckCircle2, AlertTriangle, Package, ShieldCheck, ArrowRight, Check } from "lucide-react";
 import { DENSITY } from "@/components/ui/density";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { AgendaItemProps } from "@/types/dashboard";
 
 /**
  * Agenda Row - The Atomic Unit of the Operational Dashboard
  * Designed for < 30s interaction times.
  */
-
-import { AgendaItemProps } from "@/types/dashboard";
-
-/* Removed local interface definition */
 
 interface AgendaRowActions {
     onIssue?: (item: AgendaItemProps) => void;
@@ -29,94 +27,102 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
     const getStatusBadge = () => {
         switch (data.status) {
             case 'ready':
-                return <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Ready</span>;
+                return <span className="bg-emerald-100/80 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1 shadow-sm"><CheckCircle2 className="w-3 h-3" /> Ready</span>;
             case 'unpaid':
-                return <span className="bg-white border border-red-200 text-red-600 px-2 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Unpaid</span>;
+                return <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Unpaid</span>;
             case 'conflict':
-                return <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-semibold">Conflict</span>;
+                return <span className="bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">Conflict</span>;
             default: return null;
         }
     };
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.005, backgroundColor: "rgba(var(--card-rgb), 0.8)" }}
+            transition={{ duration: 0.2 }}
             className={cn(
-                "flex items-center gap-4 p-3 pr-4 rounded-lg border bg-card transition-all hover:bg-muted/30 hover:border-primary/20",
-                isBlocker ? "border-l-4 border-l-red-500" : "border-l-4 border-l-transparent"
+                "group relative flex items-center gap-4 p-3 pr-4 rounded-xl border bg-card shadow-sm hover:shadow-md hover:border-primary/20 transition-all",
+                isBlocker ? "border-l-4 border-l-amber-400" : "border-l-4 border-l-transparent"
             )}
             style={{ minHeight: DENSITY.desktop.rowHeight }}
         >
-            {/* Time & Type */}
-            <div className="flex flex-col items-center justify-center min-w-[60px] text-center">
-                <span className="text-sm font-bold font-mono text-foreground">{data.time}</span>
-                <Badge variant="outline" className={cn(
-                    "mt-1 text-[10px] uppercase h-5 border-0 font-bold",
-                    isPickup ? "bg-blue-50 text-blue-700" : "bg-orange-50 text-orange-700"
+            {/* 1. Time Column - Prominent */}
+            <div className="flex flex-col items-center justify-center min-w-[60px] text-center border-r pr-4 mr-0">
+                <span className="text-xl font-bold font-mono tracking-tight text-foreground group-hover:text-primary transition-colors">{data.time}</span>
+                <span className={cn(
+                    "text-[9px] uppercase font-extrabold tracking-wider mt-0.5",
+                    isPickup ? "text-emerald-600/80" : "text-blue-600/80"
                 )}>
-                    {isPickup ? 'Výdej' : 'Příjem'}
-                </Badge>
+                    {isPickup ? 'Výdej' : 'Návrat'}
+                </span>
             </div>
 
-            {/* Customer & Details */}
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => onCustomerClick && data.crmCustomerId && onCustomerClick(data.crmCustomerId)}
-                        className={cn(
-                            "font-semibold text-sm truncate text-left flex items-center gap-1.5",
-                            data.crmCustomerId ? "text-primary cursor-pointer hover:underline" : "text-foreground"
-                        )}
-                        disabled={!data.crmCustomerId}
+            {/* 2. Main Info */}
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-1">
+                    <div
+                        className={cn("font-semibold text-base truncate flex items-center gap-2", data.crmCustomerId ? "cursor-pointer hover:text-primary transition-colors" : "")}
+                        onClick={() => data.crmCustomerId && onCustomerClick?.(data.crmCustomerId)}
                     >
                         {data.customerName}
-                        {data.customerRiskStatus === 'blacklist' && (
-                            <Badge variant="destructive" className="h-5 px-1.5 text-[10px] gap-0.5 animate-pulse">
-                                <AlertTriangle className="w-3 h-3" /> STOP
-                            </Badge>
-                        )}
                         {data.customerRiskStatus === 'warning' && (
-                            <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-amber-700 bg-amber-50 border-amber-200 gap-0.5">
-                                <AlertTriangle className="w-3 h-3" /> RISK
-                            </Badge>
+                            <ShieldCheck className="w-4 h-4 text-amber-500" />
                         )}
-                    </button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
-                        <Phone className="w-3 h-3" />
-                    </Button>
+                        {data.customerRiskStatus === 'blacklist' && (
+                            <ShieldCheck className="w-4 h-4 text-red-500" />
+                        )}
+                    </div>
                 </div>
-                <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground/80">
-                    <span className="flex items-center gap-1">
-                        <Package className="w-3 h-3" /> {data.itemCount} items
-                    </span>
+
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5"><Package className="w-3.5 h-3.5 opacity-70" /> {data.itemCount} items</span>
                     {getStatusBadge()}
                 </div>
             </div>
 
-            {/* Primary Action Zone (The 30-Second Trigger) */}
-            <div className="flex items-center gap-2">
+            {/* 3. Actions - Right Aligned */}
+            <div className="flex items-center gap-3 opacity-90 group-hover:opacity-100 transition-opacity">
                 {isPickup ? (
                     <Button
                         className={cn(
-                            "shadow-sm transition-all font-semibold",
-                            isBlocker ? "opacity-50 grayscale cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                            "shadow-sm transition-all font-semibold relative overflow-hidden group/btn px-4 h-9 backdrop-blur-sm",
+                            isBlocker
+                                ? "bg-amber-100 text-amber-900 border-amber-200 hover:bg-amber-200"
+                                : "bg-emerald-600 hover:bg-emerald-700 text-white hover:shadow-emerald-500/25 hover:shadow-lg hover:-translate-y-0.5"
                         )}
-                        disabled={false}
+                        disabled={false} // Always enable to allow override flow
                         size="sm"
                         onClick={() => onIssue?.(data)}
                     >
-                        Vydat
+                        {isBlocker ? (
+                            <span className="flex items-center gap-2">Vydat <AlertTriangle className="w-3.5 h-3.5" /></span>
+                        ) : (
+                            <span className="flex items-center gap-2">Vydat <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" /></span>
+                        )}
                     </Button>
                 ) : (
                     <Button
-                        variant="outline"
-                        className="font-semibold text-orange-800 bg-orange-100 hover:bg-orange-200"
+                        className={cn(
+                            "font-semibold transition-all h-9 px-4",
+                            data.status === 'completed'
+                                ? "bg-muted text-muted-foreground hover:bg-muted cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-blue-500/25 hover:shadow-lg hover:-translate-y-0.5"
+                        )}
+                        variant={data.status === 'completed' ? "ghost" : "primary"}
                         size="sm"
-                        onClick={() => onReturn?.(data)}
+                        onClick={() => data.status !== 'completed' && onReturn?.(data)}
+                        disabled={data.status === 'completed'}
                     >
-                        Přijmout
+                        {data.status === 'completed' ? (
+                            <span className="flex items-center gap-2"><Check className="w-3.5 h-3.5" /> Hotovo</span>
+                        ) : (
+                            "Přijmout"
+                        )}
                     </Button>
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 }

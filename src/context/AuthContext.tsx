@@ -270,7 +270,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.log('✅ Auth initialized with existing session');
           }
         } else if (isMounted) {
-          console.log('ℹ️ No existing session found');
+          console.log('ℹ️ No existing session found -> INJECTING MOCK USER (TEST MODE)');
+          // TEMP: Mock User for "No Login" Access
+          const mockUser = {
+            id: 'mock-provider-id',
+            email: 'mock@kitloop.cz',
+            role: 'provider' as UserRole
+          };
+          const mockProvider = {
+            id: 'mock-provider-data-id',
+            user_id: 'mock-provider-id',
+            rental_name: 'Test Rental',
+            contact_email: 'mock@kitloop.cz',
+            is_verified: true
+          } as unknown as Provider;
+
+          setUser({
+            id: mockUser.id,
+            email: mockUser.email,
+            role: mockUser.role,
+            profile: { role: 'provider', is_verified: true, is_admin: true } as unknown as Profile
+          });
+          setProfile({ role: 'provider', is_verified: true, is_admin: true } as unknown as Profile);
+          setProvider(mockProvider); // Needs to be populated for ProviderRoute
         }
       } catch (error) {
         console.error('💥 Error initializing auth:', error);

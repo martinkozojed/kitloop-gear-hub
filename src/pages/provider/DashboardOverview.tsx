@@ -180,33 +180,31 @@ const DashboardOverview = () => {
           {/* 3. Main Operational Area */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-            {/* Left Column: Exceptions Queue */}
-            <div className="lg:col-span-4 xl:col-span-3 space-y-4">
-              <ExceptionsQueue exceptions={exceptions} />
-              {viewMode === 'overview' && (
-                <div className="p-4 rounded-lg border bg-muted/20 border-dashed text-center text-sm text-muted-foreground">
-                  Staff Notes (Coming Soon)
+            {/* Main Column: Agenda (Taking 8 cols) */}
+            <div className="lg:col-span-8 xl:col-span-9 bento-card p-6 min-h-[600px] flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="font-semibold text-xl flex items-center gap-2">
+                    {viewMode === 'operations' ? "Work Queue" : "Daily Agenda"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">Pickups and returns scheduled for today</p>
                 </div>
-              )}
-            </div>
 
-            {/* Right Column: Today's Agenda */}
-            {/* In Operations Mode, we could expand this to use full width if we wanted, but for now keeping grid is stable. 
-              However, we might want to emphasize it more. */}
-            <div className="lg:col-span-8 xl:col-span-9 bento-card p-6 min-h-[500px]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-lg flex items-center gap-2">
-                  {viewMode === 'operations' ? "Work Queue (Operations)" : "Today's Agenda"}
-                  <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{agendaItems.length}</span>
-                </h3>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" className="h-7 text-xs font-semibold text-primary bg-primary/5">All</Button>
-                  <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground">Pickups</Button>
-                  <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground">Returns</Button>
+                {/* Visual Tab Switcher (Simple) */}
+                <div className="flex bg-muted p-1 rounded-lg">
+                  <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold shadow-sm bg-background text-foreground">
+                    All <span className="ml-1 opacity-50">({agendaItems.length})</span>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-foreground">
+                    Pickups
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-foreground">
+                    Returns
+                  </Button>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 flex-1">
                 {agendaItems.map((item, idx) => (
                   <AgendaRow
                     key={idx}
@@ -216,20 +214,49 @@ const DashboardOverview = () => {
                     onCustomerClick={handleCustomerClick}
                   />
                 ))}
+
+                {agendaItems.length === 0 && (
+                  <EmptyState
+                    icon={CheckCircle2}
+                    title="All caught up!"
+                    description="No actions required currently."
+                    action={{
+                      label: "Create Reservation",
+                      onClick: () => navigate('/provider/reservations/new')
+                    }}
+                    className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted/10 rounded-xl"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Exceptions & Notes (Taking 4 cols) */}
+            <div className="lg:col-span-4 xl:col-span-3 space-y-6">
+              <ExceptionsQueue exceptions={exceptions} />
+
+              <div className="bento-card p-4 space-y-4">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4 text-muted-foreground" /> Quick Stats
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="text-xs text-muted-foreground uppercase font-bold">Revenue</div>
+                    <div className="text-lg font-bold text-blue-700">{(kpiData.dailyRevenue / 100).toFixed(0)}</div>
+                  </div>
+                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="text-xs text-muted-foreground uppercase font-bold">Active</div>
+                    <div className="text-lg font-bold text-purple-700">{kpiData.activeRentals}</div>
+                  </div>
+                </div>
               </div>
 
-              {agendaItems.length === 0 && (
-                <EmptyState
-                  icon={CheckCircle2}
-                  title="All caught up!"
-                  description="No pickups or returns scheduled for today. Good time to manage inventory?"
-                  action={{
-                    label: "Create Reservation",
-                    onClick: () => navigate('/provider/reservations/new')
-                  }}
-                />
+              {viewMode === 'overview' && (
+                <div className="p-4 rounded-lg border bg-amber-50/50 border-amber-200/50 border-dashed text-center text-sm text-amber-900/60">
+                  Write daily notes here...
+                </div>
               )}
             </div>
+
           </div>
 
           {/* MODALS */}
@@ -241,11 +268,7 @@ const DashboardOverview = () => {
                 reservation={{
                   id: activeReservation.reservationId,
                   customerName: activeReservation.customerName,
-                  itemName: `${activeReservation.itemCount} Items`,
-                  status: 'confirmed', // Issue flow always starts from confirmed state in this context
-                  paymentStatus: (activeReservation.paymentStatus || 'paid') as 'paid' | 'unpaid',
-                  startDate: activeReservation.startDate || '',
-                  endDate: activeReservation.endDate || ''
+                  itemName: `${activeReservation.itemCount} Items`
                 }}
                 onConfirm={executeIssue}
               />

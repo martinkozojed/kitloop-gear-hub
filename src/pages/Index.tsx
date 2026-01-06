@@ -11,6 +11,24 @@ const Index = () => {
             <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
             </div>
 
+            {/* Animated Green Glow */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{
+                    opacity: [0.5, 0.8, 0.5],
+                    scale: [1, 1.1, 1],
+                    x: [0, 20, 0],
+                    y: [0, -20, 0],
+                }}
+                transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut"
+                }}
+                className="absolute top-[-100px] right-[-100px] w-[500px] h-[500px] bg-emerald-500/30 rounded-full blur-[80px] -z-5 pointer-events-none"
+            />
+
             {/* Hero Section */}
             <section className="relative pt-24 pb-20 md:pt-36 md:pb-32 overflow-hidden">
                 <div className="container px-4 md:px-6 mx-auto relative z-10">

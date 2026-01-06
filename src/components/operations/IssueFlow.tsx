@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ItemState } from "@/lib/logic/reservation-state";
-import { AlertTriangle, Lock, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Lock, ShieldCheck, Check, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PrintContractButton } from '@/components/contracts/PrintContractButton';
 import { useTranslation } from 'react-i18next';
-
+import { cn } from "@/lib/utils";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 
 interface IssueFlowProps {
@@ -27,7 +27,6 @@ interface IssueFlowProps {
 export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueFlowProps) {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
-
     const [items, setItems] = useState<ItemState[]>([]);
     const [fetchingItems, setFetchingItems] = useState(false);
     const [overrideMode, setOverrideMode] = useState(false);
@@ -74,42 +73,37 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
             const mapped = buildItems(data.reservation_assignments || []);
             setItems(mapped);
 
-            // Auto-assign if no items and we know the variant
             if ((!mapped || mapped.length === 0) && data.product_variant_id && data.provider_id) {
                 await autoAssignAsset(data);
             }
         } catch (err: any) {
-            console.error('Failed to fetch reservation for issue flow', err);
+            console.error('Failed to fetch reservation', err);
             toast.error(t('error'));
         } finally {
             setFetchingItems(false);
         }
-    }, [open, reservation.id, t, autoAssignAsset]);
+    }, [open, reservation.id, t]);
 
-    const autoAssignAsset = useCallback(async (res: any) => {
+    const autoAssignAsset = async (res: any) => {
         setAutoAssigning(true);
         setAutoAssignError(null);
         try {
             if (!res.start_date || !res.end_date) {
-                setAutoAssignError('Rezervace nemá platný termín pro přiřazení.');
-                return;
+                setAutoAssignError('Invalid dates'); return;
             }
-            const { data: candidates, error: candidateError } = await supabase
+            const { data: candidates } = await supabase
                 .from('assets')
                 .select('id, status, asset_tag')
                 .eq('variant_id', res.product_variant_id)
                 .eq('provider_id', res.provider_id)
                 .not('status', 'in', '("maintenance","retired","lost")');
 
-            if (candidateError) throw candidateError;
-
-            if (!candidates || candidates.length === 0) {
-                setAutoAssignError('Žádné dostupné kusy k přiřazení');
-                return;
+            if (!candidates?.length) {
+                setAutoAssignError('No assets available'); return;
             }
 
             for (const asset of candidates) {
-                const { data: conflicts, error: conflictError } = await supabase
+                const { data: conflicts } = await supabase
                     .from('reservation_assignments')
                     .select('reservation:reservations!inner(start_date,end_date,status)')
                     .eq('asset_id', asset.id)
@@ -117,31 +111,25 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                     .lt('reservations.start_date', res.end_date)
                     .gt('reservations.end_date', res.start_date);
 
-                if (conflictError) throw conflictError;
-                const hasConflict = (conflicts || []).length > 0;
-                if (hasConflict) {
-                    continue;
+                if (!conflicts?.length) {
+                    const { error: insertError } = await supabase
+                        .from('reservation_assignments')
+                        .insert({ reservation_id: res.id, asset_id: asset.id });
+
+                    if (insertError) throw insertError;
+                    setItems(prev => [...prev, { id: asset.id, status: asset.status as ItemState['status'] }]);
+                    toast.success(`Auto-assigned: ${asset.asset_tag || asset.id}`);
+                    return;
                 }
-
-                const { error: insertError } = await supabase
-                    .from('reservation_assignments')
-                    .insert({ reservation_id: res.id, asset_id: asset.id });
-
-                if (insertError) throw insertError;
-
-                setItems(prev => [...prev, { id: asset.id, status: asset.status as ItemState['status'] }]);
-                toast.success(`Automaticky přiřazen kus ${asset.asset_tag || asset.id}`);
-                return;
             }
-
-            setAutoAssignError('Nepodařilo se najít volný kus pro tento termín.');
+            setAutoAssignError('No assets available for this date');
         } catch (err: any) {
             console.error('Auto-assign failed', err);
-            setAutoAssignError(err.message || 'Auto-assign selhal');
+            setAutoAssignError('Auto-assign failed');
         } finally {
             setAutoAssigning(false);
         }
-    }, []);
+    };
 
     useEffect(() => {
         fetchReservation();
@@ -165,93 +153,83 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         }
     };
 
-    // Shortcut: Cmd+Enter (or Ctrl+Enter) to confirm
-    useKeyboardShortcut(
-        { key: 'Enter', metaOrCtrl: true },
-        () => {
-            if (!loading && (isAllowed || overrideMode)) {
-                handleConfirm();
-            }
-        },
-        { enabled: open }
-    );
+    const StatusDisplay = () => {
+        if (!hasAssets && !overrideMode) {
+            return (
+                <div className="flex flex-col items-center justify-center p-6 text-center text-amber-600 bg-amber-50 rounded-xl border border-amber-100 animate-in fade-in zoom-in duration-300">
+                    <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
+                    <h4 className="font-semibold">{t('operations.issueFlow.noAssets.title')}</h4>
+                    <p className="text-sm opacity-80 mt-1 max-w-[250px]">{t('operations.issueFlow.noAssets.desc')}</p>
+                    {autoAssigning && <div className="mt-2 text-xs flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Finding asset...</div>}
+                    {autoAssignError && <p className="mt-1 text-xs font-bold text-red-600">{autoAssignError}</p>}
+                </div>
+            );
+        }
+        if (!isAllowed && !overrideMode) {
+            return (
+                <div className="flex flex-col items-center justify-center p-6 text-center text-red-600 bg-red-50 rounded-xl border border-red-100 animate-in fade-in zoom-in duration-300">
+                    <Lock className="w-8 h-8 mb-2 opacity-80" />
+                    <h4 className="font-semibold">{t('operations.issueFlow.blocked.title')}</h4>
+                    <p className="text-sm opacity-80 mt-1">Payment Status: <strong>{paymentStatus}</strong></p>
+
+                    <Button variant="ghost" size="sm" onClick={() => setOverrideMode(true)} className="mt-4 hover:bg-red-100 hover:text-red-700 underline text-xs">
+                        {t('operations.issueFlow.blocked.override')}
+                    </Button>
+                </div>
+            );
+        }
+        return (
+            <div className="flex flex-col items-center justify-center p-8 text-center text-emerald-700 bg-emerald-50/50 rounded-xl border border-emerald-100 animate-in fade-in zoom-in duration-300">
+                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
+                    <Check className="w-6 h-6 text-emerald-600" />
+                </div>
+                <h4 className="text-lg font-bold text-emerald-800">Ready to Issue</h4>
+                <p className="text-sm text-emerald-600/80 mt-1">Everything looks correct.</p>
+                {overrideMode && <span className="text-[10px] uppercase font-bold text-orange-500 mt-2 bg-orange-50 px-2 py-0.5 rounded-full">Override Active</span>}
+            </div>
+        );
+    };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        {isAllowed || overrideMode ? (
-                            <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                        ) : (
-                            <Lock className="w-5 h-5 text-red-600" />
-                        )}
-                        {t('operations.issueFlow.title')} #{reservation.id}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {reservation.customerName} - {reservation.itemName}
-                    </DialogDescription>
-                </DialogHeader>
+            <DialogContent className="sm:max-w-md p-0 overflow-hidden gap-0 border-0 shadow-2xl">
+                {/* Headerless-feel or branded header */}
+                <div className="p-6 pb-0 flex items-center justify-between">
+                    <div>
+                        <DialogTitle className="text-xl">{reservation.customerName}</DialogTitle>
+                        <DialogDescription className="text-muted-foreground">{reservation.itemName}</DialogDescription>
+                    </div>
+                    <div className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">#{reservation.id.slice(0, 6)}</div>
+                </div>
 
-                <div className="py-4">
-                    {!hasAssets && !overrideMode ? (
-                        <div className="p-4 rounded-md bg-amber-50 border border-amber-200 text-amber-800 flex flex-col gap-2">
-                            <div className="flex items-center gap-2 font-semibold">
-                                <AlertTriangle className="w-4 h-4" />
-                                {t('operations.issueFlow.noAssets.title')}
-                            </div>
-                            <p className="text-sm">
-                                {t('operations.issueFlow.noAssets.desc')}
-                            </p>
-                            {autoAssigning && <p className="text-xs text-muted-foreground">Hledám dostupný kus...</p>}
-                            {autoAssignError && <p className="text-xs text-red-700">{autoAssignError}</p>}
-                        </div>
-                    ) : !isAllowed && !overrideMode ? (
-                        <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-800 flex flex-col gap-2">
-                            <div className="flex items-center gap-2 font-semibold">
-                                <AlertTriangle className="w-4 h-4" />
-                                {t('operations.issueFlow.blocked.title')}
-                            </div>
-                            <p className="text-sm">
-                                {t('operations.issueFlow.blocked.desc')} <strong>{paymentStatus}</strong>.
-                                {t('operations.issueFlow.blocked.descSuffix')}
-                            </p>
-                            <Button
-                                variant="destructive"
-                                size="sm"
-                                className="mt-2 w-full"
-                                onClick={() => setOverrideMode(true)}
-                            >
-                                {t('operations.issueFlow.blocked.override')}
-                            </Button>
+                <div className="p-6">
+                    {fetchingItems ? (
+                        <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                            <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading details...
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            <div className="p-4 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-800 text-sm">
-                                {t('operations.issueFlow.ready')}
-                            </div>
-
-                            {overrideMode && (
-                                <p className="text-xs text-orange-600 font-medium text-center">
-                                    {t('operations.issueFlow.overrideActive')}
-                                </p>
-                            )}
-                        </div>
+                        <StatusDisplay />
                     )}
                 </div>
 
-                <DialogFooter className="flex gap-2 sm:justify-between">
+                <DialogFooter className="p-6 pt-0 sm:justify-between items-center bg-gray-50/50 mt-2">
                     <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => onOpenChange(false)}>
-                            {t('operations.issueFlow.cancel')}
-                        </Button>
                         <PrintContractButton reservationId={reservation.id} label={t('operations.issueFlow.contract')} />
-                    </div>                    <Button
+                        <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    </div>
+
+                    <Button
                         onClick={handleConfirm}
                         disabled={(!isAllowed && !overrideMode) || loading || fetchingItems || autoAssigning}
-                        className={overrideMode ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"}
+                        className={cn(
+                            "min-w-[120px] transition-all",
+                            overrideMode ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"
+                        )}
+                        autoFocus // Key for speed!
                     >
-                        {loading ? t('provider.dashboard.agenda.processing') : t('operations.issueFlow.confirm')}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                            <span className="flex items-center gap-2">Confirm <ArrowRight className="w-4 h-4" /></span>
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

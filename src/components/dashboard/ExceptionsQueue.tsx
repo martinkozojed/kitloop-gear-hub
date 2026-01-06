@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Clock, CreditCard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useNavigate } from 'react-router-dom';
 
 import { ExceptionItem } from "@/types/dashboard";
 
@@ -12,6 +13,7 @@ interface ExceptionsQueueProps {
 }
 
 export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
+    const navigate = useNavigate();
 
     return (
         <Card className="h-fit">
@@ -49,6 +51,7 @@ export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
                             variant="outline"
                             size="sm"
                             className={`w-full h-7 text-xs bg-white ${ex.priority === 'high' ? 'text-red-700 hover:text-red-800' : 'text-orange-700 hover:text-orange-800'}`}
+                            onClick={() => navigate(`/provider/reservations/${ex.id}`)}
                         >
                             Resolve
                         </Button>
