@@ -149,17 +149,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Fetch profile with timeout
       console.log(`[${timestamp}] 🔍 Querying profiles table...`);
 
-      const profilePromise = supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*, is_admin, is_verified')
         .eq('user_id', userId)
         .single();
-
-      const { data: profileData, error: profileError } = await withTimeout(
-        profilePromise,
-        30000,
-        'Profile fetch timeout after 30s'
-      );
 
       if (profileError) {
         console.error(`[${timestamp}] ❌ Profile fetch error:`, profileError);
@@ -177,17 +171,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log(`[${timestamp}] 👤 User is provider/admin, fetching provider data...`);
 
         // Primary: ownership via providers.user_id (owner)
-        const ownedProviderPromise = supabase
+        const { data: ownedProvider, error: ownedError } = await supabase
           .from('providers')
           .select('*')
           .eq('user_id', userId)
           .maybeSingle();
-
-        const { data: ownedProvider, error: ownedError } = await withTimeout(
-          ownedProviderPromise,
-          30000,
-          'Provider fetch timeout'
-        );
 
         if (ownedError) {
           console.warn(`[${timestamp}] ⚠️ Owned provider fetch error:`, ownedError);
@@ -197,17 +185,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Fallback: membership mapping (for legacy/staff)
         if (!providerData) {
-          const membershipPromise = supabase
+          const { data: membershipData, error: membershipError } = await supabase
             .from('user_provider_memberships')
             .select('provider:providers!inner(*)')
             .eq('user_id', userId)
             .maybeSingle();
-
-          const { data: membershipData, error: membershipError } = await withTimeout(
-            membershipPromise,
-            30000,
-            'Provider membership fetch timeout'
-          );
 
           if (membershipError) console.warn(`[${timestamp}] ⚠️ Membership fetch error:`, membershipError);
           providerData = membershipData?.provider as unknown as Provider | null;
