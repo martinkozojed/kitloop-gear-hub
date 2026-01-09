@@ -149,11 +149,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Fetch profile with timeout
       console.log(`[${timestamp}] 🔍 Querying profiles table...`);
 
-      const { data: profileData, error: profileError } = await supabase
+      const profilePromise = supabase
         .from('profiles')
         .select('*, is_admin, is_verified')
         .eq('user_id', userId)
         .single();
+
+      const { data: profileData, error: profileError } = await withTimeout(
+        profilePromise,
+        10000, // 10 seconds
+        'Profile fetch timeout after 10s'
+      );
 
       if (profileError) {
         console.error(`[${timestamp}] ❌ Profile fetch error:`, profileError);
@@ -161,13 +167,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw profileError;
       }
 
-      console.log(`[${timestamp}] ✅ Profile fetched:`, { role: profileData?.role, user_id: profileData?.user_id });
-      if (!isMountedRef.current) return profileData;
-      setProfile(profileData);
-      profileRef.current = profileData;
+      const typedProfileData: Profile | null = profileData ? {
+        ...profileData,
+        role: profileData.role as UserRole,
+        is_admin: profileData.is_admin === null ? undefined : profileData.is_admin,
+        is_verified: profileData.is_verified === null ? undefined : profileData.is_verified,
+        updated_at: profileData.updated_at === null ? undefined : profileData.updated_at,
+      } : null;
+
+      console.log(`[${timestamp}] ✅ Profile fetched:`, { role: typedProfileData?.role, user_id: typedProfileData?.user_id });
+      if (!isMountedRef.current) return typedProfileData;
+      setProfile(typedProfileData);
+      profileRef.current = typedProfileData;
 
       // If user is an operator/owner/admin, fetch provider data.
-      if (profileData?.role && ['provider', 'operator', 'manager', 'admin'].includes(profileData.role)) {
+      if (typedProfileData?.role && ['provider', 'operator', 'manager', 'admin'].includes(typedProfileData.role)) {
         console.log(`[${timestamp}] 👤 User is provider/admin, fetching provider data...`);
 
         // Primary: ownership via providers.user_id (owner)
@@ -217,7 +231,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log(`[${timestamp}] 📝 fetchUserProfile END`);
-      return profileData;
+      console.log(`[${timestamp}] 📝 fetchUserProfile END`);
+      return typedProfileData;
     } catch (error) {
       const details = getErrorDetails(error);
       console.error(`[${timestamp}] 💥 Error fetching user profile:`, error);
@@ -318,18 +333,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    const { data: authData } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: authData } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMountedRef.current) return;
 
+      console.log('🔔 Auth state change:', event);
+
       if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-        await applySession(session);
+        // execute asynchronously to not block the auth flow
+        applySession(session).catch(err => console.error('Error applying session:', err));
       } else if (event === 'SIGNED_OUT') {
         clearAuthState();
         setAuthStatus('signed_out');
       } else if (event === 'TOKEN_REFRESHED') {
-        await applySession(session);
+        applySession(session).catch(err => console.error('Error applying session (refresh):', err));
       } else if (event === 'USER_UPDATED') {
-        await applySession(session, { forceProfile: true });
+        applySession(session, { forceProfile: true }).catch(err => console.error('Error applying session (update):', err));
       }
     });
 
