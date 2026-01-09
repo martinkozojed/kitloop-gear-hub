@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
     Dialog,
@@ -11,146 +10,292 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { PackageCheck, AlertOctagon, Wrench } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { PackageCheck, AlertOctagon, Upload, Loader2, Camera } from "lucide-react";
 import { toast } from "sonner";
-import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { supabase } from "@/lib/supabase";
-import { LogMaintenanceModal } from './LogMaintenanceModal';
+import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { cn } from "@/lib/utils";
 
 interface ReturnFlowProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     reservation: { id: string; customerName: string; itemName: string };
-    onConfirm: (id: string, damageReported: boolean) => Promise<void>;
+    onConfirm: (id: string, damageReported: boolean) => Promise<void>; // Kept for signature compatibility but logic moves inside
+}
+
+interface AssetReturnState {
+    id: string;
+    asset_tag: string;
+    product_name: string;
+    isDamaged: boolean;
+    note: string;
+    photoFile: File | null;
 }
 
 export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: ReturnFlowProps) {
     const { t } = useTranslation();
+    const { user, provider } = useAuth();
     const [loading, setLoading] = useState(false);
-    const [hasDamage, setHasDamage] = useState(false);
+    const [fetching, setFetching] = useState(false);
 
-    // Logic to open Maintenance Log
-    const [showMaintenance, setShowMaintenance] = useState(false);
-    const [assetIds, setAssetIds] = useState<string[]>([]);
+    const [assets, setAssets] = useState<AssetReturnState[]>([]);
 
     useEffect(() => {
         if (open && reservation.id) {
-            // Fetch asset IDs associated with this reservation (active)
-            const fetchAssets = async () => {
-                const { data } = await supabase
-                    .from('reservation_assignments')
-                    .select('asset_id')
-                    .eq('reservation_id', reservation.id)
-                    .is('returned_at', null);
-
-                if (data) {
-                    setAssetIds(data.map(d => d.asset_id));
-                }
-            };
             fetchAssets();
         }
     }, [open, reservation.id]);
 
-    const handleConfirm = async () => {
-        setLoading(true);
+    const fetchAssets = async () => {
+        setFetching(true);
         try {
-            await onConfirm(reservation.id, hasDamage);
+            const { data, error } = await supabase
+                .from('reservation_assignments')
+                .select(`
+                    asset_id,
+                    assets (
+                        id, asset_tag,
+                        product_variants (
+                            products ( name )
+                        )
+                    )
+                `)
+                .eq('reservation_id', reservation.id)
+                .is('returned_at', null);
 
-            if (hasDamage && assetIds.length > 0) {
-                // If damage reported, open the maintenance modal immediately
-                setShowMaintenance(true);
-                // Do NOT close the main dialog yet, let the maintenance modal handle it or close both?
-                // Actually better UX: Close this, open maintenance.
-                onOpenChange(false);
-            } else {
-                onOpenChange(false);
+            if (error) throw error;
+
+            const mapped: AssetReturnState[] = (data || []).map((item: any) => ({
+                id: item.asset_id,
+                asset_tag: item.assets?.asset_tag || 'Unknown',
+                product_name: item.assets?.product_variants?.products?.name || 'Item',
+                isDamaged: false,
+                note: '',
+                photoFile: null
+            }));
+            setAssets(mapped);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to load assets");
+        } finally {
+            setFetching(false);
+        }
+    };
+
+    const handleFileChange = (assetId: string, file: File | null) => {
+        setAssets(prev => prev.map(a => a.id === assetId ? { ...a, photoFile: file } : a));
+    };
+
+    const toggleDamage = (assetId: string, checked: boolean) => {
+        setAssets(prev => prev.map(a => a.id === assetId ? { ...a, isDamaged: checked } : a));
+    };
+
+    const updateNote = (assetId: string, note: string) => {
+        setAssets(prev => prev.map(a => a.id === assetId ? { ...a, note } : a));
+    };
+
+    const [successfullyReturnedReportId, setSuccessfullyReturnedReportId] = useState<string | null>(null);
+
+    const handleConfirm = async () => {
+        if (!user || !provider) return;
+        setLoading(true);
+
+        try {
+            let reportId = successfullyReturnedReportId;
+
+            if (!reportId) {
+                // 1. Prepare Damage Payload
+                const damagePayload = assets.map(a => ({
+                    asset_id: a.id,
+                    damaged: a.isDamaged,
+                    note: a.note || ''
+                }));
+
+                // 2. Create Report (Phase 1 - Transactional)
+                // @ts-expect-error - RPC types update pending
+                const { data: reportData, error: reportError } = await supabase.rpc('create_return_report', {
+                    p_reservation_id: reservation.id,
+                    p_provider_id: provider.id,
+                    // p_user_id removed, derived from auth context
+                    p_damage_reports: damagePayload,
+                    p_general_notes: ''
+                });
+
+                if (reportError) {
+                    // Idempotence Check
+                    // @ts-expect-error - Error code typing
+                    if (reportError.code === 'P0003') {
+                        toast.info(t('operations.returnFlow.alreadyReturned', 'Reservation already returned'));
+                        await onConfirm(reservation.id, assets.some(a => a.isDamaged));
+                        onOpenChange(false);
+                        return;
+                    }
+                    throw reportError;
+                }
+
+                reportId = (reportData as any)?.report_id;
+                setSuccessfullyReturnedReportId(reportId);
             }
 
-            // Ensure status reflects return completion (defensive, RPC should handle)
-            await supabase.from('reservations').update({ status: 'completed' }).eq('id', reservation.id);
-        } catch (e) {
+            // 3. Upload Photos (Phase 2a)
+            const evidence = [];
+            let uploadErrors = 0;
+
+            for (const asset of assets) {
+                if (asset.isDamaged && asset.photoFile && reportId) {
+                    const fileExt = asset.photoFile.name.split('.').pop();
+                    // Secure Path: {provider_id}/{reservation_id}/{report_id}/{filename}
+                    const fileName = `${provider.id}/${reservation.id}/${reportId}/${asset.id}_${Date.now()}.${fileExt}`;
+
+                    const { error: uploadError, data } = await supabase.storage
+                        .from('damage-photos')
+                        .upload(fileName, asset.photoFile);
+
+                    if (uploadError) {
+                        console.error("Upload failed", uploadError);
+                        uploadErrors++;
+                    } else if (data?.path) {
+                        evidence.push({
+                            asset_id: asset.id,
+                            path: data.path,
+                            note: asset.note
+                        });
+                    }
+                }
+            }
+
+            // 4. Attach Evidence to Report (Phase 2b)
+            if (evidence.length > 0 && reportId) {
+                // @ts-expect-error - RPC update pending
+                const { error: attachError } = await supabase.rpc('attach_return_photos', {
+                    p_report_id: reportId,
+                    p_photo_evidence: evidence
+                });
+
+                if (attachError) {
+                    console.error("Failed to attach photos", attachError);
+                    toast.error("Return saved, but photo attachment failed. Please retry.");
+                    throw attachError; // Trigger retry state
+                }
+            }
+
+            if (uploadErrors > 0) {
+                toast.warning(`Return processed but ${uploadErrors} photo(s) failed to upload. Please retry.`);
+                // Don't close dialog if uploads failed, let user retry
+                return;
+            } else {
+                toast.success(t('operations.returnFlow.success', 'Return processed successfully'));
+            }
+
+            await onConfirm(reservation.id, assets.some(a => a.isDamaged));
+            onOpenChange(false);
+            setSuccessfullyReturnedReportId(null); // Reset
+
+        } catch (e: any) {
             console.error(e);
-            toast.error(t('error', 'Failed to return reservation'));
+            toast.error(e.message || "Failed to process return");
+            // Do NOT close dialog on error, allowing retry
         } finally {
             setLoading(false);
         }
     };
 
-    // Shortcut: Cmd+Enter (or Ctrl+Enter) to confirm
-    useKeyboardShortcut(
-        { key: 'Enter', metaOrCtrl: true },
-        () => {
-            if (!loading && !showMaintenance) {
-                handleConfirm();
-            }
-        },
-        { enabled: open }
-    );
+    const hasAnyDamage = assets.some(a => a.isDamaged);
 
     return (
-        <>
-            <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <PackageCheck className="w-5 h-5 text-blue-600" />
-                            {t('operations.returnFlow.title', 'Return Reservation')} #{reservation.id.slice(0, 8)}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {reservation.customerName} - {reservation.itemName}
-                        </DialogDescription>
-                    </DialogHeader>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <PackageCheck className="w-5 h-5 text-blue-600" />
+                        {t('operations.returnFlow.title', 'Return Reservation')}
+                    </DialogTitle>
+                    <DialogDescription>
+                        {reservation.customerName} - {reservation.itemName}
+                    </DialogDescription>
+                </DialogHeader>
 
-                    <div className="py-6 space-y-4">
-                        <div className={`flex items-start space-x-3 p-4 border rounded-md transition-colors ${hasDamage ? 'bg-orange-50 border-orange-200' : 'bg-muted/20'}`}>
-                            <Checkbox
-                                id="damage"
-                                checked={hasDamage}
-                                onCheckedChange={(c) => setHasDamage(c as boolean)}
-                            />
-                            <div className="grid gap-1.5 leading-none">
-                                <Label
-                                    htmlFor="damage"
-                                    className="text-sm font-medium leading-none cursor-pointer"
-                                >
-                                    {t('operations.returnFlow.damage.label', 'Report Damage / Issue')}
-                                </Label>
-                                <p className="text-xs text-muted-foreground">
-                                    {t('operations.returnFlow.damage.hint', 'Check if gear requires maintenance, cleaning or is damaged.')}
-                                </p>
-                            </div>
+                <div className="py-4 space-y-6">
+                    {fetching ? (
+                        <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
+                    ) : (
+                        <div className="space-y-4">
+                            {assets.map(asset => (
+                                <div key={asset.id} className={cn(
+                                    "p-4 border rounded-lg transition-all",
+                                    asset.isDamaged ? "border-orange-200 bg-orange-50/50" : "border-slate-100 bg-slate-50/50"
+                                )}>
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="font-medium text-sm">{asset.product_name}</p>
+                                            <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id={`dmg-${asset.id}`}
+                                                checked={asset.isDamaged}
+                                                onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
+                                            />
+                                            <Label htmlFor={`dmg-${asset.id}`} className="text-sm cursor-pointer">
+                                                Report Damage
+                                            </Label>
+                                        </div>
+                                    </div>
+
+                                    {asset.isDamaged && (
+                                        <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Describe Issue</Label>
+                                                <Textarea
+                                                    placeholder="What is damaged?"
+                                                    className="h-20 text-xs bg-white"
+                                                    value={asset.note}
+                                                    onChange={(e) => updateNote(asset.id, e.target.value)}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Evidence Photo</Label>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        id={`file-${asset.id}`}
+                                                        onChange={(e) => handleFileChange(asset.id, e.target.files?.[0] || null)}
+                                                    />
+                                                    <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-${asset.id}`)?.click()}>
+                                                        <Camera className="w-3 h-3 mr-2" />
+                                                        {asset.photoFile ? asset.photoFile.name : "Upload Photo"}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                         </div>
+                    )}
 
-                        {hasDamage && (
-                            <div className="p-3 bg-blue-50 text-blue-800 text-xs rounded-md flex items-center gap-2 animate-in fade-in">
-                                <Wrench className="w-4 h-4" />
-                                <span>{t('operations.returnFlow.damage.nextStep', 'You will be prompted to log maintenance details after confirmation.')}</span>
-                            </div>
-                        )}
-                    </div>
+                    {hasAnyDamage && (
+                        <div className="flex items-center gap-2 p-3 text-xs text-orange-800 bg-orange-100 rounded-md">
+                            <AlertOctagon className="w-4 h-4" />
+                            Items marked as damaged will be set to 'Maintenance' status.
+                        </div>
+                    )}
+                </div>
 
-                    <DialogFooter className="flex gap-2 sm:justify-between">
-                        <Button variant="outline" onClick={() => onOpenChange(false)}>
-                            {t('common.cancel', 'Cancel')}
-                        </Button>
-                        <Button
-                            onClick={handleConfirm}
-                            disabled={loading}
-                            className={hasDamage ? "bg-orange-600 hover:bg-orange-700" : "bg-blue-600 hover:bg-blue-700"}
-                        >
-                            {loading ? t('common.processing', 'Processing...') : (hasDamage ? t('operations.returnFlow.confirmDamage', 'Return & Log Issue') : t('operations.returnFlow.confirm', 'Complete Return'))}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            <LogMaintenanceModal
-                open={showMaintenance}
-                onOpenChange={setShowMaintenance}
-                assetIds={assetIds}
-                onSuccess={() => toast.success(t('operations.maintenance.logged', 'Maintenance logged'))}
-            />
-        </>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirm} disabled={loading || fetching} className={hasAnyDamage ? "bg-orange-600 hover:bg-orange-700" : ""}>
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (successfullyReturnedReportId ? "Retry Upload" : "Complete Return")}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

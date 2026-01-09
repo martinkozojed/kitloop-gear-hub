@@ -141,13 +141,32 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     const isAllowed = !!reservationRecord && reservationRecord.status === 'confirmed' && isPaidEnough && hasAssets;
 
     const handleConfirm = async () => {
+        if (!reservationRecord?.provider_id) return;
         setLoading(true);
         try {
-            await onConfirm(reservation.id, overrideMode);
+            const userResult = await supabase.auth.getUser();
+            const userId = userResult.data.user?.id;
+
+            if (!userId) throw new Error("Not authenticated");
+
+            // Strict RPC Call
+            // @ts-ignore - RPC types might be stale
+            const { data, error } = await supabase.rpc('issue_reservation', {
+                p_reservation_id: reservation.id,
+                p_provider_id: reservationRecord.provider_id,
+                p_user_id: userId,
+                p_override: overrideMode,
+                p_override_reason: overrideMode ? 'Manual override by provider' : null
+            });
+
+            if (error) throw error;
+
+            toast.success(t('operations.issueFlow.success', 'Reservation Issued'));
+            await onConfirm(reservation.id, overrideMode); // Refresh parent
             onOpenChange(false);
         } catch (e: any) {
             console.error(e);
-            toast.error(t('error'));
+            toast.error(e.message || t('error'));
         } finally {
             setLoading(false);
         }

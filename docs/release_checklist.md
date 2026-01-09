@@ -43,8 +43,15 @@
 - [ ] **Inventory**: Import 1 produktu, 2 variant, 5 kusů.
 - [ ] **Reservation Flow**:
   - Create (Pending/Confirmed).
+  - Create (Pending/Confirmed).
   - Issue (Active) - s Override.
-  - Return (Completed) - s Damage reportem + foto.
+  - **Verify UI**: "Issue" / "Return" buttons available in Reservation Detail Sheet.
+  - Return (Completed) - s Damage reportem:
+    - [ ] Upload photo triggers specific damage logic.
+    - [ ] Asset marked as "maintenance".
+    - [ ] Return report created with photo path.
+    - [ ] **Data Integrity**: Verify no orphaned photos if upload fails.
+    - [ ] **Idempotence**: Try clicking "Return" again -> shows "Already Returned".
 - [ ] **Data Check**: Asset je po vrácení ve správném stavu (Maintenance nebo Available).
 - [ ] **Evidence**: Vyplněný `docs/staging_smoke_run.md` s datem/časem + commit hash.
 

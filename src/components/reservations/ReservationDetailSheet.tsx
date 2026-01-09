@@ -8,9 +8,12 @@ import { Edit, Phone, Mail, CheckCircle, XCircle, ArrowRightLeft } from "lucide-
 import { Link } from 'react-router-dom';
 
 import { ResolveConflictModal } from "@/components/operations/ResolveConflictModal";
+import { IssueFlow } from "@/components/operations/IssueFlow";
+import { ReturnFlow } from "@/components/operations/ReturnFlow";
+import { Package, PackageCheck } from "lucide-react";
 
 interface ReservationDetailSheetProps {
-    reservation: any | null; // Replace any with proper type
+    reservation: any | null;
     isOpen: boolean;
     onClose: () => void;
     onStatusUpdate: (id: string, status: string) => void;
@@ -18,15 +21,22 @@ interface ReservationDetailSheetProps {
 
 export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ reservation, isOpen, onClose, onStatusUpdate }) => {
     const [isConflictOpen, setIsConflictOpen] = React.useState(false);
+    const [isIssueOpen, setIsIssueOpen] = React.useState(false);
+    const [isReturnOpen, setIsReturnOpen] = React.useState(false);
 
     if (!reservation) return null;
 
     const hasAssignment = reservation.assignments && reservation.assignments.length > 0;
 
+    const handleFlowSuccess = async (id: string) => {
+        // MVP: Hard refresh to ensure calendar/data sync
+        window.location.reload();
+    };
+
     return (
         <>
             <Sheet open={isOpen} onOpenChange={onClose}>
-                <SheetContent className="sm:max-w-md">
+                <SheetContent className="sm:max-w-md overflow-y-auto">
                     <SheetHeader>
                         <SheetTitle className="flex items-center gap-2">
                             Rezervace
@@ -91,9 +101,39 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                                 </div>
                             </div>
                         </div>
+
+                        {/* Assignments List (Simple MVP) */}
+                        {reservation.assignments?.length > 0 && (
+                            <div className="space-y-2">
+                                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Přiřazeno</h4>
+                                <div className="space-y-1">
+                                    {reservation.assignments.map((a: any, i: number) => (
+                                        <div key={i} className="text-xs bg-slate-50 p-2 rounded border flex justify-between">
+                                            <span>{a.assets?.product_variants?.name || 'Item'}</span>
+                                            <span className="font-mono text-slate-500">{a.assets?.asset_tag}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <SheetFooter className="flex-col sm:flex-col gap-2 sm:space-x-0">
+                        {/* Primary Operational Actions */}
+                        {reservation.status === 'confirmed' && (
+                            <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setIsIssueOpen(true)}>
+                                <Package className="w-4 h-4 mr-2" /> Vydat (Issue)
+                            </Button>
+                        )}
+
+                        {reservation.status === 'active' && (
+                            <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setIsReturnOpen(true)}>
+                                <PackageCheck className="w-4 h-4 mr-2" /> Vrátit (Return)
+                            </Button>
+                        )}
+
+                        <div className="border-t my-2" />
+
                         {/* Manual Override Action */}
                         <Button variant="secondary" className="w-full text-xs" onClick={() => setIsConflictOpen(true)}>
                             <ArrowRightLeft className="w-3 h-3 mr-2" /> Změnit přiřazení (Swap)
@@ -124,10 +164,29 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                 isOpen={isConflictOpen}
                 onClose={() => setIsConflictOpen(false)}
                 reservation={reservation}
-                onSuccess={() => {
-                    // Ideally check context to refresh calendar
-                    window.location.reload(); // Hard refresh for MVP to guarantee state sync
+                onSuccess={() => window.location.reload()}
+            />
+
+            <IssueFlow
+                open={isIssueOpen}
+                onOpenChange={setIsIssueOpen}
+                reservation={{
+                    id: reservation.id,
+                    customerName: reservation.customer_name,
+                    itemName: `${reservation.assignments?.length || 0} Items` // approximate
                 }}
+                onConfirm={handleFlowSuccess}
+            />
+
+            <ReturnFlow
+                open={isReturnOpen}
+                onOpenChange={setIsReturnOpen}
+                reservation={{
+                    id: reservation.id,
+                    customerName: reservation.customer_name,
+                    itemName: `${reservation.assignments?.length || 0} Items`
+                }}
+                onConfirm={handleFlowSuccess}
             />
         </>
     );

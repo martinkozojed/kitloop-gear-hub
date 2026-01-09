@@ -46,4 +46,7 @@ Perform these steps to verify critical paths on Local and Production:
 ## 🤖 CI Integration
 
 The release gate runs automatically on Pull Requests via GitHub Actions.
-It skips the environment check in CI to avoid secret exposure, but still validates Build, Lint, and Types.
+It skips the environment check in CI to avoid secret exposure.
+
+> [!NOTE]
+> **Linting Policy**: In CI, linting is configured to be **non-blocking** (`LINT_WARN_ONLY=true`) to accommodate existing technical debt. However, **Typecheck** and **Build** are strictly blocking and must pass.
