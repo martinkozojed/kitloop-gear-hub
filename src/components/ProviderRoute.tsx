@@ -26,6 +26,9 @@ const ProviderRoute = ({ children, allowUnverified = false }: Props) => {
 
   // Not authenticated - redirect to login
   if (!isAuthenticated) {
+    if (location.pathname.startsWith('/demo')) {
+      return <Navigate to="/demo/dashboard" replace />;
+    }
     return <Navigate to="/login" replace />;
   }
 

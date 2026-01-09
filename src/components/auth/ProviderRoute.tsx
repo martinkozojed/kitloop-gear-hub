@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -9,6 +9,7 @@ interface ProviderRouteProps {
 
 const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const { user, profile, provider, loading, isProvider, isAdmin } = useAuth();
+  const location = useLocation();
 
   // Show loading while checking auth
   if (loading) {
@@ -25,6 +26,9 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   // Not logged in - redirect to login
   if (!user) {
     console.log('🚫 ProviderRoute: No user found, redirecting to login');
+    if (location.pathname.startsWith('/demo')) {
+      return <Navigate to="/demo/dashboard" replace />;
+    }
     return <Navigate to="/login" replace />;
   }
 
