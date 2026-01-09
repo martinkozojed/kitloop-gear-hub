@@ -143,12 +143,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchUserProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     if (!userId) return null;
     const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
-    console.log(`[${timestamp}] 📝 fetchUserProfile START for user:`, userId);
 
     try {
       // Fetch profile with timeout
-      console.log(`[${timestamp}] 🔍 Querying profiles table...`);
-
       const profilePromise = supabase
         .from('profiles')
         .select('*, is_admin, is_verified')
@@ -182,8 +179,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // If user is an operator/owner/admin, fetch provider data.
       if (typedProfileData?.role && ['provider', 'operator', 'manager', 'admin'].includes(typedProfileData.role)) {
-        console.log(`[${timestamp}] 👤 User is provider/admin, fetching provider data...`);
-
         // Primary: ownership via providers.user_id (owner)
         const { data: ownedProvider, error: ownedError } = await supabase
           .from('providers')
@@ -210,28 +205,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (providerData) {
-          console.log(`[${timestamp}] ✅ Provider data fetched:`, { id: providerData.id, rental_name: providerData.rental_name });
           // Only enforce membership when the user owns this provider record.
           if (providerData.user_id === userId) {
             await ensureProviderMembership(userId, providerData.id, 'owner');
           }
-        } else {
-          console.log(`[${timestamp}] ℹ️ No provider record found`);
         }
         if (isMountedRef.current) {
           setProvider(providerData || null);
           providerRef.current = providerData || null;
         }
       } else {
-        console.log(`[${timestamp}] ℹ️ User is not a provider, clearing provider state`);
         if (isMountedRef.current) {
           setProvider(null);
           providerRef.current = null;
         }
       }
 
-      console.log(`[${timestamp}] 📝 fetchUserProfile END`);
-      console.log(`[${timestamp}] 📝 fetchUserProfile END`);
       return typedProfileData;
     } catch (error) {
       const details = getErrorDetails(error);

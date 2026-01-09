@@ -1,4 +1,11 @@
-# Release Checklist (Pilot Ready)
+# Environment Guidelines
+
+- **Vite Priority**: `.env.local` overrides `.env`.
+- **Restart Required**: After changing `.env` files, always restart `npm run dev`.
+- **API Keys**: Frontend must use `ANON` or `PUBLIC` keys. NEVER use `SERVICE_ROLE_KEY`.
+- **Production Smoke**: Verify requests go to `https://<project>.supabase.co`, NOT `127.0.0.1`.
+
+## Pre-Release Checkslist (Pilot Ready)
 
 ## 1. Database & Backend
 

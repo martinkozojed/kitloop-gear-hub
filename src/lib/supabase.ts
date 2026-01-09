@@ -3,18 +3,17 @@ import type { Database } from '@/integrations/supabase/types';
 
 // Supabase configuration from environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Prefer ANON_KEY, fallback to PUBLISHABLE_KEY if ANON is missing
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   const missing = [];
   if (!supabaseUrl) missing.push('VITE_SUPABASE_URL');
-  if (!supabaseAnonKey) missing.push('VITE_SUPABASE_ANON_KEY (or VITE_SUPABASE_PUBLISHABLE_KEY)');
+  if (!supabaseAnonKey) missing.push('VITE_SUPABASE_ANON_KEY');
+
   throw new Error(
-    `Missing Supabase environment variables: ${missing.join(
-      ', '
-    )}. Check your .env file.`
+    `Missing Supabase environment variables: ${missing.join(', ')}. ` +
+    'Check your .env file. Frontend requires VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
   );
 }
 
