@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import { supabase } from "@/lib/supabase";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import ProviderRoute from "./components/auth/ProviderRoute";
@@ -216,7 +217,12 @@ const AppRoutes = () => {
   );
 };
 
-const App = () => (
+// Expose Supabase for Manual Verification (Console Snippets)
+if (import.meta.env.MODE !== "production" && (import.meta.env.DEV || import.meta.env.VITE_EXPOSE_SUPABASE === "true")) {
+  (window as any).supabase = supabase;
+}
+
+return (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <CommandProvider>
@@ -231,5 +237,6 @@ const App = () => (
     </AuthProvider>
   </QueryClientProvider>
 );
+};
 
 export default App;
