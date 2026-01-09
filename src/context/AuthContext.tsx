@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef, useMemo } from 'react';
+import type { Session } from '@supabase/supabase-js';
 import { supabase, UserRole, Profile, Provider } from '../lib/supabase';
 import { ensureProviderMembership } from '@/services/providerMembership';
 
@@ -119,10 +120,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [provider, setProvider] = useState<Provider | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authStatus, setAuthStatus] = useState<'loading' | 'signed_out' | 'signed_in'>('loading');
+  const isMountedRef = useRef(true);
+  const profileRef = useRef<Profile | null>(null);
+  const providerRef = useRef<Provider | null>(null);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
+
+  useEffect(() => {
+    providerRef.current = provider;
+  }, [provider]);
 
   // Fetch user profile from database
-  const fetchUserProfile = async (userId: string): Promise<Profile | null> => {
+  const fetchUserProfile = useCallback(async (userId: string): Promise<Profile | null> => {
+    if (!userId) return null;
     const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
     console.log(`[${timestamp}] 📝 fetchUserProfile START for user:`, userId);
 
@@ -149,7 +168,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log(`[${timestamp}] ✅ Profile fetched:`, { role: profileData?.role, user_id: profileData?.user_id });
+      if (!isMountedRef.current) return profileData;
       setProfile(profileData);
+      profileRef.current = profileData;
 
       // If user is an operator/owner/admin, fetch provider data.
       if (profileData?.role && ['provider', 'operator', 'manager', 'admin'].includes(profileData.role)) {
@@ -194,14 +215,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (providerData) {
           console.log(`[${timestamp}] ✅ Provider data fetched:`, { id: providerData.id, rental_name: providerData.rental_name });
-          await ensureProviderMembership(userId, providerData.id, 'owner');
+          // Only enforce membership when the user owns this provider record.
+          if (providerData.user_id === userId) {
+            await ensureProviderMembership(userId, providerData.id, 'owner');
+          }
         } else {
           console.log(`[${timestamp}] ℹ️ No provider record found`);
         }
-        setProvider(providerData || null);
+        if (isMountedRef.current) {
+          setProvider(providerData || null);
+          providerRef.current = providerData || null;
+        }
       } else {
         console.log(`[${timestamp}] ℹ️ User is not a provider, clearing provider state`);
-        setProvider(null);
+        if (isMountedRef.current) {
+          setProvider(null);
+          providerRef.current = null;
+        }
       }
 
       console.log(`[${timestamp}] 📝 fetchUserProfile END`);
@@ -224,191 +254,113 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return null;
     }
-  };
+  }, []);
 
   // Initialize auth state
   useEffect(() => {
-    console.log('🔧 Initializing auth...');
-    let isMounted = true;
     let subscription: ReturnType<typeof supabase.auth.onAuthStateChange>['data']['subscription'] | null = null;
-    let lastProcessedUserId: string | null = null; // Track last processed user to prevent duplicates
-    let isProcessing = false; // Prevent concurrent profile fetches
 
-    // Get initial session
+    const clearAuthState = () => {
+      if (!isMountedRef.current) return;
+      setUser(null);
+      setProfile(null);
+      setProvider(null);
+      profileRef.current = null;
+      providerRef.current = null;
+    };
+
+    const applySession = async (session: Session | null, options?: { forceProfile?: boolean }) => {
+      if (!isMountedRef.current) return;
+
+      if (!session?.user) {
+        clearAuthState();
+        setAuthStatus('signed_out');
+        return;
+      }
+
+      if (!session.user.email_confirmed_at) {
+        await supabase.auth.signOut();
+        clearAuthState();
+        setAuthStatus('signed_out');
+        return;
+      }
+
+      if (profileRef.current && profileRef.current.user_id !== session.user.id) {
+        setProfile(null);
+        profileRef.current = null;
+        setProvider(null);
+        providerRef.current = null;
+      }
+
+      let profileData: Profile | null = profileRef.current;
+      if (options?.forceProfile || !profileData) {
+        profileData = await fetchUserProfile(session.user.id);
+        if (!isMountedRef.current) return;
+        if (!profileData) {
+          setProfile(null);
+          profileRef.current = null;
+          setProvider(null);
+          providerRef.current = null;
+        }
+      }
+
+      if (!isMountedRef.current) return;
+      setUser({
+        id: session.user.id,
+        email: session.user.email || '',
+        role: profileData?.role,
+        profile: profileData || undefined,
+      });
+      setAuthStatus('signed_in');
+    };
+
     const initializeAuth = async () => {
       try {
-        console.log('🔍 Checking for existing session...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
           console.error('❌ Session fetch error:', sessionError);
-          if (isMounted) setLoading(false);
+          clearAuthState();
+          setAuthStatus('signed_out');
           return;
         }
 
-        if (session?.user && isMounted) {
-          if (!session.user.email_confirmed_at) {
-            console.warn('❗ Email not verified, signing out session');
-            await supabase.auth.signOut();
-            if (isMounted) {
-              setLoading(false);
-            }
-            return;
-          }
-          console.log('📦 Existing session found:', session.user.email);
-          lastProcessedUserId = session.user.id;
-          isProcessing = true;
-          const profileData = await fetchUserProfile(session.user.id);
-          isProcessing = false;
-          if (isMounted) {
-            setUser({
-              id: session.user.id,
-              email: session.user.email!,
-              role: profileData?.role,
-              profile: profileData || undefined,
-            });
-            console.log('✅ Auth initialized with existing session');
-          }
-        } else if (isMounted) {
-          console.log('ℹ️ No existing session found -> INJECTING MOCK USER (TEST MODE)');
-          // TEMP: Mock User for "No Login" Access
-          const mockUser = {
-            id: 'mock-provider-id',
-            email: 'mock@kitloop.cz',
-            role: 'provider' as UserRole
-          };
-          const mockProvider = {
-            id: 'mock-provider-data-id',
-            user_id: 'mock-provider-id',
-            rental_name: 'Test Rental',
-            contact_email: 'mock@kitloop.cz',
-            is_verified: true
-          } as unknown as Provider;
-
-          setUser({
-            id: mockUser.id,
-            email: mockUser.email,
-            role: mockUser.role,
-            profile: { role: 'provider', is_verified: true, is_admin: true } as unknown as Profile
-          });
-          setProfile({ role: 'provider', is_verified: true, is_admin: true } as unknown as Profile);
-          setProvider(mockProvider); // Needs to be populated for ProviderRoute
+        await applySession(session);
+        if (!session) {
+          setAuthStatus('signed_out');
         }
       } catch (error) {
         console.error('💥 Error initializing auth:', error);
-        isProcessing = false;
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-          console.log('🏁 Auth initialization complete');
-        }
+        clearAuthState();
+        setAuthStatus('signed_out');
       }
     };
 
-    // Setup auth listener (AFTER init completes)
-    const setupAuthListener = () => {
-      console.log('👂 Setting up auth state listener...');
-      const { data: authData } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (!isMounted) {
-            console.log('⚠️ Component unmounted, ignoring auth event:', event);
-            return;
-          }
+    const { data: authData } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMountedRef.current) return;
 
-          console.log('🔔 Auth state changed:', event, session?.user?.email || 'no user');
-
-          // Skip INITIAL_SESSION - already handled in initializeAuth
-          if (event === 'INITIAL_SESSION') {
-            console.log('⏭️ Skipping INITIAL_SESSION (already handled in init)');
-            return;
-          }
-
-          if (event === 'SIGNED_IN' && session?.user) {
-            // Deduplicate: skip if we just processed this user
-            if (session.user.id === lastProcessedUserId || isProcessing) {
-              console.log('⏭️ Skipping duplicate SIGNED_IN event (user already processed)');
-              return;
-            }
-
-            if (!session.user.email_confirmed_at) {
-              console.warn('❗ SIGNED_IN but email not verified, signing out');
-              await supabase.auth.signOut();
-              return;
-            }
-
-            console.log('🎉 SIGNED_IN event detected');
-            lastProcessedUserId = session.user.id;
-            isProcessing = true;
-            const profileData = await fetchUserProfile(session.user.id);
-            isProcessing = false;
-            if (isMounted) {
-              setUser({
-                id: session.user.id,
-                email: session.user.email!,
-                role: profileData?.role,
-                profile: profileData || undefined,
-              });
-              console.log('✅ User state updated after SIGNED_IN');
-            }
-          } else if (event === 'SIGNED_OUT') {
-            console.log('👋 SIGNED_OUT event detected');
-            if (isMounted) {
-              setUser(null);
-              setProfile(null);
-              setProvider(null);
-              lastProcessedUserId = null;
-            }
-          } else if (event === 'TOKEN_REFRESHED') {
-            console.log('🔄 TOKEN_REFRESHED (no action needed)');
-            // Don't fetch profile again - session is still valid
-          } else if (event === 'USER_UPDATED' && session?.user) {
-            console.log('🔄 USER_UPDATED event detected');
-            if (isProcessing) {
-              console.log('⏭️ Skipping USER_UPDATED - fetch already in progress');
-              return;
-            }
-            isProcessing = true;
-            const profileData = await fetchUserProfile(session.user.id);
-            isProcessing = false;
-            if (isMounted) {
-              setUser({
-                id: session.user.id,
-                email: session.user.email!,
-                role: profileData?.role,
-                profile: profileData || undefined,
-              });
-            }
-          }
-          if (isMounted) {
-            setLoading(false);
-          }
-        }
-      );
-
-      subscription = authData.subscription;
-    };
-
-    // CRITICAL: Run initialization FIRST, THEN setup listener
-    // This prevents race condition where listener catches INITIAL_SESSION before init completes
-    (async () => {
-      await initializeAuth();
-      if (isMounted) {
-        setupAuthListener();
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        await applySession(session);
+      } else if (event === 'SIGNED_OUT') {
+        clearAuthState();
+        setAuthStatus('signed_out');
+      } else if (event === 'TOKEN_REFRESHED') {
+        await applySession(session);
+      } else if (event === 'USER_UPDATED') {
+        await applySession(session, { forceProfile: true });
       }
-    })();
+    });
 
-    // Cleanup function
+    subscription = authData.subscription;
+    initializeAuth();
+
     return () => {
-      console.log('🧹 Cleaning up auth listener');
-      isMounted = false;
-      if (subscription) {
-        subscription.unsubscribe();
-      }
+      subscription?.unsubscribe();
     };
-  }, []); // Empty dependency array is correct here - only run once on mount
+  }, [fetchUserProfile]);
 
   // Login with email and password
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = useCallback(async (email: string, password: string): Promise<void> => {
     console.log('🔐 Login attempt for:', email);
 
     try {
@@ -439,10 +391,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('💥 Login failed:', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to login');
     }
-  };
+  }, []);
 
   // Sign up with email, password and role
-  const signUp = async (email: string, password: string, role: UserRole): Promise<void> => {
+  const signUp = useCallback(async (email: string, password: string, role: UserRole): Promise<void> => {
     console.log('📝 Sign up attempt for:', email, 'with role:', role);
 
     try {
@@ -463,7 +415,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
-      if (data.user) {
+      if (data.user && data.session) {
         console.log('⏳ Waiting for database trigger to create profile...');
         // Profile will be created automatically by database trigger
         // Wait a bit for the trigger to complete
@@ -471,23 +423,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         console.log('📝 Fetching newly created profile...');
         const profileData = await fetchUserProfile(data.user.id);
+        if (!isMountedRef.current) {
+          return;
+        }
         setUser({
           id: data.user.id,
           email: data.user.email!,
           role: profileData?.role || role,
           profile: profileData || undefined,
         });
+        setAuthStatus('signed_in');
         console.log('✅ Sign up complete!');
+      } else {
+        console.log('ℹ️ Sign up completed without active session (email confirmation likely required)');
+        setAuthStatus('signed_out');
       }
     } catch (error) {
       const details = getErrorDetails(error);
       console.error('💥 Sign up failed:', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to sign up');
     }
-  };
+  }, [fetchUserProfile]);
 
   // Logout
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async (): Promise<void> => {
     console.log('🚪 Logout attempt');
 
     try {
@@ -501,15 +460,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setProfile(null);
       setProvider(null);
+      profileRef.current = null;
+      providerRef.current = null;
+      setAuthStatus('signed_out');
     } catch (error) {
       const details = getErrorDetails(error);
       console.error('💥 Logout failed:', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to logout');
     }
-  };
+  }, []);
 
   // Refresh profile and provider data
-  const refreshProfile = async (): Promise<void> => {
+  const refreshProfile = useCallback(async (): Promise<void> => {
     console.log('🔄 Refreshing profile data...');
 
     if (!user?.id) {
@@ -525,13 +487,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('💥 Profile refresh failed:', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to refresh profile');
     }
-  };
+  }, [user?.id, fetchUserProfile]);
 
-  const value: AuthContextType = {
+  const loading = authStatus === 'loading';
+  const isAuthenticated = authStatus === 'signed_in' && !!user;
+
+  const value: AuthContextType = useMemo(() => ({
     user,
     profile,
     provider,
-    isAuthenticated: !!user,
+    isAuthenticated,
     isProvider: profile?.role === 'provider' || profile?.role === 'operator' || profile?.role === 'manager' || profile?.role === 'admin' || profile?.is_admin === true,
     isAdmin: profile?.role === 'admin' || profile?.is_admin === true,
     isVerified: profile?.is_verified === true,
@@ -540,7 +505,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     logout,
     refreshProfile,
-  };
+  }), [user, profile, provider, isAuthenticated, loading, login, signUp, logout, refreshProfile]);
 
   return (
     <AuthContext.Provider value={value}>
