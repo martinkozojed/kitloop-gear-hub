@@ -118,3 +118,43 @@ If ALL checks pass, the release is **PILOT READY**.
    ```
 
    **Expectation**: 0 rows.
+
+## 7. Execution Evidence (2026-01-10)
+
+**Environment**: Staging / Local Proxy
+**Commit**: 946bc31
+
+### 7.1 SQL Evidence (Section 6)
+
+**1. Notification Logs Security:**
+
+```
+# 1. Notification Logs Security
+# Anon Select: false
+# Auth Select: false
+```
+
+*(Confirmed via pgTAP test)*
+
+**2. Function Search Paths:**
+
+```
+# 2. Function Search Paths
+# Rows with insecure search_path: 0
+```
+
+*(Confirmed via pgTAP test)*
+
+### 7.2 UI Evidence
+
+**User Console Output**:
+
+```
+> window.supabase
+< SupabaseClient {supabaseUrl: "https://bkyokcjpelqwtndienos.supabase.co", ...}
+```
+
+*(Confirmed window.supabase is accessible in Dev/Staging mode)*
+
+---
+**VERDICT: PASS**
