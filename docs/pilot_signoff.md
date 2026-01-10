@@ -1,42 +1,76 @@
-# Pilot Sign-off
+# Pilot Sign-off Audit
 
-**Date**: 2026-01-10
+**Date**: 2026-01-10 16:40:00 UTC+1
 **Commit**: 946bc31
 **Environment**: Staging / Local Proxy
 **Auditor**: Antigravity Agent
 
-## 1. Security & Linter Verification (PASS)
+## 1. Security & Linter Evidence
 
-Evidence Source: [docs/staging_smoke_run.md -> Section 7.1](file:///Users/mp/Downloads/kitloop-gear-hub-main/docs/staging_smoke_run.md)
+*Source: `docs/staging_smoke_run.md` (See Section 7.1)*
 
-- [x] **Notification Logs**: Access denied for Anon/Auth.
-- [x] **Function Hierarchies**: Search paths locked (`public, auth, extensions`).
-- [x] **Security Advisor**: P0 Issues = 0 (Exceptions documented in `docs/security_advisor_triage.md`).
+### Notification Logs Security
 
-## 2. DevTools & Integrity (PASS)
+- `notification_logs` RLS Enabled: **PASS**
+- Anom/Auth Privileges (Select/Insert): **PASS** (Revoked)
+- Function Search Paths: **PASS** (0 insecure items found)
 
-Evidence Source: [docs/staging_smoke_run.md -> Section 7.2](file:///Users/mp/Downloads/kitloop-gear-hub-main/docs/staging_smoke_run.md)
+**Evidence (SQL Output):**
 
-- [x] **Window Exposure**: `window.supabase` exposed ONLY when `VITE_EXPOSE_SUPABASE=true` (Verified in `src/App.tsx`).
-- [x] **Storage Isolation**: Cross-tenant access confirmed denied (403).
+```
+# 1. Notification Logs Security
+# Anon Select: false
+# Auth Select: false
+# 2. Function Search Paths
+# Rows with insecure search_path: 0
+```
 
-## 3. UI Smoke Test (PASS)
+## 2. DevTools & Storage Isolation
 
-Evidence Source: User Console Output (2026-01-10)
+*Source: Browser Console Logs*
 
-- [x] **Login**: Successful (`provider@test.cz`).
-- [x] **Dashboard**: Accessible.
-- [x] **Return Flow**: Verified interactively.
+### Window Exposure
 
-## 4. Known Exceptions (P1)
+- `window.supabase` Safety: **PASS**
+- **Evidence**:
 
-Documented in: [docs/security_advisor_triage.md](file:///Users/mp/Downloads/kitloop-gear-hub-main/docs/security_advisor_triage.md)
+  ```
+  > window.supabase
+  < SupabaseClient {supabaseUrl: "https://bkyokcjpelqwtndienos.supabase.co", ...}
+  ```
 
-| Issue | Reason | Resolution Plan |
-| :--- | :--- | :--- |
-| `spatial_ref_sys` in public | PostGIS metadata | Accepted Exception (No Action) |
-| Extensions in public | Standard Supabase config | Defer to Backlog (Needs Regression Test) |
-| Leaked Password Protection | Config Only | Enable in Dashboard before Public Launch |
+  *(Verified exposed only when configured)*
+
+### Storage Isolation
+
+- User Session Check: **MISSING EVIDENCE**
+- List Provider B (Expect 403/Empty): **MISSING EVIDENCE**
+- Upload Provider B (Expect 403): **MISSING EVIDENCE**
+- Upload Provider A (Expect 200): **MISSING EVIDENCE**
+
+## 3. UI Return Flow Integrity
+
+*Source: Manual UI Verification*
+
+- Offline Fail & Retry: **MISSING EVIDENCE**
+- Report Count = 1 (Idempotency): **MISSING EVIDENCE**
+- P0003 check: **MISSING EVIDENCE**
+
+## 4. Security Advisor Triage
+
+*Source: [docs/security_advisor_triage.md](docs/security_advisor_triage.md)*
+
+- **P0 Criticals**: 0
+- **P1 Exceptions**:
+  - `spatial_ref_sys` (PostGIS Metadata) -> Accepted
+  - Extensions in public -> Deferred to Backlog
+  - Leaked Password Protection -> Enable before Launch
 
 ---
-**FINAL VERDICT: READY FOR PILOT** 🚀
+
+**VERDICT: FAIL (Evidence Incomplete)**
+
+**Missing Required Evidence:**
+
+1. **DevTools Storage Logs**: Need copy-paste of console output showing 403 Forbidden when accessing Provider B's bucket.
+2. **UI Return Flow**: Need confirmation of "Offline -> Retry" success and SQL check showing exactly one report created.
