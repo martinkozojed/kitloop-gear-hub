@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from "sonner";
+import { logger } from '@/lib/logger';
 
 interface UpsertCustomerModalProps {
     open: boolean;
@@ -52,7 +53,7 @@ export function UpsertCustomerModal({ open, onOpenChange, onSuccess }: UpsertCus
             .order('name');
 
         if (error) {
-            console.error('Failed to fetch accounts', error);
+            logger.error('Failed to fetch accounts', error);
             return;
         }
         setAccounts(data || []);
@@ -86,7 +87,7 @@ export function UpsertCustomerModal({ open, onOpenChange, onSuccess }: UpsertCus
             onSuccess();
             onOpenChange(false);
         } catch (err: any) {
-            console.error(err);
+            logger.error('Failed to save customer', err);
             toast.error("Failed to save customer", { description: err.message });
         } finally {
             setLoading(false);

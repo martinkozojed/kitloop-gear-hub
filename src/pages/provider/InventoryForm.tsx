@@ -18,6 +18,7 @@ import {
   isFetchError,
   isSupabaseConstraintError,
 } from '@/lib/error-utils';
+import { logger } from '@/lib/logger';
 
 interface FormData {
   name: string;
@@ -113,7 +114,7 @@ const InventoryForm = () => {
   };
 
   const fetchItem = async (itemId: string) => {
-    console.log('📝 Fetching item for edit:', itemId);
+    logger.debug('Fetching item for edit:', itemId);
 
     try {
       const { data, error } = await supabase
@@ -125,7 +126,7 @@ const InventoryForm = () => {
       if (error) throw error;
 
       if (data) {
-        console.log('✅ Item fetched:', data);
+        logger.debug('Item fetched successfully');
         setFormData({
           name: data.name || '',
           category: data.category || '',
@@ -143,7 +144,7 @@ const InventoryForm = () => {
         );
       }
     } catch (error) {
-      console.error('❌ Error fetching item:', error);
+      logger.error('Error fetching item', error);
       toast.error(getErrorMessage(error) || 'Failed to load item');
     }
   };
@@ -179,7 +180,7 @@ const InventoryForm = () => {
       return;
     }
 
-    console.log('✅ Selected', files.length, 'valid images');
+    logger.debug('Selected images:', files.length);
     setImages([...images, ...files]);
   };
 
@@ -190,7 +191,7 @@ const InventoryForm = () => {
   const uploadImages = async (files: File[]): Promise<string[]> => {
     if (files.length === 0) return [];
 
-    console.log('📤 Uploading', files.length, 'images...');
+    logger.debug('Uploading images:', files.length);
     setUploadingImages(true);
     const urls: string[] = [];
     const failedUploads: string[] = [];
@@ -201,7 +202,7 @@ const InventoryForm = () => {
         const fileExt = file.name.split('.').pop();
         const fileName = `${provider?.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-        console.log(`Uploading file ${i + 1}/${files.length}:`, file.name);
+        logger.debug(`Uploading file ${i + 1}/${files.length}`);
 
         const { data, error } = await supabase.storage
           .from('gear-images')
@@ -211,7 +212,7 @@ const InventoryForm = () => {
           });
 
         if (error) {
-          console.error(`❌ Upload error for ${file.name}:`, error);
+          logger.error('Upload error', error);
           failedUploads.push(file.name);
 
           if (error.message.includes('storage/object-not-found')) {
@@ -231,9 +232,9 @@ const InventoryForm = () => {
           .getPublicUrl(fileName);
 
         urls.push(publicUrl);
-        console.log(`✅ Image ${i + 1}/${files.length} uploaded:`, publicUrl);
+        logger.debug(`Image ${i + 1}/${files.length} uploaded successfully`);
       } catch (error) {
-        console.error('Error uploading image:', error);
+        logger.error('Error uploading image', error);
         failedUploads.push(file.name);
 
         if (isFetchError(error)) {
@@ -255,7 +256,7 @@ const InventoryForm = () => {
       toast.success(`Nahráno ${urls.length} obrázků`);
     }
 
-    console.log(`✅ Upload complete: ${urls.length} successful, ${failedUploads.length} failed`);
+    logger.debug(`Upload complete: ${urls.length} successful, ${failedUploads.length} failed`);
     return urls;
   };
 
@@ -273,7 +274,7 @@ const InventoryForm = () => {
     setLoading(true);
 
     try {
-      console.log('💾 Saving item...');
+      logger.debug('Saving item...');
 
       // Upload new images
       const uploadedUrls = await uploadImages(images);
@@ -306,11 +307,11 @@ const InventoryForm = () => {
         image_url: primaryImageUrl,
       };
 
-      console.log('Item data:', itemData);
+      logger.debug('Item data prepared');
 
       if (id) {
         // Update existing
-        console.log('Updating item:', id);
+        logger.debug('Updating item:', id);
 
         const { error } = await supabase
           .from('gear_items')
@@ -318,7 +319,7 @@ const InventoryForm = () => {
           .eq('id', id);
 
         if (error) {
-          console.error('❌ Update error:', error);
+          logger.error('Update error', error);
 
           if (error.code === 'PGRST301') {
             toast.error('Chyba přístupu', {
@@ -339,10 +340,10 @@ const InventoryForm = () => {
         toast.success('Položka aktualizována', {
           description: 'Změny byly úspěšně uloženy.'
         });
-        console.log('✅ Item updated');
+        logger.debug('Item updated successfully');
       } else {
         // Create new
-        console.log('Creating new item');
+        logger.debug('Creating new item');
 
         const { data, error } = await supabase
           .from('gear_items')
@@ -351,7 +352,7 @@ const InventoryForm = () => {
           .single();
 
         if (error) {
-          console.error('❌ Insert error:', error);
+          logger.error('Insert error', error);
 
           if (error.code === 'PGRST301') {
             toast.error('Chyba přístupu', {
@@ -383,25 +384,25 @@ const InventoryForm = () => {
               .insert(imageRecords);
 
             if (imgError) {
-              console.error('⚠️ Failed to save additional images:', imgError);
+              logger.error('Failed to save additional images', imgError);
               toast.warning('Položka vytvořena', {
                 description: 'Některé dodatečné obrázky se nepodařilo uložit.'
               });
             }
           } catch (imgError) {
-            console.error('⚠️ Image insert error:', imgError);
+            logger.error('Image insert error', imgError);
           }
         }
 
         toast.success('Položka přidána', {
           description: 'Nová položka byla vytvořena v inventáři.'
         });
-        console.log('✅ Item created:', data.id);
+        logger.debug('Item created:', data.id);
       }
 
       navigate('/provider/inventory');
     } catch (error) {
-      console.error('💥 Error saving item:', error);
+      logger.error('Error saving item', error);
 
       const errorCode = getErrorCode(error);
 

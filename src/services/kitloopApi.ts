@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 
 /**
  * Kitloop API service
@@ -21,7 +22,7 @@ export interface RentalSubmission {
  */
 export async function submitRental(data: RentalSubmission) {
   // This is a placeholder that simulates an API call
-  console.log('Submitting rental data:', data);
+  logger.debug('Submitting rental data');
   
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1500));

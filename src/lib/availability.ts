@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { logger } from './logger';
 
 export interface AvailabilityResult {
   available: number;
@@ -47,7 +48,7 @@ export async function checkAvailability(
     .single();
 
   if (gearError || !gear) {
-    console.error('Gear fetch error:', gearError);
+    logger.error('Gear fetch error', gearError);
     throw new Error('Vybavení nebylo nalezeno');
   }
 
@@ -74,7 +75,7 @@ export async function checkAvailability(
     .gt('end_date', startDate.toISOString());
 
   if (reservationError) {
-    console.error('Reservation fetch error:', reservationError);
+    logger.error('Reservation fetch error', reservationError);
     throw new Error('Chyba při kontrole dostupnosti');
   }
 
@@ -103,7 +104,7 @@ export async function checkAvailability(
     }
   }
 
-  console.log('Availability check:', {
+  logger.debug('Availability check:', {
     gear: gear.name,
     quantityAvailable,
     overlappingCount,
@@ -149,7 +150,7 @@ export async function checkVariantAvailability(
     .not('status', 'in', '("retired","lost")'); // Use Query Filter syntax properly
 
   if (assetError) {
-    console.error('Asset count error:', assetError);
+    logger.error('Asset count error', assetError);
     throw new Error('Chyba při kontrole kapacity varianty');
   }
 
@@ -176,7 +177,7 @@ export async function checkVariantAvailability(
     .gt('end_date', startDate.toISOString());
 
   if (reservationError) {
-    console.error('Reservation fetch error:', reservationError);
+    logger.error('Reservation fetch error', reservationError);
     throw new Error('Chyba při kontrole dostupnosti rezervací');
   }
 

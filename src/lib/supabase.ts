@@ -26,7 +26,9 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     storageKey: 'kitloop-auth-token',
     // Safari fix: Use polling for session refresh when tab visibility changes
-    flowType: 'pkce'
+    flowType: 'pkce',
+    // P0 Security: Disable debug logging in production
+    debug: false
   }
 });
 

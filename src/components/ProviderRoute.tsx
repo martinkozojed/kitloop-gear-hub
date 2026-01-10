@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { logger } from '@/lib/logger';
 
 interface Props {
   children: JSX.Element;
@@ -14,7 +15,7 @@ const ProviderRoute = ({ children, allowUnverified = false }: Props) => {
   // Refresh provider data when navigating to provider routes
   useEffect(() => {
     if (isAuthenticated && isProvider && !provider && !loading) {
-      console.log('🔄 ProviderRoute: No provider data, refreshing...');
+      logger.debug('ProviderRoute: No provider data, refreshing...');
       refreshProfile();
     }
   }, [isAuthenticated, isProvider, provider, loading, refreshProfile]);
@@ -48,7 +49,7 @@ const ProviderRoute = ({ children, allowUnverified = false }: Props) => {
 
   // For other pages, ensure we have a provider record
   if (!provider) {
-    console.log('⚠️ No provider record found, redirecting to setup');
+    logger.debug('No provider record found, redirecting to setup');
     return <Navigate to="/provider/setup" replace />;
   }
 

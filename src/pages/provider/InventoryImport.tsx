@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Download, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Papa, { ParseError, ParseResult } from 'papaparse';
+import { logger } from '@/lib/logger';
 import {
   getErrorCode,
   getErrorMessage,
@@ -81,7 +82,7 @@ const InventoryImport = () => {
       return;
     }
 
-    console.log('📤 Parsing CSV file:', uploadedFile.name);
+    logger.debug('Parsing CSV file');
     setFile(uploadedFile);
 
     Papa.parse<CsvRow>(uploadedFile, {
@@ -90,7 +91,7 @@ const InventoryImport = () => {
       skipEmptyLines: true,
       encoding: 'UTF-8', // Support Czech characters
       complete: (results: ParseResult<CsvRow>) => {
-        console.log('✅ Parsed CSV:', results.data.length, 'rows');
+        logger.debug('Parsed CSV rows:', results.data.length);
 
         if (results.data.length === 0) {
           toast.error('Prázdný soubor', {
@@ -119,7 +120,7 @@ const InventoryImport = () => {
         validateData(results.data);
       },
       error: (error: Error) => {
-        console.error('❌ CSV parse error:', error);
+        logger.error('CSV parse error', error);
         const message = getErrorMessage(error);
 
         if (message.includes('encoding')) {
@@ -136,7 +137,7 @@ const InventoryImport = () => {
   };
 
   const validateData = (data: CsvRow[]) => {
-    console.log('🔍 Validating data...');
+    logger.debug('Validating data...');
     const errors: string[] = [];
     const skuSet = new Set<string>();
 
@@ -201,7 +202,7 @@ const InventoryImport = () => {
       }
     });
 
-    console.log(errors.length === 0 ? '✅ Validation passed' : `⚠️ ${errors.length} validation errors`);
+    logger.debug(errors.length === 0 ? 'Validation passed' : `${errors.length} validation errors`);
     setValidationErrors(errors);
   };
 
@@ -222,7 +223,7 @@ const InventoryImport = () => {
 
     setImporting(true);
     setImportProgress({ current: 0, total: parsedData.length });
-    console.log('📥 Importing', parsedData.length, 'items...');
+    logger.debug('Importing items:', parsedData.length);
 
     try {
       const itemsToInsert = parsedData.map((row) => {
@@ -256,7 +257,7 @@ const InventoryImport = () => {
         };
       });
 
-      console.log('Inserting', itemsToInsert.length, 'items');
+      logger.debug('Inserting items:', itemsToInsert.length);
 
       // Import in batches of 10 for progress feedback
       const batchSize = 10;
@@ -277,7 +278,7 @@ const InventoryImport = () => {
           .select();
 
         if (error) {
-          console.error(`❌ Batch ${i + 1} error:`, error);
+          logger.error(`Batch ${i + 1} error`, error);
           batch.forEach((item) => failedItems.push(item.name ?? 'Neznámá položka'));
         } else {
           successCount += data?.length || 0;
@@ -294,7 +295,7 @@ const InventoryImport = () => {
           description: `${successCount} úspěšných, ${failedItems.length} selhalo`
         });
       } else {
-        console.log('✅ Import successful:', successCount, 'items created');
+        logger.debug('Import successful:', successCount);
         toast.success(`Import dokončen`, {
           description: `Úspěšně naimportováno ${successCount} položek.`
         });
@@ -304,7 +305,7 @@ const InventoryImport = () => {
       await new Promise(resolve => setTimeout(resolve, 500));
       navigate('/provider/inventory');
     } catch (error) {
-      console.error('💥 Unexpected import error:', error);
+      logger.error('Unexpected import error', error);
 
       const errorCode = getErrorCode(error);
 

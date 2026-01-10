@@ -1,3 +1,4 @@
+import { logger } from './logger';
 
 /**
  * Check if a user is logged in by examining localStorage
@@ -10,7 +11,7 @@ export function isUserLoggedIn(): boolean {
     const user = JSON.parse(userStr);
     return !!user?.isLoggedIn;
   } catch (error) {
-    console.error('Error checking auth status:', error);
+    logger.error('Error checking auth status', error);
     return false;
   }
 }
@@ -25,7 +26,7 @@ export function getCurrentUser() {
   try {
     return JSON.parse(userStr);
   } catch (error) {
-    console.error('Error getting user data:', error);
+    logger.error('Error getting user data', error);
     return null;
   }
 }

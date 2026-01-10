@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { getErrorMessage } from "@/lib/error-utils";
+import { logger } from "@/lib/logger";
 
 const HOLD_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const ACTIVE_RESERVATION_STATUSES = ["hold", "confirmed", "active"] as const;
@@ -170,7 +171,7 @@ const insertReservationDirectly = async (
 
   if (error) {
     // ... error handling ...
-    console.error("Reservation insert failed", error);
+    logger.error("Reservation insert failed", error);
     if (error.code === "23505") { // ... existing error handling ...
       const message = error.message ?? "";
       if (message.includes("reservations_provider_id_idempotency_key_key")) {
@@ -217,7 +218,7 @@ const insertReservationDirectly = async (
         });
 
       if (lineError) {
-        console.error("Failed to create reservation line", lineError);
+        logger.error("Failed to create reservation line", lineError);
         // Non-blocking but critical for V3 data integrity. 
         // Should we rollback? For now, logging error.
       }

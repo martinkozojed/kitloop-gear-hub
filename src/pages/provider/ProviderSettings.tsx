@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Upload } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
+import { logger } from '@/lib/logger';
 
 const ProviderSettings = () => {
   const { provider } = useAuth();
@@ -58,7 +59,7 @@ const ProviderSettings = () => {
     setIsSubmitting(true);
 
     try {
-      console.log('Saving provider settings:', formData);
+      logger.debug('Saving provider settings');
 
       const { data, error } = await supabase
         .from('providers')
@@ -68,17 +69,17 @@ const ProviderSettings = () => {
         .single();
 
       if (error) {
-        console.error('Error updating provider:', error);
+        logger.error('Error updating provider', error);
         throw error;
       }
 
-      console.log('Provider updated successfully:', data);
+      logger.debug('Provider updated successfully');
       toast.success('Settings saved successfully');
 
       // Refresh auth context (optional - depends on your AuthContext implementation)
       window.location.reload(); // Simple refresh for now
     } catch (error) {
-      console.error('Save failed:', error);
+      logger.error('Save failed', error);
       toast.error(getErrorMessage(error) || 'Failed to save settings');
     } finally {
       setIsSubmitting(false);

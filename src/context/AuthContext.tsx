@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback, use
 import type { Session } from '@supabase/supabase-js';
 import { supabase, UserRole, Profile, Provider } from '../lib/supabase';
 import { ensureProviderMembership } from '@/services/providerMembership';
+import { logger } from '@/lib/logger';
 
 interface User {
   id: string;
@@ -142,7 +143,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch user profile from database
   const fetchUserProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     if (!userId) return null;
-    const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
 
     try {
       // Fetch profile with timeout
@@ -159,8 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
 
       if (profileError) {
-        console.error(`[${timestamp}] ❌ Profile fetch error:`, profileError);
-        console.error(`[${timestamp}] ❌ Error details:`, JSON.stringify(profileError, null, 2));
+        logger.error('Profile fetch error', profileError);
         throw profileError;
       }
 
@@ -172,7 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updated_at: profileData.updated_at === null ? undefined : profileData.updated_at,
       } : null;
 
-      console.log(`[${timestamp}] ✅ Profile fetched:`, { role: typedProfileData?.role, user_id: typedProfileData?.user_id });
+      logger.debug('Profile fetched', { role: typedProfileData?.role });
       if (!isMountedRef.current) return typedProfileData;
       setProfile(typedProfileData);
       profileRef.current = typedProfileData;
@@ -187,7 +186,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .maybeSingle();
 
         if (ownedError) {
-          console.warn(`[${timestamp}] ⚠️ Owned provider fetch error:`, ownedError);
+          logger.warn('Owned provider fetch error', ownedError);
         }
 
         let providerData = ownedProvider as Provider | null;
@@ -200,7 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .eq('user_id', userId)
             .maybeSingle();
 
-          if (membershipError) console.warn(`[${timestamp}] ⚠️ Membership fetch error:`, membershipError);
+          if (membershipError) logger.warn('Membership fetch error', membershipError);
           providerData = membershipData?.provider as unknown as Provider | null;
         }
 
@@ -224,18 +223,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return typedProfileData;
     } catch (error) {
       const details = getErrorDetails(error);
-      console.error(`[${timestamp}] 💥 Error fetching user profile:`, error);
-      console.error(`[${timestamp}] 💥 Error message:`, details.message);
-      if (details.stack) {
-        console.error(`[${timestamp}] 💥 Error stack:`, details.stack);
-      }
+      logger.error('Error fetching user profile', error);
 
       // Check if it's a RLS policy error
       if (
         details.message.includes('policy') ||
         details.code === '42501'
       ) {
-        console.error(`[${timestamp}] 🚨 RLS POLICY ERROR - User cannot read profiles table!`);
+        logger.error('RLS POLICY ERROR - User cannot read profiles table');
       }
 
       return null;
@@ -305,7 +300,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
-          console.error('❌ Session fetch error:', sessionError);
+          logger.error('Session fetch error', sessionError);
           clearAuthState();
           setAuthStatus('signed_out');
           return;
@@ -316,7 +311,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setAuthStatus('signed_out');
         }
       } catch (error) {
-        console.error('💥 Error initializing auth:', error);
+        logger.error('Error initializing auth', error);
         clearAuthState();
         setAuthStatus('signed_out');
       }
@@ -325,18 +320,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: authData } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMountedRef.current) return;
 
-      console.log('🔔 Auth state change:', event);
+      logger.debug('Auth state change', event);
 
       if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
         // execute asynchronously to not block the auth flow
-        applySession(session).catch(err => console.error('Error applying session:', err));
+        applySession(session).catch(err => logger.error('Error applying session', err));
       } else if (event === 'SIGNED_OUT') {
         clearAuthState();
         setAuthStatus('signed_out');
       } else if (event === 'TOKEN_REFRESHED') {
-        applySession(session).catch(err => console.error('Error applying session (refresh):', err));
+        applySession(session).catch(err => logger.error('Error applying session (refresh)', err));
       } else if (event === 'USER_UPDATED') {
-        applySession(session, { forceProfile: true }).catch(err => console.error('Error applying session (update):', err));
+        applySession(session, { forceProfile: true }).catch(err => logger.error('Error applying session (update)', err));
       }
     });
 
@@ -350,7 +345,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Login with email and password
   const login = useCallback(async (email: string, password: string): Promise<void> => {
-    console.log('🔐 Login attempt for:', email);
+    logger.sensitive('Login attempt for', email); // Only logged in DEV with explicit flag
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -358,33 +353,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       });
 
-      console.log('📡 Supabase auth response:', { user: data?.user?.email, error });
-
       if (error) {
-        console.error('❌ Auth error:', error);
+        logger.error('Auth error', error);
         throw error;
       }
 
       if (data.user && !data.user.email_confirmed_at) {
-        console.warn('❗ Login blocked - email not confirmed');
+        logger.warn('Login blocked - email not confirmed');
         await supabase.auth.signOut();
         throw new Error('Email not confirmed');
       }
 
-      console.log('✅ Login successful! Auth state change will handle profile fetch.');
+      logger.success('Login successful');
 
       // DO NOT fetch profile here - let onAuthStateChange handle it
       // This prevents duplicate profile fetching and race conditions
     } catch (error) {
       const details = getErrorDetails(error);
-      console.error('💥 Login failed:', error);
+      logger.error('Login failed', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to login');
     }
   }, []);
 
   // Sign up with email, password and role
   const signUp = useCallback(async (email: string, password: string, role: UserRole): Promise<void> => {
-    console.log('📝 Sign up attempt for:', email, 'with role:', role);
+    logger.sensitive('Sign up attempt for', { email, role }); // Only DEV + explicit flag
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -397,20 +390,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       });
 
-      console.log('📡 Supabase signup response:', { user: data?.user?.email, error });
-
       if (error) {
-        console.error('❌ Signup error:', error);
+        logger.error('Signup error', error);
         throw error;
       }
 
       if (data.user && data.session) {
-        console.log('⏳ Waiting for database trigger to create profile...');
+        logger.info('Waiting for database trigger to create profile');
         // Profile will be created automatically by database trigger
         // Wait a bit for the trigger to complete
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        console.log('📝 Fetching newly created profile...');
+        logger.debug('Fetching newly created profile');
         const profileData = await fetchUserProfile(data.user.id);
         if (!isMountedRef.current) {
           return;
@@ -422,30 +413,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           profile: profileData || undefined,
         });
         setAuthStatus('signed_in');
-        console.log('✅ Sign up complete!');
+        logger.success('Sign up complete');
       } else {
-        console.log('ℹ️ Sign up completed without active session (email confirmation likely required)');
+        logger.info('Sign up completed without active session (email confirmation required)');
         setAuthStatus('signed_out');
       }
     } catch (error) {
       const details = getErrorDetails(error);
-      console.error('💥 Sign up failed:', error);
+      logger.error('Sign up failed', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to sign up');
     }
   }, [fetchUserProfile]);
 
   // Logout
   const logout = useCallback(async (): Promise<void> => {
-    console.log('🚪 Logout attempt');
+    logger.info('Logout attempt');
 
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('❌ Logout error:', error);
+        logger.error('Logout error', error);
         throw error;
       }
 
-      console.log('✅ Logout successful');
+      logger.success('Logout successful');
       setUser(null);
       setProfile(null);
       setProvider(null);
@@ -454,26 +445,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthStatus('signed_out');
     } catch (error) {
       const details = getErrorDetails(error);
-      console.error('💥 Logout failed:', error);
+      logger.error('Logout failed', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to logout');
     }
   }, []);
 
   // Refresh profile and provider data
   const refreshProfile = useCallback(async (): Promise<void> => {
-    console.log('🔄 Refreshing profile data...');
+    logger.info('Refreshing profile data');
 
     if (!user?.id) {
-      console.warn('⚠️ Cannot refresh profile - no user logged in');
+      logger.warn('Cannot refresh profile - no user logged in');
       return;
     }
 
     try {
       await fetchUserProfile(user.id);
-      console.log('✅ Profile refreshed successfully');
+      logger.success('Profile refreshed successfully');
     } catch (error) {
       const details = getErrorDetails(error);
-      console.error('💥 Profile refresh failed:', error);
+      logger.error('Profile refresh failed', error);
       throw (error instanceof Error) ? error : new Error(details.message || 'Failed to refresh profile');
     }
   }, [user?.id, fetchUserProfile]);

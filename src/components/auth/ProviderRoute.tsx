@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface ProviderRouteProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
 
   // Not logged in - redirect to login
   if (!user) {
-    console.log('🚫 ProviderRoute: No user found, redirecting to login');
+    logger.debug('ProviderRoute: No user found, redirecting to login');
     if (location.pathname.startsWith('/demo')) {
       return <Navigate to="/demo/dashboard" replace />;
     }
@@ -35,18 +36,18 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   // Not a provider/admin - redirect to home
   // We use the robust isProvider check from context which includes operators, managers, and admins
   if (!isProvider && !isAdmin) {
-    console.log('🚫 ProviderRoute: User is not a provider or admin, redirecting to home');
+    logger.debug('ProviderRoute: User is not a provider or admin, redirecting to home');
     return <Navigate to="/" replace />;
   }
 
   // Missing provider profile - finish onboarding
   if (!provider && !isAdmin) {
-    console.log('🚧 ProviderRoute: No provider record, redirecting to setup');
+    logger.debug('ProviderRoute: No provider record, redirecting to setup');
     return <Navigate to="/provider/setup" replace />;
   }
 
   // All checks passed - render protected route (allow pending providers for faster MVP iteration)
-  console.log('✅ ProviderRoute: Access granted');
+  logger.debug('ProviderRoute: Access granted');
   return <>{children}</>;
 };
 

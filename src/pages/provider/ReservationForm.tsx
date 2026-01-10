@@ -17,6 +17,7 @@ import { CalendarIcon, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
 import { CustomerPicker, CustomerOption } from '@/components/crm/CustomerPicker';
 import { Separator } from '@/components/ui/separator';
+import { logger } from '@/lib/logger';
 
 interface Variant {
   id: string;
@@ -126,7 +127,7 @@ const ReservationForm = () => {
 
         setProducts(validProducts);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        logger.error('Error fetching products', error);
         toast.error(getErrorMessage(error) || 'Chyba při načítání produktů');
       } finally {
         setLoading(false);
@@ -306,7 +307,7 @@ const ReservationForm = () => {
       navigate('/provider/reservations');
 
     } catch (error: unknown) {
-      console.error('Reservation creation failed', error);
+      logger.error('Reservation creation failed', error);
       toast.error(getErrorMessage(error) || 'Nepodařilo se vytvořit rezervaci');
     } finally {
       setSubmitting(false);
