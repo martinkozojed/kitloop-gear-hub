@@ -105,8 +105,25 @@ const ProviderReservations = () => {
         if (error) throw error;
 
         // Normalize response
-        const normalizedReservations: Reservation[] = (data || []).map((r: any) => ({
+        interface ReservationResponse {
+          id: string;
+          created_at: string | null;
+          customer_name: string;
+          customer_email: string | null;
+          customer_phone: string | null;
+          start_date: string | null;
+          end_date: string | null;
+          status: 'hold' | 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled' | null;
+          total_price: number | null;
+          deposit_paid: boolean | null;
+          notes: string | null;
+          gear_items: { name: string | null; category: string | null } | { name: string | null; category: string | null }[] | null;
+          product_variants: { name: string; products: { name: string; category: string } | null } | { name: string; products: { name: string; category: string } | null }[] | null;
+        }
+
+        const normalizedReservations: Reservation[] = ((data as unknown as ReservationResponse[]) || []).map((r) => ({
           ...r,
+          status: r.status,
           gear_items: Array.isArray(r.gear_items) ? r.gear_items[0] : r.gear_items,
           product_variants: Array.isArray(r.product_variants) ? r.product_variants[0] : r.product_variants
         }));
@@ -176,7 +193,7 @@ const ProviderReservations = () => {
 
       setReservations(prev => prev.map(r => r.id === reservationId ? { ...r, status } : r));
       toast.success(`Rezervace ${action === 'confirm' ? 'potvrzena' : 'zrušena'}`);
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
       toast.error('Akce se nezdařila');
     } finally {

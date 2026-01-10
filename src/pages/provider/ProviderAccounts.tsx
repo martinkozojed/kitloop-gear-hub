@@ -19,26 +19,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
+
+interface Account {
+    id: string;
+    name: string;
+    tax_id: string | null;
+    contact_email: string | null;
+    updated_at: string | null;
+    provider_id: string;
+}
+
 const ProviderAccounts = () => {
-    const [accounts, setAccounts] = useState<any[]>([]);
+    const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const { provider } = useAuth();
 
     // Modal State
     const [modalOpen, setModalOpen] = useState(false);
-    const [editingAccount, setEditingAccount] = useState<any | null>(null);
+    const [editingAccount, setEditingAccount] = useState<Account | null>(null);
 
-    useEffect(() => {
-        if (provider?.id) {
-            fetchAccounts();
-        } else {
-            setAccounts([]);
-            setLoading(false);
-        }
-    }, [provider?.id]);
-
-    const fetchAccounts = async () => {
+    const fetchAccounts = React.useCallback(async () => {
         if (!provider?.id) return;
         setLoading(true);
         const { data, error } = await supabase
@@ -47,17 +48,26 @@ const ProviderAccounts = () => {
             .eq('provider_id', provider.id)
             .order('name', { ascending: true });
 
-        if (data) setAccounts(data);
+        if (data) setAccounts(data as Account[]);
         if (error) console.error('Failed to fetch accounts', error);
         setLoading(false);
-    };
+    }, [provider?.id]);
+
+    useEffect(() => {
+        if (provider?.id) {
+            fetchAccounts();
+        } else {
+            setAccounts([]);
+            setLoading(false);
+        }
+    }, [provider?.id, fetchAccounts]);
 
     const handleCreate = () => {
         setEditingAccount(null);
         setModalOpen(true);
     };
 
-    const handleEdit = (account: any) => {
+    const handleEdit = (account: Account) => {
         setEditingAccount(account);
         setModalOpen(true);
     };

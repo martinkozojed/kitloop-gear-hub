@@ -217,26 +217,28 @@ const AppRoutes = () => {
   );
 };
 
-// Expose Supabase for Manual Verification (Console Snippets)
-if (import.meta.env.MODE !== "production" && (import.meta.env.DEV || import.meta.env.VITE_EXPOSE_SUPABASE === "true")) {
-  (window as any).supabase = supabase;
-}
+const App = () => {
+  // Expose Supabase for Manual Verification (Console Snippets)
+  if (import.meta.env.MODE !== "production" && (import.meta.env.DEV || import.meta.env.VITE_EXPOSE_SUPABASE === "true")) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).supabase = supabase;
+  }
 
-return (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CommandProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </CommandProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CommandProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </TooltipProvider>
+        </CommandProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
 };
 
 export default App;

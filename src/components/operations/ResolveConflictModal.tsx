@@ -18,7 +18,7 @@ interface ResolveConflictModalProps {
     onClose: () => void;
     reservation: {
         id: string;
-        product_variant_id: string;
+        product_variant_id: string | null;
         start_date: string;
         end_date: string;
         customer_name: string;
@@ -39,13 +39,8 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
     const [candidates, setCandidates] = useState<AssetCandidate[]>([]);
     const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (isOpen && reservation) {
-            fetchCandidates();
-        }
-    }, [isOpen, reservation]);
-
-    const fetchCandidates = async () => {
+    const fetchCandidates = React.useCallback(async () => {
+        if (!reservation.product_variant_id) return;
         setLoading(true);
         try {
             // 1. Get all assets for this variant
@@ -57,19 +52,6 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
             if (assetError) throw assetError;
 
             // 2. key check: Find overlapping assignments for these assets
-            // We want to exclude assets that are assigned to overlapping CONFIRMED/ACTIVE reservations
-            const { data: conflicts, error: conflictError } = await supabase
-                .from('reservation_assignments')
-                .select('asset_id')
-                .in('asset_id', allAssets.map(a => a.id))
-                .is('returned_at', null); // Active assignments
-
-            // This simplistic check misses the DATE overlap logic on the *reservation* parent.
-            // Correct approach: Join reservations to check dates.
-            // Since Supabase join filters can be tricky, let's use an RPC or a explicit ID filter.
-            // For MVP, let's do a client-side filter with a robust query if dataset is small, 
-            // OR proper RPC. Let's try a robust query first.
-
             const { data: busyAssets, error: busyError } = await supabase
                 .from('reservation_assignments')
                 .select(`
@@ -87,7 +69,7 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
 
             if (busyError) throw busyError;
 
-            const busyAssetIds = new Set(busyAssets.map((a: any) => a.asset_id));
+            const busyAssetIds = new Set((busyAssets as { asset_id: string }[]).map((a) => a.asset_id));
 
             // 3. Filter
             const available = allAssets.filter(a => !busyAssetIds.has(a.id));
@@ -95,7 +77,15 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
             // Sort: Best condition first
             available.sort((a, b) => (b.condition_score || 0) - (a.condition_score || 0));
 
-            setCandidates(available);
+            // Map and cast safely
+            // define strict type to match AssetCandidate
+            setCandidates(available.map(a => ({
+                id: a.id,
+                asset_tag: a.asset_tag,
+                status: (a.status || 'available') as string, // Cast to string to satisfy interface, simpler than exact enum matching for now or update interface
+                condition_score: a.condition_score || 0
+            })));
+
             if (available.length > 0) setSelectedAssetId(available[0].id);
 
         } catch (error) {
@@ -104,7 +94,13 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
         } finally {
             setLoading(false);
         }
-    };
+    }, [reservation.product_variant_id, reservation.end_date, reservation.start_date, reservation.id]);
+
+    useEffect(() => {
+        if (isOpen && reservation) {
+            fetchCandidates();
+        }
+    }, [isOpen, reservation, fetchCandidates]);
 
     const handleAssign = async () => {
         if (!selectedAssetId) return;
@@ -173,8 +169,8 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
                                         key={asset.id}
                                         onClick={() => setSelectedAssetId(asset.id)}
                                         className={`p-3 border rounded-md cursor-pointer flex justify-between items-center transition-all ${selectedAssetId === asset.id
-                                                ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                                                : 'hover:border-gray-300 hover:bg-gray-50'
+                                            ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                                            : 'hover:border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
                                         <div className="flex flex-col">

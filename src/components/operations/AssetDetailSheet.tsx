@@ -74,20 +74,42 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
 
             if (aErr) throw aErr;
 
-            const row = aData as any; // Bypass TS complex join typing
+            interface AssetRow {
+                id: string;
+                asset_tag: string;
+                status: string;
+                condition_score: number;
+                location: string;
+                product_variants: {
+                    name: string;
+                    sku: string | null;
+                    product_id: string;
+                    products: {
+                        name: string;
+                        image_url: string | null;
+                        category: string;
+                    } | null;
+                } | null;
+            }
+
+            const row = aData as unknown as AssetRow;
 
             // Transform to shape
             setAsset({
                 id: row.id,
                 asset_tag: row.asset_tag,
-                status: row.status,
+                status: row.status as InventoryAsset['status'],
                 condition_score: row.condition_score,
                 location: row.location,
-                variant: { name: row.product_variants.name, sku: row.product_variants.sku, product_id: row.product_variants.product_id },
+                variant: {
+                    name: row.product_variants?.name || 'Unknown',
+                    sku: row.product_variants?.sku || null,
+                    product_id: row.product_variants?.product_id
+                },
                 product: {
-                    name: row.product_variants.products.name,
-                    image_url: row.product_variants.products.image_url,
-                    category: row.product_variants.products.category
+                    name: row.product_variants?.products?.name || 'Unknown',
+                    image_url: row.product_variants?.products?.image_url || null,
+                    category: row.product_variants?.products?.category || 'Uncategorized'
                 }
             });
 
@@ -113,7 +135,7 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                 .order('created_at', { ascending: false });
             setMaintenance(mData || []);
 
-        } catch (err) {
+        } catch (err: unknown) {
             console.error(err);
         } finally {
             setLoading(false);
@@ -134,8 +156,9 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
             setIsEditing(false);
             fetchDetails(assetId);
             if (onUpdate) onUpdate(); // Refresh parent grid
-        } catch (err: any) {
-            toast.error('Update failed', { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error('Update failed', { description: message });
         } finally {
             setLoading(false);
         }
@@ -155,7 +178,7 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                             <SheetTitle className="text-xl flex items-center gap-2">
                                 {asset?.product.name || 'Loading...'}
                                 {onEditProduct && (
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => (asset as any)?.variant?.product_id && onEditProduct((asset as any).variant.product_id)}>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => asset?.variant.product_id && onEditProduct(asset.variant.product_id)}>
                                         <Edit className="w-4 h-4 text-muted-foreground" />
                                     </Button>
                                 )}

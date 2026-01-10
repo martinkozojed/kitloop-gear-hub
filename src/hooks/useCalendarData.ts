@@ -27,8 +27,18 @@ export interface CalendarReservation {
     end_date: string;
     status: string;
     customer_name: string;
+    customer_email?: string;
+    customer_phone?: string;
     product_variant_id: string | null;
-    assignments: { asset_id: string }[];
+    assignments: {
+        asset_id: string;
+        assets?: {
+            asset_tag: string;
+            product_variants?: {
+                name: string;
+            } | null;
+        } | null;
+    }[];
     deposit_paid: boolean;
     total_price: number;
 }
@@ -106,9 +116,15 @@ export const useCalendarData = (
             const { data, error } = await supabase
                 .from('reservations')
                 .select(`
-                    id, start_date, end_date, status, customer_name, product_variant_id,
+                    id, start_date, end_date, status, customer_name, customer_email, customer_phone, product_variant_id,
                     deposit_paid, total_price,
-                    reservation_assignments ( asset_id )
+                    reservation_assignments (
+                        asset_id,
+                        assets (
+                            asset_tag,
+                            product_variants ( name )
+                        )
+                    )
                 `)
                 .eq('provider_id', providerId)
                 .in('status', ['confirmed', 'active', 'hold', 'completed']) // Including completed/returned for history

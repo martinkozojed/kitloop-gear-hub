@@ -36,16 +36,7 @@ const ProviderCustomers = () => {
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-    useEffect(() => {
-        if (provider?.id) {
-            fetchCustomers();
-        } else {
-            setCustomers([]);
-            setLoading(false);
-        }
-    }, [provider?.id]);
-
-    const fetchCustomers = async () => {
+    const fetchCustomers = React.useCallback(async () => {
         if (!provider?.id) return;
         setLoading(true);
         const { data, error } = await supabase
@@ -57,7 +48,16 @@ const ProviderCustomers = () => {
         if (data) setCustomers(data);
         if (error) console.error('Failed to fetch customers', error);
         setLoading(false);
-    };
+    }, [provider?.id]);
+
+    useEffect(() => {
+        if (provider?.id) {
+            fetchCustomers();
+        } else {
+            setCustomers([]);
+            setLoading(false);
+        }
+    }, [provider?.id, fetchCustomers]);
 
     const handleRowClick = (id: string) => {
         setSelectedCustomerId(id);

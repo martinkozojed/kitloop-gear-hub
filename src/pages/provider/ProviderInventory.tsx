@@ -38,37 +38,48 @@ const ProviderInventory = () => {
 
     try {
       const { data: assets, error } = await supabase
-        .from('assets')
-        .select(`
-          id, asset_tag, status, condition_score, location,
-          product_variants ( name, sku, products ( name, category, image_url ) )
-        `)
-        .eq('provider_id', provider.id)
-        .order('created_at', { ascending: false });
+      interface AssetResponse {
+        id: string;
+        asset_tag: string;
+        status: string;
+        condition_score: number;
+        location: string;
+        product_variants: {
+          name: string;
+          sku: string | null;
+          products: {
+            name: string;
+            category: string;
+            image_url: string | null;
+          } | null;
+        } | null;
+      }
 
-      if (error) throw error;
-
-      const transformed: InventoryAsset[] = (assets || []).map((a: any) => ({
-        id: a.id,
-        asset_tag: a.asset_tag,
-        status: a.status,
-        condition_score: a.condition_score,
-        location: a.location,
-        variant: {
-          name: a.product_variants.name,
-          sku: a.product_variants.sku
-        },
-        product: {
-          name: a.product_variants.products.name,
-          category: a.product_variants.products.category,
-          image_url: a.product_variants.products.image_url
-        }
-      }));
+      const transformed: InventoryAsset[] = (assets || []).map((a: unknown) => {
+        const asset = a as AssetResponse;
+        return {
+          id: asset.id,
+          asset_tag: asset.asset_tag,
+          status: asset.status as InventoryAsset['status'],
+          condition_score: asset.condition_score,
+          location: asset.location,
+          variant: {
+            name: asset.product_variants?.name || 'Unknown',
+            sku: asset.product_variants?.sku || null
+          },
+          product: {
+            name: asset.product_variants?.products?.name || 'Unknown',
+            category: asset.product_variants?.products?.category || 'Uncategorized',
+            image_url: asset.product_variants?.products?.image_url || null
+          }
+        };
+      });
 
       setData(transformed);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching inventory:', err);
-      toast.error('Failed to load inventory', { description: err.message });
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error('Failed to load inventory', { description: message });
     } finally {
       setLoading(false);
     }
@@ -92,8 +103,9 @@ const ProviderInventory = () => {
       if (error) throw error;
       toast.success(`Archived ${ids.length} items (Soft Delete)`);
       fetchInventory();
-    } catch (err: any) {
-      toast.error('Deletion failed', { description: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error('Deletion failed', { description: message });
     }
   };
 
@@ -101,13 +113,14 @@ const ProviderInventory = () => {
     try {
       const { error } = await supabase
         .from('assets')
-        .update({ status: status as any })
+        .update({ status: status as InventoryAsset['status'] })
         .in('id', ids);
       if (error) throw error;
       toast.success(`Updated status for ${ids.length} items`);
       fetchInventory();
-    } catch (err: any) {
-      toast.error('Update failed', { description: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error('Update failed', { description: message });
     }
   };
 
@@ -138,8 +151,9 @@ const ProviderInventory = () => {
       await generateDemoData(provider.id);
       toast.success('Generated 5 demo assets!');
       fetchInventory();
-    } catch (err: any) {
-      toast.error('Demo generation failed', { description: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error('Demo generation failed', { description: message });
     } finally {
       setLoading(false);
     }

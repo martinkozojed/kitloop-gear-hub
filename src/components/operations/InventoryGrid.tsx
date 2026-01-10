@@ -214,7 +214,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                 },
             },
         ],
-        [onDelete, onEdit]
+        [onDelete, onEdit, canDelete]
     );
 
     const table = useReactTable({

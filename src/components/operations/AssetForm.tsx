@@ -42,21 +42,22 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
     const [location, setLocation] = useState('Warehouse A');
 
     // Fetch products on open
-    useEffect(() => {
-        if (open && provider?.id) {
-            fetchProducts();
-        }
-    }, [open, provider?.id]);
-
-    const fetchProducts = async () => {
+    const fetchProducts = React.useCallback(async () => {
+        if (!provider?.id) return;
         const { data, error } = await supabase
             .from('products')
             .select('id, name, image_url, items:product_variants(id, name)')
-            .eq('provider_id', provider!.id);
+            .eq('provider_id', provider.id);
 
         if (data) {
+            interface ProductResponse {
+                id: string;
+                name: string;
+                image_url: string | null;
+                items: { id: string; name: string }[];
+            }
             // transform for easier usage
-            const opts = data.map((p: any) => ({
+            const opts = (data as unknown as ProductResponse[]).map((p) => ({
                 id: p.id,
                 name: p.name,
                 image_url: p.image_url,
@@ -64,7 +65,14 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
             }));
             setProducts(opts);
         }
-    };
+    }, [provider?.id]);
+
+    useEffect(() => {
+        if (open && provider?.id) {
+            fetchProducts();
+        }
+    }, [open, provider?.id, fetchProducts]);
+
 
     const handleSubmit = async () => {
         if (!selectedVariantId) return;
@@ -94,8 +102,9 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
             setStep(1);
             setQuantity(1);
 
-        } catch (err: any) {
-            toast.error('Failed to create assets', { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error('Failed to create assets', { description: message });
         } finally {
             setLoading(false);
         }

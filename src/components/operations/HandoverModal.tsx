@@ -55,8 +55,18 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
                 .eq('id', reservationId)
                 .single();
 
+            interface ReservationImpl {
+                status: string;
+                product_variants: {
+                    id: string;
+                    name: string;
+                    product: { name: string };
+                } | null;
+                user_id: string; // Add other needed fields
+            }
             if (resError) throw resError;
-            setReservation(res);
+            // The result of .single() is one object, not array
+            setReservation(res as unknown as ReservationImpl);
 
             // 2. Fetch Assignments
             const { data: asm, error: asmError } = await supabase
@@ -69,8 +79,22 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
 
             if (asmError) throw asmError;
 
+            interface AssignmentRow {
+                id: string;
+                asset_id: string;
+                assigned_at: string;
+                returned_at: string | null;
+                asset: {
+                    asset_tag: string;
+                    variant: {
+                        name: string;
+                        product: { name: string };
+                    };
+                };
+            }
+
             // Map to cleaner structure
-            const mapped = asm.map((a: any) => ({
+            const mapped = (asm as unknown as AssignmentRow[]).map((a) => ({
                 id: a.id,
                 asset_id: a.asset_id,
                 asset_tag: a.asset.asset_tag,
@@ -81,8 +105,9 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
             }));
             setAssignments(mapped);
 
-        } catch (err: any) {
-            console.error('Fetch error:', err);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            console.error('Fetch error:', message);
             toast.error('Failed to load reservation details.');
         } finally {
             setLoading(false);
@@ -154,9 +179,10 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
 
             // Refresh
             fetchData();
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
             console.error(err);
-            toast.error('Operation failed: ' + err.message);
+            toast.error('Operation failed: ' + message);
         }
     };
 

@@ -70,8 +70,14 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             if (error) throw error;
 
             // Create lookup map: "ProductName:VariantName" -> VariantID
+            interface VariantRow {
+                id: string;
+                name: string;
+                products: { name: string } | { name: string }[];
+            }
+
             const variantMap = new Map<string, string>();
-            variants?.forEach((v: any) => {
+            (variants as unknown as VariantRow[])?.forEach((v) => {
                 // Handle array or object response for products
                 const paramProduct = Array.isArray(v.products) ? v.products[0] : v.products;
                 const productName = paramProduct?.name || '';
@@ -94,8 +100,9 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             });
 
             setPreviewData(processed);
-        } catch (err: any) {
-            toast.error('Failed to analyze CSV', { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error('Failed to analyze CSV', { description: message });
         } finally {
             setIsAnalyzing(false);
         }
@@ -160,8 +167,9 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             onSuccess();
             onOpenChange(false);
             setPreviewData([]);
-        } catch (err: any) {
-            toast.error('Import failed', { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error('Import failed', { description: message });
         } finally {
             setLoading(false);
         }

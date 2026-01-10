@@ -42,13 +42,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
     const [assets, setAssets] = useState<AssetReturnState[]>([]);
 
-    useEffect(() => {
-        if (open && reservation.id) {
-            fetchAssets();
-        }
-    }, [open, reservation.id]);
-
-    const fetchAssets = async () => {
+    const fetchAssets = React.useCallback(async () => {
         setFetching(true);
         try {
             const { data, error } = await supabase
@@ -67,7 +61,18 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
             if (error) throw error;
 
-            const mapped: AssetReturnState[] = (data || []).map((item: any) => ({
+            interface AssetAssignmentRow {
+                asset_id: string;
+                assets: {
+                    id: string;
+                    asset_tag: string;
+                    product_variants: {
+                        products: { name: string } | null;
+                    } | null;
+                } | null;
+            }
+
+            const mapped: AssetReturnState[] = (data as unknown as AssetAssignmentRow[] || []).map((item) => ({
                 id: item.asset_id,
                 asset_tag: item.assets?.asset_tag || 'Unknown',
                 product_name: item.assets?.product_variants?.products?.name || 'Item',
@@ -82,7 +87,13 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
         } finally {
             setFetching(false);
         }
-    };
+    }, [reservation.id]);
+
+    useEffect(() => {
+        if (open && reservation.id) {
+            fetchAssets();
+        }
+    }, [open, reservation.id, fetchAssets]);
 
     const handleFileChange = (assetId: string, file: File | null) => {
         setAssets(prev => prev.map(a => a.id === assetId ? { ...a, photoFile: file } : a));
@@ -135,7 +146,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                     throw reportError;
                 }
 
-                reportId = (reportData as any)?.report_id;
+                reportId = (reportData as { report_id: string })?.report_id;
                 setSuccessfullyReturnedReportId(reportId);
             }
 
@@ -193,9 +204,10 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
             onOpenChange(false);
             setSuccessfullyReturnedReportId(null); // Reset
 
-        } catch (e: any) {
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : 'Unknown error';
             console.error(e);
-            toast.error(e.message || "Failed to process return");
+            toast.error(message || "Failed to process return");
             // Do NOT close dialog on error, allowing retry
         } finally {
             setLoading(false);

@@ -119,3 +119,21 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.reservation_assignments (reservation_id, asset_id)
 VALUES ('44444444-4444-4444-4444-444444444442', '55555555-5555-5555-5555-000000000005')
 ON CONFLICT DO NOTHING;
+-- Force reset password for demo user
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+UPDATE auth.users
+SET encrypted_password = crypt('password123', gen_salt('bf')),
+    updated_at = now(),
+    email_confirmed_at = now(),
+    last_sign_in_at = NULL,
+    banned_until = NULL
+WHERE email = 'demo@kitloop.cz';
+
+-- Verify the user exists
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'demo@kitloop.cz') THEN
+        RAISE EXCEPTION 'User demo@kitloop.cz was NOT found in auth.users!';
+    END IF;
+END $$;

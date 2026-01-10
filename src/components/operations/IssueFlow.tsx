@@ -42,10 +42,14 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         provider_id: string | null;
     } | null>(null);
 
-    const buildItems = (rows: any[]) => {
-        return (rows || []).map((d: any) => ({
+    interface AssetAssignment {
+        asset_id: string;
+        assets: { status: string } | null;
+    }
+    const buildItems = (rows: AssetAssignment[]) => {
+        return (rows || []).map((d) => ({
             id: d.asset_id,
-            status: d.assets?.status
+            status: d.assets?.status as ItemState['status']
         })) as ItemState[];
     };
 
@@ -70,13 +74,26 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                 product_variant_id: data.product_variant_id,
                 provider_id: data.provider_id,
             });
-            const mapped = buildItems(data.reservation_assignments || []);
+            interface AssetAssigmentResponse {
+                asset_id: string;
+                assets: { id: string; status: string; } | null;
+            }
+            const rawAssignments = data.reservation_assignments as unknown as AssetAssigmentResponse[];
+
+            const mapped = buildItems(rawAssignments || []);
             setItems(mapped);
 
             if ((!mapped || mapped.length === 0) && data.product_variant_id && data.provider_id) {
-                await autoAssignAsset(data);
+                // We know IDs are present
+                await autoAssignAsset({
+                    id: data.id,
+                    start_date: data.start_date,
+                    end_date: data.end_date,
+                    product_variant_id: data.product_variant_id,
+                    provider_id: data.provider_id
+                });
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Failed to fetch reservation', err);
             toast.error(t('error'));
         } finally {
@@ -84,7 +101,14 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         }
     }, [open, reservation.id, t]);
 
-    const autoAssignAsset = async (res: any) => {
+    interface ReservationData {
+        id: string;
+        start_date: string;
+        end_date: string;
+        product_variant_id: string | null;
+        provider_id: string | null;
+    }
+    const autoAssignAsset = async (res: ReservationData) => {
         setAutoAssigning(true);
         setAutoAssignError(null);
         try {
@@ -94,8 +118,8 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
             const { data: candidates } = await supabase
                 .from('assets')
                 .select('id, status, asset_tag')
-                .eq('variant_id', res.product_variant_id)
-                .eq('provider_id', res.provider_id)
+                .eq('variant_id', res.product_variant_id!)
+                .eq('provider_id', res.provider_id!)
                 .not('status', 'in', '("maintenance","retired","lost")');
 
             if (!candidates?.length) {
@@ -123,7 +147,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                 }
             }
             setAutoAssignError('No assets available for this date');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Auto-assign failed', err);
             setAutoAssignError('Auto-assign failed');
         } finally {
@@ -164,9 +188,10 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
             toast.success(t('operations.issueFlow.success', 'Reservation Issued'));
             await onConfirm(reservation.id, overrideMode); // Refresh parent
             onOpenChange(false);
-        } catch (e: any) {
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : 'Unknown error';
             console.error(e);
-            toast.error(e.message || t('error'));
+            toast.error(message || t('error'));
         } finally {
             setLoading(false);
         }

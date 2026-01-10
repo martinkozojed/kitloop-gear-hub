@@ -46,26 +46,40 @@ const ProviderMaintenance = () => {
                 .eq('status', 'maintenance')
                 .order('updated_at', { ascending: false });
 
-            if (error) throw error;
+            interface AssetResponse {
+                id: string;
+                asset_tag: string;
+                condition_score: number | null;
+                location: string | null;
+                updated_at: string | null;
+                product_variants: {
+                    name: string;
+                    sku: string | null;
+                    products: {
+                        name: string;
+                        image_url: string | null;
+                    } | null;
+                } | null;
+            }
 
-            const transformed = (data || []).map((a: any) => ({
+            const transformed = (data || []).map((a: AssetResponse) => ({
                 id: a.id,
                 asset_tag: a.asset_tag,
-                condition_score: a.condition_score,
-                location: a.location,
-                updated_at: a.updated_at,
+                condition_score: a.condition_score ?? 0,
+                location: a.location || 'Unknown',
+                updated_at: a.updated_at || new Date().toISOString(),
                 product: {
-                    name: a.product_variants.products.name,
-                    image_url: a.product_variants.products.image_url
+                    name: a.product_variants?.products?.name || 'Unknown Product',
+                    image_url: a.product_variants?.products?.image_url || null
                 },
                 variant: {
-                    name: a.product_variants.name,
-                    sku: a.product_variants.sku
+                    name: a.product_variants?.name || 'Unknown Variant',
+                    sku: a.product_variants?.sku || null
                 }
             }));
 
             setItems(transformed);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
             toast.error('Failed to load maintenance items');
         } finally {
@@ -78,6 +92,11 @@ const ProviderMaintenance = () => {
     }, [fetchMaintenanceItems]);
 
     const handleResolve = async (id: string) => {
+        if (!provider) {
+            toast.error('You must be logged in');
+            return;
+        }
+
         try {
             // 1. Update Asset to Available
             const { error } = await supabase
@@ -90,6 +109,7 @@ const ProviderMaintenance = () => {
             // 2. Log Maintenance Record (Optional, but good practice)
             await supabase.from('maintenance_log').insert({
                 asset_id: id,
+                provider_id: provider.id,
                 type: 'repair',
                 status: 'completed',
                 notes: 'Marked as resolved from dashboard',
@@ -98,8 +118,9 @@ const ProviderMaintenance = () => {
 
             toast.success('Asset returned to inventory');
             fetchMaintenanceItems();
-        } catch (err: any) {
-            toast.error('Failed to resolve', { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error('Failed to resolve', { description: message });
         }
     };
 

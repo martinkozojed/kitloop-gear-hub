@@ -12,8 +12,10 @@ import { IssueFlow } from "@/components/operations/IssueFlow";
 import { ReturnFlow } from "@/components/operations/ReturnFlow";
 import { Package, PackageCheck } from "lucide-react";
 
+import { CalendarReservation } from "@/hooks/useCalendarData";
+
 interface ReservationDetailSheetProps {
-    reservation: any | null;
+    reservation: CalendarReservation | null;
     isOpen: boolean;
     onClose: () => void;
     onStatusUpdate: (id: string, status: string) => void;
@@ -28,7 +30,7 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
 
     const hasAssignment = reservation.assignments && reservation.assignments.length > 0;
 
-    const handleFlowSuccess = async (id: string) => {
+    const handleFlowSuccess = async () => {
         // MVP: Hard refresh to ensure calendar/data sync
         window.location.reload();
     };
@@ -107,10 +109,10 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                             <div className="space-y-2">
                                 <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Přiřazeno</h4>
                                 <div className="space-y-1">
-                                    {reservation.assignments.map((a: any, i: number) => (
+                                    {reservation.assignments.map((a, i: number) => (
                                         <div key={i} className="text-xs bg-slate-50 p-2 rounded border flex justify-between">
                                             <span>{a.assets?.product_variants?.name || 'Item'}</span>
-                                            <span className="font-mono text-slate-500">{a.assets?.asset_tag}</span>
+                                            <span className="font-mono text-slate-500">{a.assets?.asset_tag || '?'}</span>
                                         </div>
                                     ))}
                                 </div>

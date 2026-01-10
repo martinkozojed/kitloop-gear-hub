@@ -13,10 +13,11 @@ TRUNCATE auth.users CASCADE;
 TRUNCATE public.profiles CASCADE;
 TRUNCATE public.providers CASCADE;
 TRUNCATE public.user_provider_memberships CASCADE;
-TRUNCATE public.gear_items CASCADE;
+TRUNCATE public.products CASCADE;
+TRUNCATE public.product_variants CASCADE;
 TRUNCATE public.reservations CASCADE;
 
-SELECT plan(9);
+SELECT plan(10);
 
 -- ---------------------------------------------------------------------------
 -- Test fixtures
@@ -107,7 +108,8 @@ GRANT ALL ON TABLE test_providers TO authenticated;
 SET LOCAL ROLE authenticated;
 SET LOCAL row_security = on;
 
-CREATE TEMP TABLE temp_gear (id uuid NOT NULL);
+CREATE TEMP TABLE temp_products (id uuid NOT NULL);
+CREATE TEMP TABLE temp_variants (id uuid NOT NULL);
 CREATE TEMP TABLE temp_reservations (id uuid NOT NULL);
 
 SELECT set_config('request.jwt.claim.role', 'authenticated', true);
@@ -117,27 +119,51 @@ SELECT set_config(
   (SELECT id FROM test_users WHERE label = 'owner')::text,
   true
 );
+
+-- Debug: Check if membership is visible
+SELECT results_eq(
+  $$ SELECT count(*)::int FROM public.user_provider_memberships $$,
+  $$ VALUES (1) $$,
+  'Owner sees their own membership'
+);
+
 SELECT lives_ok($$
-  WITH inserted AS (
-    INSERT INTO public.gear_items (
+  WITH inserted_product AS (
+    INSERT INTO public.products (
       provider_id,
       name,
       category,
-      price_per_day,
-      active
+      base_price_cents,
+      is_active
     )
     VALUES (
       (SELECT id FROM test_providers WHERE label = 'primary'),
       'Alpine Tent',
       'camping',
-      120,
+      12000,
       true
     )
-    RETURNING id
+    -- RETURNING id
+  ),
+  inserted_variant AS (
+    INSERT INTO public.product_variants (
+      product_id,
+      name,
+      sku
+    )
+    SELECT
+      id,
+      'Standard',
+      'SKU-123'
+    FROM public.products WHERE name = 'Alpine Tent' LIMIT 1
+    -- RETURNING id
   )
-  INSERT INTO temp_gear (id)
-  SELECT id FROM inserted
-$$, 'Owner can insert gear items');
+  SELECT 1;
+  -- INSERT INTO temp_variants (id) SELECT ...
+  
+  INSERT INTO temp_products (id)
+  SELECT id FROM public.products WHERE name = 'Alpine Tent';
+$$, 'Owner can insert products and variants');
 
 SELECT set_config(
   'request.jwt.claim.sub',
@@ -146,7 +172,7 @@ SELECT set_config(
 );
 SELECT throws_ok(
   $$
-    INSERT INTO public.gear_items (provider_id, name, category)
+    INSERT INTO public.products (provider_id, name, category)
     VALUES (
       (SELECT id FROM test_providers WHERE label = 'primary'),
       'Blocked Item',
@@ -154,7 +180,7 @@ SELECT throws_ok(
     )
   $$,
   NULL,
-  'Non-member cannot insert gear items'
+  'Non-member cannot insert products'
 );
 
 SELECT set_config(
@@ -197,7 +223,7 @@ SELECT lives_ok($$
     INSERT INTO public.reservations (
       provider_id,
       user_id,
-      gear_id,
+      product_variant_id,
       customer_name,
       start_date,
       end_date,
@@ -206,7 +232,7 @@ SELECT lives_ok($$
     VALUES (
       (SELECT id FROM test_providers WHERE label = 'primary'),
       (SELECT id FROM test_users WHERE label = 'owner'),
-      (SELECT id FROM temp_gear LIMIT 1),
+      (SELECT id FROM temp_variants LIMIT 1),
       'John Doe',
       now() + interval '1 day',
       now() + interval '2 days',

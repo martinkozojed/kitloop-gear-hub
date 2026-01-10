@@ -60,12 +60,17 @@ export function ProductForm({ open, onOpenChange, onSuccess, productId }: Produc
 
                 setName(prod.name);
                 setCategory(prod.category);
-                setBasePrice((prod.base_price_cents / 100).toString());
+                setBasePrice(((prod.base_price_cents || 0) / 100).toString());
                 setDescription(prod.description || '');
                 setImageUrl(prod.image_url || '');
 
                 if (prod.product_variants && prod.product_variants.length > 0) {
-                    setVariants(prod.product_variants.map((v: any) => ({
+                    interface VariantRow {
+                        id: string;
+                        name: string;
+                        sku: string | null;
+                    }
+                    setVariants((prod.product_variants as unknown as VariantRow[]).map((v) => ({
                         id: v.id,
                         name: v.name,
                         sku: v.sku || ''
@@ -84,8 +89,9 @@ export function ProductForm({ open, onOpenChange, onSuccess, productId }: Produc
             setDescription('');
             setImageUrl('');
             setVariants([{ id: '1', name: 'Standard', sku: '' }]);
+            setVariants([{ id: '1', name: 'Standard', sku: '' }]);
         }
-    }, [open, productId]);
+    }, [open, productId, onOpenChange]);
 
     const addVariant = () => {
         setVariants([...variants, { id: Math.random().toString(), name: '', sku: '' }]);
@@ -160,8 +166,9 @@ export function ProductForm({ open, onOpenChange, onSuccess, productId }: Produc
             onSuccess();
             onOpenChange(false);
 
-        } catch (err: any) {
-            toast.error('Failed to save product', { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error('Failed to save product', { description: message });
         } finally {
             setLoading(false);
         }
