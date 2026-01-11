@@ -131,7 +131,7 @@ const DashboardOverview = () => {
   return (
     <ProviderLayout>
       <TooltipProvider>
-        <div className="space-y-6">
+        <div className="space-y-8">
 
           {/* 1. Header & Controls */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 animate-fade-in">
@@ -214,10 +214,10 @@ const DashboardOverview = () => {
             <div className="lg:col-span-8 xl:col-span-9 bento-card p-6 min-h-[600px] flex flex-col">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="font-semibold text-xl flex items-center gap-2">
-                    {viewMode === 'operations' ? "Work Queue" : "Daily Agenda"}
+                  <h3 className="font-semibold text-xl flex items-center gap-2 text-foreground">
+                    {viewMode === 'operations' ? "Work Queue" : "Today's Work"}
                   </h3>
-                  <p className="text-sm text-muted-foreground">Pickups and returns scheduled for today</p>
+                  <p className="text-sm text-muted-foreground">All pickups and returns for today</p>
                 </div>
 
                 {/* Visual Tab Switcher (Functional) */}
@@ -249,7 +249,7 @@ const DashboardOverview = () => {
                 </div>
               </div>
 
-              <div className="space-y-3 flex-1">
+              <div className="space-y-4 flex-1">
                 {filteredAgendaItems.map((item, idx) => (
                   <AgendaRow
                     key={idx}
