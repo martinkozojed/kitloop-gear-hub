@@ -35,6 +35,21 @@
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+
+    /* --- STATUS COLORS (Design Tokens) --- */
+    /* Consistent status colors for operational clarity */
+    --status-pending: 249 115 22;      /* Orange-500 - Waiting for action */
+    --status-confirmed: 59 130 246;    /* Blue-500 - Confirmed but not active */
+    --status-active: 16 185 129;       /* Emerald-500 - Currently in use (matches brand) */
+    --status-overdue: 239 68 68;       /* Red-500 - Requires urgent attention */
+    --status-completed: 107 114 128;   /* Gray-500 - Finished/archived */
+    --status-cancelled: 107 114 128;   /* Gray-500 - Cancelled/inactive */
+    
+    /* --- ACTION COLORS (For buttons, alerts) --- */
+    --action-success: 16 185 129;      /* Emerald-500 */
+    --action-warning: 249 115 22;      /* Orange-500 */
+    --action-danger: 239 68 68;        /* Red-500 */
+    --action-info: 59 130 246;         /* Blue-500 */
   }
 
   body {
