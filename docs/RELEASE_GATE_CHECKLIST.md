@@ -130,6 +130,18 @@ LIMIT 5;
    - ✅ Expected: Valid request/response, contains `audit_log_id`
    - ❌ Red flag: Malformed data, missing fields
 
+6. **End-to-End Verification (Critical):**
+   - After 200 response, verify audit log row in DB (< 2 min old)
+   - This proves: edge function → DB → transaction committed
+   ```sql
+   SELECT id, admin_id, action, target_id, created_at
+   FROM public.admin_audit_logs
+   ORDER BY created_at DESC
+   LIMIT 5;
+   ```
+   - ✅ Expected: Row exists with timestamp from last 2 minutes
+   - ❌ Red flag: No row = edge returned 200 but DB write failed
+
 #### Option B: CLI (Quick)
 
 ```bash
@@ -147,7 +159,8 @@ supabase functions logs admin_action --project-ref $PROJECT_REF --limit 20
 - ❌ Error rate > 20%
 - ❌ Any 5xx errors in last 10 requests
 - ❌ "Function crashed" or "Timeout" errors
-- ❌ Audit log missing for 200 responses
+- ❌ Edge function returned 200 BUT audit log missing in DB
+  - This is the most critical check: proves end-to-end flow works
 
 ---
 

@@ -1,29 +1,45 @@
 name: Release Gate - Security Checks
 
+# Path filtering strategy:
+# - INCLUDE: Files that affect build output or runtime behavior
+# - EXCLUDE: Documentation and markdown (docs/**, **.md)
+# - NOTE: All release-critical scripts (verify_*.sh) are explicitly included
+# - TRADEOFF: Scripts in scripts/** are NOT ignored to catch release script changes
+# - If adding new config files, add them to paths below
+
 on:
   push:  # Run on all branches for early feedback
     paths:
-      - 'src/**'
-      - 'supabase/**'
-      - 'package*.json'
-      - 'vite.config.*'
-      - 'eslint.config.*'
-      - 'tsconfig*.json'
-      - 'verify_console_guard.sh'
-      - '.github/workflows/release-gate.yml'
+      - 'src/**'              # Application code
+      - 'supabase/**'         # Database, edge functions, migrations
+      - 'public/**'           # Static assets (favicon, images, _redirects)
+      - 'index.html'          # HTML entry point
+      - 'package*.json'       # Dependencies
+      - 'vite.config.*'       # Build config
+      - 'eslint.config.*'     # Linting config
+      - 'tsconfig*.json'      # TypeScript config
+      - 'tailwind.config.*'   # Styling config
+      - 'postcss.config.*'    # CSS processing
+      - 'netlify.toml'        # Deployment config
+      - 'verify_console_guard.sh'  # Release gate script
+      - '.github/workflows/release-gate.yml'  # This workflow
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'scripts/**'
+      - 'docs/**'    # Documentation (doesn't affect build)
+      - '**.md'      # Markdown files (README, changelogs, etc.)
   pull_request:
     branches: [main]  # Block merge to main if failing
-    paths:
+    paths:  # Same as push - must be in sync!
       - 'src/**'
       - 'supabase/**'
+      - 'public/**'
+      - 'index.html'
       - 'package*.json'
       - 'vite.config.*'
       - 'eslint.config.*'
       - 'tsconfig*.json'
+      - 'tailwind.config.*'
+      - 'postcss.config.*'
+      - 'netlify.toml'
       - 'verify_console_guard.sh'
       - '.github/workflows/release-gate.yml'
 
