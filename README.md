@@ -97,3 +97,7 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ## URL
 
 **Project URL**: https://lovable.dev/projects/48794c70-a7f2-4e1f-877e-585e76831c05
+
+## 🧪 CI Path Filtering Test
+
+This section added to test doc-only PR behavior. This change should NOT trigger the full CI suite.
