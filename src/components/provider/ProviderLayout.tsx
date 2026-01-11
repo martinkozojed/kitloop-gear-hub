@@ -40,18 +40,18 @@ const ProviderLayout = ({ children }: ProviderLayoutProps) => {
         <ProviderSidebar onToggleCollapse={toggleSidebar} isCollapsed={sidebarCollapsed} />
       </aside>
 
-      {/* Show/Open Sidebar Button (when collapsed) */}
-      {sidebarCollapsed && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className="hidden md:flex fixed left-4 top-20 z-40 shadow-sm border border-border bg-background/95 backdrop-blur-sm hover:bg-accent"
-          title="Zobrazit menu"
-        >
-          <PanelLeft className="h-4 w-4" />
-        </Button>
-      )}
+      {/* Show/Open Sidebar Button (when collapsed) - smooth fade in */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebar}
+        className={`hidden md:flex fixed left-4 top-24 z-40 shadow-sm border border-border bg-background/95 backdrop-blur-sm hover:bg-accent transition-all duration-300 ${
+          sidebarCollapsed ? 'opacity-100 translate-x-0 delay-300' : 'opacity-0 -translate-x-12 pointer-events-none'
+        }`}
+        title="Zobrazit menu"
+      >
+        <PanelLeft className="h-4 w-4" />
+      </Button>
 
       {/* Main Content */}
       <main 
