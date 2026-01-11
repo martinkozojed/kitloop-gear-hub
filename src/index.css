@@ -27,11 +27,21 @@
     --radius: 0.75rem;
     /* 12px for modern feel */
 
-    /* Brand Colors - Outdoor Emerald */
+    /* Brand Colors - Outdoor Emerald (UNIFIED) */
     --primary: 142 76% 36%;
-    /* Emerald 600 - Perfect for Outdoor/Nature */
+    /* Emerald 600 - Main brand color */
     --primary-foreground: 0 0% 100%;
     /* Pure White */
+    
+    /* Emerald Color Scale (Consistent across app) */
+    --emerald-50: 142 76% 97%;
+    --emerald-100: 142 76% 94%;
+    --emerald-200: 142 69% 86%;
+    --emerald-500: 142 76% 48%;
+    --emerald-600: 142 76% 36%;  /* Same as --primary */
+    --emerald-700: 142 76% 29%;
+    --emerald-800: 142 76% 24%;
+    --emerald-900: 142 76% 19%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;

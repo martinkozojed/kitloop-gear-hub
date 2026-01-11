@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import ProviderSidebar from './ProviderSidebar';
 import ProviderBottomNav from './ProviderBottomNav';
+import { Button } from '@/components/ui/button';
+import { PanelLeftClose, PanelLeft } from 'lucide-react';
 
 interface ProviderLayoutProps {
   children: React.ReactNode;
 }
 
 const ProviderLayout = ({ children }: ProviderLayoutProps) => {
+  // Sidebar collapse state (persisted in localStorage)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebar.collapsed');
+    return saved === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sidebar.collapsed', sidebarCollapsed.toString());
+  }, [sidebarCollapsed]);
+
+  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+
   return (
     <div className="relative min-h-screen bg-background">
       {/* Skip to main content link for keyboard accessibility */}
@@ -17,13 +31,33 @@ const ProviderLayout = ({ children }: ProviderLayoutProps) => {
         Skip to main content
       </a>
 
-      {/* Sidebar - Desktop (Hidden on Mobile) */}
-      <aside className="hidden md:block fixed left-0 top-[4.5rem] bottom-0 w-64 border-r border-border bg-background z-30 overflow-y-auto">
+      {/* Sidebar - Desktop (Hidden on Mobile, Collapsible on Desktop) */}
+      <aside 
+        className={`hidden md:block fixed left-0 top-[4.5rem] bottom-0 border-r border-border bg-background z-30 overflow-y-auto transition-all duration-300 ${
+          sidebarCollapsed ? 'w-0 -translate-x-full' : 'w-64'
+        }`}
+      >
         <ProviderSidebar />
       </aside>
 
+      {/* Sidebar Toggle Button (Desktop only) */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebar}
+        className="hidden md:flex fixed left-4 bottom-4 z-40 shadow-lg border border-border bg-background hover:bg-accent"
+        title={sidebarCollapsed ? 'Zobrazit menu' : 'Skrýt menu'}
+      >
+        {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+      </Button>
+
       {/* Main Content */}
-      <main id="main-content" className="md:pl-64 pt-[4.5rem] pb-24 md:pb-12 transition-all min-h-screen">
+      <main 
+        id="main-content" 
+        className={`pt-[4.5rem] pb-24 md:pb-12 transition-all duration-300 min-h-screen ${
+          sidebarCollapsed ? 'md:pl-0' : 'md:pl-64'
+        }`}
+      >
         <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 space-y-6">
           {children}
         </div>
