@@ -119,6 +119,78 @@ LIMIT 5;
 
 ---
 
+## 📦 ARTIFACTS TO ATTACH
+
+**Save these outputs as evidence for audit trail:**
+
+### 1. Console Guard Output
+```bash
+./verify_console_guard.sh > release_gate_console_guard.txt 2>&1
+```
+**Required:** Exit code 0, all checks PASS
+
+### 2. Endpoint Test Results
+```bash
+# Save all curl outputs (REDACT tokens!)
+echo "=== Invalid Action (400) ===" > release_gate_endpoints.txt
+curl -X POST $URL -H "Authorization: Bearer [REDACTED]" \
+  -d '{"action":"invalid",...}' >> release_gate_endpoints.txt 2>&1
+
+# Repeat for 401, 403, 200, 429
+# IMPORTANT: Replace actual tokens with [REDACTED]
+```
+
+### 3. Database Security Evidence
+```sql
+-- Save as: release_gate_db_security.sql
+\o release_gate_db_security.txt
+
+-- Privileges check
+SELECT 
+  has_table_privilege('anon', 'public.admin_audit_logs', 'select') as anon_audit,
+  has_table_privilege('authenticated', 'public.admin_audit_logs', 'select') as auth_audit,
+  has_table_privilege('anon', 'public.admin_rate_limits', 'select') as anon_rate,
+  has_table_privilege('authenticated', 'public.admin_rate_limits', 'select') as auth_rate;
+
+-- RLS status
+SELECT relname, relrowsecurity, relforcerowsecurity
+FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public' 
+  AND relname IN ('admin_audit_logs', 'admin_rate_limits');
+
+\o
+```
+
+### 4. Audit Log Sample
+```sql
+-- Last 5 audit logs (NO admin_id, redact PII)
+SELECT 
+  id,
+  action,
+  target_id,
+  LEFT(reason, 50) as reason_preview,
+  created_at
+FROM public.admin_audit_logs
+ORDER BY created_at DESC
+LIMIT 5;
+```
+
+### 5. Git Commit Info
+```bash
+git log -1 --format="%H%n%an%n%ae%n%ai%n%s" > release_gate_commit.txt
+```
+
+**Artifact Checklist:**
+- [ ] `release_gate_console_guard.txt` (exit 0)
+- [ ] `release_gate_endpoints.txt` (tokens redacted)
+- [ ] `release_gate_db_security.txt` (all false/true)
+- [ ] `release_gate_audit_sample.txt` (5 rows)
+- [ ] `release_gate_commit.txt` (commit hash)
+
+**Storage:** Attach to deployment ticket/PR or store in `releases/YYYY-MM-DD/` folder
+
+---
+
 ## 🚨 NO-GO TRIGGERS
 
 **Immediate rollback if:**

@@ -140,6 +140,130 @@ LIMIT 20;
 
 ---
 
+## 🔴 GO/ROLLBACK DECISION MATRIX
+
+### IMMEDIATE ROLLBACK (No Discussion)
+
+**Trigger 1: 5xx Errors Exceed Threshold**
+```
+IF admin_action returns 5xx > 10 times in 1 hour
+THEN: Immediate rollback
+WHY: Backend failure, users blocked
+```
+
+**Trigger 2: PII Leak in Console**
+```
+IF console.warn() or console.error() shows PII (email, token, UUID)
+THEN: Immediate rollback + incident report
+WHY: GDPR violation, P0 security breach
+```
+
+**Trigger 3: Audit Log Failure**
+```
+IF 200 response returned BUT no audit log created
+THEN: Immediate rollback
+WHY: Compliance violation, actions not tracked
+```
+
+**Trigger 4: Privilege Escalation**
+```
+IF SELECT privilege check returns TRUE for anon/authenticated
+THEN: Immediate rollback + DB hotfix
+WHY: Admin data publicly accessible
+```
+
+---
+
+### INVESTIGATE & DECIDE (1-hour window)
+
+**Trigger 5: High Error Rate**
+```
+IF error rate 10-20% for > 30 minutes
+THEN: Review logs → Rollback if no fix in 1h
+WHY: Partial failure, might self-resolve
+```
+
+**Trigger 6: Rate Limit Abuse**
+```
+IF same admin hits rate limit > 5 times in 1 hour
+THEN: Investigate user → Block if abuse, increase if legitimate
+WHY: Might be legitimate heavy use
+```
+
+**Trigger 7: Unusual Patterns**
+```
+IF > 50 admin actions in 1 hour (baseline: 5-10)
+THEN: Verify with admin team → Rollback if unauthorized
+WHY: Could be batch operation or abuse
+```
+
+---
+
+### ROLLBACK PROCEDURE
+
+**When triggered:**
+
+1. **Announce (< 2 min):**
+   ```
+   🚨 ROLLBACK INITIATED
+   Reason: [Trigger name]
+   Time: [Timestamp]
+   By: [Name]
+   ```
+
+2. **Execute (< 5 min):**
+   ```bash
+   # Revert to last known good commit
+   git revert HEAD~N..HEAD  # N = number of commits
+   
+   # Rebuild
+   npm run build
+   
+   # Redeploy
+   supabase functions deploy admin_action
+   netlify deploy --prod  # or drag & drop dist/
+   ```
+
+3. **Verify (< 3 min):**
+   ```bash
+   # Quick smoke test
+   curl -X POST $URL/admin_action \
+     -H "Authorization: Bearer $TOKEN" \
+     -d '{"action":"invalid",...}'
+   # Expect: 400 (not 429, not 5xx)
+   ```
+
+4. **Document (< 5 min):**
+   ```
+   📝 ROLLBACK COMPLETE
+   - Reverted commits: [hashes]
+   - Deployment time: [timestamp]
+   - Verification: PASS/FAIL
+   - Root cause: [brief]
+   - Next steps: [action items]
+   ```
+
+**Total rollback time:** < 15 minutes
+
+---
+
+### NO-GO vs GO CRITERIA
+
+**NO-GO (Deploy stays rolled back):**
+- ✅ Any IMMEDIATE ROLLBACK trigger activated
+- ✅ Rollback verification fails
+- ✅ Root cause unknown or not fixable quickly
+- ✅ Multiple triggers in < 1 hour
+
+**GO (Safe to redeploy fixed version):**
+- ✅ Root cause identified and fixed
+- ✅ Fix tested locally + staging
+- ✅ Release gate checklist: 9/9 PASS
+- ✅ 24h monitoring plan in place
+- ✅ Rollback procedure tested and ready
+
+---
+
 ## 📊 REPORTING TEMPLATE
 
 **Daily Report (Slack/Email):**

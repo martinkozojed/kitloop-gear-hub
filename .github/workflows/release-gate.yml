@@ -1,71 +1,59 @@
-name: Release Gate
+name: Release Gate - Security Checks
 
 on:
+  push:
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  gate:
+  security-gate:
+    name: Security Release Gate
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          
-      - name: Run Release Gate
-        run: ./scripts/release_gate.sh
-        env:
-          # Skip strict env check in CI to avoid needing secret injection for PRs
-          # Build process might still need them if they are inlined, so we provide dummies if needed
-          SKIP_ENV_CHECK: "true" 
-          # Vite build might fail if these are completely missing, so we provide dummies
-          VITE_SUPABASE_URL: "https://example.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "dummy-key-for-ci-build-check"
-        continue-on-error: false # The script handles compilation failures, but lint might fail.
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # Since release_gate.sh runs everything, we need to make sure lint failure doesn't crash CI
-      # BUT the user specificied: "CI must not block on lint".
-      # So we should modify release_gate.sh or this workflow to separate them OR allow failure.
-      # Ideally, we separate the steps in CI for granular control. Let's do that.
-      
-  # Splitting jobs for granular control as per best practices and user request (non-blocking lint)
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci
-      - name: Lint (Non-blocking)
-        run: npm run lint || echo "::warning::Lint failed, but proceeding as per legacy debt policy."
-        continue-on-error: true
 
-  build-and-gate:
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      
-      # We run the gate script BUT we skip lint inside it (or ignore its failure)
-      # Re-implementing parts of gate here for better control OR passing a flag to gate script?
-      # Let's pass a flag or just rely on the script but we know lint fails.
-      # User wants release_gate.sh to be the source of truth.
-      # Let's modify release_gate.sh to allow optional lint failure if LINT_WARN_ONLY is set.
-      
-      - name: Run Release Gate (Strict Build/Typecheck)
-        run: ./scripts/release_gate.sh
-        env:
-          SKIP_ENV_CHECK: "true"
-          VITE_SUPABASE_URL: "https://example.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "dummy-key-for-ci-build-check"
-          LINT_WARN_ONLY: "true" # We will add this support to the script
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run type checker
+        run: npm run typecheck
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Verify console guard (P0 Security)
+        run: |
+          chmod +x ./verify_console_guard.sh
+          ./verify_console_guard.sh
+        
+      - name: Security gate summary
+        if: success()
+        run: |
+          echo "✅ All security checks passed!"
+          echo "- Linting: PASS"
+          echo "- Type checking: PASS"
+          echo "- Production build: PASS"
+          echo "- Console guard: PASS"
+          echo ""
+          echo "🟢 Release gate: GO"
+
+      - name: Security gate failure
+        if: failure()
+        run: |
+          echo "❌ Security gate FAILED!"
+          echo "🔴 Release gate: NO-GO"
+          echo ""
+          echo "Please fix the issues above before merging."
+          exit 1
