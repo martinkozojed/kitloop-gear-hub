@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { KpiStrip } from "@/components/dashboard/KpiStrip";
 import { ExceptionsQueue } from "@/components/dashboard/ExceptionsQueue";
 import { AgendaRow } from "@/components/dashboard/AgendaRow";
@@ -6,7 +6,7 @@ import { AgendaItemProps } from "@/types/dashboard";
 import { IssueFlow } from "@/components/operations/IssueFlow";
 import { ReturnFlow } from "@/components/operations/ReturnFlow";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Filter, Plus, RefreshCw } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { cs } from "date-fns/locale";
 import { Link } from 'react-router-dom';
@@ -21,6 +21,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ProviderLayout from "@/components/provider/ProviderLayout";
+import { toast } from "sonner";
+import { PageLoadingSkeleton } from "@/components/ui/loading-state";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
@@ -58,6 +60,28 @@ const DashboardOverview = () => {
     }
   };
 
+  // --- Agenda Tab State ---
+  const [agendaTab, setAgendaTab] = useState<'all' | 'pickups' | 'returns'>('all');
+
+  // Filter agenda items based on selected tab
+  const filteredAgendaItems = useMemo(() => {
+    if (agendaTab === 'all') return agendaItems;
+    if (agendaTab === 'pickups') return agendaItems.filter(item => item.type === 'pickup');
+    return agendaItems.filter(item => item.type === 'return');
+  }, [agendaItems, agendaTab]);
+
+  // Count pickups and returns for tab labels
+  const pickupsCount = useMemo(() => agendaItems.filter(item => item.type === 'pickup').length, [agendaItems]);
+  const returnsCount = useMemo(() => agendaItems.filter(item => item.type === 'return').length, [agendaItems]);
+
+  // Memoize greeting to avoid recalculating on every render
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning,';
+    if (hour < 18) return 'Good afternoon,';
+    return 'Good evening,';
+  }, []); // Empty deps = calculate once on mount
+
   // --- Handlers ---
   const handleIssueClick = (reservation: AgendaItemProps) => {
     setActiveReservation(reservation);
@@ -75,17 +99,31 @@ const DashboardOverview = () => {
   };
 
   const executeIssue = async (id: string, isOverride: boolean) => {
+    // Note: Hook already handles errors with optimistic rollback and error toast
+    // We only add success feedback here
     await issueReservation({ id, isOverride });
+    
+    toast.success('Item issued successfully', {
+      description: 'Reservation is now active'
+    });
+    setIssueOpen(false);
   };
 
   const executeReturn = async (id: string, damage: boolean) => {
+    // Note: Hook already handles errors with optimistic rollback and error toast
+    // We only add success feedback here
     await returnReservation({ id, damage });
+    
+    toast.success('Item returned successfully', {
+      description: damage ? 'Damage report recorded' : 'All items in good condition'
+    });
+    setReturnOpen(false);
   };
 
   if (isLoading && !kpiData.activeRentals) {
     return (
       <ProviderLayout>
-        <div className="p-12 text-center text-muted-foreground animate-pulse">Loading Mission Control...</div>
+        <PageLoadingSkeleton />
       </ProviderLayout>
     );
   }
@@ -103,7 +141,7 @@ const DashboardOverview = () => {
                 <SyncIndicator />
               </div>
               <h1 className="text-3xl lg:text-4xl font-heading font-bold tracking-tight text-foreground flex items-center gap-2">
-                {new Date().getHours() < 12 ? 'Good morning,' : new Date().getHours() < 18 ? 'Good afternoon,' : 'Good evening,'} Admin
+                {greeting} Admin
               </h1>
               <p className="text-muted-foreground flex items-center gap-2 text-sm">
                 <CalendarIcon className="w-4 h-4 text-primary" />
@@ -146,16 +184,8 @@ const DashboardOverview = () => {
                 <TooltipContent>Refresh Data</TooltipContent>
               </Tooltip>
 
-              {/* FILTER */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Filter className="w-4 h-4" />
-                    Filter View
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Filter dashboard items</TooltipContent>
-              </Tooltip>
+              {/* FILTER - TODO: Implement filtering functionality */}
+              {/* Temporarily removed to avoid misleading UI */}
 
               {/* NEW RESERVATION */}
               <Tooltip>
@@ -190,22 +220,37 @@ const DashboardOverview = () => {
                   <p className="text-sm text-muted-foreground">Pickups and returns scheduled for today</p>
                 </div>
 
-                {/* Visual Tab Switcher (Simple) */}
+                {/* Visual Tab Switcher (Functional) */}
                 <div className="flex bg-muted p-1 rounded-lg">
-                  <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold shadow-sm bg-background text-foreground">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className={`h-8 text-xs font-semibold ${agendaTab === 'all' ? 'shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setAgendaTab('all')}
+                  >
                     All <span className="ml-1 opacity-50">({agendaItems.length})</span>
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-foreground">
-                    Pickups
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className={`h-8 text-xs ${agendaTab === 'pickups' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setAgendaTab('pickups')}
+                  >
+                    Pickups <span className="ml-1 opacity-50">({pickupsCount})</span>
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-foreground">
-                    Returns
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className={`h-8 text-xs ${agendaTab === 'returns' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setAgendaTab('returns')}
+                  >
+                    Returns <span className="ml-1 opacity-50">({returnsCount})</span>
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-3 flex-1">
-                {agendaItems.map((item, idx) => (
+                {filteredAgendaItems.map((item, idx) => (
                   <AgendaRow
                     key={idx}
                     data={item}
@@ -215,7 +260,7 @@ const DashboardOverview = () => {
                   />
                 ))}
 
-                {agendaItems.length === 0 && (
+                {filteredAgendaItems.length === 0 && agendaItems.length === 0 && (
                   <EmptyState
                     icon={CheckCircle2}
                     title="All caught up!"
@@ -224,6 +269,15 @@ const DashboardOverview = () => {
                       label: "Create Reservation",
                       onClick: () => navigate('/provider/reservations/new')
                     }}
+                    className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted/10 rounded-xl"
+                  />
+                )}
+
+                {filteredAgendaItems.length === 0 && agendaItems.length > 0 && (
+                  <EmptyState
+                    icon={CheckCircle2}
+                    title={`No ${agendaTab} today`}
+                    description={`Switch to "All" to see other items`}
                     className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted/10 rounded-xl"
                   />
                 )}

@@ -96,6 +96,16 @@
   .bg-kitloop-background {
     @apply bg-background;
   }
+
+  /* --- ACCESSIBILITY: Visible Focus Rings --- */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+  
+  button:focus-visible,
+  a:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
 }
 
 /* Animations */
