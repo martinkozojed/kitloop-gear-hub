@@ -66,7 +66,7 @@ jobs:
       - name: Run reserve_gear unit tests
         run: deno test supabase/functions/reserve_gear --allow-env --allow-read
       - name: Run confirm_reservation unit tests
-        run: deno test --quiet --allow-env supabase/functions/confirm_reservation
+        run: deno test --quiet --allow-env --reload supabase/functions/confirm_reservation
       - name: Run cleanup_reservation_holds unit tests
         run: deno test --quiet supabase/functions/cleanup_reservation_holds || echo "cleanup tests skipped"
       - name: Run create_payment_intent unit tests
