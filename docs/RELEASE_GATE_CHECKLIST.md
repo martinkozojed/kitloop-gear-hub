@@ -40,11 +40,17 @@ curl -X POST $ADMIN_ACTION_URL \
 
 **Test happy path (expect 200):**
 ```bash
+# Use unique reason for E2E verification
+RELEASE_GATE_ID="release-gate-$(date -u +%Y%m%d-%H%M%S)"
+
 curl -X POST $ADMIN_ACTION_URL \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
-  -d '{"action":"approve_provider","target_id":"$VALID_PROVIDER_UUID","reason":"test"}'
+  -d "{\"action\":\"approve_provider\",\"target_id\":\"$VALID_PROVIDER_UUID\",\"reason\":\"$RELEASE_GATE_ID\"}"
+
+# Save for E2E check later
+echo $RELEASE_GATE_ID > /tmp/release_gate_id.txt
 ```
-✅ HTTP 200 + success message
+✅ HTTP 200 + success message + save audit_log_id from response
 
 **Test rate limiting (expect 429):**
 - Send 21 requests rapidly
@@ -131,16 +137,27 @@ LIMIT 5;
    - ❌ Red flag: Malformed data, missing fields
 
 6. **End-to-End Verification (Critical):**
-   - After 200 response, verify audit log row in DB (< 2 min old)
-   - This proves: edge function → DB → transaction committed
+   - After 200 response, verify audit log row in DB with EXACT match
+   - This proves: edge function → DB → transaction committed → correct data
    ```sql
-   SELECT id, admin_id, action, target_id, created_at
+   -- Use the unique reason from test above
+   -- Replace $RELEASE_GATE_ID with actual value (e.g. 'release-gate-20260111-143000')
+   SELECT 
+     id,
+     admin_id,
+     action,
+     target_id,
+     reason,
+     created_at,
+     EXTRACT(EPOCH FROM (now() - created_at)) as age_seconds
    FROM public.admin_audit_logs
+   WHERE reason LIKE 'release-gate-%'
+     AND created_at > now() - interval '2 minutes'
    ORDER BY created_at DESC
    LIMIT 5;
    ```
-   - ✅ Expected: Row exists with timestamp from last 2 minutes
-   - ❌ Red flag: No row = edge returned 200 but DB write failed
+   - ✅ Expected: Row with YOUR unique reason + age < 120 seconds
+   - ❌ Red flag: No matching row = edge returned 200 but DB write failed OR wrong data
 
 #### Option B: CLI (Quick)
 

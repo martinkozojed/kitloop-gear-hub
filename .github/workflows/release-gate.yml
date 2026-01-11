@@ -14,7 +14,8 @@ on:
       - 'supabase/**'         # Database, edge functions, migrations
       - 'public/**'           # Static assets (favicon, images, _redirects)
       - 'index.html'          # HTML entry point
-      - 'package*.json'       # Dependencies
+      - 'package.json'        # Dependencies manifest
+      - 'package-lock.json'   # Lockfile (critical - prevents silent dependency changes)
       - 'vite.config.*'       # Build config
       - 'eslint.config.*'     # Linting config
       - 'tsconfig*.json'      # TypeScript config
@@ -33,7 +34,8 @@ on:
       - 'supabase/**'
       - 'public/**'
       - 'index.html'
-      - 'package*.json'
+      - 'package.json'
+      - 'package-lock.json'
       - 'vite.config.*'
       - 'eslint.config.*'
       - 'tsconfig*.json'
