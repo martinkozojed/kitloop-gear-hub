@@ -60,6 +60,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full git history for diff
+
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ github.base_ref || 'main' }} --depth=1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -78,7 +84,10 @@ jobs:
         continue-on-error: true
 
       - name: Lint changed files only (vs main)
-        run: ./scripts/lint_changed.sh origin/main
+        run: |
+          BASE_REF="origin/${{ github.base_ref || 'main' }}"
+          echo "Linting against base: $BASE_REF"
+          bash ./scripts/lint_changed.sh "$BASE_REF"
 
       - name: Run type checker
         run: npm run typecheck

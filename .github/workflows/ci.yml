@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full git history for diff
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ github.base_ref || 'main' }} --depth=1
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -18,7 +23,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Lint changed files only
-        run: ./scripts/lint_changed.sh origin/main
+        run: |
+          BASE_REF="origin/${{ github.base_ref || 'main' }}"
+          echo "Linting against base: $BASE_REF"
+          bash ./scripts/lint_changed.sh "$BASE_REF"
 
   typecheck:
     runs-on: ubuntu-latest
