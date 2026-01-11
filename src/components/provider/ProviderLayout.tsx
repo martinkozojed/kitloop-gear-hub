@@ -37,19 +37,21 @@ const ProviderLayout = ({ children }: ProviderLayoutProps) => {
           sidebarCollapsed ? 'w-0 -translate-x-full' : 'w-64'
         }`}
       >
-        <ProviderSidebar />
+        <ProviderSidebar onToggleCollapse={toggleSidebar} isCollapsed={sidebarCollapsed} />
       </aside>
 
-      {/* Sidebar Toggle Button (Desktop only) - Top right positioned */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleSidebar}
-        className="hidden md:flex fixed right-4 top-20 z-40 shadow-sm border border-border bg-background/95 backdrop-blur-sm hover:bg-accent"
-        title={sidebarCollapsed ? 'Zobrazit menu' : 'Skrýt menu'}
-      >
-        {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-      </Button>
+      {/* Show/Open Sidebar Button (when collapsed) */}
+      {sidebarCollapsed && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="hidden md:flex fixed left-4 top-20 z-40 shadow-sm border border-border bg-background/95 backdrop-blur-sm hover:bg-accent"
+          title="Zobrazit menu"
+        >
+          <PanelLeft className="h-4 w-4" />
+        </Button>
+      )}
 
       {/* Main Content */}
       <main 
