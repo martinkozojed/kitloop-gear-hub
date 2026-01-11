@@ -21,6 +21,12 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": "off",
       "@typescript-eslint/no-unused-vars": "off",
+      // Fix for config issue: explicitly configure rule with default options
+      "@typescript-eslint/no-unused-expressions": ["error", {
+        allowShortCircuit: false,
+        allowTernary: false,
+        allowTaggedTemplates: false
+      }],
       "no-console": ["error", { "allow": ["warn", "error"] }],
     },
   },

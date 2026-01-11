@@ -19,6 +19,7 @@ import {
   isSupabaseConstraintError,
 } from '@/lib/error-utils';
 import { logger } from '@/lib/logger';
+import { validateImageFiles } from '@/lib/file-validation';
 
 interface FormData {
   name: string;
@@ -149,7 +150,7 @@ const InventoryForm = () => {
     }
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
 
     // Validate file count
@@ -160,28 +161,31 @@ const InventoryForm = () => {
       return;
     }
 
-    // Validate file size (max 5MB per image)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const oversizedFiles = files.filter(f => f.size > maxSize);
-    if (oversizedFiles.length > 0) {
-      toast.error('Příliš velký soubor', {
-        description: `Některé obrázky přesahují limit 5MB. Vyberte menší soubory.`
+    // Validate files using magic bytes (prevents spoofed file types)
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    
+    logger.debug('Validating files with magic bytes check...');
+    const validationResult = await validateImageFiles(files, validTypes);
+
+    if (validationResult.invalid.length > 0) {
+      const errorMessages = validationResult.invalid
+        .map(({ file, error }) => `${file.name}: ${error}`)
+        .join('\n');
+      
+      toast.error('Neplatné soubory', {
+        description: errorMessages || 'Některé soubory nejsou validní obrázky.'
       });
+
+      // If some files are valid, add only those
+      if (validationResult.valid.length > 0) {
+        logger.debug(`Added ${validationResult.valid.length} valid files, rejected ${validationResult.invalid.length}`);
+        setImages([...images, ...validationResult.valid]);
+      }
       return;
     }
 
-    // Validate file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const invalidFiles = files.filter(f => !validTypes.includes(f.type));
-    if (invalidFiles.length > 0) {
-      toast.error('Neplatný formát', {
-        description: 'Pouze JPG, PNG a WEBP obrázky jsou povoleny.'
-      });
-      return;
-    }
-
-    logger.debug('Selected images:', files.length);
-    setImages([...images, ...files]);
+    logger.debug('All files validated successfully:', validationResult.valid.length);
+    setImages([...images, ...validationResult.valid]);
   };
 
   const removeImage = (index: number) => {
@@ -505,7 +509,15 @@ const InventoryForm = () => {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Describe the item..."
                   rows={4}
+                  maxLength={2000}
                 />
+                {formData.description.length > 1600 && (
+                  <p className={`text-sm mt-1 ${
+                    formData.description.length > 1900 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                  }`}>
+                    {formData.description.length}/2000 znaků
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -670,7 +682,15 @@ const InventoryForm = () => {
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Internal notes..."
                   rows={3}
+                  maxLength={1000}
                 />
+                {formData.notes.length > 800 && (
+                  <p className={`text-sm mt-1 ${
+                    formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                  }`}>
+                    {formData.notes.length}/1000 znaků
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

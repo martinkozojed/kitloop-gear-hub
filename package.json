@@ -10,6 +10,9 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "test:functions": "deno test supabase/functions/reserve_gear --allow-env --allow-read"
   },
   "dependencies": {
@@ -90,11 +93,13 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "@vitest/ui": "^4.0.16",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
+    "happy-dom": "^20.1.0",
     "lovable-tagger": "^1.1.7",
     "pg": "^8.16.3",
     "postcss": "^8.4.47",
@@ -103,6 +108,7 @@
     "terser": "^5.44.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "vitest": "^4.0.16"
   }
 }

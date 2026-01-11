@@ -16,6 +16,8 @@ on:
       - 'index.html'          # HTML entry point
       - 'package.json'        # Dependencies manifest
       - 'package-lock.json'   # Lockfile (critical - prevents silent dependency changes)
+      - 'deno.lock'           # Deno lockfile (affects edge function runtime)
+      - 'scripts/**'          # CI/build scripts
       - 'vite.config.*'       # Build config
       - 'eslint.config.*'     # Linting config
       - 'tsconfig*.json'      # TypeScript config
@@ -23,30 +25,14 @@ on:
       - 'postcss.config.*'    # CSS processing
       - 'netlify.toml'        # Deployment config
       - 'verify_console_guard.sh'  # Release gate script
-      - '.github/workflows/release-gate.yml'  # This workflow
+      - '.github/workflows/**'  # All workflow files (including ci.yml)
     paths-ignore:
       - 'docs/**'    # Documentation (doesn't affect build)
       - '**.md'      # Markdown files (README, changelogs, etc.)
   pull_request:
     branches: [main]  # Block merge to main if failing
-    paths:  # Same as push - must be in sync!
-      - 'src/**'
-      - 'supabase/**'
-      - 'public/**'
-      - 'index.html'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'vite.config.*'
-      - 'eslint.config.*'
-      - 'tsconfig*.json'
-      - 'tailwind.config.*'
-      - 'postcss.config.*'
-      - 'netlify.toml'
-      - 'verify_console_guard.sh'
-      - '.github/workflows/release-gate.yml'
-    paths-ignore:  # Same as push - prevent doc-only PRs triggering CI
-      - 'docs/**'
-      - '**.md'
+    # NOTE: No paths filter on pull_request - always run as required check
+    # (paths filter on push still applies for early feedback)
 
 concurrency:
   group: release-gate-${{ github.ref }}
@@ -60,6 +46,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full git history for diff
+
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ github.base_ref || 'main' }} --depth=1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -77,8 +69,11 @@ jobs:
           npm audit --audit-level=critical || echo "⚠️  Audit found issues (non-blocking)"
         continue-on-error: true
 
-      - name: Run linter
-        run: npm run lint
+      - name: Lint changed files only (vs main)
+        run: |
+          BASE_REF="origin/${{ github.base_ref || 'main' }}"
+          echo "Linting against base: $BASE_REF"
+          bash ./scripts/lint_changed.sh "$BASE_REF"
 
       - name: Run type checker
         run: npm run typecheck

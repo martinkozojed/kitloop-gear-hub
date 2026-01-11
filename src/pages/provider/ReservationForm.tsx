@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { checkVariantAvailability, calculatePrice, calculateDays, validatePhone, formatPrice } from "@/lib/availability";
+import { checkVariantAvailability, calculatePrice, calculateDays, validatePhone, validateEmail, formatPrice } from "@/lib/availability";
 import { createReservationHold, ReservationError } from "@/services/reservations";
 import { toast } from "sonner";
 import { CalendarIcon, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
@@ -226,7 +226,7 @@ const ReservationForm = () => {
     const newErrors: FormErrors = {};
 
     if (!formData.customer_name.trim()) newErrors.customer_name = 'Jméno zákazníka je povinné';
-    if (formData.customer_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customer_email)) {
+    if (formData.customer_email && !validateEmail(formData.customer_email)) {
       newErrors.customer_email = 'Neplatná e-mailová adresa';
     }
     if (!validatePhone(formData.customer_phone)) {
@@ -533,7 +533,15 @@ const ReservationForm = () => {
                   id="notes"
                   value={formData.notes}
                   onChange={e => handleInputChange('notes', e.target.value)}
+                  maxLength={1000}
                 />
+                {formData.notes.length > 800 && (
+                  <p className={`text-sm mt-1 ${
+                    formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                  }`}>
+                    {formData.notes.length}/1000 znaků
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">
