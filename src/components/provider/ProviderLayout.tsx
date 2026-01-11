@@ -40,12 +40,12 @@ const ProviderLayout = ({ children }: ProviderLayoutProps) => {
         <ProviderSidebar />
       </aside>
 
-      {/* Sidebar Toggle Button (Desktop only) */}
+      {/* Sidebar Toggle Button (Desktop only) - Top positioned */}
       <Button
         variant="ghost"
         size="icon"
         onClick={toggleSidebar}
-        className="hidden md:flex fixed left-4 bottom-4 z-40 shadow-lg border border-border bg-background hover:bg-accent"
+        className="hidden md:flex fixed left-4 top-20 z-40 shadow-sm border border-border bg-background/95 backdrop-blur-sm hover:bg-accent"
         title={sidebarCollapsed ? 'Zobrazit menu' : 'Skrýt menu'}
       >
         {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
