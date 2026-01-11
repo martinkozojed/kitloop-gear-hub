@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { KpiStrip } from "@/components/dashboard/KpiStrip";
 import { ExceptionsQueue } from "@/components/dashboard/ExceptionsQueue";
 import { AgendaRow } from "@/components/dashboard/AgendaRow";
@@ -64,18 +64,18 @@ const DashboardOverview = () => {
   const [agendaTab, setAgendaTab] = useState<'all' | 'pickups' | 'returns'>('all');
 
   // Filter agenda items based on selected tab
-  const filteredAgendaItems = React.useMemo(() => {
+  const filteredAgendaItems = useMemo(() => {
     if (agendaTab === 'all') return agendaItems;
     if (agendaTab === 'pickups') return agendaItems.filter(item => item.type === 'pickup');
     return agendaItems.filter(item => item.type === 'return');
   }, [agendaItems, agendaTab]);
 
   // Count pickups and returns for tab labels
-  const pickupsCount = React.useMemo(() => agendaItems.filter(item => item.type === 'pickup').length, [agendaItems]);
-  const returnsCount = React.useMemo(() => agendaItems.filter(item => item.type === 'return').length, [agendaItems]);
+  const pickupsCount = useMemo(() => agendaItems.filter(item => item.type === 'pickup').length, [agendaItems]);
+  const returnsCount = useMemo(() => agendaItems.filter(item => item.type === 'return').length, [agendaItems]);
 
   // Memoize greeting to avoid recalculating on every render
-  const greeting = React.useMemo(() => {
+  const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning,';
     if (hour < 18) return 'Good afternoon,';
@@ -99,31 +99,25 @@ const DashboardOverview = () => {
   };
 
   const executeIssue = async (id: string, isOverride: boolean) => {
-    try {
-      await issueReservation({ id, isOverride });
-      toast.success('Item issued successfully', {
-        description: 'Reservation is now active'
-      });
-      setIssueOpen(false);
-    } catch (error) {
-      toast.error('Failed to issue item', {
-        description: error instanceof Error ? error.message : 'Please try again'
-      });
-    }
+    // Note: Hook already handles errors with optimistic rollback and error toast
+    // We only add success feedback here
+    await issueReservation({ id, isOverride });
+    
+    toast.success('Item issued successfully', {
+      description: 'Reservation is now active'
+    });
+    setIssueOpen(false);
   };
 
   const executeReturn = async (id: string, damage: boolean) => {
-    try {
-      await returnReservation({ id, damage });
-      toast.success('Item returned successfully', {
-        description: damage ? 'Damage report recorded' : 'All items in good condition'
-      });
-      setReturnOpen(false);
-    } catch (error) {
-      toast.error('Failed to process return', {
-        description: error instanceof Error ? error.message : 'Please try again'
-      });
-    }
+    // Note: Hook already handles errors with optimistic rollback and error toast
+    // We only add success feedback here
+    await returnReservation({ id, damage });
+    
+    toast.success('Item returned successfully', {
+      description: damage ? 'Damage report recorded' : 'All items in good condition'
+    });
+    setReturnOpen(false);
   };
 
   if (isLoading && !kpiData.activeRentals) {
