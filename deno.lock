@@ -129,7 +129,7 @@
     "https://esm.sh/@supabase/node-fetch@2.6.15/denonext/node-fetch.mjs": "0bae9052231f4f6dbccc7234d05ea96923dbf967be12f402764580b6bf9f713d",
     "https://esm.sh/@supabase/node-fetch@2.6.15?target=denonext": "4d28c4ad97328403184353f68434f2b6973971507919e9150297413664919cf3",
     "https://esm.sh/@supabase/postgrest-js@1.19.4/denonext/postgrest-js.mjs": "2073b5552ba10c7a8302bffffae771e3aede1daf833382355dae239fb0ab2576",
-    "https://esm.sh/@supabase/realtime-js@2.11.10/denonext/realtime-js.mjs": "42c599d4edc40fa95209d309bacc391910c0e242cd3fddbaac3aeeafc4b81b17",
+    "https://esm.sh/@supabase/realtime-js@2.11.10/denonext/realtime-js.mjs": "23ab7d3a2cda22a65d0ed48e8adea547cc967bf4d2e32fd0af522563bdf77c24",
     "https://esm.sh/@supabase/storage-js@2.7.1/denonext/storage-js.mjs": "73ac8cdc95cfcd794fe603dbd7ce06d539ab51538ae6467eabe0f9cc26c993aa",
     "https://esm.sh/@supabase/supabase-js@2.50.0": "08871b551234bdcaf766bf2f864b8c00b6d7f92a66d23045596624e4b6c5d762",
     "https://esm.sh/@supabase/supabase-js@2.50.0/denonext/supabase-js.mjs": "f123d5a83e021b6ddd0ab4b3795c5ba5d3d27117d2e5844298ce5f9ba216311c",
