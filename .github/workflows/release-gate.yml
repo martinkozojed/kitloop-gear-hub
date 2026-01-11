@@ -16,6 +16,8 @@ on:
       - 'index.html'          # HTML entry point
       - 'package.json'        # Dependencies manifest
       - 'package-lock.json'   # Lockfile (critical - prevents silent dependency changes)
+      - 'deno.lock'           # Deno lockfile (affects edge function runtime)
+      - 'scripts/**'          # CI/build scripts
       - 'vite.config.*'       # Build config
       - 'eslint.config.*'     # Linting config
       - 'tsconfig*.json'      # TypeScript config
@@ -23,7 +25,7 @@ on:
       - 'postcss.config.*'    # CSS processing
       - 'netlify.toml'        # Deployment config
       - 'verify_console_guard.sh'  # Release gate script
-      - '.github/workflows/release-gate.yml'  # This workflow
+      - '.github/workflows/**'  # All workflow files (including ci.yml)
     paths-ignore:
       - 'docs/**'    # Documentation (doesn't affect build)
       - '**.md'      # Markdown files (README, changelogs, etc.)
@@ -36,6 +38,8 @@ on:
       - 'index.html'
       - 'package.json'
       - 'package-lock.json'
+      - 'deno.lock'
+      - 'scripts/**'
       - 'vite.config.*'
       - 'eslint.config.*'
       - 'tsconfig*.json'
@@ -43,7 +47,7 @@ on:
       - 'postcss.config.*'
       - 'netlify.toml'
       - 'verify_console_guard.sh'
-      - '.github/workflows/release-gate.yml'
+      - '.github/workflows/**'
     paths-ignore:  # Same as push - prevent doc-only PRs triggering CI
       - 'docs/**'
       - '**.md'
