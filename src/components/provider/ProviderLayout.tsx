@@ -24,7 +24,7 @@ const ProviderLayout = ({ children }: ProviderLayoutProps) => {
 
       {/* Main Content */}
       <main id="main-content" className="md:pl-64 pt-[4.5rem] pb-24 md:pb-12 transition-all min-h-screen">
-        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 space-y-6 page-transition">
           {children}
         </div>
       </main>
