@@ -121,3 +121,108 @@
     transform: translateY(0);
   }
 }
+
+/* === WOW FACTOR: MICRO-INTERACTIONS === */
+
+/* Smooth transitions for all interactive elements */
+button, a, [role="button"] {
+  @apply transition-all duration-300;
+}
+
+/* Card hover effects */
+[class*="card"]:not([data-no-hover]) {
+  @apply transition-all duration-300;
+}
+
+[class*="card"]:not([data-no-hover]):hover {
+  @apply shadow-lg scale-[1.01];
+}
+
+/* Button hover enhancements */
+button:not(:disabled):hover {
+  @apply brightness-110 shadow-md;
+}
+
+/* Badge pulse animation for status badges */
+@keyframes badge-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+.badge-animated {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* Page transition animations */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: slide-in 0.4s ease-out;
+}
+
+/* Ripple effect for button clicks */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+}
+
+.ripple:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Link hover underline animation */
+a:not([class*="button"]):not([class*="nav"]) {
+  @apply relative;
+}
+
+a:not([class*="button"]):not([class*="nav"])::after {
+  content: "";
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-current transition-all duration-300;
+}
+
+a:not([class*="button"]):not([class*="nav"]):hover::after {
+  @apply w-full;
+}

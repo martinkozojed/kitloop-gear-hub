@@ -18,10 +18,12 @@ import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { formatDateRange, formatPrice } from "@/lib/availability";
-import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle, ArrowRightLeft, LayoutGrid, List } from "lucide-react";
+import { Plus, Search, Calendar as CalendarIcon, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle, ArrowRightLeft, LayoutGrid, List } from "lucide-react";
 import ReservationCalendar from "@/components/reservations/ReservationCalendar";
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
+import { EnhancedEmptyState } from '@/components/ui/enhanced-empty-state';
+import { triggerSuccessAnimation } from '@/lib/celebrations';
 
 interface Reservation {
   id: string;
@@ -191,6 +193,11 @@ const ProviderReservations = () => {
       const { error } = await supabase.from('reservations').update({ status }).eq('id', reservationId);
       if (error) throw error;
 
+      // Success animation!
+      if (action === 'confirm') {
+        triggerSuccessAnimation();
+      }
+      
       setReservations(prev => prev.map(r => r.id === reservationId ? { ...r, status } : r));
       toast.success(`Rezervace ${action === 'confirm' ? 'potvrzena' : 'zrušena'}`);
     } catch (e: unknown) {
@@ -294,7 +301,19 @@ const ProviderReservations = () => {
 
           <TabsContent value="list" className="space-y-4">
             {filteredReservations.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">Žádné rezervace k zobrazení.</div>
+              <EnhancedEmptyState
+                icon={CalendarIcon}
+                title={reservations.length === 0 ? "No reservations yet" : "No matching reservations"}
+                description={reservations.length === 0 
+                  ? "Create your first reservation and start managing your rental business efficiently."
+                  : "Try adjusting your filters to find what you're looking for."
+                }
+                action={reservations.length === 0 ? {
+                  label: "Create Reservation",
+                  onClick: () => navigate('/provider/reservations/new'),
+                  icon: Plus
+                } : undefined}
+              />
             ) : (
               <div className="rounded-md border bg-card">
                 <table className="w-full text-sm text-left">

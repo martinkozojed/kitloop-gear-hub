@@ -14,6 +14,8 @@ import { ProductForm } from '@/components/operations/ProductForm';
 import { AssetForm } from '@/components/operations/AssetForm';
 import { ScannerModal } from '@/components/operations/ScannerModal';
 import { CsvImportModal } from '@/components/operations/CsvImportModal';
+import { EnhancedEmptyState } from '@/components/ui/enhanced-empty-state';
+import { triggerSuccessAnimation, triggerQuickPop } from '@/lib/celebrations';
 
 import { generateDemoData } from '@/lib/demo-data';
 
@@ -101,6 +103,9 @@ const ProviderInventory = () => {
         .in('id', ids);
 
       if (error) throw error;
+      
+      // Success animation!
+      triggerQuickPop();
       toast.success(`Archived ${ids.length} items (Soft Delete)`);
       fetchInventory();
     } catch (err: unknown) {
@@ -111,11 +116,14 @@ const ProviderInventory = () => {
 
   const handleStatusChange = async (ids: string[], status: string) => {
     try {
-      const { error } = await supabase
+      const { error} = await supabase
         .from('assets')
         .update({ status: status as InventoryAsset['status'] })
         .in('id', ids);
       if (error) throw error;
+      
+      // Success animation!
+      triggerSuccessAnimation();
       toast.success(`Updated status for ${ids.length} items`);
       fetchInventory();
     } catch (err: unknown) {
@@ -149,6 +157,9 @@ const ProviderInventory = () => {
     setLoading(true);
     try {
       await generateDemoData(provider.id);
+      
+      // Success animation!
+      triggerSuccessAnimation();
       toast.success('Generated 5 demo assets!');
       fetchInventory();
     } catch (err: unknown) {
@@ -199,15 +210,32 @@ const ProviderInventory = () => {
         </div>
 
         <Card className="p-1 min-h-[500px]">
-          <InventoryGrid
-            data={data}
-            loading={loading}
-            onRefresh={fetchInventory}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onStatusChange={handleStatusChange}
-            canDelete={canDeleteAssets}
-          />
+          {data.length === 0 && !loading ? (
+            <EnhancedEmptyState
+              icon={Package}
+              title="No inventory yet"
+              description="Start building your inventory by adding your first product, importing from CSV, or generating demo data to explore."
+              action={{
+                label: "Add Asset",
+                onClick: () => setShowAssetForm(true),
+                icon: Plus
+              }}
+              secondaryAction={{
+                label: "Import CSV",
+                onClick: () => setShowImportModal(true)
+              }}
+            />
+          ) : (
+            <InventoryGrid
+              data={data}
+              loading={loading}
+              onRefresh={fetchInventory}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onStatusChange={handleStatusChange}
+              canDelete={canDeleteAssets}
+            />
+          )}
         </Card>
 
 
@@ -226,6 +254,7 @@ const ProviderInventory = () => {
           }}
           productId={selectedProductId}
           onSuccess={() => {
+            triggerSuccessAnimation();
             toast.success(selectedProductId ? "Product updated!" : "Ready to add assets!");
             fetchInventory();
           }}
@@ -234,7 +263,10 @@ const ProviderInventory = () => {
         <AssetForm
           open={showAssetForm}
           onOpenChange={setShowAssetForm}
-          onSuccess={() => { fetchInventory(); }}
+          onSuccess={() => {
+            triggerSuccessAnimation();
+            fetchInventory();
+          }}
         />
 
         <ScannerModal
