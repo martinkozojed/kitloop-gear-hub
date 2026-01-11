@@ -45,10 +45,22 @@ export const useDashboardData = () => {
                 .gte('end_date', todayIso)
                 .lt('end_date', tomorrowIso);
 
+            // Calculate daily revenue from active reservations
+            const { data: activeReservations } = await supabase
+                .from('reservations')
+                .select('total_price')
+                .eq('provider_id', provider.id)
+                .eq('status', 'active');
+
+            const calculatedRevenue = activeReservations?.reduce(
+                (sum, r) => sum + (r.total_price || 0),
+                0
+            ) || 0;
+
             return {
                 activeRentals: pickupCount || 0,
                 returnsToday: returnsTodayCount || 0,
-                dailyRevenue: 0,
+                dailyRevenue: calculatedRevenue,
                 activeTrend: "+12% this week",
                 activeTrendDir: "up",
                 returnsTrend: "On schedule",
