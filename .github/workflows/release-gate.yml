@@ -31,26 +31,8 @@ on:
       - '**.md'      # Markdown files (README, changelogs, etc.)
   pull_request:
     branches: [main]  # Block merge to main if failing
-    paths:  # Same as push - must be in sync!
-      - 'src/**'
-      - 'supabase/**'
-      - 'public/**'
-      - 'index.html'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'deno.lock'
-      - 'scripts/**'
-      - 'vite.config.*'
-      - 'eslint.config.*'
-      - 'tsconfig*.json'
-      - 'tailwind.config.*'
-      - 'postcss.config.*'
-      - 'netlify.toml'
-      - 'verify_console_guard.sh'
-      - '.github/workflows/**'
-    paths-ignore:  # Same as push - prevent doc-only PRs triggering CI
-      - 'docs/**'
-      - '**.md'
+    # NOTE: No paths filter on pull_request - always run as required check
+    # (paths filter on push still applies for early feedback)
 
 concurrency:
   group: release-gate-${{ github.ref }}
