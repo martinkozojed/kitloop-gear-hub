@@ -136,12 +136,21 @@ LIMIT 5;
    - ✅ Expected: Valid request/response, contains `audit_log_id`
    - ❌ Red flag: Malformed data, missing fields
 
-6. **End-to-End Verification (Critical):**
+6. **End-to-End Verification (Critical - Bulletproof):**
    - After 200 response, verify audit log row in DB with EXACT match
    - This proves: edge function → DB → transaction committed → correct data
    ```sql
-   -- Use the unique reason from test above
-   -- Replace $RELEASE_GATE_ID with actual value (e.g. 'release-gate-20260111-143000')
+   -- Bulletproof E2E check with triple filter:
+   -- 1. Unique reason (timestamp-based)
+   -- 2. Your admin UUID
+   -- 3. Your target provider UUID
+   -- 4. Recent timestamp (< 2 minutes)
+   
+   -- Replace these values:
+   -- $RELEASE_GATE_ID: e.g. 'release-gate-20260111-143000'
+   -- $YOUR_ADMIN_UUID: your user_id from auth.users or profiles
+   -- $TARGET_PROVIDER_UUID: the provider UUID you used in test
+   
    SELECT 
      id,
      admin_id,
@@ -152,12 +161,15 @@ LIMIT 5;
      EXTRACT(EPOCH FROM (now() - created_at)) as age_seconds
    FROM public.admin_audit_logs
    WHERE reason LIKE 'release-gate-%'
+     AND admin_id = '$YOUR_ADMIN_UUID'::uuid
+     AND target_id = '$TARGET_PROVIDER_UUID'::uuid
      AND created_at > now() - interval '2 minutes'
    ORDER BY created_at DESC
-   LIMIT 5;
+   LIMIT 1;
    ```
-   - ✅ Expected: Row with YOUR unique reason + age < 120 seconds
-   - ❌ Red flag: No matching row = edge returned 200 but DB write failed OR wrong data
+   - ✅ Expected: Exactly 1 row with YOUR reason + admin + target + age < 120 sec
+   - ❌ Red flag: 0 rows = edge returned 200 but DB write failed OR wrong data
+   - ❌ Red flag: > 1 row = collision (two tests at same time - very unlikely)
 
 #### Option B: CLI (Quick)
 

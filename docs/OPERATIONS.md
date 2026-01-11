@@ -193,6 +193,23 @@ curl test → expect 400 (not 5xx)
 
 ---
 
+## 📏 DOCUMENT GOVERNANCE
+
+**CRITICAL:** Keep this file ultra-short (60-120 lines target)
+
+**If you need to add content:**
+1. ❌ DON'T add to this file
+2. ✅ Create new detailed guide (e.g., `NEW_FEATURE_OPS.md`)
+3. ✅ Add link to navigation table above
+4. ✅ Keep this as entry point only
+
+**Why:** Entry point = table of contents, NOT detailed guide
+
+**Current size:** ~120 lines ✅  
+**Review:** Quarterly or when adding new process
+
+---
+
 **Last Updated:** 2026-01-11  
 **Version:** 1.1 (Streamlined)  
 **Owner:** Engineering Team

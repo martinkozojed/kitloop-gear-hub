@@ -44,6 +44,9 @@ on:
       - 'netlify.toml'
       - 'verify_console_guard.sh'
       - '.github/workflows/release-gate.yml'
+    paths-ignore:  # Same as push - prevent doc-only PRs triggering CI
+      - 'docs/**'
+      - '**.md'
 
 concurrency:
   group: release-gate-${{ github.ref }}
@@ -66,6 +69,13 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Security audit (supply chain)
+        run: |
+          # Run npm audit (informational only - doesn't fail build)
+          # Upgrade to --audit-level=moderate/high when ready
+          npm audit --audit-level=critical || echo "⚠️  Audit found issues (non-blocking)"
+        continue-on-error: true
 
       - name: Run linter
         run: npm run lint
