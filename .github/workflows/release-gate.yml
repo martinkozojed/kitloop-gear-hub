@@ -2,8 +2,34 @@ name: Release Gate - Security Checks
 
 on:
   push:  # Run on all branches for early feedback
+    paths:
+      - 'src/**'
+      - 'supabase/**'
+      - 'package*.json'
+      - 'vite.config.*'
+      - 'eslint.config.*'
+      - 'tsconfig*.json'
+      - 'verify_console_guard.sh'
+      - '.github/workflows/release-gate.yml'
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'scripts/**'
   pull_request:
     branches: [main]  # Block merge to main if failing
+    paths:
+      - 'src/**'
+      - 'supabase/**'
+      - 'package*.json'
+      - 'vite.config.*'
+      - 'eslint.config.*'
+      - 'tsconfig*.json'
+      - 'verify_console_guard.sh'
+      - '.github/workflows/release-gate.yml'
+
+concurrency:
+  group: release-gate-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   security-gate:

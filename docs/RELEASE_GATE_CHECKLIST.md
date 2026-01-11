@@ -101,6 +101,56 @@ LIMIT 5;
 
 ---
 
+### 5. Edge Function Health Check (Post-Deploy)
+
+**Why:** Edge functions are the most common source of post-deploy surprises.
+
+**Time:** 2 minutes
+
+#### Option A: Supabase Dashboard (Visual)
+
+1. **Navigate:** Supabase Dashboard → Edge Functions → `admin_action`
+
+2. **Check Invocations (last 24h):**
+   - ✅ Expected: > 0 invocations (from your tests)
+   - ❌ Red flag: 0 invocations = function not being called
+
+3. **Check Error Rate:**
+   - ✅ Expected: < 5% error rate
+   - ⚠️ Warning: 5-20% error rate
+   - ❌ Red flag: > 20% error rate = immediate investigation
+
+4. **Review Last Error Log:**
+   - Click "Logs" → filter by "error"
+   - ✅ Expected: No errors OR expected test errors (401/403)
+   - ❌ Red flag: 5xx errors, "Function crashed", "Timeout"
+
+5. **Verify Latest Success:**
+   - Look for 200 response in logs
+   - ✅ Expected: Valid request/response, contains `audit_log_id`
+   - ❌ Red flag: Malformed data, missing fields
+
+#### Option B: CLI (Quick)
+
+```bash
+# Check recent function logs
+supabase functions logs admin_action --project-ref $PROJECT_REF --limit 20
+
+# Look for patterns:
+# ✅ 200 responses with audit_log_id
+# ✅ 400/401/403 from your tests
+# ❌ 5xx errors or crashes
+```
+
+**NO-GO Triggers:**
+- ❌ Zero invocations after deployment
+- ❌ Error rate > 20%
+- ❌ Any 5xx errors in last 10 requests
+- ❌ "Function crashed" or "Timeout" errors
+- ❌ Audit log missing for 200 responses
+
+---
+
 ## 📊 PASS CRITERIA
 
 | Check | Required | Status |
@@ -114,6 +164,7 @@ LIMIT 5;
 | Privileges revoked | ✅ false/false | ⬜ |
 | RLS enabled+forced | ✅ true/true | ⬜ |
 | Audit log created | ✅ Row present | ⬜ |
+| Edge function health | ✅ <5% errors | ⬜ |
 
 **VERDICT:** ⬜ GO / ⬜ NO-GO
 
@@ -175,7 +226,17 @@ ORDER BY created_at DESC
 LIMIT 5;
 ```
 
-### 5. Git Commit Info
+### 5. Edge Function Logs (Post-Deploy)
+```bash
+# Last 20 function invocations
+supabase functions logs admin_action --project-ref $PROJECT_REF --limit 20 \
+  > release_gate_edge_function_logs.txt 2>&1
+
+# Or screenshot from Supabase Dashboard:
+# Edge Functions → admin_action → Logs (last 24h)
+```
+
+### 6. Git Commit Info
 ```bash
 git log -1 --format="%H%n%an%n%ae%n%ai%n%s" > release_gate_commit.txt
 ```
@@ -185,6 +246,7 @@ git log -1 --format="%H%n%an%n%ae%n%ai%n%s" > release_gate_commit.txt
 - [ ] `release_gate_endpoints.txt` (tokens redacted)
 - [ ] `release_gate_db_security.txt` (all false/true)
 - [ ] `release_gate_audit_sample.txt` (5 rows)
+- [ ] `release_gate_edge_function_logs.txt` (error rate < 5%)
 - [ ] `release_gate_commit.txt` (commit hash)
 
 **Storage:** Attach to deployment ticket/PR or store in `releases/YYYY-MM-DD/` folder
@@ -200,6 +262,9 @@ git log -1 --format="%H%n%an%n%ae%n%ai%n%s" > release_gate_commit.txt
 - ❌ RLS not enabled or not forced
 - ❌ Audit log not created for successful action
 - ❌ Rate limiting not working (no 429 after 20 requests)
+- ❌ Edge function error rate > 20%
+- ❌ Edge function 5xx errors in last 10 requests
+- ❌ Zero invocations post-deployment (function not being called)
 
 ---
 
@@ -210,13 +275,16 @@ git log -1 --format="%H%n%an%n%ae%n%ai%n%s" > release_gate_commit.txt
 2. **403 instead of 200:** User not in `user_roles` table
 3. **Audit log missing:** Check SECURITY DEFINER on RPC functions
 4. **Rate limit bypassed:** Check RLS policies on `admin_rate_limits`
+5. **Edge function 5xx:** Check environment variables, service role key
+6. **Zero invocations:** Function deployed but not configured in frontend URL
 
 **Time Estimate:**
 - Setup: 2 min
 - Tests: 5 min
 - DB checks: 2 min
+- Edge function health: 2 min
 - Review: 1 min
-- **Total: ~10 min**
+- **Total: ~12 min**
 
 ---
 
