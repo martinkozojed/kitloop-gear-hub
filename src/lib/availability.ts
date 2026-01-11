@@ -251,6 +251,82 @@ export function validatePhone(phone: string): boolean {
 }
 
 /**
+ * Validate email address
+ * Pragmatic validation: covers common edge cases without full RFC 5322 complexity
+ * - No consecutive dots in local/domain part
+ * - No leading/trailing dots
+ * - Requires valid domain with TLD
+ * - Single @ sign only
+ */
+export function validateEmail(email: string): boolean {
+  if (!email || email.trim() === '') {
+    return false;
+  }
+
+  const trimmed = email.trim();
+
+  // Must contain exactly one @ sign
+  const atCount = (trimmed.match(/@/g) || []).length;
+  if (atCount !== 1) {
+    return false;
+  }
+
+  // Split into local and domain parts
+  const [local, domain] = trimmed.split('@');
+  
+  if (!local || !domain) {
+    return false;
+  }
+
+  // Local part checks
+  if (
+    local.includes('..') ||    // Consecutive dots
+    local.startsWith('.') ||   // Leading dot
+    local.endsWith('.')        // Trailing dot
+  ) {
+    return false;
+  }
+
+  // Domain part checks
+  if (
+    domain.includes('..') ||   // Consecutive dots
+    domain.startsWith('.') ||  // Leading dot  
+    domain.startsWith('-') ||  // Leading hyphen
+    domain.endsWith('.') ||    // Trailing dot
+    domain.endsWith('-') ||    // Trailing hyphen
+    !domain.includes('.')      // Must have TLD (e.g., test@example is invalid)
+  ) {
+    return false;
+  }
+
+  // Basic charset validation (local part)
+  const localRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+$/;
+  if (!localRegex.test(local)) {
+    return false;
+  }
+
+  // Basic charset validation (domain part) - alphanumeric, hyphens, dots only
+  const domainRegex = /^[a-zA-Z0-9.-]+$/;
+  if (!domainRegex.test(domain)) {
+    return false;
+  }
+
+  // Domain labels (parts between dots) must be valid
+  const labels = domain.split('.');
+  for (const label of labels) {
+    if (label.length === 0 || label.length > 63) {
+      return false;
+    }
+    // Label can't start/end with hyphen
+    if (label.startsWith('-') || label.endsWith('-')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
  * Format phone number with spaces
  * Input: +420123456789 → Output: +420 123 456 789
  */
