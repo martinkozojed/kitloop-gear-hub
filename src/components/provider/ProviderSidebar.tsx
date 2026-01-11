@@ -76,7 +76,6 @@ const ProviderSidebar = () => {
       {/* Header & Command Trigger */}
       <div className="px-4 pt-6 pb-4">
         <div className="flex items-center gap-2 mb-4 px-2">
-          <div className="h-6 w-6 rounded bg-primary" />
           <span className="font-heading font-semibold text-lg tracking-tight">Kitloop</span>
         </div>
 
