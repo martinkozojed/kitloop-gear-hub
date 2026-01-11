@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { toast } from "sonner";
+import { PageLoadingSkeleton } from "@/components/ui/loading-state";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
@@ -73,6 +74,14 @@ const DashboardOverview = () => {
   const pickupsCount = React.useMemo(() => agendaItems.filter(item => item.type === 'pickup').length, [agendaItems]);
   const returnsCount = React.useMemo(() => agendaItems.filter(item => item.type === 'return').length, [agendaItems]);
 
+  // Memoize greeting to avoid recalculating on every render
+  const greeting = React.useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning,';
+    if (hour < 18) return 'Good afternoon,';
+    return 'Good evening,';
+  }, []); // Empty deps = calculate once on mount
+
   // --- Handlers ---
   const handleIssueClick = (reservation: AgendaItemProps) => {
     setActiveReservation(reservation);
@@ -120,7 +129,7 @@ const DashboardOverview = () => {
   if (isLoading && !kpiData.activeRentals) {
     return (
       <ProviderLayout>
-        <div className="p-12 text-center text-muted-foreground animate-pulse">Loading Mission Control...</div>
+        <PageLoadingSkeleton />
       </ProviderLayout>
     );
   }
@@ -138,7 +147,7 @@ const DashboardOverview = () => {
                 <SyncIndicator />
               </div>
               <h1 className="text-3xl lg:text-4xl font-heading font-bold tracking-tight text-foreground flex items-center gap-2">
-                {new Date().getHours() < 12 ? 'Good morning,' : new Date().getHours() < 18 ? 'Good afternoon,' : 'Good evening,'} Admin
+                {greeting} Admin
               </h1>
               <p className="text-muted-foreground flex items-center gap-2 text-sm">
                 <CalendarIcon className="w-4 h-4 text-primary" />
