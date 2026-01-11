@@ -45,10 +45,22 @@ export const useDashboardData = () => {
                 .gte('end_date', todayIso)
                 .lt('end_date', tomorrowIso);
 
+            // Calculate daily revenue from active reservations
+            const { data: activeReservations } = await supabase
+                .from('reservations')
+                .select('total_price')
+                .eq('provider_id', provider.id)
+                .eq('status', 'active');
+
+            const calculatedRevenue = activeReservations?.reduce(
+                (sum, r) => sum + (r.total_price || 0),
+                0
+            ) || 0;
+
             return {
                 activeRentals: pickupCount || 0,
                 returnsToday: returnsTodayCount || 0,
-                dailyRevenue: 0,
+                dailyRevenue: calculatedRevenue,
                 activeTrend: "+12% this week",
                 activeTrendDir: "up",
                 returnsTrend: "On schedule",
@@ -155,26 +167,57 @@ export const useDashboardData = () => {
         queryFn: async (): Promise<ExceptionItem[]> => {
             if (!provider?.id) throw new Error("No provider");
 
+            // Query 1: Overdue returns
             const { data: overdueData } = await supabase
                 .from('reservations')
                 .select('id, end_date, customer_name')
                 .eq('provider_id', provider.id)
-                .in('status', ['active']) // only active items can be overdue, checked_out is gone
+                .in('status', ['active']) // only active items can be overdue
                 .lt('end_date', todayIso);
+
+            // Query 2: Unpaid pickups scheduled for today
+            const { data: unpaidData } = await supabase
+                .from('reservations')
+                .select('id, start_date, customer_name, payment_status')
+                .eq('provider_id', provider.id)
+                .in('status', ['confirmed', 'hold'])
+                .eq('payment_status', 'unpaid')
+                .gte('start_date', todayIso)
+                .lt('start_date', tomorrowIso);
 
             interface RawException {
                 id: string;
-                end_date: string;
+                end_date?: string;
+                start_date?: string;
                 customer_name: string | null;
+                payment_status?: string;
             }
 
-            return (overdueData as unknown as RawException[] || []).map((o) => ({
-                id: o.id,
-                type: 'overdue',
-                message: `Overdue since ${format(new Date(o.end_date), 'd.M.')}`,
-                priority: 'high',
-                customer: o.customer_name || 'Unknown'
-            }));
+            const exceptions: ExceptionItem[] = [];
+
+            // Add overdue items (high priority)
+            (overdueData as unknown as RawException[] || []).forEach((o) => {
+                exceptions.push({
+                    id: o.id,
+                    type: 'overdue',
+                    message: `Overdue since ${format(new Date(o.end_date!), 'd.M.')}`,
+                    priority: 'high',
+                    customer: o.customer_name || 'Unknown'
+                });
+            });
+
+            // Add unpaid items (medium priority)
+            (unpaidData as unknown as RawException[] || []).forEach((u) => {
+                exceptions.push({
+                    id: u.id,
+                    type: 'unpaid',
+                    message: `Pickup today - Payment pending`,
+                    priority: 'medium',
+                    customer: u.customer_name || 'Unknown'
+                });
+            });
+
+            return exceptions;
         },
         enabled: !!provider?.id,
     });
