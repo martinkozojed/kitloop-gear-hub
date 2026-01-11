@@ -311,29 +311,57 @@ npm ci --ignore-scripts  # Prevents malicious install scripts
 
 ## 📝 REMAINING MANUAL STEPS (1 item, 2 minutes)
 
-### Step 1: Set Up Branch Protection
-**Time:** 2 minutes  
+### Step 1: Set Up Branch Protection (2 minutes)
 **Guide:** `docs/GITHUB_BRANCH_PROTECTION.md`  
-**Frequency:** Once
+**Frequency:** Once (one-time)
 
-**Actions:**
+**Critical Settings:**
 1. Open: https://github.com/martinkozojed/kitloop-gear-hub/settings/branches
 2. Add rule: `main`
-3. Enable: "Require status checks to pass"
-4. Select: `release-gate`
-5. Save
+3. ✅ Require pull request before merging
+4. ✅ Require status checks to pass before merging
+5. ✅ Select status check: `release-gate`
+6. ✅ **Include administrators** (CRITICAL!)
+7. ✅ Require branches to be up to date
+8. Save
 
-**Verification:**
+**Why "Include administrators" is critical:**
+- Even admins (you!) must pass CI checks
+- Prevents "tired Friday afternoon" bypasses
+- Essential for solo developers
+
+### Step 2: Verify Branch Protection Works (5 minutes)
+**Guide:** `docs/BRANCH_PROTECTION_VERIFICATION.md`  
+**Frequency:** Once after setup, then after major CI changes
+
+**Two Quick Tests:**
+
+**Test A: CI Block (3 min)**
 ```bash
-# Should be rejected
-git commit -m "test"
-git push origin main
+# Create test branch with intentional console.log
+git checkout -b test/ci-block
+echo "console.log('fail');" >> src/App.tsx
+git commit -m "test: should fail CI"
+git push origin test/ci-block
+# Open PR → Expected: CI fails, merge blocked ❌
 ```
 
+**Test B: Doc Skip (2 min)**
+```bash
+# Create doc-only change
+git checkout -b test/docs-only
+echo "Test" >> README.md
+git commit -m "docs: test"
+git push origin test/docs-only
+# Open PR → Expected: CI skipped, merge allowed ✅
+```
+
+**Both tests must PASS for production readiness.**
+
 **Why Critical:**
-- Without this: CI can fail but merge succeeds
-- With this: CI failure blocks merge
-- Even solo devs need this (prevents tired mistakes)
+- Without verification: Unknown if protection actually works
+- Test A proves: Bad code cannot merge (even by admin)
+- Test B proves: Doc changes don't waste CI minutes
 
 ---
 

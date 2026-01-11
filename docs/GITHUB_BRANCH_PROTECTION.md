@@ -39,11 +39,20 @@ git push origin main  # ✅ CI fails → push rejected
 
 **Branch name pattern:** `main`
 
-### 3. Required Settings (MINIMUM)
+### 3. Required Settings (CRITICAL)
 
-**✅ Enable these:**
+**✅ Enable these (MINIMUM):**
 
-#### A) Require status checks to pass before merging
+#### A) Require pull request before merging
+```
+☑ Require a pull request before merging
+  Number of approvals: 0  (solo dev - self-review)
+                       1+ (team - peer review)
+```
+
+**Why:** Prevents direct push to main (forces PR workflow)
+
+#### B) Require status checks to pass before merging
 ```
 ☑ Require status checks to pass before merging
   ☑ Require branches to be up to date before merging
@@ -52,22 +61,27 @@ Status checks that are required:
   ☑ release-gate  ← Type this and select from dropdown
 ```
 
-**Why:** Blocks merge if CI fails
+**Why:** 
+- Blocks merge if CI fails
+- Ensures no stale branches (up-to-date check)
 
-#### B) (Optional but Recommended) Require pull request
+#### C) Include administrators (CRITICAL!)
 ```
-☑ Require a pull request before merging
-  Number of approvals: 0  (solo) or 1+ (team)
-```
-
-**Why:** Forces code review workflow (even for self-review)
-
-#### C) (Optional) Restrict who can push
-```
-☑ Do not allow bypassing the above settings
+☑ Include administrators
 ```
 
-**Why:** Even admins must follow the rules
+**Why:** 
+- **Even admins must pass CI checks**
+- Prevents "tired Friday afternoon" admin bypasses
+- Critical for solo devs (you are the admin!)
+
+#### D) (Recommended) Restrict direct push
+```
+☑ Restrict who can push to matching branches
+  → Leave empty or add specific users
+```
+
+**Why:** Forces all changes through PR workflow
 
 ### 4. Save Changes
 

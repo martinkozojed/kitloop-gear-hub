@@ -32,6 +32,8 @@
 | **Incident** | [Rollback Procedure](POST_DEPLOY_MONITORING.md#-gorollback-decision-matrix) | < 15 min | When NO-GO trigger fires |
 | **CI/CD** | [CI Verification Report](CI_VERIFICATION_REPORT.md) | Reference | Understanding automated checks |
 | **Process** | [Production Hardening Report](PRODUCTION_HARDENING_FINAL.md) | Reference | Gap analysis & lessons learned |
+| **Setup** | [Branch Protection Setup](GITHUB_BRANCH_PROTECTION.md) | 2 min | One-time repository setup |
+| **Verification** | [Branch Protection Tests](BRANCH_PROTECTION_VERIFICATION.md) | 5 min | Verify protection works |
 
 ---
 
