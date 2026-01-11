@@ -83,9 +83,18 @@ async function checkRateLimit(
       return { allowed: true, remaining: limit };
     }
 
+    // FIX: Supabase RPC returns ARRAY for RETURNS TABLE
+    const row = Array.isArray(data) ? data[0] : data;
+
+    // Extra fail-open guard for null/undefined
+    if (!row || typeof row.allowed !== "boolean") {
+      console.error("Rate limit returned invalid data:", row);
+      return { allowed: true, remaining: limit };
+    }
+
     return {
-      allowed: data.allowed,
-      remaining: data.remaining,
+      allowed: row.allowed,
+      remaining: Number(row.remaining ?? 0),
     };
   } catch (error) {
     console.error("Rate limit exception:", error);
