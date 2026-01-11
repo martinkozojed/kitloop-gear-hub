@@ -77,8 +77,8 @@ jobs:
           npm audit --audit-level=critical || echo "⚠️  Audit found issues (non-blocking)"
         continue-on-error: true
 
-      - name: Run linter
-        run: npm run lint
+      - name: Lint changed files only (vs main)
+        run: ./scripts/lint_changed.sh origin/main
 
       - name: Run type checker
         run: npm run typecheck
