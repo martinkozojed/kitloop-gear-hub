@@ -9,18 +9,26 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // DEFAULT/PRIMARY - Main action, solid emerald (Stripe-style)
+        default:
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md active:bg-primary/95 focus-visible:ring-primary",
         primary:
-          "bg-gradient-to-r from-[#4FCB84] via-[#43B273] to-[#2F8C55] text-white shadow-[0_14px_35px_-20px_rgba(41,120,72,0.65)] hover:from-[#47BC79] hover:via-[#3FA467] hover:to-[#297A4B] hover:shadow-[0_18px_40px_-18px_rgba(41,120,72,0.6)] focus-visible:ring-[#3FA467]",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md active:bg-primary/95 focus-visible:ring-primary",
+        // OUTLINE - Secondary actions, clear hierarchy
         outline:
-          "border border-emerald-500/70 text-emerald-600 bg-white hover:bg-emerald-50 hover:text-emerald-700",
+          "border-2 border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/50",
+        // GHOST - Tertiary/subtle actions
         ghost:
-          "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/70",
+          "text-foreground hover:bg-accent hover:text-accent-foreground",
+        // DESTRUCTIVE - Dangerous actions
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive",
+        // SECONDARY - Alternative primary (softer)
         secondary:
-          "bg-emerald-100 text-emerald-900 hover:bg-emerald-200/80 border border-transparent",
-        primarySolid:
-          "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 hover:shadow-md active:bg-emerald-800 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:bg-emerald-400 disabled:text-white/80 disabled:cursor-not-allowed dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:active:bg-emerald-700",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        // LEGACY: Keep old gradient for backwards compat if needed
+        primaryGradient:
+          "bg-gradient-to-r from-[#4FCB84] via-[#43B273] to-[#2F8C55] text-white shadow-[0_14px_35px_-20px_rgba(41,120,72,0.65)] hover:from-[#47BC79] hover:via-[#3FA467] hover:to-[#297A4B] hover:shadow-[0_18px_40px_-18px_rgba(41,120,72,0.6)] focus-visible:ring-[#3FA467]",
       },
       size: {
         default: "h-10 px-4 py-2",
