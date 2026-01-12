@@ -34,7 +34,7 @@ const Index = () => {
                 <div className="container px-4 md:px-6 mx-auto relative z-10">
                     <div className="flex flex-col items-center text-center space-y-8">
 
-                        {/* Outdoor-Themed Pill Label */}
+                        {/* Badge - B2B Focus */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -42,9 +42,10 @@ const Index = () => {
                             className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 text-sm font-medium text-emerald-700 backdrop-blur-sm mb-4"
                         >
                             <span className="flex h-2 w-2 rounded-full bg-emerald-600 mr-2 animate-pulse"></span>
-                            Built for Outdoor Rentals
+                            Systém pro outdoor půjčovny
                         </motion.div>
 
+                        {/* Hero Copy - Variant A (Problem-Aware) */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -52,16 +53,17 @@ const Index = () => {
                             className="space-y-4 max-w-4xl"
                         >
                             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-foreground leading-[1.1]">
-                                The only platform built <br className="hidden md:block" />
-                                for <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">Outdoor Gear</span> Rentals
+                                Spravujte půjčovnu bez <br className="hidden md:block" />
+                                <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">excelovského chaosu</span>
                             </h1>
                             <p className="text-xl text-muted-foreground md:text-2xl max-w-[48rem] mx-auto leading-relaxed">
-                                Your gear belongs on the mountain, not stuck in a spreadsheet.
+                                Rezervace, inventář a výdeje na jednom místě. 
                                 <br className="hidden md:block" />
-                                Manage skis, bikes, and kayaks with a system that speaks your language.
+                                Vytvořeno pro lyžařské půjčovny, bikeshopy a outdoor vybavení. Ušetřete 10+ hodin týdně.
                             </p>
                         </motion.div>
 
+                        {/* CTAs - Single Primary Path */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -69,14 +71,14 @@ const Index = () => {
                             className="flex flex-col sm:flex-row gap-4 min-w-[200px] pt-4"
                         >
                             <Button variant="default" size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:scale-105" asChild>
-                                <Link to="/signup">Start Free Trial <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                                <Link to="/signup">Začít zdarma <ArrowRight className="ml-2 h-5 w-5" /></Link>
                             </Button>
-                            <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full" asChild>
-                                <Link to="/login">Provider Login</Link>
+                            <Button size="lg" variant="ghost" className="h-14 px-8 text-lg rounded-full text-foreground hover:bg-muted" asChild>
+                                <a href="#demo">Ukázka za 2 min</a>
                             </Button>
                         </motion.div>
 
-                        {/* Social Proof */}
+                        {/* Microcopy - Risk Reduction */}
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -85,40 +87,39 @@ const Index = () => {
                         >
                             <div className="flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                <span>No credit card required</span>
+                                <span>Bez platební karty</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                <span>14-day free trial</span>
+                                <span>Nastavení za 1 den</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                <span>Cancel anytime</span>
+                                <span>Import z Excelu</span>
                             </div>
                         </motion.div>
 
-                        {/* High-Fidelity Interactive Demo with Reveal Animation */}
+                        {/* Product Preview - Dashboard Screenshot */}
                         <motion.div
+                            id="demo"
                             initial={{ opacity: 0, y: 40, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-                            className="relative mt-16 w-full max-w-6xl mx-auto group perspective-1000"
+                            className="relative mt-16 w-full max-w-6xl mx-auto"
                         >
-                            {/* Interactive Dashboard iframe */}
-                            <div className="relative rounded-2xl border-2 border-emerald-100/50 bg-white shadow-2xl overflow-hidden aspect-[16/9] md:aspect-[21/9] transform transition-transform duration-700 hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(16,_185,_129,_0.15)] group/demo">
-
-                                {/* Iframe is technically interactable but we control focus */}
+                            {/* Dashboard Preview - Clean, No Overlays */}
+                            <div className="relative rounded-2xl border border-emerald-100/50 bg-white shadow-2xl overflow-hidden aspect-[16/9] md:aspect-[21/9] transform transition-all duration-300 hover:shadow-[0_20px_50px_rgba(16,_185,_129,_0.1)]">
                                 <iframe
                                     src="/demo/dashboard"
                                     className="w-full h-full bg-background"
-                                    title="Interactive Dashboard Demo"
+                                    title="Kitloop Dashboard - Today's Work View"
                                     loading="lazy"
                                 />
-
-                                {/* Overlay to prevent scroll trapping until clicked (Professional UX) */}
-                                <div className="absolute inset-0 bg-transparent cursor-pointer group-hover/demo:bg-transparent transition-colors" onClick={(e) => {
-                                    e.currentTarget.style.pointerEvents = 'none';
-                                }}></div>
+                            </div>
+                            
+                            {/* Optional: Screenshot Badge */}
+                            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white border border-emerald-100 rounded-full shadow-lg text-xs font-medium text-muted-foreground">
+                                Live demo • Žádná instalace
                             </div>
                         </motion.div>
                     </div>
