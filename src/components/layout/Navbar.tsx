@@ -145,7 +145,7 @@ const Navbar = () => {
                 <Link to="/login">{t('navbar.sign_in')}</Link>
               </Button>
               <Button variant="primary" className="hidden md:flex" asChild>
-                <Link to="/signup">{t('navbar.sign_up')}</Link>
+                <Link to="/about">{t('navbar.contact')}</Link>
               </Button>
             </>
           )}
@@ -193,7 +193,7 @@ const Navbar = () => {
                     <Link to="/login">{t('navbar.sign_in')}</Link>
                   </Button>
                   <Button variant="primary" asChild className="w-full">
-                    <Link to="/signup">{t('navbar.sign_up')}</Link>
+                    <Link to="/about">{t('navbar.contact')}</Link>
                   </Button>
                 </div>
               )}
@@ -202,7 +202,7 @@ const Navbar = () => {
 
           {!isAuthenticated && (
             <Button variant="primary" className="md:hidden" asChild>
-              <Link to="/signup">{t('navbar.sign_up')}</Link>
+              <Link to="/about">{t('navbar.contact')}</Link>
             </Button>
           )}
 
