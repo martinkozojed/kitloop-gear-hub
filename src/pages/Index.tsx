@@ -246,13 +246,7 @@ const Index = () => {
                         </motion.h3>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {/* Module 1: Reservations */}
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                whileHover={{ y: -8, scale: 1.02 }}
-                                transition={{ duration: 0.3 }}
-                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            <div className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-200"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
@@ -263,16 +257,10 @@ const Index = () => {
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module1Desc')}</p>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
 
                             {/* Module 2: Inventory */}
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.1 }}
-                                whileHover={{ y: -8, scale: 1.02 }}
-                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            <div className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-200"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
@@ -283,16 +271,10 @@ const Index = () => {
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module2Desc')}</p>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
 
                             {/* Module 3: Check-in/out */}
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.2 }}
-                                whileHover={{ y: -8, scale: 1.02 }}
-                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            <div className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-200"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
@@ -303,16 +285,10 @@ const Index = () => {
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module3Desc')}</p>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
 
                             {/* Module 4: Damage & Deposits */}
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.3 }}
-                                whileHover={{ y: -8, scale: 1.02 }}
-                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            <div className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-200"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
@@ -323,16 +299,10 @@ const Index = () => {
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module4Desc')}</p>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
 
                             {/* Module 5: Roles */}
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.4 }}
-                                whileHover={{ y: -8, scale: 1.02 }}
-                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            <div className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-200"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
@@ -343,16 +313,10 @@ const Index = () => {
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module5Desc')}</p>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
 
                             {/* Module 6: Import */}
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.5 }}
-                                whileHover={{ y: -8, scale: 1.02 }}
-                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            <div className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-200"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
@@ -363,7 +327,7 @@ const Index = () => {
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module6Desc')}</p>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         </div>
                     </div>
 
