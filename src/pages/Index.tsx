@@ -42,7 +42,7 @@ const Index = () => {
                             className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 text-sm font-medium text-emerald-700 backdrop-blur-sm mb-4"
                         >
                             <span className="flex h-2 w-2 rounded-full bg-emerald-600 mr-2 animate-pulse"></span>
-                            🌲 Built for the Wild, Ready for Business
+                            Built for Outdoor Rentals
                         </motion.div>
 
                         <motion.div
@@ -68,12 +68,33 @@ const Index = () => {
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="flex flex-col sm:flex-row gap-4 min-w-[200px] pt-4"
                         >
-                            <Button size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:scale-105 bg-emerald-600 hover:bg-emerald-700" asChild>
+                            <Button variant="default" size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:scale-105" asChild>
                                 <Link to="/signup">Start Free Trial <ArrowRight className="ml-2 h-5 w-5" /></Link>
                             </Button>
-                            <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full border-2 hover:bg-emerald-50/50 transition-all text-emerald-800 border-emerald-200" asChild>
+                            <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full" asChild>
                                 <Link to="/login">Provider Login</Link>
                             </Button>
+                        </motion.div>
+
+                        {/* Social Proof */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
+                            className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground pt-4"
+                        >
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                <span>No credit card required</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                <span>14-day free trial</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                <span>Cancel anytime</span>
+                            </div>
                         </motion.div>
 
                         {/* High-Fidelity Interactive Demo with Reveal Animation */}
@@ -148,12 +169,12 @@ const Index = () => {
             </section>
 
             {/* CTA Section */}
-            <section className="py-20 bg-green-900 text-white">
+            <section className="py-20 bg-emerald-900 text-white">
                 <div className="container px-4 md:px-6 mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to modernize your rental business?</h2>
-                    <p className="text-xl text-green-100 mb-10 max-w-2xl mx-auto">Join the growing network of rental providers using Kitloop to save time and increase revenue.</p>
-                    <Button size="lg" variant="outline" className="h-14 px-10 text-lg text-green-900 bg-white hover:bg-green-50" asChild>
-                        <Link to="/signup">Get Started for Free</Link>
+                    <p className="text-xl text-emerald-100 mb-10 max-w-2xl mx-auto">Join the growing network of rental providers using Kitloop to save time and increase revenue.</p>
+                    <Button size="lg" variant="outline" className="h-14 px-10 text-lg text-emerald-900 bg-white hover:bg-emerald-50" asChild>
+                        <Link to="/signup">Start Free Trial</Link>
                     </Button>
                 </div>
             </section>
