@@ -2,23 +2,20 @@
   "locale": "en-US",
   "error": "Error",
   "hero": {
-    "announcement": "✨ Version 2.0 Now Live",
+    "announcement": "MVP • Early access",
     "headline": {
-      "part1": "The only platform built",
-      "part2": "for",
-      "part3": "Outdoor Gear",
-      "part4": "Rentals"
+      "part1": "The only platform built for",
+      "part2": "outdoor gear",
+      "part3": "rentals"
     },
-    "subheadline": "A system for managing outdoor gear rentals. Track availability, manage stock, and record pickups and returns including damage and deposits.",
-    "capability1": "Reservations with real-time availability tracking",
-    "capability2": "Inventory records for individual equipment items and their status",
-    "capability3": "Digital check-in/out with damage and deposit documentation",
-    "primaryCta": "Start Free",
-    "secondaryCta": "View Demo",
-    "microcopy1": "For rental providers",
-    "microcopy2": "Support in Czech",
-    "microcopy3": "Cancel anytime",
-    "demoBadge": "Interface preview"
+    "subheadline": "Built for rental operations—front desk included.",
+    "primaryCta": "Contact us",
+    "secondaryCta": "View preview",
+    "microcopy": "MVP access is free for outdoor rental providers. Access is granted after contact."
+  },
+  "preview": {
+    "title": "Interface preview for day-to-day operations",
+    "description": "A preview of the dashboard and workflow for reservations, check-out, and returns."
   },
   "announcement": {
     "title": "Version 2.0 – Major Update",
@@ -75,10 +72,10 @@
       "import": "Import inventory (CSV)"
     },
     "cta": {
-      "heading": "Try Kitloop",
-      "primaryCta": "Start Free",
-      "secondaryCta": "Contact Us",
-      "microcopy": "For outdoor gear rental providers"
+      "heading": "Ready to try Kitloop?",
+      "primaryCta": "Contact us",
+      "secondaryCta": "View preview",
+      "microcopy": "MVP access is free for outdoor rental providers."
     }
   },
   "footer": {
@@ -99,6 +96,7 @@
     "browse_gear": "Browse Gear",
     "about_us": "About Us",
     "faq": "FAQ",
+    "contact": "Contact",
     "sign_in": "Sign In",
     "sign_up": "Sign Up"
   },

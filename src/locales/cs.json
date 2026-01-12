@@ -2,23 +2,20 @@
   "locale": "cs-CZ",
   "error": "Chyba",
   "hero": {
-    "announcement": "✨ Verze 2.0 je online",
+    "announcement": "MVP • Časný přístup",
     "headline": {
-      "part1": "Jediná platforma vytvořená",
-      "part2": "pro",
-      "part3": "outdoor",
-      "part4": "půjčovny"
+      "part1": "Jediná platforma vytvořená pro půjčovny",
+      "part2": "outdoor",
+      "part3": "vybavení"
     },
-    "subheadline": "Systém pro správu půjčoven outdoor vybavení. Sledujte dostupnost, spravujte zásoby a zaznamenávejte výdeje a vratky včetně škod.",
-    "capability1": "Rezervace s přehledem dostupnosti v reálném čase",
-    "capability2": "Evidence inventáře a stavu jednotlivých kusů vybavení",
-    "capability3": "Digitální výdej/vratka s dokumentací poškození a kaucí",
-    "primaryCta": "Začít bezplatně",
-    "secondaryCta": "Prohlédnout demo",
-    "microcopy1": "Přístup pro půjčovny",
-    "microcopy2": "Podpora v češtině",
-    "microcopy3": "Zrušitelné kdykoliv",
-    "demoBadge": "Ukázka rozhraní"
+    "subheadline": "Vytvořeno pro provoz půjčoven—recepce v ceně.",
+    "primaryCta": "Kontaktovat nás",
+    "secondaryCta": "Zobrazit ukázku",
+    "microcopy": "MVP přístup je zdarma pro půjčovny outdoor vybavení. Přístup poskytujeme po kontaktu."
+  },
+  "preview": {
+    "title": "Ukázka rozhraní pro denní provoz",
+    "description": "Náhled dashboardu a pracovních kroků pro výdeje, vratky a rezervace."
   },
   "announcement": {
     "title": "Verze 2.0 – Velký update",
@@ -75,10 +72,10 @@
       "import": "Import inventáře (CSV)"
     },
     "cta": {
-      "heading": "Vyzkoušejte Kitloop",
-      "primaryCta": "Začít zdarma",
-      "secondaryCta": "Kontaktovat nás",
-      "microcopy": "Pro půjčovny outdoor vybavení"
+      "heading": "Chcete Kitloop vyzkoušet?",
+      "primaryCta": "Kontaktovat nás",
+      "secondaryCta": "Zobrazit ukázku",
+      "microcopy": "MVP přístup je zdarma pro půjčovny outdoor vybavení."
     }
   },
   "footer": {
@@ -99,6 +96,7 @@
     "browse_gear": "Prohlížet výbavu",
     "about_us": "O nás",
     "faq": "Časté dotazy",
+    "contact": "Kontakt",
     "sign_in": "Přihlásit se",
     "sign_up": "Registrovat se"
   },
