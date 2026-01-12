@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { CheckCircle2, BarChart3, Calendar, Users, ArrowRight, ShieldCheck, Zap, Laptop, Sparkles, X } from "lucide-react";
+import { CheckCircle2, BarChart3, Calendar, Users, ArrowRight, ShieldCheck, Zap, Laptop, Sparkles, X, Package, ClipboardCheck, AlertCircle, Shield, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -140,6 +140,207 @@ const Index = () => {
                                 {t('hero.demoBadge')}
                             </div>
                         </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Product Section */}
+            <section id="product" className="py-20 md:py-28 bg-gradient-to-b from-white to-gray-50 relative scroll-mt-20">
+                <div className="container px-4 md:px-6 mx-auto">
+                    {/* Above-the-fold */}
+                    <div className="max-w-4xl mx-auto text-center mb-16">
+                        <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
+                            {t('product.aboveFold.headline')}
+                        </h2>
+                        <p className="text-xl text-muted-foreground leading-relaxed">
+                            {t('product.aboveFold.subheadline')}
+                        </p>
+                    </div>
+
+                    {/* Workflow (3 steps) */}
+                    <div className="max-w-5xl mx-auto mb-24">
+                        <h3 className="text-2xl md:text-3xl font-bold text-center mb-12">
+                            {t('product.workflow.heading')}
+                        </h3>
+                        <div className="grid md:grid-cols-3 gap-8">
+                            {/* Step 1 */}
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-2xl">
+                                    1
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-lg font-semibold text-foreground">{t('product.workflow.step1Title')}</h4>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">{t('product.workflow.step1Desc')}</p>
+                                </div>
+                            </div>
+
+                            {/* Step 2 */}
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-2xl">
+                                    2
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-lg font-semibold text-foreground">{t('product.workflow.step2Title')}</h4>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">{t('product.workflow.step2Desc')}</p>
+                                </div>
+                            </div>
+
+                            {/* Step 3 */}
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-2xl">
+                                    3
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-lg font-semibold text-foreground">{t('product.workflow.step3Title')}</h4>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">{t('product.workflow.step3Desc')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Module Cards */}
+                    <div className="max-w-6xl mx-auto mb-20">
+                        <h3 className="text-2xl md:text-3xl font-bold text-center mb-12">
+                            {t('product.modules.heading')}
+                        </h3>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Module 1: Reservations */}
+                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                                        <Calendar className="h-5 w-5 text-emerald-700" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-foreground">{t('product.modules.module1Title')}</h4>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module1Desc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Module 2: Inventory */}
+                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                                        <Package className="h-5 w-5 text-emerald-700" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-foreground">{t('product.modules.module2Title')}</h4>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module2Desc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Module 3: Check-in/out */}
+                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                                        <ClipboardCheck className="h-5 w-5 text-emerald-700" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-foreground">{t('product.modules.module3Title')}</h4>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module3Desc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Module 4: Damage & Deposits */}
+                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                                        <AlertCircle className="h-5 w-5 text-emerald-700" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-foreground">{t('product.modules.module4Title')}</h4>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module4Desc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Module 5: Roles */}
+                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                                        <Shield className="h-5 w-5 text-emerald-700" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-foreground">{t('product.modules.module5Title')}</h4>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module5Desc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Module 6: Import */}
+                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                                        <Upload className="h-5 w-5 text-emerald-700" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-foreground">{t('product.modules.module6Title')}</h4>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module6Desc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Roles Block */}
+                    <div className="max-w-3xl mx-auto mb-20 p-8 bg-white rounded-2xl border border-gray-200">
+                        <h3 className="text-xl font-semibold mb-6 text-center">{t('product.roles.heading')}</h3>
+                        <ul className="space-y-4">
+                            <li className="flex items-start gap-3">
+                                <span className="text-emerald-600 mt-1 font-bold">•</span>
+                                <div>
+                                    <span className="font-semibold text-foreground">{t('product.roles.ownerLabel')}</span>
+                                    <span className="text-muted-foreground"> — {t('product.roles.ownerDesc')}</span>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="text-emerald-600 mt-1 font-bold">•</span>
+                                <div>
+                                    <span className="font-semibold text-foreground">{t('product.roles.staffLabel')}</span>
+                                    <span className="text-muted-foreground"> — {t('product.roles.staffDesc')}</span>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="text-emerald-600 mt-1 font-bold">•</span>
+                                <div>
+                                    <span className="font-semibold text-foreground">{t('product.roles.viewerLabel')}</span>
+                                    <span className="text-muted-foreground"> — {t('product.roles.viewerDesc')}</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Data Block */}
+                    <div className="max-w-3xl mx-auto mb-20 p-8 bg-white rounded-2xl border border-gray-200">
+                        <h3 className="text-xl font-semibold mb-6 text-center">{t('product.data.heading')}</h3>
+                        <ul className="space-y-4">
+                            <li className="flex items-start gap-3">
+                                <span className="text-emerald-600 mt-1 font-bold">•</span>
+                                <span className="text-muted-foreground">{t('product.data.import')}</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="text-emerald-600 mt-1 font-bold">•</span>
+                                <span className="text-muted-foreground">{t('product.data.encoding')}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* CTA Block */}
+                    <div className="max-w-2xl mx-auto text-center space-y-6">
+                        <h3 className="text-3xl font-bold text-foreground">{t('product.cta.heading')}</h3>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <Button variant="default" size="lg" className="h-12 px-8" asChild>
+                                <Link to="/signup">
+                                    {t('product.cta.primaryCta')} <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                            <Button variant="outline" size="lg" className="h-12 px-8" asChild>
+                                <Link to="/about">{t('product.cta.secondaryCta')}</Link>
+                            </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{t('product.cta.microcopy')}</p>
                     </div>
                 </div>
             </section>

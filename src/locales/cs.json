@@ -32,6 +32,56 @@
     "cta": "Vyzkoušet novou verzi",
     "close": "Zavřít"
   },
+  "product": {
+    "aboveFold": {
+      "headline": "Systém pro správu půjčoven outdoor vybavení",
+      "subheadline": "Kitloop pokrývá rezervace, evidenci inventáře a proces výdeje a vratky. Navrženo pro lyžařské půjčovny, bikeshopy a outdoor vybavení."
+    },
+    "workflow": {
+      "heading": "Jak to funguje",
+      "step1Title": "Rezervace",
+      "step1Desc": "Zákazník si vytvoří rezervaci na vybrané období. Systém zobrazuje dostupnost podle termínů a inventáře.",
+      "step2Title": "Výdej",
+      "step2Desc": "Zaměstnanec zaznamená výdej vybavení: přiřadí konkrétní kusy k rezervaci, vyfotí stav před výdejem, zaznamená kauci.",
+      "step3Title": "Vratka",
+      "step3Desc": "Při vrácení se zkontroluje stav vybavení. Nové závady se vyfotí a popíší. Rezervace se uzavře se záznamem stavu."
+    },
+    "modules": {
+      "heading": "Funkce systému",
+      "module1Title": "Rezervace",
+      "module1Desc": "Kalendář rezervací s možností blokace termínů, sledování stavů rezervací (potvrzené, aktivní, dokončené).",
+      "module2Title": "Inventář",
+      "module2Desc": "Evidence jednotlivých kusů vybavení, kategorie, stavy (dostupné, vypůjčené, servis, vyřazené).",
+      "module3Title": "Výdej a vratka",
+      "module3Desc": "Záznam výdeje a vratky s fotografiemi stavu vybavení před a po půjčení, poznámky k závadám.",
+      "module4Title": "Kauce a poškození",
+      "module4Desc": "Evidence kaucí u rezervací, dokumentace poškození s fotografiemi a textovým popisem.",
+      "module5Title": "Uživatelé a oprávnění",
+      "module5Desc": "Nastavení rolí pro zaměstnance: majitel (plný přístup), zaměstnanec, pouze-čtení.",
+      "module6Title": "Import dat",
+      "module6Desc": "Nahrajte seznam vybavení z CSV souboru pro rychlé založení zásob."
+    },
+    "roles": {
+      "heading": "Oprávnění pro tým",
+      "ownerLabel": "Majitel (Owner)",
+      "ownerDesc": "Plný přístup ke všem funkcím, nastavení systému",
+      "staffLabel": "Zaměstnanec (Staff)",
+      "staffDesc": "Přístup k rezervacím, výdeji a vratkám",
+      "viewerLabel": "Pouze-čtení (Viewer)",
+      "viewerDesc": "Přístup k přehledům bez možnosti změn"
+    },
+    "data": {
+      "heading": "Import dat",
+      "import": "Nahrajte seznam vybavení z CSV souboru",
+      "encoding": "Systém podporuje české znaky (UTF-8)"
+    },
+    "cta": {
+      "heading": "Vyzkoušejte Kitloop",
+      "primaryCta": "Začít zdarma",
+      "secondaryCta": "Kontaktovat nás",
+      "microcopy": "Pro půjčovny outdoor vybavení"
+    }
+  },
   "footer": {
     "about": "O nás",
     "browse": "Prohlížet výbavu",
@@ -45,6 +95,7 @@
   },
   "navbar": {
     "home": "Domů",
+    "product": "Produkt",
     "how_it_works": "Jak to funguje",
     "browse_gear": "Prohlížet výbavu",
     "about_us": "O nás",

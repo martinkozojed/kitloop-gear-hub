@@ -81,9 +81,12 @@ const Navbar = () => {
             </div>
           ) : (
             <nav className="flex justify-center items-center gap-8 text-text">
-              <Link to="/how-it-works" className="hover:underline transition-colors duration-200">
-                {t('navbar.how_it_works')}
-              </Link>
+              <button
+                onClick={() => scrollToSection('product')}
+                className="hover:underline transition-colors duration-200"
+              >
+                {t('navbar.product')}
+              </button>
               <Link to="/about" className="hover:underline transition-colors duration-200">
                 {t('navbar.about_us')}
               </Link>

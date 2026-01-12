@@ -32,6 +32,56 @@
     "cta": "Try the new version",
     "close": "Close"
   },
+  "product": {
+    "aboveFold": {
+      "headline": "A system for managing outdoor gear rentals",
+      "subheadline": "Kitloop covers reservations, inventory tracking, and check-in/check-out processes. Designed for ski rentals, bike shops, and outdoor gear providers."
+    },
+    "workflow": {
+      "heading": "How it works",
+      "step1Title": "Reservation",
+      "step1Desc": "Customer creates a reservation for selected dates. System shows availability based on schedule and inventory.",
+      "step2Title": "Check-out",
+      "step2Desc": "Staff records equipment hand-over: assigns specific items to reservation, photographs condition before rental, records deposit.",
+      "step3Title": "Return",
+      "step3Desc": "Upon return, equipment condition is checked. New damage is photographed and documented. Reservation closes with complete record."
+    },
+    "modules": {
+      "heading": "System capabilities",
+      "module1Title": "Reservations",
+      "module1Desc": "Reservation calendar with date blocking, status tracking (confirmed, active, completed).",
+      "module2Title": "Inventory",
+      "module2Desc": "Individual equipment tracking, categories, status management (available, rented, maintenance, retired).",
+      "module3Title": "Check-in/out",
+      "module3Desc": "Record equipment handover with before/after photos, damage notes.",
+      "module4Title": "Deposits & damage",
+      "module4Desc": "Deposit tracking for reservations, damage documentation with photos and text descriptions.",
+      "module5Title": "Users & permissions",
+      "module5Desc": "Role-based access: owner (full access), staff, read-only.",
+      "module6Title": "Data import",
+      "module6Desc": "Upload inventory list from CSV file for quick setup."
+    },
+    "roles": {
+      "heading": "Team permissions",
+      "ownerLabel": "Owner",
+      "ownerDesc": "Full access to all features, system settings",
+      "staffLabel": "Staff",
+      "staffDesc": "Access to reservations, check-in and check-out",
+      "viewerLabel": "Viewer",
+      "viewerDesc": "Access to reports without edit permissions"
+    },
+    "data": {
+      "heading": "Data import",
+      "import": "Upload equipment list from CSV file",
+      "encoding": "System supports Czech characters (UTF-8)"
+    },
+    "cta": {
+      "heading": "Try Kitloop",
+      "primaryCta": "Start Free",
+      "secondaryCta": "Contact Us",
+      "microcopy": "For outdoor gear rental providers"
+    }
+  },
   "footer": {
     "about": "About Us",
     "browse": "Browse Gear",
@@ -45,6 +95,7 @@
   },
   "navbar": {
     "home": "Home",
+    "product": "Product",
     "how_it_works": "How It Works",
     "browse_gear": "Browse Gear",
     "about_us": "About Us",
