@@ -5,7 +5,9 @@
     "announcement": "✨ Verze 2.0 je online",
     "headline": {
       "part1": "Jediná platforma vytvořená",
-      "part2": "pro outdoor půjčovny"
+      "part2": "pro",
+      "part3": "outdoor",
+      "part4": "půjčovny"
     },
     "subheadline": "Systém pro správu půjčoven outdoor vybavení. Sledujte dostupnost, spravujte zásoby a zaznamenávejte výdeje a vratky včetně škod.",
     "capability1": "Rezervace s přehledem dostupnosti v reálném čase",

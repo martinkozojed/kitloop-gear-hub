@@ -35,9 +35,9 @@ const Index = () => {
             />
 
             {/* Hero Section */}
-            <section className="relative pt-24 pb-20 md:pt-36 md:pb-32 overflow-hidden">
-                <div className="container px-4 md:px-6 mx-auto relative z-10">
-                    <div className="flex flex-col items-center text-center space-y-8">
+            <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden min-h-[85vh] flex items-center">
+                <div className="container px-4 md:px-6 mx-auto relative z-10 w-full">
+                    <div className="flex flex-col items-center text-center space-y-6">
 
                         {/* Announcement Badge - Clickable */}
                         <motion.button
@@ -57,20 +57,22 @@ const Index = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="space-y-6 max-w-4xl"
+                            className="space-y-5 max-w-4xl"
                         >
                             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-foreground leading-[1.1]">
                                 {t('hero.headline.part1')} <br className="hidden md:block" />
+                                {t('hero.headline.part2')}{' '}
                                 <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
-                                    {t('hero.headline.part2')}
-                                </span>
+                                    {t('hero.headline.part3')}
+                                </span>{' '}
+                                {t('hero.headline.part4')}
                             </h1>
                             <p className="text-xl text-muted-foreground md:text-2xl max-w-[48rem] mx-auto leading-relaxed">
                                 {t('hero.subheadline')}
                             </p>
 
                             {/* 3 Core Capabilities - Factual Features */}
-                            <ul className="space-y-3 text-left max-w-2xl mx-auto text-base md:text-lg">
+                            <ul className="space-y-2.5 text-left max-w-2xl mx-auto text-base md:text-lg">
                                 <li className="flex items-start gap-3">
                                     <span className="text-emerald-600 mt-1 font-bold">✓</span>
                                     <span className="text-muted-foreground">{t('hero.capability1')}</span>
@@ -91,7 +93,7 @@ const Index = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
-                            className="flex flex-col sm:flex-row gap-4 min-w-[200px] pt-4"
+                            className="flex flex-col sm:flex-row gap-4 min-w-[200px] pt-2"
                         >
                             <Button variant="default" size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:scale-105" asChild>
                                 <Link to="/signup">{t('hero.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" /></Link>
@@ -106,7 +108,7 @@ const Index = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground pt-4"
+                            className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground pt-2"
                         >
                             <span>{t('hero.microcopy1')}</span>
                             <span className="text-muted-foreground/40">·</span>

@@ -5,7 +5,9 @@
     "announcement": "✨ Version 2.0 Now Live",
     "headline": {
       "part1": "The only platform built",
-      "part2": "for Outdoor Gear Rentals"
+      "part2": "for",
+      "part3": "Outdoor Gear",
+      "part4": "Rentals"
     },
     "subheadline": "A system for managing outdoor gear rentals. Track availability, manage stock, and record pickups and returns including damage and deposits.",
     "capability1": "Reservations with real-time availability tracking",
