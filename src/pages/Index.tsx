@@ -145,21 +145,10 @@ const Index = () => {
             </section>
 
             {/* Product Section */}
-            <section id="product" className="py-20 md:py-32 bg-gradient-to-b from-white via-emerald-50/30 to-white relative scroll-mt-20 overflow-hidden">
-                {/* Topographic Pattern Background - More Visible */}
-                <div className="absolute inset-0 opacity-[0.08]" style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 50c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20zm40 0c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z' stroke='%23059669' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
-                    backgroundSize: '80px 80px'
-                }}></div>
-                
-                {/* Decorative Glow Elements - More Visible */}
-                <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-20 left-0 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-3xl"></div>
-                <div className="absolute top-1/3 right-1/3 w-96 h-96 bg-emerald-400/8 rounded-full blur-3xl"></div>
-                
-                {/* Diagonal Accent Stripes */}
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-emerald-500/10 to-transparent rotate-12 blur-2xl"></div>
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-green-500/8 to-transparent -rotate-12 blur-2xl"></div>
+            <section id="product" className="py-20 md:py-32 bg-gradient-to-b from-white via-emerald-50/20 to-white relative scroll-mt-20 overflow-hidden">
+                {/* Subtle Glow Elements Only */}
+                <div className="absolute top-40 right-10 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-40 left-10 w-[600px] h-[600px] bg-green-500/5 rounded-full blur-3xl"></div>
                 
                 <div className="container px-4 md:px-6 mx-auto relative z-10">
                     {/* Above-the-fold */}
@@ -409,25 +398,8 @@ const Index = () => {
                 </div>
             </section>
 
-            {/* Decorative Divider - Mountain Silhouette (More Visible) */}
-            <div className="relative h-32 overflow-hidden">
-                <svg className="absolute bottom-0 w-full h-32" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                    <path d="M0,60 Q300,20 600,60 T1200,60 L1200,120 L0,120 Z" fill="#10b981" opacity="0.08"/>
-                    <path d="M0,80 Q300,40 600,80 T1200,80 L1200,120 L0,120 Z" fill="#10b981" opacity="0.12"/>
-                </svg>
-            </div>
-
             {/* Features Grid (Bento Style) */}
             <section className="py-24 bg-white relative overflow-hidden">
-                {/* Subtle Grid Pattern - More Visible */}
-                <div className="absolute inset-0 opacity-[0.06]" style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23059669' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                    backgroundSize: '60px 60px'
-                }}></div>
-                
-                {/* Additional decorative elements */}
-                <div className="absolute top-20 right-10 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-20 left-10 w-72 h-72 bg-green-500/5 rounded-full blur-3xl"></div>
                 <div className="container px-4 md:px-6 mx-auto">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">Your Basecamp for <span className="text-emerald-600">Growth</span></h2>
