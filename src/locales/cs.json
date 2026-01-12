@@ -2,17 +2,21 @@
   "locale": "cs-CZ",
   "error": "Chyba",
   "hero": {
-    "headline": "Najdi. Půjč. Objev.",
-    "search_placeholder": "Jaké vybavení hledáš?",
-    "location_placeholder": "Kde? (Město nebo PSČ)",
-    "cta": "Najdi výbavu",
-    "add_rental": "Nabídnout výbavu",
-    "description": "Půjč si outdoorové vybavení od místních během chvilky.",
-    "image_alt": "Horská krajina",
-    "title": "Tvé další dobrodružství začíná zde",
-    "subtitle": "Půjč si špičkové vybavení od místních nadšenců",
-    "gearPlaceholder": "Typ vybavení",
-    "locationPlaceholder": "Lokalita"
+    "badge": "Software pro outdoor půjčovny",
+    "headline": {
+      "part1": "Rezervace, inventář",
+      "part2": "a výdeje na jednom místě"
+    },
+    "subheadline": "Systém pro správu půjčoven outdoor vybavení. Sledujte dostupnost, spravujte zásoby a zaznamenávejte výdeje a vratky včetně škod.",
+    "capability1": "Rezervace s přehledem dostupnosti v reálném čase",
+    "capability2": "Evidence inventáře a stavu jednotlivých kusů vybavení",
+    "capability3": "Digitální výdej/vratka s dokumentací poškození a kaucí",
+    "primaryCta": "Začít bezplatně",
+    "secondaryCta": "Prohlédnout demo",
+    "microcopy1": "Přístup pro půjčovny",
+    "microcopy2": "Podpora v češtině",
+    "microcopy3": "Zrušitelné kdykoliv",
+    "demoBadge": "Ukázka rozhraní"
   },
   "footer": {
     "about": "O nás",

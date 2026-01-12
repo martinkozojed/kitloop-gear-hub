@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { CheckCircle2, BarChart3, Calendar, Users, ArrowRight, ShieldCheck, Zap, Laptop } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+    const { t } = useTranslation();
+    
     return (
         <div className="bg-background min-h-screen relative selection:bg-primary/20">
             {/* Background Grid Pattern - Pulse Animation */}
@@ -34,7 +37,7 @@ const Index = () => {
                 <div className="container px-4 md:px-6 mx-auto relative z-10">
                     <div className="flex flex-col items-center text-center space-y-8">
 
-                        {/* Badge - B2B Focus */}
+                        {/* Badge - B2B Positioning */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -42,25 +45,39 @@ const Index = () => {
                             className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 text-sm font-medium text-emerald-700 backdrop-blur-sm mb-4"
                         >
                             <span className="flex h-2 w-2 rounded-full bg-emerald-600 mr-2 animate-pulse"></span>
-                            Systém pro outdoor půjčovny
+                            {t('hero.badge')}
                         </motion.div>
 
-                        {/* Hero Copy - Variant A (Problem-Aware) */}
+                        {/* Hero Copy - Truthful, Capability-Focused */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="space-y-4 max-w-4xl"
+                            className="space-y-6 max-w-4xl"
                         >
                             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-foreground leading-[1.1]">
-                                Spravujte půjčovnu bez <br className="hidden md:block" />
-                                <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">excelovského chaosu</span>
+                                {t('hero.headline.part1')} <br className="hidden md:block" />
+                                <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">{t('hero.headline.part2')}</span>
                             </h1>
                             <p className="text-xl text-muted-foreground md:text-2xl max-w-[48rem] mx-auto leading-relaxed">
-                                Rezervace, inventář a výdeje na jednom místě. 
-                                <br className="hidden md:block" />
-                                Vytvořeno pro lyžařské půjčovny, bikeshopy a outdoor vybavení. Ušetřete 10+ hodin týdně.
+                                {t('hero.subheadline')}
                             </p>
+
+                            {/* 3 Core Capabilities - Factual Features */}
+                            <ul className="space-y-3 text-left max-w-2xl mx-auto text-base md:text-lg">
+                                <li className="flex items-start gap-3">
+                                    <span className="text-emerald-600 mt-1 font-bold">✓</span>
+                                    <span className="text-muted-foreground">{t('hero.capability1')}</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-emerald-600 mt-1 font-bold">✓</span>
+                                    <span className="text-muted-foreground">{t('hero.capability2')}</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-emerald-600 mt-1 font-bold">✓</span>
+                                    <span className="text-muted-foreground">{t('hero.capability3')}</span>
+                                </li>
+                            </ul>
                         </motion.div>
 
                         {/* CTAs - Single Primary Path */}
@@ -71,32 +88,25 @@ const Index = () => {
                             className="flex flex-col sm:flex-row gap-4 min-w-[200px] pt-4"
                         >
                             <Button variant="default" size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:scale-105" asChild>
-                                <Link to="/signup">Začít zdarma <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                                <Link to="/signup">{t('hero.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" /></Link>
                             </Button>
                             <Button size="lg" variant="ghost" className="h-14 px-8 text-lg rounded-full text-foreground hover:bg-muted" asChild>
-                                <a href="#demo">Ukázka za 2 min</a>
+                                <a href="#demo">{t('hero.secondaryCta')}</a>
                             </Button>
                         </motion.div>
 
-                        {/* Microcopy - Risk Reduction */}
+                        {/* Microcopy - Safe, Verifiable Claims Only */}
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground pt-4"
+                            className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground pt-4"
                         >
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                <span>Bez platební karty</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                <span>Nastavení za 1 den</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                <span>Import z Excelu</span>
-                            </div>
+                            <span>{t('hero.microcopy1')}</span>
+                            <span className="text-muted-foreground/40">·</span>
+                            <span>{t('hero.microcopy2')}</span>
+                            <span className="text-muted-foreground/40">·</span>
+                            <span>{t('hero.microcopy3')}</span>
                         </motion.div>
 
                         {/* Product Preview - Dashboard Screenshot */}
@@ -119,7 +129,7 @@ const Index = () => {
                             
                             {/* Optional: Screenshot Badge */}
                             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white border border-emerald-100 rounded-full shadow-lg text-xs font-medium text-muted-foreground">
-                                Live demo • Žádná instalace
+                                {t('hero.demoBadge')}
                             </div>
                         </motion.div>
                     </div>
