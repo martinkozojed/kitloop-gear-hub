@@ -146,9 +146,19 @@ const Index = () => {
 
             {/* Product Section */}
             <section id="product" className="py-20 md:py-32 bg-gradient-to-b from-white via-emerald-50/30 to-white relative scroll-mt-20 overflow-hidden">
-                {/* Decorative Elements */}
+                {/* Topographic Pattern Background */}
+                <div className="absolute inset-0 opacity-[0.03]" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 50c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20zm40 0c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z' stroke='%23059669' fill='none' stroke-width='0.5'/%3E%3C/svg%3E")`,
+                    backgroundSize: '60px 60px'
+                }}></div>
+                
+                {/* Decorative Glow Elements */}
                 <div className="absolute top-20 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-0 w-96 h-96 bg-green-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-emerald-400/5 rounded-full blur-3xl"></div>
+                
+                {/* Diagonal Accent Stripe */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-emerald-500/5 to-transparent rotate-12 blur-2xl"></div>
                 
                 <div className="container px-4 md:px-6 mx-auto relative z-10">
                     {/* Above-the-fold */}
@@ -398,8 +408,21 @@ const Index = () => {
                 </div>
             </section>
 
+            {/* Decorative Divider - Mountain Silhouette */}
+            <div className="relative h-24 overflow-hidden">
+                <svg className="absolute bottom-0 w-full h-24" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path d="M0,60 Q300,20 600,60 T1200,60 L1200,120 L0,120 Z" fill="white" opacity="0.5"/>
+                    <path d="M0,80 Q300,40 600,80 T1200,80 L1200,120 L0,120 Z" fill="white"/>
+                </svg>
+            </div>
+
             {/* Features Grid (Bento Style) */}
-            <section className="py-24 bg-white relative">
+            <section className="py-24 bg-white relative overflow-hidden">
+                {/* Subtle Grid Pattern */}
+                <div className="absolute inset-0 opacity-[0.02]" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23059669' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    backgroundSize: '60px 60px'
+                }}></div>
                 <div className="container px-4 md:px-6 mx-auto">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">Your Basecamp for <span className="text-emerald-600">Growth</span></h2>
@@ -442,11 +465,23 @@ const Index = () => {
             </section>
 
             {/* CTA Section */}
-            <section className="py-20 bg-emerald-900 text-white">
-                <div className="container px-4 md:px-6 mx-auto text-center">
+            <section className="py-20 bg-emerald-900 text-white relative overflow-hidden">
+                {/* Mesh Gradient Background */}
+                <div className="absolute inset-0 opacity-30" style={{
+                    backgroundImage: `radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+                                     radial-gradient(circle at 80% 80%, rgba(5, 150, 105, 0.3) 0%, transparent 50%),
+                                     radial-gradient(circle at 40% 20%, rgba(4, 120, 87, 0.2) 0%, transparent 50%)`
+                }}></div>
+                
+                {/* Topographic Lines */}
+                <div className="absolute inset-0 opacity-10" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50c0-22 18-40 40-40s40 18 40 40-18 40-40 40-40-18-40-40zm10 0c0-17 13-30 30-30s30 13 30 30-13 30-30 30-30-13-30-30zm10 0c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z' stroke='white' fill='none' stroke-width='0.5'/%3E%3C/svg%3E")`,
+                    backgroundSize: '150px 150px'
+                }}></div>
+                <div className="container px-4 md:px-6 mx-auto text-center relative z-10">
                     <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to modernize your rental business?</h2>
                     <p className="text-xl text-emerald-100 mb-10 max-w-2xl mx-auto">Join the growing network of rental providers using Kitloop to save time and increase revenue.</p>
-                    <Button size="lg" variant="outline" className="h-14 px-10 text-lg text-emerald-900 bg-white hover:bg-emerald-50" asChild>
+                    <Button size="lg" variant="outline" className="h-14 px-10 text-lg text-emerald-900 bg-white hover:bg-emerald-50 shadow-xl hover:shadow-2xl transition-shadow" asChild>
                         <Link to="/signup">Start Free Trial</Link>
                     </Button>
                 </div>
