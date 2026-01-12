@@ -40,40 +40,39 @@
     "workflow": {
       "heading": "Jak to funguje",
       "step1Title": "Rezervace",
-      "step1Desc": "Zákazník si vytvoří rezervaci na vybrané období. Systém zobrazuje dostupnost podle termínů a inventáře.",
+      "step1Desc": "Vytvoříte rezervaci a vedete její stav (např. nové / potvrzené / dokončené).",
       "step2Title": "Výdej",
-      "step2Desc": "Zaměstnanec zaznamená výdej vybavení: přiřadí konkrétní kusy k rezervaci, vyfotí stav před výdejem, zaznamená kauci.",
+      "step2Desc": "Při výdeji zaznamenáte předání, kauci a stav vybavení včetně fotodokumentace.",
       "step3Title": "Vratka",
-      "step3Desc": "Při vrácení se zkontroluje stav vybavení. Nové závady se vyfotí a popíší. Rezervace se uzavře se záznamem stavu."
+      "step3Desc": "Při vrácení doplníte kontrolu stavu, případné poškození a rezervaci uzavřete."
     },
     "modules": {
       "heading": "Funkce systému",
       "module1Title": "Rezervace",
-      "module1Desc": "Kalendář rezervací s možností blokace termínů, sledování stavů rezervací (potvrzené, aktivní, dokončené).",
+      "module1Desc": "Evidence rezervací, termínů a stavů.",
       "module2Title": "Inventář",
-      "module2Desc": "Evidence jednotlivých kusů vybavení, kategorie, stavy (dostupné, vypůjčené, servis, vyřazené).",
+      "module2Desc": "Evidence vybavení a jeho stavů (např. dostupné / vypůjčené / servis).",
       "module3Title": "Výdej a vratka",
-      "module3Desc": "Záznam výdeje a vratky s fotografiemi stavu vybavení před a po půjčení, poznámky k závadám.",
+      "module3Desc": "Záznam výdeje a vrácení s fotodokumentací.",
       "module4Title": "Kauce a poškození",
-      "module4Desc": "Evidence kaucí u rezervací, dokumentace poškození s fotografiemi a textovým popisem.",
+      "module4Desc": "Evidence kauce a záznam poškození s fotografiemi.",
       "module5Title": "Uživatelé a oprávnění",
-      "module5Desc": "Nastavení rolí pro zaměstnance: majitel (plný přístup), zaměstnanec, pouze-čtení.",
+      "module5Desc": "Role a přístupy pro tým (owner / staff / viewer).",
       "module6Title": "Import dat",
-      "module6Desc": "Nahrajte seznam vybavení z CSV souboru pro rychlé založení zásob."
+      "module6Desc": "Import inventáře ze souboru CSV."
     },
     "roles": {
       "heading": "Oprávnění pro tým",
-      "ownerLabel": "Majitel (Owner)",
-      "ownerDesc": "Plný přístup ke všem funkcím, nastavení systému",
-      "staffLabel": "Zaměstnanec (Staff)",
-      "staffDesc": "Přístup k rezervacím, výdeji a vratkám",
-      "viewerLabel": "Pouze-čtení (Viewer)",
-      "viewerDesc": "Přístup k přehledům bez možnosti změn"
+      "ownerLabel": "Owner",
+      "ownerDesc": "Plný přístup",
+      "staffLabel": "Staff",
+      "staffDesc": "Výdej a vratky",
+      "viewerLabel": "Viewer",
+      "viewerDesc": "Pouze čtení"
     },
     "data": {
       "heading": "Import dat",
-      "import": "Nahrajte seznam vybavení z CSV souboru",
-      "encoding": "Systém podporuje české znaky (UTF-8)"
+      "import": "Import inventáře (CSV)"
     },
     "cta": {
       "heading": "Vyzkoušejte Kitloop",

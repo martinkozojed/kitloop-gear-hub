@@ -145,203 +145,292 @@ const Index = () => {
             </section>
 
             {/* Product Section */}
-            <section id="product" className="py-20 md:py-28 bg-gradient-to-b from-white to-gray-50 relative scroll-mt-20">
-                <div className="container px-4 md:px-6 mx-auto">
+            <section id="product" className="py-20 md:py-32 bg-gradient-to-b from-white via-emerald-50/30 to-white relative scroll-mt-20 overflow-hidden">
+                {/* Decorative Elements */}
+                <div className="absolute top-20 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-20 left-0 w-96 h-96 bg-green-500/5 rounded-full blur-3xl"></div>
+                
+                <div className="container px-4 md:px-6 mx-auto relative z-10">
                     {/* Above-the-fold */}
-                    <div className="max-w-4xl mx-auto text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="max-w-4xl mx-auto text-center mb-20"
+                    >
+                        <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6 tracking-tight leading-[1.1]">
                             {t('product.aboveFold.headline')}
                         </h2>
-                        <p className="text-xl text-muted-foreground leading-relaxed">
+                        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
                             {t('product.aboveFold.subheadline')}
                         </p>
-                    </div>
+                    </motion.div>
 
-                    {/* Workflow (3 steps) */}
-                    <div className="max-w-5xl mx-auto mb-24">
-                        <h3 className="text-2xl md:text-3xl font-bold text-center mb-12">
+                    {/* Workflow (3 steps) - Bento Style */}
+                    <div className="max-w-6xl mx-auto mb-28">
+                        <motion.h3 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="text-3xl md:text-4xl font-bold text-center mb-16"
+                        >
                             {t('product.workflow.heading')}
-                        </h3>
-                        <div className="grid md:grid-cols-3 gap-8">
+                        </motion.h3>
+                        <div className="grid md:grid-cols-3 gap-6">
                             {/* Step 1 */}
-                            <div className="flex flex-col items-center text-center space-y-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-2xl">
+                            <motion.div 
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.1 }}
+                                className="group relative p-8 bg-gradient-to-br from-white to-emerald-50/50 rounded-2xl border border-emerald-100/50 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-2"
+                            >
+                                <div className="absolute top-6 right-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-xl shadow-lg">
                                     1
                                 </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-lg font-semibold text-foreground">{t('product.workflow.step1Title')}</h4>
+                                <div className="space-y-4 mt-4">
+                                    <h4 className="text-xl font-bold text-foreground">{t('product.workflow.step1Title')}</h4>
                                     <p className="text-sm text-muted-foreground leading-relaxed">{t('product.workflow.step1Desc')}</p>
                                 </div>
-                            </div>
+                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 to-green-500/0 group-hover:from-emerald-500/5 group-hover:to-green-500/5 transition-all duration-300"></div>
+                            </motion.div>
 
                             {/* Step 2 */}
-                            <div className="flex flex-col items-center text-center space-y-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-2xl">
+                            <motion.div 
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.2 }}
+                                className="group relative p-8 bg-gradient-to-br from-white to-emerald-50/50 rounded-2xl border border-emerald-100/50 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-2"
+                            >
+                                <div className="absolute top-6 right-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-xl shadow-lg">
                                     2
                                 </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-lg font-semibold text-foreground">{t('product.workflow.step2Title')}</h4>
+                                <div className="space-y-4 mt-4">
+                                    <h4 className="text-xl font-bold text-foreground">{t('product.workflow.step2Title')}</h4>
                                     <p className="text-sm text-muted-foreground leading-relaxed">{t('product.workflow.step2Desc')}</p>
                                 </div>
-                            </div>
+                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 to-green-500/0 group-hover:from-emerald-500/5 group-hover:to-green-500/5 transition-all duration-300"></div>
+                            </motion.div>
 
                             {/* Step 3 */}
-                            <div className="flex flex-col items-center text-center space-y-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-2xl">
+                            <motion.div 
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.3 }}
+                                className="group relative p-8 bg-gradient-to-br from-white to-emerald-50/50 rounded-2xl border border-emerald-100/50 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-2"
+                            >
+                                <div className="absolute top-6 right-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-xl shadow-lg">
                                     3
                                 </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-lg font-semibold text-foreground">{t('product.workflow.step3Title')}</h4>
+                                <div className="space-y-4 mt-4">
+                                    <h4 className="text-xl font-bold text-foreground">{t('product.workflow.step3Title')}</h4>
                                     <p className="text-sm text-muted-foreground leading-relaxed">{t('product.workflow.step3Desc')}</p>
                                 </div>
-                            </div>
+                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 to-green-500/0 group-hover:from-emerald-500/5 group-hover:to-green-500/5 transition-all duration-300"></div>
+                            </motion.div>
                         </div>
                     </div>
 
-                    {/* Module Cards */}
-                    <div className="max-w-6xl mx-auto mb-20">
-                        <h3 className="text-2xl md:text-3xl font-bold text-center mb-12">
+                    {/* Module Cards - Enhanced */}
+                    <div className="max-w-6xl mx-auto mb-28">
+                        <motion.h3 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="text-3xl md:text-4xl font-bold text-center mb-16"
+                        >
                             {t('product.modules.heading')}
-                        </h3>
+                        </motion.h3>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {/* Module 1: Reservations */}
-                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                transition={{ duration: 0.3 }}
+                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            >
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
-                                        <Calendar className="h-5 w-5 text-emerald-700" />
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
+                                        <Calendar className="h-6 w-6 text-emerald-700 group-hover:text-white transition-colors" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="font-semibold text-foreground">{t('product.modules.module1Title')}</h4>
+                                        <h4 className="font-bold text-foreground group-hover:text-emerald-700 transition-colors">{t('product.modules.module1Title')}</h4>
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module1Desc')}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Module 2: Inventory */}
-                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.1 }}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            >
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
-                                        <Package className="h-5 w-5 text-emerald-700" />
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
+                                        <Package className="h-6 w-6 text-emerald-700 group-hover:text-white transition-colors" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="font-semibold text-foreground">{t('product.modules.module2Title')}</h4>
+                                        <h4 className="font-bold text-foreground group-hover:text-emerald-700 transition-colors">{t('product.modules.module2Title')}</h4>
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module2Desc')}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Module 3: Check-in/out */}
-                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.2 }}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            >
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
-                                        <ClipboardCheck className="h-5 w-5 text-emerald-700" />
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
+                                        <ClipboardCheck className="h-6 w-6 text-emerald-700 group-hover:text-white transition-colors" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="font-semibold text-foreground">{t('product.modules.module3Title')}</h4>
+                                        <h4 className="font-bold text-foreground group-hover:text-emerald-700 transition-colors">{t('product.modules.module3Title')}</h4>
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module3Desc')}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Module 4: Damage & Deposits */}
-                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.3 }}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            >
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
-                                        <AlertCircle className="h-5 w-5 text-emerald-700" />
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
+                                        <AlertCircle className="h-6 w-6 text-emerald-700 group-hover:text-white transition-colors" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="font-semibold text-foreground">{t('product.modules.module4Title')}</h4>
+                                        <h4 className="font-bold text-foreground group-hover:text-emerald-700 transition-colors">{t('product.modules.module4Title')}</h4>
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module4Desc')}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Module 5: Roles */}
-                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.4 }}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            >
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
-                                        <Shield className="h-5 w-5 text-emerald-700" />
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
+                                        <Shield className="h-6 w-6 text-emerald-700 group-hover:text-white transition-colors" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="font-semibold text-foreground">{t('product.modules.module5Title')}</h4>
+                                        <h4 className="font-bold text-foreground group-hover:text-emerald-700 transition-colors">{t('product.modules.module5Title')}</h4>
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module5Desc')}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Module 6: Import */}
-                            <div className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.5 }}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer"
+                            >
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
-                                        <Upload className="h-5 w-5 text-emerald-700" />
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 group-hover:from-emerald-500 group-hover:to-green-600 transition-all">
+                                        <Upload className="h-6 w-6 text-emerald-700 group-hover:text-white transition-colors" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="font-semibold text-foreground">{t('product.modules.module6Title')}</h4>
+                                        <h4 className="font-bold text-foreground group-hover:text-emerald-700 transition-colors">{t('product.modules.module6Title')}</h4>
                                         <p className="text-sm text-muted-foreground leading-relaxed">{t('product.modules.module6Desc')}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
 
-                    {/* Roles Block */}
-                    <div className="max-w-3xl mx-auto mb-20 p-8 bg-white rounded-2xl border border-gray-200">
-                        <h3 className="text-xl font-semibold mb-6 text-center">{t('product.roles.heading')}</h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-start gap-3">
-                                <span className="text-emerald-600 mt-1 font-bold">•</span>
-                                <div>
+                    {/* Compact Info Blocks - Side by Side */}
+                    <div className="max-w-5xl mx-auto mb-28 grid md:grid-cols-2 gap-6">
+                        {/* Roles Block */}
+                        <motion.div 
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="p-8 bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl border border-emerald-100/50 hover:shadow-lg transition-shadow"
+                        >
+                            <h3 className="text-lg font-bold mb-4 text-foreground">{t('product.roles.heading')}</h3>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
                                     <span className="font-semibold text-foreground">{t('product.roles.ownerLabel')}</span>
-                                    <span className="text-muted-foreground"> — {t('product.roles.ownerDesc')}</span>
+                                    <span className="text-muted-foreground">— {t('product.roles.ownerDesc')}</span>
                                 </div>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <span className="text-emerald-600 mt-1 font-bold">•</span>
-                                <div>
+                                <div className="flex items-center gap-2">
+                                    <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
                                     <span className="font-semibold text-foreground">{t('product.roles.staffLabel')}</span>
-                                    <span className="text-muted-foreground"> — {t('product.roles.staffDesc')}</span>
+                                    <span className="text-muted-foreground">— {t('product.roles.staffDesc')}</span>
                                 </div>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <span className="text-emerald-600 mt-1 font-bold">•</span>
-                                <div>
+                                <div className="flex items-center gap-2">
+                                    <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
                                     <span className="font-semibold text-foreground">{t('product.roles.viewerLabel')}</span>
-                                    <span className="text-muted-foreground"> — {t('product.roles.viewerDesc')}</span>
+                                    <span className="text-muted-foreground">— {t('product.roles.viewerDesc')}</span>
                                 </div>
-                            </li>
-                        </ul>
-                    </div>
+                            </div>
+                        </motion.div>
 
-                    {/* Data Block */}
-                    <div className="max-w-3xl mx-auto mb-20 p-8 bg-white rounded-2xl border border-gray-200">
-                        <h3 className="text-xl font-semibold mb-6 text-center">{t('product.data.heading')}</h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-start gap-3">
-                                <span className="text-emerald-600 mt-1 font-bold">•</span>
+                        {/* Data Block */}
+                        <motion.div 
+                            initial={{ opacity: 0, x: 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="p-8 bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl border border-emerald-100/50 hover:shadow-lg transition-shadow"
+                        >
+                            <h3 className="text-lg font-bold mb-4 text-foreground">{t('product.data.heading')}</h3>
+                            <div className="flex items-center gap-2 text-sm">
+                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
                                 <span className="text-muted-foreground">{t('product.data.import')}</span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <span className="text-emerald-600 mt-1 font-bold">•</span>
-                                <span className="text-muted-foreground">{t('product.data.encoding')}</span>
-                            </li>
-                        </ul>
+                            </div>
+                        </motion.div>
                     </div>
 
-                    {/* CTA Block */}
-                    <div className="max-w-2xl mx-auto text-center space-y-6">
-                        <h3 className="text-3xl font-bold text-foreground">{t('product.cta.heading')}</h3>
+                    {/* CTA Block - Enhanced */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="max-w-3xl mx-auto text-center space-y-8 p-12 bg-gradient-to-br from-emerald-50 to-white rounded-3xl border border-emerald-100"
+                    >
+                        <h3 className="text-3xl md:text-4xl font-bold text-foreground">{t('product.cta.heading')}</h3>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button variant="default" size="lg" className="h-12 px-8" asChild>
+                            <Button variant="default" size="lg" className="h-14 px-10 text-lg shadow-xl shadow-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/30 hover:scale-105 transition-all" asChild>
                                 <Link to="/signup">
-                                    {t('product.cta.primaryCta')} <ArrowRight className="ml-2 h-4 w-4" />
+                                    {t('product.cta.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                             </Button>
-                            <Button variant="outline" size="lg" className="h-12 px-8" asChild>
+                            <Button variant="outline" size="lg" className="h-14 px-10 text-lg hover:bg-white hover:border-emerald-300 transition-all" asChild>
                                 <Link to="/about">{t('product.cta.secondaryCta')}</Link>
                             </Button>
                         </div>
-                        <p className="text-sm text-muted-foreground">{t('product.cta.microcopy')}</p>
-                    </div>
+                        <p className="text-sm text-muted-foreground font-medium">{t('product.cta.microcopy')}</p>
+                    </motion.div>
                 </div>
             </section>
 
