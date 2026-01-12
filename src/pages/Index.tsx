@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { CheckCircle2, BarChart3, Calendar, Users, ArrowRight, ShieldCheck, Zap, Laptop } from "lucide-react";
-import { motion } from "framer-motion";
+import { CheckCircle2, BarChart3, Calendar, Users, ArrowRight, ShieldCheck, Zap, Laptop, Sparkles, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const Index = () => {
     const { t } = useTranslation();
+    const [announcementOpen, setAnnouncementOpen] = useState(false);
     
     return (
         <div className="bg-background min-h-screen relative selection:bg-primary/20">
@@ -37,16 +39,18 @@ const Index = () => {
                 <div className="container px-4 md:px-6 mx-auto relative z-10">
                     <div className="flex flex-col items-center text-center space-y-8">
 
-                        {/* Badge - B2B Positioning */}
-                        <motion.div
+                        {/* Announcement Badge - Clickable */}
+                        <motion.button
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 text-sm font-medium text-emerald-700 backdrop-blur-sm mb-4"
+                            onClick={() => setAnnouncementOpen(true)}
+                            className="group inline-flex items-center rounded-full border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-green-500/10 px-4 py-1.5 text-sm font-medium text-emerald-700 backdrop-blur-sm mb-4 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/20 transition-all cursor-pointer"
                         >
-                            <span className="flex h-2 w-2 rounded-full bg-emerald-600 mr-2 animate-pulse"></span>
-                            {t('hero.badge')}
-                        </motion.div>
+                            <Sparkles className="h-3.5 w-3.5 mr-2 text-emerald-600" />
+                            <span>{t('hero.announcement')}</span>
+                            <ArrowRight className="h-3 w-3 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                        </motion.button>
 
                         {/* Hero Copy - Truthful, Capability-Focused */}
                         <motion.div
@@ -57,7 +61,9 @@ const Index = () => {
                         >
                             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-foreground leading-[1.1]">
                                 {t('hero.headline.part1')} <br className="hidden md:block" />
-                                <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">{t('hero.headline.part2')}</span>
+                                <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
+                                    {t('hero.headline.part2')}
+                                </span>
                             </h1>
                             <p className="text-xl text-muted-foreground md:text-2xl max-w-[48rem] mx-auto leading-relaxed">
                                 {t('hero.subheadline')}
@@ -189,6 +195,70 @@ const Index = () => {
                     </Button>
                 </div>
             </section>
+
+            {/* Announcement Modal */}
+            <Dialog open={announcementOpen} onOpenChange={setAnnouncementOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-green-600">
+                                <Sparkles className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-2xl">{t('announcement.title')}</DialogTitle>
+                                <p className="text-sm text-muted-foreground">{t('announcement.date')}</p>
+                            </div>
+                        </div>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6 pt-4">
+                        {/* Key Highlights */}
+                        <div className="space-y-3">
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <span className="text-emerald-600">✨</span>
+                                {t('announcement.highlightsTitle')}
+                            </h3>
+                            <ul className="space-y-3 pl-6">
+                                <li className="flex items-start gap-3">
+                                    <span className="text-emerald-600 mt-0.5">•</span>
+                                    <span className="text-muted-foreground">{t('announcement.highlight1')}</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-emerald-600 mt-0.5">•</span>
+                                    <span className="text-muted-foreground">{t('announcement.highlight2')}</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-emerald-600 mt-0.5">•</span>
+                                    <span className="text-muted-foreground">{t('announcement.highlight3')}</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-emerald-600 mt-0.5">•</span>
+                                    <span className="text-muted-foreground">{t('announcement.highlight4')}</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Description */}
+                        <div className="bg-muted/50 rounded-lg p-4 border border-emerald-100">
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                {t('announcement.description')}
+                            </p>
+                        </div>
+
+                        {/* CTA */}
+                        <div className="flex gap-3 pt-2">
+                            <Button variant="default" size="lg" className="flex-1" asChild>
+                                <Link to="/signup" onClick={() => setAnnouncementOpen(false)}>
+                                    {t('announcement.cta')} <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                            <Button variant="outline" size="lg" onClick={() => setAnnouncementOpen(false)}>
+                                {t('announcement.close')}
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

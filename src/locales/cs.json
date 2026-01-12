@@ -2,10 +2,10 @@
   "locale": "cs-CZ",
   "error": "Chyba",
   "hero": {
-    "badge": "Software pro outdoor půjčovny",
+    "announcement": "✨ Verze 2.0 je online",
     "headline": {
-      "part1": "Rezervace, inventář",
-      "part2": "a výdeje na jednom místě"
+      "part1": "Jediná platforma vytvořená",
+      "part2": "pro outdoor půjčovny"
     },
     "subheadline": "Systém pro správu půjčoven outdoor vybavení. Sledujte dostupnost, spravujte zásoby a zaznamenávejte výdeje a vratky včetně škod.",
     "capability1": "Rezervace s přehledem dostupnosti v reálném čase",
@@ -17,6 +17,18 @@
     "microcopy2": "Podpora v češtině",
     "microcopy3": "Zrušitelné kdykoliv",
     "demoBadge": "Ukázka rozhraní"
+  },
+  "announcement": {
+    "title": "Verze 2.0 – Velký update",
+    "date": "Leden 2026",
+    "highlightsTitle": "Co je nového",
+    "highlight1": "Redesignovaný dashboard s rychlejším přehledem dnešní práce",
+    "highlight2": "Nový sidebar s možností skrytí pro větší pracovní plochu",
+    "highlight3": "Vylepšené animace a plynulejší UX napříč aplikací",
+    "highlight4": "Unifikované barvy a konzistentní design systém",
+    "description": "Verze 2.0 přináší kompletní redesign uživatelského rozhraní s důrazem na rychlost, přehlednost a úderné akce. Všechno pro to, abyste měli méně kliků a víc času na zákazníky.",
+    "cta": "Vyzkoušet novou verzi",
+    "close": "Zavřít"
   },
   "footer": {
     "about": "O nás",

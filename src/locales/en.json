@@ -2,10 +2,10 @@
   "locale": "en-US",
   "error": "Error",
   "hero": {
-    "badge": "Rental Management Software",
+    "announcement": "✨ Version 2.0 Now Live",
     "headline": {
-      "part1": "Reservations, inventory,",
-      "part2": "and check-ins in one place"
+      "part1": "The only platform built",
+      "part2": "for Outdoor Gear Rentals"
     },
     "subheadline": "A system for managing outdoor gear rentals. Track availability, manage stock, and record pickups and returns including damage and deposits.",
     "capability1": "Reservations with real-time availability tracking",
@@ -17,6 +17,18 @@
     "microcopy2": "Support in Czech",
     "microcopy3": "Cancel anytime",
     "demoBadge": "Interface preview"
+  },
+  "announcement": {
+    "title": "Version 2.0 – Major Update",
+    "date": "January 2026",
+    "highlightsTitle": "What's New",
+    "highlight1": "Redesigned dashboard with faster overview of today's work",
+    "highlight2": "New collapsible sidebar for more screen real estate",
+    "highlight3": "Improved animations and smoother UX across the app",
+    "highlight4": "Unified colors and consistent design system",
+    "description": "Version 2.0 brings a complete UI redesign focused on speed, clarity, and actionable insights. Everything designed to give you fewer clicks and more time with customers.",
+    "cta": "Try the new version",
+    "close": "Close"
   },
   "footer": {
     "about": "About Us",
