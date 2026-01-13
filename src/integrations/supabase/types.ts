@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -72,25 +92,58 @@ export type Database = {
           action: string
           admin_id: string
           created_at: string
-          details: Json | null
           id: string
+          ip_address: string | null
+          metadata: Json | null
+          reason: string | null
           target_id: string | null
+          target_type: string
+          user_agent: string | null
         }
         Insert: {
           action: string
           admin_id: string
           created_at?: string
-          details?: Json | null
           id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          reason?: string | null
           target_id?: string | null
+          target_type?: string
+          user_agent?: string | null
         }
         Update: {
           action?: string
           admin_id?: string
           created_at?: string
-          details?: Json | null
           id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          reason?: string | null
           target_id?: string | null
+          target_type?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      admin_rate_limits: {
+        Row: {
+          action_count: number
+          admin_id: string
+          last_action_at: string
+          window_start: string
+        }
+        Insert: {
+          action_count?: number
+          admin_id: string
+          last_action_at?: string
+          window_start?: string
+        }
+        Update: {
+          action_count?: number
+          admin_id?: string
+          last_action_at?: string
+          window_start?: string
         }
         Relationships: []
       }
@@ -200,6 +253,13 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assets_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
             referencedColumns: ["id"]
           },
           {
@@ -457,7 +517,7 @@ export type Database = {
             foreignKeyName: "gear_availability_blocks_gear_id_fkey"
             columns: ["gear_id"]
             isOneToOne: false
-            referencedRelation: "gear_items"
+            referencedRelation: "gear_items_legacy"
             referencedColumns: ["id"]
           },
         ]
@@ -496,12 +556,12 @@ export type Database = {
             foreignKeyName: "gear_images_gear_id_fkey"
             columns: ["gear_id"]
             isOneToOne: false
-            referencedRelation: "gear_items"
+            referencedRelation: "gear_items_legacy"
             referencedColumns: ["id"]
           },
         ]
       }
-      gear_items: {
+      gear_items_legacy: {
         Row: {
           active: boolean
           category: string | null
@@ -1119,6 +1179,13 @@ export type Database = {
             foreignKeyName: "reservation_lines_product_variant_id_fkey"
             columns: ["product_variant_id"]
             isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_lines_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
             referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
@@ -1282,6 +1349,13 @@ export type Database = {
             foreignKeyName: "reservations_gear_id_fkey"
             columns: ["gear_id"]
             isOneToOne: false
+            referencedRelation: "gear_items_legacy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
             referencedRelation: "gear_items"
             referencedColumns: ["id"]
           },
@@ -1297,6 +1371,64 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      return_reports: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          damage_reports: Json | null
+          id: string
+          notes: string | null
+          photo_evidence: Json | null
+          photo_paths: string[] | null
+          provider_id: string
+          reservation_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          damage_reports?: Json | null
+          id?: string
+          notes?: string | null
+          photo_evidence?: Json | null
+          photo_paths?: string[] | null
+          provider_id: string
+          reservation_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          damage_reports?: Json | null
+          id?: string
+          notes?: string | null
+          photo_evidence?: Json | null
+          photo_paths?: string[] | null
+          provider_id?: string
+          reservation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_reports_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_reports_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_provider_activity_feed"
+            referencedColumns: ["reservation_id"]
+          },
+          {
+            foreignKeyName: "return_reports_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
             referencedColumns: ["id"]
           },
         ]
@@ -1474,6 +1606,40 @@ export type Database = {
         }
         Relationships: []
       }
+      gear_items: {
+        Row: {
+          active: boolean | null
+          category: string | null
+          condition: string | null
+          created_at: string | null
+          description: string | null
+          geom: unknown
+          id: string | null
+          image_url: string | null
+          item_state: string | null
+          last_rented_at: string | null
+          last_serviced: string | null
+          location: string | null
+          name: string | null
+          notes: string | null
+          price_per_day: number | null
+          provider_id: string | null
+          quantity_available: number | null
+          quantity_total: number | null
+          rating: number | null
+          sku: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       geography_columns: {
         Row: {
           coord_dimension: number | null
@@ -1645,11 +1811,56 @@ export type Database = {
             }
             Returns: string
           }
+      admin_approve_provider: {
+        Args: { p_admin_id: string; p_reason?: string; p_target_id: string }
+        Returns: {
+          audit_log_id: string
+          message: string
+          success: boolean
+        }[]
+      }
+      admin_reject_provider: {
+        Args: { p_admin_id: string; p_reason?: string; p_target_id: string }
+        Returns: {
+          audit_log_id: string
+          message: string
+          success: boolean
+        }[]
+      }
       approve_provider: { Args: { target_user_id: string }; Returns: undefined }
+      attach_return_photos: {
+        Args: { p_photo_evidence: Json; p_report_id: string }
+        Returns: Json
+      }
+      check_admin_rate_limit: {
+        Args: { p_admin_id: string; p_limit?: number; p_window_ms?: number }
+        Returns: {
+          allowed: boolean
+          remaining: number
+        }[]
+      }
       check_is_admin: { Args: never; Returns: boolean }
+      check_is_member_safe: {
+        Args: { p_provider_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      check_is_owner_safe: {
+        Args: { p_provider_id: string; p_user_id: string }
+        Returns: boolean
+      }
       check_variant_availability: {
         Args: { p_end_date: string; p_start_date: string; p_variant_id: string }
         Returns: boolean
+      }
+      cleanup_old_rate_limits: { Args: never; Returns: number }
+      create_return_report: {
+        Args: {
+          p_damage_reports?: Json
+          p_general_notes?: string
+          p_provider_id: string
+          p_reservation_id: string
+        }
+        Returns: Json
       }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
@@ -1812,15 +2023,26 @@ export type Database = {
             Returns: boolean
           }
       is_provider_member: { Args: { pid: string }; Returns: boolean }
-      issue_reservation: {
-        Args: {
-          p_override?: boolean
-          p_provider_id: string
-          p_reservation_id: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      issue_reservation:
+        | {
+            Args: {
+              p_override?: boolean
+              p_provider_id: string
+              p_reservation_id: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_override?: boolean
+              p_override_reason?: string
+              p_provider_id: string
+              p_reservation_id: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       longtransactionsenabled: { Args: never; Returns: boolean }
       mock_send_notification: {
         Args: {
@@ -1870,14 +2092,26 @@ export type Database = {
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
       process_daily_reminders: { Args: never; Returns: undefined }
-      process_return: {
-        Args: {
-          p_has_damage?: boolean
-          p_notes?: string
-          p_reservation_id: string
-        }
-        Returns: Json
-      }
+      process_return:
+        | {
+            Args: {
+              p_has_damage?: boolean
+              p_notes?: string
+              p_reservation_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_damage_reports?: Json
+              p_general_notes?: string
+              p_photo_paths?: string[]
+              p_provider_id: string
+              p_reservation_id: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       reserve_if_available: {
         Args: {
           p_customer_id: string
@@ -2702,6 +2936,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "provider", "customer"],
@@ -2741,3 +2978,4 @@ export const Constants = {
     },
   },
 } as const
+

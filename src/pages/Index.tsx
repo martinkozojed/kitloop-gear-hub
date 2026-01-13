@@ -545,28 +545,51 @@ const Index = () => {
                     </div>
 
 
-                    {/* CTA Block - Enhanced */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 30 }}
+                    {/* CTA Block - Clean & Strong */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.02 }}
                         viewport={{ once: true }}
-                        className="max-w-3xl mx-auto text-center space-y-8 p-12 bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/60 rounded-3xl border border-emerald-200/60 shadow-[0_8px_32px_rgba(16,185,129,0.12),0_2px_8px_rgba(0,0,0,0.04)] relative overflow-hidden"
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        className="max-w-4xl mx-auto"
                     >
-                        {/* Subtle diagonal shine effect */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-100/40 to-transparent rounded-full blur-3xl"></div>
-                        <div className="relative z-10">
-                        <h3 className="text-3xl md:text-4xl font-bold text-foreground">{t('product.cta.heading')}</h3>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button variant="default" size="lg" className="h-14 px-10 text-lg shadow-xl shadow-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/30 hover:scale-105 transition-all" asChild>
-                                <Link to="/about">
-                                    {t('product.cta.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" />
-                                </Link>
-                            </Button>
-                            <Button variant="outline" size="lg" className="h-14 px-10 text-lg hover:bg-white hover:border-emerald-300 transition-all" asChild>
-                                <a href="#demo">{t('product.cta.secondaryCta')}</a>
-                            </Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground font-medium">{t('product.cta.microcopy')}</p>
+                        <div className="relative bg-white rounded-2xl p-12 md:p-16 border border-gray-200 shadow-lg transition-shadow hover:shadow-xl">
+                            {/* Subtle top accent */}
+                            <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+                            
+                            <div className="text-center space-y-6">
+                                {/* Heading */}
+                                <h3 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                                    {t('product.cta.heading')}
+                                </h3>
+                                
+                                {/* Subtext */}
+                                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                                    {t('product.cta.microcopy')}
+                                </p>
+                                
+                                {/* CTA Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                                    <Button 
+                                        size="lg" 
+                                        className="h-14 px-10 text-lg font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all" 
+                                        asChild
+                                    >
+                                        <Link to="/about">
+                                            {t('product.cta.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" />
+                                        </Link>
+                                    </Button>
+                                    <Button 
+                                        variant="outline" 
+                                        size="lg" 
+                                        className="h-14 px-10 text-lg font-semibold border-2 border-gray-300 text-gray-700 hover:border-emerald-500 hover:text-emerald-700 transition-all" 
+                                        asChild
+                                    >
+                                        <a href="#demo">{t('product.cta.secondaryCta')}</a>
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
@@ -574,107 +597,163 @@ const Index = () => {
 
 
 
-            {/* FAQ Section */}
-            <section id="faq" className="py-24 bg-gradient-to-b from-white via-emerald-50/20 to-white scroll-mt-20">
-                <div className="container px-4 md:px-6 mx-auto max-w-4xl">
+            {/* FAQ Section - Refined */}
+            <section id="faq" className="py-24 bg-gradient-to-b from-white via-emerald-50/10 to-white scroll-mt-20">
+                <div className="container px-4 md:px-6 mx-auto max-w-3xl">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-16"
+                        transition={{ duration: 0.5 }}
+                        className="text-center mb-12"
                     >
-                        <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">Často kladené otázky</h2>
-                        <p className="text-lg text-muted-foreground">Odpovědi na nejčastější dotazy o Kitloopu</p>
+                        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+                            {t('faq.heading')}
+                        </h2>
+                        <p className="text-muted-foreground">
+                            {t('faq.subheading')}
+                        </p>
                     </motion.div>
 
-                    <Accordion type="single" collapsible className="w-full space-y-4">
-                        <AccordionItem value="item-1" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Je Kitloop pro půjčovny nebo pro koncové zákazníky?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                Kitloop je navržený pro provozovatele půjčoven (rezervace, inventář, výdej, vratka).
-                            </AccordionContent>
-                        </AccordionItem>
+                    <Accordion type="single" collapsible className="w-full space-y-3">
+                        <motion.div
+                            initial={{ opacity: 0, y: 15 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.4, delay: 0.05 }}
+                        >
+                            <AccordionItem value="item-1" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <Users className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q1')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">
+                                    {t('faq.a1')}
+                                </AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
 
-                        <AccordionItem value="item-2" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Umí Kitloop evidovat inventář po kusech?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                Ano, inventář je veden jako položky vybavení se stavem (např. dostupné/vypůjčené/servis).
-                            </AccordionContent>
-                        </AccordionItem>
+                        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.1 }}>
+                            <AccordionItem value="item-2" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <Package className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q2')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">
+                                    {t('faq.a2')}
+                                </AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
 
-                        <AccordionItem value="item-3" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Jak funguje kauce?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                U rezervace lze evidovat částku kauce a její stav.
-                            </AccordionContent>
-                        </AccordionItem>
+                        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.15 }}>
+                            <AccordionItem value="item-3" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <ShieldCheck className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q3')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">{t('faq.a3')}</AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
 
-                        <AccordionItem value="item-4" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Umíte řešit poškození při vratce?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                Při vratce lze přiložit fotodokumentaci poškození a rezervaci uzavřít se záznamem.
-                            </AccordionContent>
-                        </AccordionItem>
+                        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.2 }}>
+                            <AccordionItem value="item-4" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <AlertCircle className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q4')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">{t('faq.a4')}</AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
 
-                        <AccordionItem value="item-5" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Jaké jsou role pro zaměstnance?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                Role pro tým jsou owner / staff / viewer, s rozdílnými oprávněními.
-                            </AccordionContent>
-                        </AccordionItem>
+                        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.25 }}>
+                            <AccordionItem value="item-5" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <Shield className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q5')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">{t('faq.a5')}</AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
 
-                        <AccordionItem value="item-6" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Jak dostanu data z tabulky do Kitloopu?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                Inventář lze importovat z CSV.
-                            </AccordionContent>
-                        </AccordionItem>
+                        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 }}>
+                            <AccordionItem value="item-6" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <Upload className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q6')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">{t('faq.a6')}</AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
 
-                        <AccordionItem value="item-7" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Kolik to stojí?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                Kitloop je aktuálně ve fázi MVP testování. MVP přístup je zdarma pro půjčovny outdoor vybavení.
-                            </AccordionContent>
-                        </AccordionItem>
+                        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.35 }}>
+                            <AccordionItem value="item-7" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <Zap className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q7')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">{t('faq.a7')}</AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
 
-                        <AccordionItem value="item-8" className="border rounded-lg px-6 bg-white">
-                            <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                                Jak vás kontaktovat kvůli onboardingu/pilotu?
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                Použijte kontaktní formulář na stránce{" "}
-                                <Link to="/about" className="text-emerald-600 hover:underline font-medium">
-                                    Kontakt
-                                </Link>
-                                .
-                            </AccordionContent>
-                        </AccordionItem>
+                        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.4 }}>
+                            <AccordionItem value="item-8" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                                <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
+                                            <Laptop className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        </div>
+                                        <span>{t('faq.q8')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">
+                                    {t('faq.a8_prefix')}{" "}
+                                    <Link to="/about" className="text-emerald-600 hover:underline font-medium">
+                                        {t('faq.a8_link')}
+                                    </Link>.
+                                </AccordionContent>
+                            </AccordionItem>
+                        </motion.div>
                     </Accordion>
 
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 15 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mt-12"
+                        transition={{ duration: 0.4, delay: 0.45 }}
+                        className="mt-10 text-center"
                     >
-                        <p className="text-muted-foreground mb-4">Máte další otázky?</p>
+                        <p className="text-muted-foreground mb-4">{t('faq.more_questions')}</p>
                         <Button variant="outline" size="lg" asChild>
                             <Link to="/about">
-                                Kontaktovat nás
+                                {t('faq.contact_cta')}
                             </Link>
                         </Button>
                     </motion.div>
