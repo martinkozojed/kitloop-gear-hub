@@ -94,6 +94,11 @@ const SignUp = () => {
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
         <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
           <CardHeader className="text-center space-y-1 pb-6">
+            <div className="mb-3 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <p className="text-xs text-emerald-700 font-medium">
+                MVP Access — Free for outdoor rental providers
+              </p>
+            </div>
             <CardTitle className="text-2xl font-bold tracking-tight">{t('signup.title')}</CardTitle>
             <CardDescription>
               {t('signup.description')}

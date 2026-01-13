@@ -2,17 +2,81 @@
   "locale": "cs-CZ",
   "error": "Chyba",
   "hero": {
-    "headline": "Najdi. Půjč. Objev.",
-    "search_placeholder": "Jaké vybavení hledáš?",
-    "location_placeholder": "Kde? (Město nebo PSČ)",
-    "cta": "Najdi výbavu",
-    "add_rental": "Nabídnout výbavu",
-    "description": "Půjč si outdoorové vybavení od místních během chvilky.",
-    "image_alt": "Horská krajina",
-    "title": "Tvé další dobrodružství začíná zde",
-    "subtitle": "Půjč si špičkové vybavení od místních nadšenců",
-    "gearPlaceholder": "Typ vybavení",
-    "locationPlaceholder": "Lokalita"
+    "announcement": "MVP • Časný přístup",
+    "headline": {
+      "part1": "Jediná platforma vytvořená pro půjčovny",
+      "part2": "outdoor",
+      "part3": "vybavení"
+    },
+    "subheadline": "Vytvořeno pro provoz půjčoven—recepce v ceně.",
+    "primaryCta": "Kontaktovat nás",
+    "secondaryCta": "Zobrazit ukázku",
+    "microcopy": "MVP přístup je zdarma pro půjčovny outdoor vybavení. Přístup poskytujeme po kontaktu."
+  },
+  "preview": {
+    "title": "Ukázka rozhraní pro denní provoz",
+    "description": "Náhled dashboardu a pracovních kroků pro výdeje, vratky a rezervace."
+  },
+  "announcement": {
+    "title": "Verze 2.0 – Velký update",
+    "date": "Leden 2026",
+    "highlightsTitle": "Co je nového",
+    "highlight1": "Redesignovaný dashboard s rychlejším přehledem dnešní práce",
+    "highlight2": "Nový sidebar s možností skrytí pro větší pracovní plochu",
+    "highlight3": "Vylepšené animace a plynulejší UX napříč aplikací",
+    "highlight4": "Unifikované barvy a konzistentní design systém",
+    "description": "Verze 2.0 přináší kompletní redesign uživatelského rozhraní s důrazem na rychlost, přehlednost a úderné akce. Všechno pro to, abyste měli méně kliků a víc času na zákazníky.",
+    "cta": "Vyzkoušet novou verzi",
+    "close": "Zavřít"
+  },
+  "product": {
+    "aboveFold": {
+      "headline": "Systém pro správu půjčoven outdoor vybavení",
+      "subheadline": "Kitloop pokrývá rezervace, evidenci inventáře a proces výdeje a vratky. Navrženo pro lyžařské půjčovny, bikeshopy a outdoor vybavení."
+    },
+    "workflow": {
+      "heading": "Jak to funguje",
+      "step1Title": "Rezervace",
+      "step1Desc": "Vytvoříte rezervaci a vedete její stav (např. nové / potvrzené / dokončené).",
+      "step2Title": "Výdej",
+      "step2Desc": "Při výdeji zaznamenáte předání, kauci a stav vybavení včetně fotodokumentace.",
+      "step3Title": "Vratka",
+      "step3Desc": "Při vrácení doplníte kontrolu stavu, případné poškození a rezervaci uzavřete."
+    },
+    "modules": {
+      "heading": "Funkce systému",
+      "module1Title": "Rezervace",
+      "module1Desc": "Evidence rezervací, termínů a stavů.",
+      "module2Title": "Inventář",
+      "module2Desc": "Evidence vybavení a jeho stavů (např. dostupné / vypůjčené / servis).",
+      "module3Title": "Výdej a vratka",
+      "module3Desc": "Záznam výdeje a vrácení s fotodokumentací.",
+      "module4Title": "Kauce a poškození",
+      "module4Desc": "Evidence kauce a záznam poškození s fotografiemi.",
+      "module5Title": "Uživatelé a oprávnění",
+      "module5Desc": "Role a přístupy pro tým (owner / staff / viewer).",
+      "module6Title": "Import dat",
+      "module6Desc": "Import inventáře ze souboru CSV."
+    },
+    "roles": {
+      "heading": "Oprávnění pro tým",
+      "ownerLabel": "Owner",
+      "ownerDesc": "Plný přístup",
+      "staffLabel": "Staff",
+      "staffDesc": "Výdej a vratky",
+      "viewerLabel": "Viewer",
+      "viewerDesc": "Pouze čtení"
+    },
+    "data": {
+      "heading": "Import dat",
+      "import": "Import inventáře (CSV)"
+    },
+    "cta": {
+      "heading": "Chcete Kitloop vyzkoušet?",
+      "primaryCta": "Kontaktovat nás",
+      "secondaryCta": "Zobrazit ukázku",
+      "microcopy": "MVP přístup je zdarma pro půjčovny outdoor vybavení."
+    }
   },
   "footer": {
     "about": "O nás",
@@ -27,12 +91,37 @@
   },
   "navbar": {
     "home": "Domů",
+    "product": "Produkt",
     "how_it_works": "Jak to funguje",
     "browse_gear": "Prohlížet výbavu",
     "about_us": "O nás",
     "faq": "Časté dotazy",
+    "contact": "Kontakt",
     "sign_in": "Přihlásit se",
     "sign_up": "Registrovat se"
+  },
+  "faq": {
+    "heading": "Často kladené otázky",
+    "subheading": "Odpovědi na nejčastější dotazy o Kitloopu",
+    "q1": "Je Kitloop pro půjčovny nebo pro koncové zákazníky?",
+    "a1": "Kitloop je navržený pro provozovatele půjčoven (rezervace, inventář, výdej, vratka).",
+    "q2": "Umí Kitloop evidovat inventář po kusech?",
+    "a2": "Ano, inventář je veden jako položky vybavení se stavem (např. dostupné/vypůjčené/servis).",
+    "q3": "Jak funguje kauce?",
+    "a3": "U rezervace lze evidovat částku kauce a její stav.",
+    "q4": "Umíte řešit poškození při vratce?",
+    "a4": "Při vratce lze přiložit fotodokumentaci poškození a rezervaci uzavřít se záznamem.",
+    "q5": "Jaké jsou role pro zaměstnance?",
+    "a5": "Role pro tým jsou owner / staff / viewer, s rozdílnými oprávněními.",
+    "q6": "Jak dostanu data z tabulky do Kitloopu?",
+    "a6": "Inventář lze importovat z CSV.",
+    "q7": "Kolik to stojí?",
+    "a7": "Kitloop je aktuálně ve fázi MVP testování. MVP přístup je zdarma pro půjčovny outdoor vybavení.",
+    "q8": "Jak vás kontaktovat kvůli onboardingu/pilotu?",
+    "a8_prefix": "Použijte kontaktní formulář na stránce",
+    "a8_link": "Kontakt",
+    "more_questions": "Máte další otázky?",
+    "contact_cta": "Kontaktovat nás"
   },
   "cta": {
     "title": "Jsi připraven na další dobrodružství?",

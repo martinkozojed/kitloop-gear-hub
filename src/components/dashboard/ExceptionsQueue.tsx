@@ -18,8 +18,8 @@ export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
     return (
         <Card className="h-fit">
             <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                    <span>Exceptions Queue</span>
+                <CardTitle className="text-sm font-medium uppercase tracking-wider text-foreground flex items-center justify-between">
+                    <span className="font-semibold">Requires Action</span>
                     <Badge variant="destructive" className="px-1.5 h-5">{exceptions.length}</Badge>
                 </CardTitle>
             </CardHeader>

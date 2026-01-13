@@ -11,29 +11,65 @@ interface EmptyStateProps {
     action?: {
         label: string;
         onClick: () => void;
+        variant?: "default" | "outline" | "ghost";
     };
     className?: string;
     children?: React.ReactNode;
+    variant?: "default" | "subtle";
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className, children }: EmptyStateProps) {
+/**
+ * EmptyState - Stripe-inspired empty state component
+ * Clean, minimal, with clear call-to-action
+ */
+export function EmptyState({ 
+    icon: Icon, 
+    title, 
+    description, 
+    action, 
+    className, 
+    children,
+    variant = "default"
+}: EmptyStateProps) {
     return (
-        <div className={cn("flex flex-col items-center justify-center py-12 text-center border rounded-lg bg-muted/5 border-dashed", className)}>
+        <div className={cn(
+            "flex flex-col items-center justify-center py-16 px-6 text-center",
+            variant === "default" && "border rounded-lg bg-muted/5 border-dashed",
+            variant === "subtle" && "bg-transparent",
+            className
+        )}>
             {Icon && (
-                <div className="p-3 rounded-full bg-muted/20 mb-4">
-                    <Icon className="w-8 h-8 text-muted-foreground" />
+                <div className={cn(
+                    "mb-4 rounded-full flex items-center justify-center",
+                    variant === "default" && "p-4 bg-muted/30",
+                    variant === "subtle" && "p-3 bg-muted/20"
+                )}>
+                    <Icon className={cn(
+                        "text-muted-foreground/60",
+                        variant === "default" && "w-10 h-10",
+                        variant === "subtle" && "w-8 h-8"
+                    )} />
                 </div>
             )}
-            <h3 className="text-lg font-medium tracking-tight text-foreground">
+            <h3 className={cn(
+                "font-semibold tracking-tight text-foreground",
+                variant === "default" && "text-lg",
+                variant === "subtle" && "text-base"
+            )}>
                 {title}
             </h3>
             {description && (
-                <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+                <p className="text-sm text-muted-foreground mt-2 max-w-md leading-relaxed">
                     {description}
                 </p>
             )}
             {action && (
-                <Button onClick={action.onClick} className="mt-4" variant="outline">
+                <Button 
+                    onClick={action.onClick} 
+                    className="mt-6" 
+                    variant={action.variant || "default"}
+                    size="sm"
+                >
                     {action.label}
                 </Button>
             )}

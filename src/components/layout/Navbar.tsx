@@ -81,9 +81,12 @@ const Navbar = () => {
             </div>
           ) : (
             <nav className="flex justify-center items-center gap-8 text-text">
-              <Link to="/how-it-works" className="hover:underline transition-colors duration-200">
-                {t('navbar.how_it_works')}
-              </Link>
+              <button
+                onClick={() => scrollToSection('product')}
+                className="hover:underline transition-colors duration-200"
+              >
+                {t('navbar.product')}
+              </button>
               <Link to="/about" className="hover:underline transition-colors duration-200">
                 {t('navbar.about_us')}
               </Link>
@@ -142,7 +145,7 @@ const Navbar = () => {
                 <Link to="/login">{t('navbar.sign_in')}</Link>
               </Button>
               <Button variant="primary" className="hidden md:flex" asChild>
-                <Link to="/signup">{t('navbar.sign_up')}</Link>
+                <Link to="/about">{t('navbar.contact')}</Link>
               </Button>
             </>
           )}
@@ -190,7 +193,7 @@ const Navbar = () => {
                     <Link to="/login">{t('navbar.sign_in')}</Link>
                   </Button>
                   <Button variant="primary" asChild className="w-full">
-                    <Link to="/signup">{t('navbar.sign_up')}</Link>
+                    <Link to="/about">{t('navbar.contact')}</Link>
                   </Button>
                 </div>
               )}
@@ -199,7 +202,7 @@ const Navbar = () => {
 
           {!isAuthenticated && (
             <Button variant="primary" className="md:hidden" asChild>
-              <Link to="/signup">{t('navbar.sign_up')}</Link>
+              <Link to="/about">{t('navbar.contact')}</Link>
             </Button>
           )}
 

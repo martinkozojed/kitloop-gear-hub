@@ -95,7 +95,7 @@ const Login = () => {
         <CardFooter className="flex flex-col space-y-3">
           <div className="text-center text-sm">
             {t('login.no_account')}{' '}
-            <Link to="/signup" className="text-green-600 hover:underline font-medium">
+            <Link to="/about" className="text-green-600 hover:underline font-medium">
               {t('login.create_account')}
             </Link>
           </div>
