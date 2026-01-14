@@ -29,9 +29,9 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
             </div>
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">Waiting for approval</h2>
-              <p className="text-muted-foreground">
-                Your provider account is pending review. You can explore the workspace, but all actions stay locked until an admin approves your application.
-              </p>
+            <p className="text-muted-foreground">
+              Your provider account is pending review. The workspace stays locked until an admin approves your application.
+            </p>
             </div>
             <div className="flex justify-center gap-3">
             <Button variant="outline" className="border-emerald-500 text-emerald-600 hover:text-emerald-700 hover:border-emerald-600" onClick={() => (window.location.href = "/")}>Go to homepage</Button>
