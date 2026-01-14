@@ -68,6 +68,7 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 - Build stamp (release gate): `VITE_COMMIT_SHA` and `VITE_BUILD_TIME` **must** be set for staging/prod; “unknown” values are considered a sanity-check failure. Example for GitHub Actions:  
   `VITE_COMMIT_SHA=$(git rev-parse HEAD)` and `VITE_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)` before `npm run build`.  
   Set these as environment variables in your deploy provider (e.g., Netlify/Vercel UI or GitHub Actions env/vars) for non-dev builds.
+  - Netlify example (netlify.toml): `command = "VITE_COMMIT_SHA=${COMMIT_REF:-unknown} VITE_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ) npm run build"`
 - Demo content: `VITE_ENABLE_DEMO` controls demo routes and data generators (`false` for production).
 - Mock notifications: use a single flag name `ENABLE_MOCK_NOTIFICATIONS` for services and expose it to the frontend as `VITE_ENABLE_MOCK_NOTIFICATIONS` (set to `true` only in dev/staging when you explicitly want mock notification calls).
 
