@@ -31,8 +31,8 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
               </p>
             </div>
             <div className="flex justify-center gap-3">
-              <Button variant="outline" onClick={() => (window.location.href = "/")}>Go to homepage</Button>
-              <Button variant="secondary" onClick={() => (window.location.href = "mailto:support@kitloop.cz?subject=Provider%20approval")}>
+            <Button variant="outline" className="border-emerald-500 text-emerald-600 hover:text-emerald-700 hover:border-emerald-600" onClick={() => (window.location.href = "/")}>Go to homepage</Button>
+            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => (window.location.href = "mailto:support@kitloop.cz?subject=Provider%20approval")}>
                 <Mail className="h-4 w-4 mr-1" />
                 Contact support
               </Button>
