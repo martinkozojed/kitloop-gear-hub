@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle, Mail } from 'lucide-react';
+import { Button } from '../ui/button';
 import { logger } from '@/lib/logger';
 
 interface ProviderRouteProps {
@@ -12,6 +13,29 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const { user, profile, provider, loading, isProvider, isAdmin } = useAuth();
   const location = useLocation();
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
+
+  const PendingOverlay = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm px-4">
+      <div className="bg-white/90 rounded-2xl shadow-lg p-8 max-w-lg text-center space-y-4 border border-amber-100">
+        <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
+          <AlertTriangle className="h-7 w-7" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-semibold text-foreground">Waiting for approval</h2>
+          <p className="text-muted-foreground">
+            Your provider account is pending review. You can explore the workspace, but all actions stay locked until an admin approves your application.
+          </p>
+        </div>
+        <div className="flex justify-center gap-3">
+          <Button variant="outline" onClick={() => (window.location.href = "/")}>Go to homepage</Button>
+          <Button variant="secondary" onClick={() => (window.location.href = "mailto:support@kitloop.cz?subject=Provider%20approval")}>
+            <Mail className="h-4 w-4 mr-1" />
+            Contact support
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 
   // Show loading while checking auth
   if (loading) {
@@ -50,7 +74,17 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     return <Navigate to="/provider/setup" replace />;
   }
 
-  // All checks passed - render protected route (allow pending providers for faster MVP iteration)
+  // If pending, render the page but lock interactions with overlay
+  if (!isAdmin && provider && provider.status !== 'approved') {
+    logger.debug('ProviderRoute: Provider pending approval, showing overlay');
+    return (
+      <>
+        {children}
+        <PendingOverlay />
+      </>
+    );
+  }
+
   logger.debug('ProviderRoute: Access granted');
   return <>{children}</>;
 };
