@@ -72,6 +72,24 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 - Demo content: `VITE_ENABLE_DEMO` controls demo routes and data generators (`false` for production).
 - Mock notifications: use a single flag name `ENABLE_MOCK_NOTIFICATIONS` for services and expose it to the frontend as `VITE_ENABLE_MOCK_NOTIFICATIONS` (set to `true` only in dev/staging when you explicitly want mock notification calls).
 
+### Playwright E2E smoke tests
+
+Prerequisites:
+- Install browsers once: `npx playwright install --with-deps chromium`
+- Required env vars:
+  - `E2E_BASE_URL` (staging URL; defaults to http://localhost:5173)
+  - `E2E_PROVIDER_EMAIL` / `E2E_PROVIDER_PASSWORD`
+  - `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`
+  - `E2E_PENDING_PROVIDER_EMAIL` / `E2E_PENDING_PROVIDER_PASSWORD` (for approval flow)
+  - `E2E_SEED_TOKEN` (shared secret for staging-only e2e_harness function)
+
+Run locally:
+```bash
+npm run test:e2e
+# Headed/debug
+npm run test:e2e:headed -- --project=chromium --debug
+```
+
 ## Project Structure
 
 ```

@@ -129,9 +129,8 @@ const ProviderSetup = () => {
         seasonal_mode: formData.seasonal_mode,
         onboarding_completed: true,
         onboarding_step: 4,
-        // Auto-approve for MVP
-        verified: true,
-        status: 'approved',
+        verified: false,
+        status: 'pending',
         current_season: 'all-year',
       };
 

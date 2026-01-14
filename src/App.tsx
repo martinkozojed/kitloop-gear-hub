@@ -38,6 +38,9 @@ import ProviderCustomers from "./pages/provider/ProviderCustomers";
 import ProviderAccounts from "./pages/provider/ProviderAccounts";
 import DemoDashboard from "./pages/DemoDashboard";
 import BuildStamp from "./components/layout/BuildStamp";
+import ProviderPending from "./pages/provider/ProviderPending";
+import AdminRoute from "./components/auth/AdminRoute";
+import ProviderApprovals from "./pages/admin/ProviderApprovals";
 
 import { CommandMenu } from "./components/ui/command-menu";
 import { useNavigate } from "react-router-dom";
@@ -87,12 +90,22 @@ const AppRoutes = () => {
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
-          {/* Admin approvals removed for MVP (auto-approve) */}
           <Route path="/admin/observability" element={<Observability />} />
+          <Route
+            path="/admin/providers"
+            element={
+              <AdminRoute>
+                <ProviderApprovals />
+              </AdminRoute>
+            }
+          />
+          <Route path="/admin/approvals" element={<Navigate to="/admin/providers" replace />} />
+          <Route path="/approvals" element={<Navigate to="/admin/providers" replace />} />
           <Route path="/marketplace" element={<Navigate to="/" replace />} />
 
           {/* Provider Routes */}
           <Route path="/provider/setup" element={<ProviderSetup />} />
+          <Route path="/provider/pending" element={<ProviderPending />} />
           <Route
             path="/provider/dashboard"
             element={
