@@ -16,7 +16,7 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
 
   const PendingOverlay = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px] px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-lg text-center space-y-4 border border-amber-100">
+      <div className="bg-white/85 rounded-2xl shadow-lg p-8 max-w-lg text-center space-y-4 border border-amber-100">
         <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
           <AlertTriangle className="h-7 w-7" />
         </div>
