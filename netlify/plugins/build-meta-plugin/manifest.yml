@@ -1,2 +1,4 @@
 name: build-meta-plugin
-inputs: []
+version: 0.1.0
+manifest_version: 1
+inputs: {}
