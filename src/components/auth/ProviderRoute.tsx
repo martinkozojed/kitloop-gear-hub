@@ -50,12 +50,6 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     return <Navigate to="/provider/setup" replace />;
   }
 
-  // Provider exists but not approved yet - show pending gate (admins bypass)
-  if (!isAdmin && provider && provider.status !== 'approved') {
-    logger.debug('ProviderRoute: Provider pending approval, showing gate');
-    return <Navigate to="/provider/pending" replace />;
-  }
-
   // All checks passed - render protected route (allow pending providers for faster MVP iteration)
   logger.debug('ProviderRoute: Access granted');
   return <>{children}</>;
