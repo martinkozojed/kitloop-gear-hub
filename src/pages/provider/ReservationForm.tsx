@@ -425,7 +425,10 @@ const ReservationForm = () => {
                     handleInputChange('variant_id', ''); // Reset variant
                   }}
                 >
-                  <SelectTrigger className={errors.product_id ? 'border-red-500' : ''}>
+                  <SelectTrigger
+                    className={errors.product_id ? 'border-red-500' : ''}
+                    data-testid="reservation-product-select"
+                  >
                     <SelectValue placeholder="Vyberte produkt" />
                   </SelectTrigger>
                   <SelectContent>
@@ -448,7 +451,10 @@ const ReservationForm = () => {
                     value={formData.variant_id}
                     onValueChange={v => handleInputChange('variant_id', v)}
                   >
-                    <SelectTrigger className={errors.variant_id ? 'border-red-500' : ''}>
+                    <SelectTrigger
+                      className={errors.variant_id ? 'border-red-500' : ''}
+                      data-testid="reservation-variant-select"
+                    >
                       <SelectValue placeholder="Vyberte variantu" />
                     </SelectTrigger>
                     <SelectContent>
@@ -474,6 +480,7 @@ const ReservationForm = () => {
                       type="datetime-local"
                       value={formData.start_date}
                       onChange={e => handleInputChange('start_date', e.target.value)}
+                      data-testid="reservation-start"
                       className={errors.start_date ? 'border-red-500' : ''}
                     />
                   </div>
@@ -486,6 +493,7 @@ const ReservationForm = () => {
                       type="datetime-local"
                       value={formData.end_date}
                       onChange={e => handleInputChange('end_date', e.target.value)}
+                      data-testid="reservation-end"
                       className={errors.end_date ? 'border-red-500' : ''}
                     />
                   </div>
@@ -559,7 +567,11 @@ const ReservationForm = () => {
             <Button type="button" variant="outline" onClick={() => navigate('/provider/reservations')}>
               Zrušit
             </Button>
-            <Button type="submit" disabled={submitting || (availability.result !== null && !availability.result.isAvailable)}>
+            <Button
+              type="submit"
+              data-testid="reservation-submit"
+              disabled={submitting || (availability.result !== null && !availability.result.isAvailable)}
+            >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Vytvořit rezervaci'}
             </Button>
           </div>

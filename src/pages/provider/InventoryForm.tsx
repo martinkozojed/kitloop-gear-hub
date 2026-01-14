@@ -613,6 +613,7 @@ const InventoryForm = () => {
                     <img
                       src={URL.createObjectURL(file)}
                       alt={`Preview ${index + 1}`}
+                      data-testid="inventory-image-preview"
                       className="w-full h-full object-cover rounded-lg"
                     />
                     <button
@@ -642,6 +643,7 @@ const InventoryForm = () => {
                 accept="image/*"
                 multiple
                 onChange={handleImageSelect}
+                data-testid="inventory-image-input"
                 className="hidden"
               />
             </CardContent>

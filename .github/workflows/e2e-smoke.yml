@@ -1,0 +1,61 @@
+name: e2e_smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+concurrency:
+  group: e2e-smoke-staging
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: staging
+    env:
+      E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+      E2E_SEED_TOKEN: ${{ secrets.E2E_SEED_TOKEN }}
+      E2E_PROVIDER_EMAIL: ${{ secrets.E2E_PROVIDER_EMAIL }}
+      E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
+      E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+      E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+      E2E_PENDING_PROVIDER_EMAIL: ${{ secrets.E2E_PENDING_PROVIDER_EMAIL }}
+      E2E_PENDING_PROVIDER_PASSWORD: ${{ secrets.E2E_PENDING_PROVIDER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Log env presence (no secrets)
+        run: |
+          for var in E2E_BASE_URL E2E_SEED_TOKEN E2E_PROVIDER_EMAIL E2E_PROVIDER_PASSWORD E2E_ADMIN_EMAIL E2E_ADMIN_PASSWORD E2E_PENDING_PROVIDER_EMAIL E2E_PENDING_PROVIDER_PASSWORD; do
+            if [ -n "${!var}" ]; then
+              echo "$var set: yes"
+            else
+              echo "$var set: no"
+            fi
+          done
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run e2e smoke tests
+        run: npm run test:e2e -- --project=chromium
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          if-no-files-found: ignore
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/playwright
+          if-no-files-found: ignore
