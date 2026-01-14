@@ -6,22 +6,18 @@ import { PanelLeftClose, PanelLeft } from 'lucide-react';
 
 interface ProviderLayoutProps {
   children: React.ReactNode;
-  locked?: boolean;
 }
 
-const ProviderLayout = ({ children, locked = false }: ProviderLayoutProps) => {
+const ProviderLayout = ({ children }: ProviderLayoutProps) => {
   // Sidebar collapse state (persisted in localStorage)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (locked) return false;
     const saved = localStorage.getItem('sidebar.collapsed');
     return saved === 'true';
   });
 
   useEffect(() => {
-    if (!locked) {
-      localStorage.setItem('sidebar.collapsed', sidebarCollapsed.toString());
-    }
-  }, [sidebarCollapsed, locked]);
+    localStorage.setItem('sidebar.collapsed', sidebarCollapsed.toString());
+  }, [sidebarCollapsed]);
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
 
@@ -41,23 +37,21 @@ const ProviderLayout = ({ children, locked = false }: ProviderLayoutProps) => {
           sidebarCollapsed ? 'w-0 -translate-x-full' : 'w-64'
         }`}
       >
-        <ProviderSidebar onToggleCollapse={toggleSidebar} isCollapsed={sidebarCollapsed} locked={locked} />
+        <ProviderSidebar onToggleCollapse={toggleSidebar} isCollapsed={sidebarCollapsed} />
       </aside>
 
       {/* Show/Open Sidebar Button (when collapsed) - smooth fade in */}
-      {!locked && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className={`hidden md:flex fixed left-4 top-24 z-40 shadow-sm border border-border bg-background/95 backdrop-blur-sm hover:bg-accent transition-all duration-300 ${
-            sidebarCollapsed ? 'opacity-100 translate-x-0 delay-300' : 'opacity-0 -translate-x-12 pointer-events-none'
-          }`}
-          title="Zobrazit menu"
-        >
-          <PanelLeft className="h-4 w-4" />
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebar}
+        className={`hidden md:flex fixed left-4 top-24 z-40 shadow-sm border border-border bg-background/95 backdrop-blur-sm hover:bg-accent transition-all duration-300 ${
+          sidebarCollapsed ? 'opacity-100 translate-x-0 delay-300' : 'opacity-0 -translate-x-12 pointer-events-none'
+        }`}
+        title="Zobrazit menu"
+      >
+        <PanelLeft className="h-4 w-4" />
+      </Button>
 
       {/* Main Content */}
       <main 
@@ -72,11 +66,9 @@ const ProviderLayout = ({ children, locked = false }: ProviderLayoutProps) => {
       </main>
 
       {/* Bottom Nav - Mobile (Hidden on Desktop) */}
-      {!locked && (
-        <div className="md:hidden">
-          <ProviderBottomNav />
-        </div>
-      )}
+      <div className="md:hidden">
+        <ProviderBottomNav />
+      </div>
     </div>
   );
 };

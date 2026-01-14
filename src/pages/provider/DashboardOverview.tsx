@@ -23,12 +23,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { toast } from "sonner";
 import { PageLoadingSkeleton } from "@/components/ui/loading-state";
-import { useAuth } from "@/context/AuthContext";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
   const { canViewFinancials } = usePermissions();
-  const { isAdmin, provider } = useAuth();
 
   // Use Custom Hook for Data & Mutations
   const {
