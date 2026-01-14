@@ -8,6 +8,9 @@
 [context.production]
   command = "export VITE_COMMIT_SHA=${COMMIT_SHA:-${COMMIT_REF:-unknown}} && export VITE_BUILD_TIME=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") && npm run build"
 
+[[plugins]]
+  package = "./netlify/plugins/build-meta-plugin"
+
 [[headers]]
 for = "/*"
   [headers.values]
