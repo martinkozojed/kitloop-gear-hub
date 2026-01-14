@@ -15,11 +15,12 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
 
   const PendingOverlay = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-950/28 backdrop-blur-[1.5px] px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25">
+      <div className="absolute inset-0 bg-emerald-900/25 backdrop-blur-[1.5px]" />
       <div className="relative max-w-lg w-full">
-        <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/35 via-amber-100/20 to-emerald-200/35 blur-xl opacity-55 pointer-events-none" />
-        <div className="absolute -right-12 bottom-6 h-48 w-48 rounded-full bg-emerald-200/30 blur-3xl pointer-events-none" />
-        <div className="absolute -left-10 top-8 h-40 w-40 rounded-full bg-emerald-100/30 blur-3xl pointer-events-none" />
+        <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/30 via-amber-100/18 to-emerald-200/30 blur-xl opacity-55 pointer-events-none" />
+        <div className="absolute -right-10 bottom-8 h-48 w-48 rounded-full bg-emerald-200/25 blur-3xl pointer-events-none" />
+        <div className="absolute -left-8 top-10 h-40 w-40 rounded-full bg-emerald-100/22 blur-3xl pointer-events-none" />
         <div className="relative bg-white/85 rounded-2xl p-8 text-center space-y-4 shadow-lg border border-white/70 overflow-hidden">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-amber-100/15 via-transparent to-emerald-100/18" />
           <div className="relative space-y-4">
