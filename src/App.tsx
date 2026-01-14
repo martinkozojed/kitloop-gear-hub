@@ -37,6 +37,7 @@ import ProviderCalendar from "./pages/provider/ProviderCalendar";
 import ProviderCustomers from "./pages/provider/ProviderCustomers";
 import ProviderAccounts from "./pages/provider/ProviderAccounts";
 import DemoDashboard from "./pages/DemoDashboard";
+import BuildStamp from "./components/layout/BuildStamp";
 
 import { CommandMenu } from "./components/ui/command-menu";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +51,8 @@ const AppRoutes = () => {
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
 
-  const isDemoRoute = location.pathname.startsWith("/demo");
+  const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
+  const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
 
   // Global Shortcut: 'c' -> New Reservation
   useKeyboardShortcut(
@@ -72,7 +74,10 @@ const AppRoutes = () => {
       >
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/demo/dashboard" element={<DemoDashboard />} />
+          <Route
+            path="/demo/dashboard"
+            element={demoEnabled ? <DemoDashboard /> : <Navigate to="/" replace />}
+          />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/browse" element={<BrowseGear />} />
           <Route path="/add-rental" element={<AddRental />} />
@@ -212,6 +217,7 @@ const AppRoutes = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      <BuildStamp />
       {!isProviderRoute && <Footer />}
     </>
   );

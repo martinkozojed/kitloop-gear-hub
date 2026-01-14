@@ -17,8 +17,9 @@ type EnvConfig = {
 function getEnv(): EnvConfig {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-  const databaseUrl =
-    Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
+const databaseUrl =
+  Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
+const mockNotificationsEnabled = Deno.env.get("ENABLE_MOCK_NOTIFICATIONS") === "true";
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error("Missing required Supabase environment variables");
@@ -173,10 +174,14 @@ async function handle(req: Request): Promise<Response> {
         RETURNING id, status, paid_at
       `;
 
-      // Trigger Notification (Mock)
-      await client.queryObject`
-        SELECT public.mock_send_notification(${reservation.id}::uuid, 'confirmation'::notification_type)
-      `;
+      // Trigger Notification (Mock) - gated to non-production environments
+      if (mockNotificationsEnabled) {
+        await client.queryObject`
+          SELECT public.mock_send_notification(${reservation.id}::uuid, 'confirmation'::notification_type)
+        `;
+      } else {
+        console.log("Mock notifications disabled; skipping send for", reservation.id);
+      }
 
       await client.queryObject`COMMIT`;
 

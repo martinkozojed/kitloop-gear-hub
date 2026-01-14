@@ -1,6 +1,12 @@
 import { supabase } from "@/lib/supabase";
 
+const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
+
 export async function generateDemoData(providerId: string) {
+    if (!demoEnabled) {
+        throw new Error("Demo data generation is disabled");
+    }
+
     if (!providerId) throw new Error("Provider ID is required");
 
     // 1. Create Product
@@ -36,4 +42,3 @@ export async function generateDemoData(providerId: string) {
 
     return { product: prod, variant: variant, count: assetsToCreate.length };
 }
-

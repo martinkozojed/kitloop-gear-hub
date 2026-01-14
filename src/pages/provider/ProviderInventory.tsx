@@ -31,6 +31,7 @@ const ProviderInventory = () => {
   const [showAssetForm, setShowAssetForm] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === 'true';
 
   const fetchInventory = useCallback(async () => {
     if (!provider?.id) return;
@@ -145,6 +146,11 @@ const ProviderInventory = () => {
   };
 
   const handleGenerateDemo = async () => {
+    if (!demoEnabled) {
+      toast.error('Demo mode is disabled in this environment');
+      return;
+    }
+
     if (!provider?.id) return;
     setLoading(true);
     try {
@@ -180,9 +186,11 @@ const ProviderInventory = () => {
               Scan
             </Button>
 
-            <Button variant="outline" onClick={handleGenerateDemo} className="hidden sm:flex">
-              ⚡ Demo
-            </Button>
+            {demoEnabled && (
+              <Button variant="outline" onClick={handleGenerateDemo} className="hidden sm:flex">
+                ⚡ Demo
+              </Button>
+            )}
             <Button variant="outline" onClick={() => setShowImportModal(true)} className="hidden sm:flex">
               <Upload className="w-4 h-4 mr-2" />
               Import
