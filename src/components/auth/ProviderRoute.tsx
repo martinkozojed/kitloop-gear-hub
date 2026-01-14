@@ -83,8 +83,11 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     return <Navigate to="/provider/setup" replace />;
   }
 
-  // If pending, render the page but lock interactions with overlay
+  // If pending, force landing on dashboard and lock interactions with overlay
   if (!isAdmin && provider && provider.status !== 'approved') {
+    if (!location.pathname.startsWith('/provider/dashboard')) {
+      return <Navigate to="/provider/dashboard" replace />;
+    }
     logger.debug('ProviderRoute: Provider pending approval, showing overlay');
     return (
       <>
