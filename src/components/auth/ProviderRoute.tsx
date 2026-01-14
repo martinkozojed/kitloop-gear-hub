@@ -15,11 +15,11 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
 
   const PendingOverlay = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-900/25 backdrop-blur-[1.5px] px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[1.5px] px-4">
       <div className="relative max-w-lg w-full">
-        <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/40 via-emerald-100/20 to-emerald-200/45 blur-xl opacity-60 pointer-events-none" />
-        <div className="relative bg-white/85 rounded-2xl p-8 text-center space-y-4 shadow-lg border border-white/60 overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-amber-100/15 via-transparent to-emerald-100/20" />
+        <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/35 via-amber-100/20 to-emerald-200/35 blur-xl opacity-55 pointer-events-none" />
+        <div className="relative bg-white/85 rounded-2xl p-8 text-center space-y-4 shadow-lg border border-white/70 overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-amber-100/15 via-transparent to-emerald-100/18" />
           <div className="relative space-y-4">
             <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
               <AlertTriangle className="h-7 w-7" />
