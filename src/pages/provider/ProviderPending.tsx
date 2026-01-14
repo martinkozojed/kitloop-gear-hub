@@ -9,7 +9,7 @@ const ProviderPending = () => {
   return (
     <ProviderLayout>
       <div className="relative max-w-5xl mx-auto py-16 px-6 text-center">
-        <div className="absolute inset-4 rounded-3xl bg-white/60 backdrop-blur-sm pointer-events-none" />
+        <div className="absolute inset-0 rounded-3xl bg-white/50 backdrop-blur-sm pointer-events-none shadow-lg" />
         <div className="relative max-w-3xl mx-auto space-y-6">
           <div className="flex justify-center">
             <div className="h-16 w-16 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
