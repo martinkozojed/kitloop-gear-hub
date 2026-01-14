@@ -141,7 +141,7 @@ const DashboardOverview = () => {
                 <SyncIndicator />
               </div>
               <h1 className="text-3xl lg:text-4xl font-heading font-bold tracking-tight text-foreground flex items-center gap-2">
-                {greeting} {!isAdmin && provider?.status !== 'approved' ? '' : isAdmin ? 'Admin' : provider?.rental_name || ''}
+                {greeting}
               </h1>
               <p className="text-muted-foreground flex items-center gap-2 text-sm">
                 <CalendarIcon className="w-4 h-4 text-primary" />
@@ -354,4 +354,3 @@ const DashboardOverview = () => {
 };
 
 export default DashboardOverview;
-  const { isAdmin, provider } = useAuth();
