@@ -16,22 +16,24 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
 
   const PendingOverlay = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px] px-4">
-      <div className="bg-white/85 rounded-2xl shadow-lg p-8 max-w-lg text-center space-y-4 border border-amber-100">
-        <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
-          <AlertTriangle className="h-7 w-7" />
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-foreground">Waiting for approval</h2>
-          <p className="text-muted-foreground">
-            Your provider account is pending review. You can explore the workspace, but all actions stay locked until an admin approves your application.
-          </p>
-        </div>
-        <div className="flex justify-center gap-3">
-          <Button variant="outline" onClick={() => (window.location.href = "/")}>Go to homepage</Button>
-          <Button variant="secondary" onClick={() => (window.location.href = "mailto:support@kitloop.cz?subject=Provider%20approval")}>
-            <Mail className="h-4 w-4 mr-1" />
-            Contact support
-          </Button>
+      <div className="rounded-2xl p-[2px] bg-gradient-to-b from-amber-200/80 via-amber-100/60 to-emerald-200/80 shadow-lg max-w-lg w-full">
+        <div className="bg-white/85 rounded-[14px] p-8 text-center space-y-4">
+          <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
+            <AlertTriangle className="h-7 w-7" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-foreground">Waiting for approval</h2>
+            <p className="text-muted-foreground">
+              Your provider account is pending review. You can explore the workspace, but all actions stay locked until an admin approves your application.
+            </p>
+          </div>
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" onClick={() => (window.location.href = "/")}>Go to homepage</Button>
+            <Button variant="secondary" onClick={() => (window.location.href = "mailto:support@kitloop.cz?subject=Provider%20approval")}>
+              <Mail className="h-4 w-4 mr-1" />
+              Contact support
+            </Button>
+          </div>
         </div>
       </div>
     </div>
