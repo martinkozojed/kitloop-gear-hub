@@ -145,7 +145,7 @@ const Navbar = () => {
                 <Link to="/login">{t('navbar.sign_in')}</Link>
               </Button>
               <Button variant="primary" className="hidden md:flex" asChild>
-                <Link to="/about">{t('navbar.contact')}</Link>
+                <Link to="/signup">{t('navbar.sign_up') || 'Sign up'}</Link>
               </Button>
             </>
           )}
@@ -193,7 +193,7 @@ const Navbar = () => {
                     <Link to="/login">{t('navbar.sign_in')}</Link>
                   </Button>
                   <Button variant="primary" asChild className="w-full">
-                    <Link to="/about">{t('navbar.contact')}</Link>
+                    <Link to="/signup">{t('navbar.sign_up') || 'Sign up'}</Link>
                   </Button>
                 </div>
               )}
