@@ -9,7 +9,9 @@ if (!shouldEnforce) {
 
 // Auto-fill from Netlify/Git metadata if missing
 if (!process.env.VITE_COMMIT_SHA || process.env.VITE_COMMIT_SHA.trim() === "") {
-  const fromNetlify = process.env.COMMIT_REF;
+  const fromNetlify =
+    process.env.COMMIT_SHA ||
+    process.env.COMMIT_REF;
   if (fromNetlify && fromNetlify.trim() !== "") {
     process.env.VITE_COMMIT_SHA = fromNetlify.trim();
   }
