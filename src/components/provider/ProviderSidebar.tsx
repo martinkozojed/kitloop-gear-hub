@@ -26,9 +26,10 @@ import { DENSITY } from '@/components/ui/density';
 interface ProviderSidebarProps {
   onToggleCollapse?: () => void;
   isCollapsed?: boolean;
+  locked?: boolean;
 }
 
-const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps) => {
+const ProviderSidebar = ({ onToggleCollapse, isCollapsed, locked = false }: ProviderSidebarProps) => {
   const location = useLocation();
   const { t } = useTranslation();
   const { isAdmin } = useAuth();
@@ -96,12 +97,20 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
         </div>
 
         <button
-          onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-background border border-input text-sm text-muted-foreground hover:border-primary/50 transition-colors group shadow-sm"
+          onClick={() => {
+            if (locked) return;
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+          }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-md border text-sm transition-colors group shadow-sm ${
+            locked
+              ? 'bg-muted text-muted-foreground/70 cursor-not-allowed'
+              : 'bg-background border-input text-muted-foreground hover:border-primary/50'
+          }`}
+          disabled={locked}
         >
           <span className="flex items-center gap-2">
-            <Search className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-            <span>Search...</span>
+            <Search className={`w-4 h-4 ${locked ? 'opacity-40' : 'opacity-50 group-hover:opacity-100'}`} />
+            <span>{t('navbar.search') || 'Search...'}</span>
           </span>
           <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
             <span className="text-xs">⌘</span>K
@@ -120,18 +129,27 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
 
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
+              const content = (
+                <div
                   style={{ height: d.rowHeight, paddingLeft: d.paddingX, paddingRight: d.paddingX }}
-                  className={`group flex items-center gap-3 rounded-md text-sm font-medium transition-all ${isActive
-                    ? 'bg-primary/10 text-primary-900 shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
+                  className={`group flex items-center gap-3 rounded-md text-sm font-medium transition-all ${
+                    isActive
+                      ? 'bg-primary/10 text-primary-900 shadow-sm'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  } ${locked ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
                 >
                   <Icon style={{ width: d.iconSize, height: d.iconSize }} className={isActive ? 'text-primary' : 'opacity-70 group-hover:opacity-100'} />
                   {t(item.label)}
+                </div>
+              );
+
+              if (locked) {
+                return <div key={item.path}>{content}</div>;
+              }
+
+              return (
+                <Link key={item.path} to={item.path}>
+                  {content}
                 </Link>
               );
             })}
@@ -142,19 +160,21 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       <div className="px-4 pb-6 pt-2 border-t border-border mt-auto">
         <div className="mb-4 px-2">
           <p className="text-xs text-muted-foreground truncate">
-            Logged in as <span className="font-medium text-foreground">Provider Admin</span>
+            Logged in as <span className="font-medium text-foreground">Provider</span>
           </p>
         </div>
-        <Button
-          className="w-full gap-2 shadow-md hover:shadow-lg transition-all"
-          style={{ height: d.buttonHeight }}
-          asChild
-        >
-          <Link to="/provider/reservations/new">
-            <Plus className="w-4 h-4" />
-            <span>{t('provider.sidebar.newReservation')}</span>
-          </Link>
-        </Button>
+        {!locked && (
+          <Button
+            className="w-full gap-2 shadow-md hover:shadow-lg transition-all"
+            style={{ height: d.buttonHeight }}
+            asChild
+          >
+            <Link to="/provider/reservations/new">
+              <Plus className="w-4 h-4" />
+              <span>{t('provider.sidebar.newReservation')}</span>
+            </Link>
+          </Button>
+        )}
       </div>
 
     </div>

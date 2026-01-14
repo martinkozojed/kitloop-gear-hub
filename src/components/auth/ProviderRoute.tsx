@@ -53,7 +53,10 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   // If pending, redirect to standalone pending page before rendering provider content
   if (!isAdmin && provider && provider.status !== 'approved') {
     logger.debug('ProviderRoute: Provider pending approval, redirecting to pending page');
-    return <Navigate to="/provider/pending" replace />;
+    if (location.pathname !== '/provider/pending') {
+      return <Navigate to="/provider/pending" replace />;
+    }
+    return <>{children}</>;
   }
 
   logger.debug('ProviderRoute: Access granted');
