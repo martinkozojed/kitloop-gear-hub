@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import ProviderLayout from "@/components/provider/ProviderLayout";
 
 interface PendingProvider {
   id: string;
@@ -62,75 +63,77 @@ const ProviderApprovals = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Pending Providers</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-12 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              Loading pending providers...
-            </div>
-          ) : pending.length === 0 ? (
-            <p className="text-muted-foreground">No providers waiting for approval.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pending.map((provider) => (
-                  <TableRow key={provider.id}>
-                    <TableCell className="font-semibold">{provider.rental_name}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span>{provider.contact_name || "—"}</span>
-                        <span className="text-sm text-muted-foreground">{provider.email || "—"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{provider.location || "—"}</TableCell>
-                    <TableCell>{new Date(provider.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-amber-700 border-amber-200 bg-amber-50">
-                        {provider.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={actionId === provider.id}
-                        onClick={() => handleAction(provider.id, "reject_provider")}
-                      >
-                        <XCircle className="h-4 w-4 mr-1" />
-                        Reject
-                      </Button>
-                      <Button
-                        size="sm"
-                        disabled={actionId === provider.id}
-                        onClick={() => handleAction(provider.id, "approve_provider")}
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-1" />
-                        Approve
-                      </Button>
-                    </TableCell>
+    <ProviderLayout>
+      <div className="container mx-auto py-8 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Pending Providers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex items-center justify-center py-12 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                Loading pending providers...
+              </div>
+            ) : pending.length === 0 ? (
+              <p className="text-muted-foreground">No providers waiting for approval.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                </TableHeader>
+                <TableBody>
+                  {pending.map((provider) => (
+                    <TableRow key={provider.id}>
+                      <TableCell className="font-semibold">{provider.rental_name}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span>{provider.contact_name || "—"}</span>
+                          <span className="text-sm text-muted-foreground">{provider.email || "—"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{provider.location || "—"}</TableCell>
+                      <TableCell>{new Date(provider.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-amber-700 border-amber-200 bg-amber-50">
+                          {provider.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={actionId === provider.id}
+                          onClick={() => handleAction(provider.id, "reject_provider")}
+                        >
+                          <XCircle2 className="h-4 w-4 mr-1" />
+                          Reject
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled={actionId === provider.id}
+                          onClick={() => handleAction(provider.id, "approve_provider")}
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Approve
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </ProviderLayout>
   );
 };
 
