@@ -29,6 +29,7 @@ export default function ReservationDetail() {
 
     const [issueOpen, setIssueOpen] = useState(false);
     const [returnOpen, setReturnOpen] = useState(false);
+    const mockNotificationsEnabled = import.meta.env.VITE_ENABLE_MOCK_NOTIFICATIONS === 'true';
 
     const fetchData = React.useCallback(async () => {
         setLoading(true);
@@ -88,6 +89,11 @@ export default function ReservationDetail() {
     }, [id, provider?.id, fetchData]);
 
     const handleResendConfirmation = async () => {
+        if (!mockNotificationsEnabled) {
+            toast.info('Notifications are not enabled in this environment');
+            return;
+        }
+
         try {
             const { error } = await supabase.rpc('mock_send_notification', {
                 p_reservation_id: id,
@@ -302,10 +308,16 @@ export default function ReservationDetail() {
                                     className="w-full"
                                     variant="secondary"
                                     onClick={handleResendConfirmation}
+                                    disabled={!mockNotificationsEnabled}
                                 >
                                     <Mail className="w-4 h-4 mr-2" />
                                     {t('reservationDetail.actions.resend')}
                                 </Button>
+                                {!mockNotificationsEnabled && (
+                                    <p className="text-xs text-muted-foreground text-center">
+                                        Notifications are disabled in this environment.
+                                    </p>
+                                )}
                             </CardContent>
                         </Card>
                     </div>

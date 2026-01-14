@@ -11,6 +11,7 @@ interface ProviderRouteProps {
 const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const { user, profile, provider, loading, isProvider, isAdmin } = useAuth();
   const location = useLocation();
+  const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
 
   // Show loading while checking auth
   if (loading) {
@@ -28,6 +29,9 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   if (!user) {
     logger.debug('ProviderRoute: No user found, redirecting to login');
     if (location.pathname.startsWith('/demo')) {
+      if (!demoEnabled) {
+        return <Navigate to="/" replace />;
+      }
       return <Navigate to="/demo/dashboard" replace />;
     }
     return <Navigate to="/login" replace />;

@@ -145,18 +145,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!userId) return null;
 
     try {
-      // Fetch profile with timeout
-      const profilePromise = supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*, is_admin, is_verified')
         .eq('user_id', userId)
         .single();
-
-      const { data: profileData, error: profileError } = await withTimeout(
-        profilePromise,
-        10000, // 10 seconds
-        'Profile fetch timeout after 10s'
-      );
 
       if (profileError) {
         logger.error('Profile fetch error', profileError);
