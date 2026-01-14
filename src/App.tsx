@@ -99,6 +99,8 @@ const AppRoutes = () => {
               </AdminRoute>
             }
           />
+          <Route path="/admin/approvals" element={<Navigate to="/admin/providers" replace />} />
+          <Route path="/approvals" element={<Navigate to="/admin/providers" replace />} />
           <Route path="/marketplace" element={<Navigate to="/" replace />} />
 
           {/* Provider Routes */}
