@@ -15,7 +15,7 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
 
   const PendingOverlay = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/18">
       <div className="absolute inset-0 bg-emerald-900/25 backdrop-blur-[1.5px]" />
       <div className="relative max-w-lg w-full">
         <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/30 via-amber-100/18 to-emerald-200/30 blur-xl opacity-55 pointer-events-none" />
