@@ -15,9 +15,10 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
 
   const PendingOverlay = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px] px-4">
-      <div className="rounded-2xl p-[2px] bg-gradient-to-b from-amber-200/80 via-amber-100/60 to-emerald-200/80 shadow-lg max-w-lg w-full">
-        <div className="bg-white/85 rounded-[14px] p-8 text-center space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px] px-4">
+      <div className="relative max-w-lg w-full">
+        <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/70 via-amber-100/40 to-emerald-200/70 blur-xl opacity-80 pointer-events-none" />
+        <div className="relative bg-white/85 rounded-2xl p-8 text-center space-y-4 shadow-lg border border-white/60">
           <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
             <AlertTriangle className="h-7 w-7" />
           </div>
