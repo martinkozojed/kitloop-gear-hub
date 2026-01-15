@@ -18,6 +18,7 @@ jobs:
     env:
       E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
       E2E_SEED_TOKEN: ${{ secrets.E2E_SEED_TOKEN }}
+      E2E_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
       E2E_PROVIDER_EMAIL: ${{ secrets.E2E_PROVIDER_EMAIL }}
       E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
       E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
@@ -32,9 +33,12 @@ jobs:
           cache: "npm"
       - name: Log env presence (no secrets)
         run: |
-          for var in E2E_BASE_URL E2E_SEED_TOKEN E2E_PROVIDER_EMAIL E2E_PROVIDER_PASSWORD E2E_ADMIN_EMAIL E2E_ADMIN_PASSWORD E2E_PENDING_PROVIDER_EMAIL E2E_PENDING_PROVIDER_PASSWORD; do
+          for var in E2E_BASE_URL E2E_SUPABASE_URL E2E_SEED_TOKEN E2E_PROVIDER_EMAIL E2E_PROVIDER_PASSWORD E2E_ADMIN_EMAIL E2E_ADMIN_PASSWORD E2E_PENDING_PROVIDER_EMAIL E2E_PENDING_PROVIDER_PASSWORD; do
             if [ -n "${!var}" ]; then
               echo "$var set: yes"
+              if [ "$var" = "E2E_SUPABASE_URL" ]; then
+                 echo "DEBUG: E2E_SUPABASE_URL starts with: ${!var:0:5}..."
+              fi
             else
               echo "$var set: no"
             fi
