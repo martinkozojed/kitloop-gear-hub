@@ -9,12 +9,15 @@ export const callHarness = async (action: string, runId: string, extra?: Record<
   }
 
   const token = seedToken.trim();
+  // Use absolute URL to guarantee we hit Supabase, not frontend (Netlify)
+  const url = new URL('/functions/v1/e2e_harness', supabaseUrl).toString();
+
   const context = await request.newContext({
-    baseURL: supabaseUrl,
+    // baseURL intentionally omitted to force absolute URL usage below
     extraHTTPHeaders: { 'x-e2e-token': token, 'Content-Type': 'application/json' },
   });
 
-  const res = await context.post('/functions/v1/e2e_harness', {
+  const res = await context.post(url, {
     data: { action, run_id: runId, ...extra },
   });
 
