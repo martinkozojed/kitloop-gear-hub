@@ -19,21 +19,17 @@ test.describe('Admin approvals', () => {
     await loginAs(page, adminEmail, adminPassword);
     await page.goto('/admin/providers');
 
-    const row = page.getByRole('row').filter({ hasText: rowText });
+    const row = page.getByTestId(`pending-provider-row-${seed.provider_id}`);
     await expect(row).toBeVisible({ timeout: 15000 });
 
-    await row.getByRole('button', { name: /Approve/i }).click();
+    await page.getByTestId(`approve-provider-${seed.provider_id}`).click();
 
     try {
-      await expect(
-        page.getByRole('row').filter({ hasText: rowText })
-      ).toBeVisible({ timeout: 15000 });
+      await expect(row).toBeVisible({ timeout: 15000 });
 
-      await row.getByRole('button', { name: /Approve/i }).click();
+      await page.getByTestId(`approve-provider-${seed.provider_id}`).click();
 
-      await expect(
-        page.getByRole('row').filter({ hasText: rowText })
-      ).not.toBeVisible({ timeout: 15000 });
+      await expect(row).not.toBeVisible({ timeout: 15000 });
 
       // Provider can now access dashboard
       const providerContext = await page.context().browser()?.newContext();
@@ -49,14 +45,12 @@ test.describe('Admin approvals', () => {
         provider_status: 'pending',
       });
       await page.reload();
-      const pendingRow = page.getByRole('row').filter({ hasText: rowText });
+      const pendingRow = page.getByTestId(`pending-provider-row-${seed.provider_id}`);
       await expect(pendingRow).toBeVisible({ timeout: 15000 });
 
-      await pendingRow.getByRole('button', { name: /Reject/i }).click();
+      await page.getByTestId(`reject-provider-${seed.provider_id}`).click();
 
-      await expect(
-        page.getByRole('row').filter({ hasText: rowText })
-      ).not.toBeVisible({ timeout: 15000 });
+      await expect(pendingRow).not.toBeVisible({ timeout: 15000 });
 
       // After rejection, provider stays blocked
       const rejectContext = await page.context().browser()?.newContext();

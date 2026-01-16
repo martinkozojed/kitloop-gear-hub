@@ -17,6 +17,8 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
+import { requestUploadTicket, uploadWithTicket, UploadTicketError } from "@/lib/upload/client";
+import { rulesForUseCase } from "@/lib/upload/validation";
 
 interface ReturnFlowProps {
     open: boolean;
@@ -153,26 +155,46 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
             // 3. Upload Photos (Phase 2a)
             const evidence = [];
             let uploadErrors = 0;
+            const damageRule = rulesForUseCase("damage_photo");
 
             for (const asset of assets) {
                 if (asset.isDamaged && asset.photoFile && reportId) {
-                    const fileExt = asset.photoFile.name.split('.').pop();
-                    // Secure Path: {provider_id}/{reservation_id}/{report_id}/{filename}
-                    const fileName = `${provider.id}/${reservation.id}/${reportId}/${asset.id}_${Date.now()}.${fileExt}`;
-
-                    const { error: uploadError, data } = await supabase.storage
-                        .from('damage-photos')
-                        .upload(fileName, asset.photoFile);
-
-                    if (uploadError) {
-                        console.error("Upload failed", uploadError);
+                    if (damageRule && asset.photoFile.size > damageRule.maxBytes) {
                         uploadErrors++;
-                    } else if (data?.path) {
+                        toast.error("Soubor je příliš velký", {
+                            description: `Maximální velikost je ${Math.round(damageRule.maxBytes / (1024 * 1024))} MB.`,
+                        });
+                        continue;
+                    }
+
+                    try {
+                        const ticket = await requestUploadTicket({
+                            useCase: "damage_photo",
+                            fileName: asset.photoFile.name,
+                            mimeType: asset.photoFile.type || "application/octet-stream",
+                            sizeBytes: asset.photoFile.size,
+                            providerId: provider.id,
+                            reservationId: reservation.id,
+                        });
+
+                        await uploadWithTicket(ticket, asset.photoFile);
+
                         evidence.push({
                             asset_id: asset.id,
-                            path: data.path,
+                            path: ticket.path,
                             note: asset.note
                         });
+                    } catch (uploadError) {
+                        console.error("Upload failed", uploadError);
+                        uploadErrors++;
+
+                        if (uploadError instanceof UploadTicketError) {
+                            toast.error("Nahrání fotky selhalo", {
+                                description: uploadError.reasonCode === "mime_not_allowed"
+                                    ? "Formát souboru není povolen."
+                                    : uploadError.message,
+                            });
+                        }
                     }
                 }
             }

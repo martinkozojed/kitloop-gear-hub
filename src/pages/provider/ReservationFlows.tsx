@@ -9,6 +9,8 @@ import { Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { mapRpcError } from "@/lib/rpcErrors";
+import { requestUploadTicket, uploadWithTicket, UploadTicketError } from "@/lib/upload/client";
+import { rulesForUseCase } from "@/lib/upload/validation";
 
 interface IssueModalProps {
     open: boolean;
@@ -148,14 +150,27 @@ export const ReturnModal: React.FC<ReturnModalProps> = ({ open, onClose, reserva
             const photoPaths: string[] = [];
             if (files.length > 0) {
                 setUploading(true);
+                const damageRule = rulesForUseCase("damage_photo");
                 for (const file of files) {
-                    const ext = file.name.split('.').pop();
-                    const path = `${providerId}/${reservationId}/return_${Date.now()}_${Math.random().toString(36).substr(2, 5)}.${ext}`;
-                    const { error: upError } = await supabase.storage.from('damage-photos').upload(path, file);
-                    if (upError) throw upError;
-                    photoPaths.push(path);
+                    if (damageRule && file.size > damageRule.maxBytes) {
+                        toast.error(`Soubor ${file.name} je příliš velký`, {
+                            description: `Maximální velikost je ${Math.round(damageRule.maxBytes / (1024 * 1024))} MB.`
+                        });
+                        continue;
+                    }
+
+                    const ticket = await requestUploadTicket({
+                        useCase: "damage_photo",
+                        fileName: file.name,
+                        mimeType: file.type || "application/octet-stream",
+                        sizeBytes: file.size,
+                        providerId,
+                        reservationId,
+                    });
+
+                    await uploadWithTicket(ticket, file);
+                    photoPaths.push(ticket.path);
                 }
-                setUploading(false);
             }
 
             // 2. Build Damage Report
@@ -182,8 +197,14 @@ export const ReturnModal: React.FC<ReturnModalProps> = ({ open, onClose, reserva
             onClose();
 
         } catch (error: unknown) {
-            const mapped = mapRpcError(error);
-            toast.error(mapped.message);
+            if (error instanceof UploadTicketError) {
+                toast.error('Nahrání fotodokumentace selhalo', {
+                    description: error.message
+                });
+            } else {
+                const mapped = mapRpcError(error);
+                toast.error(mapped.message);
+            }
             console.error(error);
         } finally {
             setLoading(false);

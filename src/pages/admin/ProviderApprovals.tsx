@@ -89,7 +89,7 @@ const ProviderApprovals = () => {
               </TableHeader>
               <TableBody>
                 {pending.map((provider) => (
-                  <TableRow key={provider.id}>
+                  <TableRow key={provider.id} data-testid={`pending-provider-row-${provider.id}`}>
                     <TableCell className="font-semibold">{provider.rental_name}</TableCell>
                     <TableCell>
                       <div className="flex flex-col">
@@ -110,6 +110,7 @@ const ProviderApprovals = () => {
                         variant="secondary"
                         disabled={actionId === provider.id}
                         onClick={() => handleAction(provider.id, "reject_provider")}
+                        data-testid={`reject-provider-${provider.id}`}
                       >
                         <XCircle className="h-4 w-4 mr-1" />
                         Reject
@@ -118,6 +119,7 @@ const ProviderApprovals = () => {
                         size="sm"
                         disabled={actionId === provider.id}
                         onClick={() => handleAction(provider.id, "approve_provider")}
+                        data-testid={`approve-provider-${provider.id}`}
                       >
                         <CheckCircle2 className="h-4 w-4 mr-1" />
                         Approve

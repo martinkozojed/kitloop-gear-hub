@@ -4,6 +4,7 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0?target=denonext&pin=v135";
+import { rulesForUseCase, type UploadUseCase } from "../../../shared/upload/validation.ts";
 
 const REQUIRE_HARNESS = Deno.env.get("REQUIRE_E2E_HARNESS") === "true";
 const ALLOWED_ENV = Deno.env.get("HARNESS_ENV");
@@ -59,6 +60,10 @@ serve(async (req) => {
         return await handleAuditFetch(supabase, body?.provider_id as string | undefined);
       case "seed_staging_pack":
         return await handleSeedStagingPack(supabase, body, { runId: prefix });
+      case "get_upload_rules":
+        return handleGetUploadRules();
+      case "latest_reservation_for_provider":
+        return await handleLatestReservation(supabase, body?.provider_id as string | undefined, body?.customer_name as string | undefined);
       default:
         return jsonResponse(400, { error: "Invalid action" });
     }
@@ -219,6 +224,39 @@ const handleAuditFetch = async (
   if (error) return jsonResponse(500, { error: "Audit fetch failed" });
 
   return jsonResponse(200, { audit: data ?? null });
+};
+
+const handleGetUploadRules = () => {
+  const useCases: UploadUseCase[] = ["gear_image", "damage_photo", "provider_logo"];
+  const rules: Record<string, ReturnType<typeof rulesForUseCase>> = {};
+  for (const useCase of useCases) {
+    rules[useCase] = rulesForUseCase(useCase);
+  }
+  return jsonResponse(200, { rules });
+};
+
+const handleLatestReservation = async (
+  supabase: ReturnType<typeof createClient>,
+  providerId?: string,
+  customerName?: string,
+) => {
+  if (!providerId) return jsonResponse(400, { error: "provider_id required" });
+
+  let query = supabase
+    .from("reservations")
+    .select("id, status, customer_name, provider_id, created_at")
+    .eq("provider_id", providerId)
+    .order("created_at", { ascending: false });
+
+  if (customerName) {
+    query = query.eq("customer_name", customerName);
+  }
+
+  const { data, error } = await query.limit(1).maybeSingle();
+
+  if (error) return jsonResponse(500, { error: "Reservation fetch failed" });
+
+  return jsonResponse(200, { reservation: data ?? null });
 };
 
 // ---------------------------------------------------------------------------

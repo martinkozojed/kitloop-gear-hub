@@ -1,6 +1,12 @@
 import { request } from '@playwright/test';
 import { getHarnessConfig } from './env';
 
+type UploadRulesResponse = {
+  rules: Record<string, { maxBytes: number; allowedMime: string[]; bucket: string; allowedPrefix: string } | null>;
+};
+
+let cachedUploadRules: UploadRulesResponse | null = null;
+
 export const callHarness = async (action: string, runId: string, extra?: Record<string, unknown>) => {
   const { baseUrl, seedToken } = getHarnessConfig();
   const supabaseUrl = (process.env.E2E_SUPABASE_URL ?? '').trim();
@@ -27,4 +33,11 @@ export const callHarness = async (action: string, runId: string, extra?: Record<
   }
 
   return res.json();
+};
+
+export const getUploadRules = async (): Promise<UploadRulesResponse> => {
+  if (cachedUploadRules) return cachedUploadRules;
+  const res = await callHarness('get_upload_rules', `rules_${Date.now()}`);
+  cachedUploadRules = res as UploadRulesResponse;
+  return cachedUploadRules;
 };

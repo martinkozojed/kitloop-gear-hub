@@ -37,6 +37,7 @@ import ProviderCalendar from "./pages/provider/ProviderCalendar";
 import ProviderCustomers from "./pages/provider/ProviderCustomers";
 import ProviderAccounts from "./pages/provider/ProviderAccounts";
 import DemoDashboard from "./pages/DemoDashboard";
+import AuditLog from "./pages/admin/AuditLog";
 import BuildStamp from "./components/layout/BuildStamp";
 import ProviderPending from "./pages/provider/ProviderPending";
 import AdminRoute from "./components/auth/AdminRoute";
@@ -96,6 +97,14 @@ const AppRoutes = () => {
             element={
               <AdminRoute>
                 <ProviderApprovals />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/audit"
+            element={
+              <AdminRoute>
+                <AuditLog />
               </AdminRoute>
             }
           />

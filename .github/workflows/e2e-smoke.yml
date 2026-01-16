@@ -2,6 +2,7 @@ name: e2e_smoke
 
 on:
   workflow_dispatch:
+  pull_request:
   schedule:
     - cron: "0 3 * * *"
 
@@ -43,6 +44,7 @@ jobs:
               echo "$var set: no"
             fi
           done
+          echo "E2E env check complete (values hidden)"
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright browsers

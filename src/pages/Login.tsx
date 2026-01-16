@@ -64,6 +64,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                data-testid="login-email"
               />
             </div>
             <div className="space-y-2">
@@ -80,6 +81,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)} 
                 required
+                data-testid="login-password"
               />
             </div>
             <Button
@@ -87,6 +89,7 @@ const Login = () => {
               variant="primary"
               className="w-full"
               disabled={isLoggingIn}
+              data-testid="login-submit"
             >
               {isLoggingIn ? t('login.signing_in') : t('login.sign_in')}
             </Button>

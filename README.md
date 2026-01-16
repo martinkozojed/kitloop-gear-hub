@@ -78,6 +78,7 @@ Prerequisites:
 - Install browsers once: `npx playwright install --with-deps chromium`
 - Required env vars:
   - `E2E_BASE_URL` (staging URL; defaults to http://localhost:5173)
+  - `E2E_SUPABASE_URL` (Supabase project URL for calling edge functions)
   - `E2E_PROVIDER_EMAIL` / `E2E_PROVIDER_PASSWORD`
   - `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`
   - `E2E_PENDING_PROVIDER_EMAIL` / `E2E_PENDING_PROVIDER_PASSWORD` (for approval flow)
@@ -89,6 +90,12 @@ npm run test:e2e
 # Headed/debug
 npm run test:e2e:headed -- --project=chromium --debug
 ```
+
+### Admin Audit Log UI (PR3)
+- Route: `/admin/audit` (admin-only).
+- Data source: `admin_audit_logs` (RLS ensures only admins can read).
+- Filters: time presets (24h/7d/all), action, actor (admin_id), provider/target id; pagination via “Load more”.
+- Click a row to expand and see metadata JSON.
 
 ## Project Structure
 
