@@ -849,6 +849,104 @@
         "importFailed": "Import failed",
         "analyzeError": "Failed to analyze CSV"
       }
+    },
+    "settings": {
+      "badge": "Provider settings",
+      "title": "Settings",
+      "subtitle": "Keep your profile, legal info, and billing-ready details in one place.",
+      "status": {
+        "secured": "Data saved securely"
+      },
+      "pills": {
+        "identity": "Company identity",
+        "location": "Location",
+        "regional": "Regional"
+      },
+      "tabs": {
+        "profile": "Profile",
+        "team": "Team",
+        "notifications": "Notifications",
+        "billing": "Billing"
+      },
+      "sections": {
+        "identity": {
+          "title": "Company profile",
+          "desc": "Update legal details shown on contracts and invoices."
+        },
+        "profileCard": {
+          "title": "Branding",
+          "desc": "Logo upload coming soon",
+          "placeholder": "Kitloop Partner",
+          "hint": "Displayed on contracts and customer emails",
+          "notice": "Need logo upload? Contact support."
+        },
+        "contact": {
+          "title": "Contact & web",
+          "desc": "What customers see on receipts and emails."
+        },
+        "preferences": {
+          "title": "Business preferences",
+          "desc": "Currency and timezone for pricing and reporting."
+        },
+        "legal": {
+          "title": "Custom terms",
+          "desc": "Add extra rental terms to show on contracts."
+        }
+      },
+      "fields": {
+        "rentalName": "Company name",
+        "companyId": "Company ID",
+        "taxId": "Tax ID",
+        "address": "Address",
+        "city": "City",
+        "country": "Country",
+        "phone": "Phone",
+        "email": "Email",
+        "website": "Website",
+        "currency": "Currency",
+        "timezone": "Time zone",
+        "terms": "Additional terms"
+      },
+      "placeholders": {
+        "rentalName": "Your rental name",
+        "address": "Street, number",
+        "city": "City",
+        "country": "Select country",
+        "phone": "+420 123 456 789",
+        "currency": "Select currency",
+        "timezone": "Select time zone",
+        "terms": "Add extra contract clauses here"
+      },
+      "options": {
+        "country": {
+          "cz": "Czech Republic",
+          "sk": "Slovakia",
+          "at": "Austria",
+          "pl": "Poland"
+        }
+      },
+      "hints": {
+        "email": "Email cannot be changed here",
+        "terms": "Will be appended to the rental agreement. Plain text only."
+      },
+      "actions": {
+        "uploadSoon": "Upload logo (soon)",
+        "cancel": "Cancel",
+        "save": "Save changes",
+        "saving": "Saving…"
+      },
+      "cta": {
+        "title": "Ready to save your changes?",
+        "desc": "Applies immediately across reservations, invoices, and contracts."
+      },
+      "toasts": {
+        "notFound": "Provider not found",
+        "missingFields": "Please fill in required fields",
+        "saved": "Settings saved successfully",
+        "error": "Failed to save settings"
+      },
+      "soon": "This feature will be available soon.",
+      "soonDetail": "We are preparing team management, notifications and billing here."
     }
   },
   "analytics": {

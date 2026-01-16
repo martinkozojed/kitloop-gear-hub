@@ -976,6 +976,104 @@
         "importFailed": "Import se nezdařil",
         "analyzeError": "Analýza CSV selhala"
       }
+    },
+    "settings": {
+      "badge": "Nastavení poskytovatele",
+      "title": "Nastavení",
+      "subtitle": "Udržujte profil, právní informace a fakturační údaje na jednom místě.",
+      "status": {
+        "secured": "Data bezpečně uložena"
+      },
+      "pills": {
+        "identity": "Identita firmy",
+        "location": "Umístění",
+        "regional": "Regionální"
+      },
+      "tabs": {
+        "profile": "Profil",
+        "team": "Tým",
+        "notifications": "Notifikace",
+        "billing": "Fakturace"
+      },
+      "sections": {
+        "identity": {
+          "title": "Firemní profil",
+          "desc": "Aktualizujte údaje zobrazované na smlouvách a fakturách."
+        },
+        "profileCard": {
+          "title": "Branding",
+          "desc": "Nahrání loga již brzy",
+          "placeholder": "Kitloop Partner",
+          "hint": "Zobrazuje se na smlouvách a e-mailech",
+          "notice": "Chcete nahrát logo? Napište podpoře."
+        },
+        "contact": {
+          "title": "Kontakt & web",
+          "desc": "Co uvidí zákazník na potvrzeních a e-mailech."
+        },
+        "preferences": {
+          "title": "Obchodní předvolby",
+          "desc": "Měna a časová zóna pro ceny a reporty."
+        },
+        "legal": {
+          "title": "Vlastní podmínky",
+          "desc": "Přidejte doplňkové podmínky na smlouvy."
+        }
+      },
+      "fields": {
+        "rentalName": "Název firmy",
+        "companyId": "IČO",
+        "taxId": "DIČ",
+        "address": "Adresa",
+        "city": "Město",
+        "country": "Země",
+        "phone": "Telefon",
+        "email": "E-mail",
+        "website": "Web",
+        "currency": "Měna",
+        "timezone": "Časové pásmo",
+        "terms": "Doplňující podmínky"
+      },
+      "placeholders": {
+        "rentalName": "Název půjčovny",
+        "address": "Ulice, číslo",
+        "city": "Město",
+        "country": "Vyberte zemi",
+        "phone": "+420 123 456 789",
+        "currency": "Vyberte měnu",
+        "timezone": "Vyberte časovou zónu",
+        "terms": "Zde přidejte vlastní ustanovení smlouvy"
+      },
+      "options": {
+        "country": {
+          "cz": "Česká republika",
+          "sk": "Slovensko",
+          "at": "Rakousko",
+          "pl": "Polsko"
+        }
+      },
+      "hints": {
+        "email": "E-mail nelze měnit zde",
+        "terms": "Text se připojí k nájemní smlouvě. Pouze čistý text."
+      },
+      "actions": {
+        "uploadSoon": "Nahrát logo (brzy)",
+        "cancel": "Zrušit",
+        "save": "Uložit změny",
+        "saving": "Ukládám…"
+      },
+      "cta": {
+        "title": "Uložit provedené změny?",
+        "desc": "Okamžitě se projeví v rezervacích, fakturách a smlouvách."
+      },
+      "toasts": {
+        "notFound": "Poskytovatel nebyl nalezen",
+        "missingFields": "Vyplňte prosím povinná pole",
+        "saved": "Nastavení bylo uloženo",
+        "error": "Uložení nastavení se nezdařilo"
+      },
+      "soon": "Tato funkce bude k dispozici brzy.",
+      "soonDetail": "Zde připravujeme správu týmu, notifikací a fakturace."
     }
   },
   "dashboard": {
