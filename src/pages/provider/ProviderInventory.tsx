@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import ProviderLayout from '@/components/provider/ProviderLayout';
@@ -39,6 +38,30 @@ const ProviderInventory = () => {
 
     try {
       const { data: assets, error } = await supabase
+        .from('assets')
+        .select(`
+          id,
+          asset_tag,
+          status,
+          condition_score,
+          location,
+          created_at,
+          product_variants (
+            name,
+            sku,
+            products (
+              name,
+              category,
+              image_url
+            )
+          )
+        `)
+        .eq('provider_id', provider.id)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
       interface AssetResponse {
         id: string;
         asset_tag: string;
@@ -65,12 +88,12 @@ const ProviderInventory = () => {
           condition_score: asset.condition_score,
           location: asset.location,
           variant: {
-            name: asset.product_variants?.name || 'Unknown',
+            name: asset.product_variants?.name || t('provider.inventory.fallbacks.unknown'),
             sku: asset.product_variants?.sku || null
           },
           product: {
-            name: asset.product_variants?.products?.name || 'Unknown',
-            category: asset.product_variants?.products?.category || 'Uncategorized',
+            name: asset.product_variants?.products?.name || t('provider.inventory.fallbacks.unknown'),
+            category: asset.product_variants?.products?.category || t('provider.inventory.fallbacks.uncategorized'),
             image_url: asset.product_variants?.products?.image_url || null
           }
         };
@@ -80,11 +103,11 @@ const ProviderInventory = () => {
     } catch (err: unknown) {
       console.error('Error fetching inventory:', err);
       const message = err instanceof Error ? err.message : 'Unknown error';
-      toast.error('Failed to load inventory', { description: message });
+      toast.error(t('provider.inventory.toasts.fetchError'), { description: message });
     } finally {
       setLoading(false);
     }
-  }, [provider?.id]);
+  }, [provider?.id, t]);
 
   useEffect(() => {
     fetchInventory();
@@ -102,11 +125,11 @@ const ProviderInventory = () => {
         .in('id', ids);
 
       if (error) throw error;
-      toast.success(`Archived ${ids.length} items (Soft Delete)`);
+      toast.success(t('provider.inventory.toasts.archiveSuccess', { count: ids.length }));
       fetchInventory();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      toast.error('Deletion failed', { description: message });
+      toast.error(t('provider.inventory.toasts.archiveError'), { description: message });
     }
   };
 
@@ -117,11 +140,11 @@ const ProviderInventory = () => {
         .update({ status: status as InventoryAsset['status'] })
         .in('id', ids);
       if (error) throw error;
-      toast.success(`Updated status for ${ids.length} items`);
+      toast.success(t('provider.inventory.toasts.statusSuccess', { count: ids.length }));
       fetchInventory();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      toast.error('Update failed', { description: message });
+      toast.error(t('provider.inventory.toasts.statusError'), { description: message });
     }
   };
 
@@ -135,19 +158,19 @@ const ProviderInventory = () => {
         .single();
 
       if (asset) {
-        toast.success(`Found: ${code}`);
+        toast.success(t('provider.inventory.toasts.scanFound', { code }));
         setSelectedAssetId(asset.id);
       } else {
-        toast.error(`Asset not found: ${code}`);
+        toast.error(t('provider.inventory.toasts.scanNotFound', { code }));
       }
     } catch (err) {
-      toast.error('Error searching asset', { description: code });
+      toast.error(t('provider.inventory.toasts.scanError'), { description: code });
     }
   };
 
   const handleGenerateDemo = async () => {
     if (!demoEnabled) {
-      toast.error('Demo mode is disabled in this environment');
+      toast.error(t('provider.inventory.toasts.demoDisabled'));
       return;
     }
 
@@ -155,11 +178,11 @@ const ProviderInventory = () => {
     setLoading(true);
     try {
       await generateDemoData(provider.id);
-      toast.success('Generated 5 demo assets!');
+      toast.success(t('provider.inventory.toasts.demoSuccess'));
       fetchInventory();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      toast.error('Demo generation failed', { description: message });
+      toast.error(t('provider.inventory.toasts.demoError'), { description: message });
     } finally {
       setLoading(false);
     }
@@ -175,33 +198,33 @@ const ProviderInventory = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold">{t('provider.inventory.title')}</h1>
+            <h1 className="text-2xl font-heading font-bold">{t('provider.inventory.title')}</h1>
             <p className="text-muted-foreground">
-              Manage your physical assets, track status, and organize warehouse.
+              {t('provider.inventory.subtitle')}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setShowScanner(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Button onClick={() => setShowScanner(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
               <QrCode className="w-4 h-4 mr-2" />
-              Scan
+              {t('provider.inventory.actions.scan')}
             </Button>
 
             {demoEnabled && (
               <Button variant="outline" onClick={handleGenerateDemo} className="hidden sm:flex">
-                ⚡ Demo
+                ⚡ {t('provider.inventory.actions.demo')}
               </Button>
             )}
             <Button variant="outline" onClick={() => setShowImportModal(true)} className="hidden sm:flex">
               <Upload className="w-4 h-4 mr-2" />
-              Import
+              {t('provider.inventory.actions.import')}
             </Button>
             <Button variant="secondary" onClick={() => setShowProductForm(true)} className="hidden sm:flex">
               <Package className="w-4 h-4 mr-2" />
-              Product
+              {t('provider.inventory.actions.product')}
             </Button>
-            <Button onClick={() => setShowAssetForm(true)}>
+            <Button onClick={() => setShowAssetForm(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
               <Plus className="w-4 h-4 mr-2" />
-              Add Asset
+              {t('provider.inventory.actions.addAsset')}
             </Button>
           </div>
         </div>
@@ -234,7 +257,7 @@ const ProviderInventory = () => {
           }}
           productId={selectedProductId}
           onSuccess={() => {
-            toast.success(selectedProductId ? "Product updated!" : "Ready to add assets!");
+            toast.success(selectedProductId ? t('provider.inventory.productForm.updateSuccess') : t('provider.inventory.productForm.readyForAssets'));
             fetchInventory();
           }}
         />

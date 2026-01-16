@@ -707,6 +707,118 @@
         "searching": "Searching...",
         "empty": "Not found."
       }
+    },
+    "inventory": {
+      "title": "Inventory",
+      "subtitle": "Manage your physical assets, track status, and organize warehouse.",
+      "fallbacks": {
+        "unknown": "Unknown",
+        "uncategorized": "Uncategorized"
+      },
+      "actions": {
+        "scan": "Scan",
+        "demo": "Demo",
+        "import": "Import",
+        "product": "Product",
+        "addAsset": "Add asset"
+      },
+      "toasts": {
+        "fetchError": "Failed to load inventory",
+        "archiveSuccess": "Archived {{count}} items (soft delete)",
+        "archiveError": "Deletion failed",
+        "statusSuccess": "Updated status for {{count}} items",
+        "statusError": "Update failed",
+        "scanFound": "Found: {{code}}",
+        "scanNotFound": "Asset not found: {{code}}",
+        "scanError": "Error searching asset",
+        "demoDisabled": "Demo mode is disabled in this environment",
+        "demoSuccess": "Generated 5 demo assets!",
+        "demoError": "Demo generation failed",
+        "unknown": "Unknown error"
+      },
+      "productForm": {
+        "readyForAssets": "Ready to add assets!",
+        "updateSuccess": "Product updated",
+        "createSuccess": "Product created successfully",
+        "missingFields": "Missing required fields",
+        "saveError": "Failed to save product",
+        "titleCreate": "Create new product",
+        "titleEdit": "Edit product",
+        "name": "Product name",
+        "category": "Category",
+        "price": "Base price per day",
+        "description": "Description",
+        "imageUrl": "Image URL",
+        "variants": "Variants",
+        "variantName": "Variant name",
+        "variantSku": "SKU",
+        "addVariant": "Add variant",
+        "remove": "Remove",
+        "update": "Update product",
+        "create": "Create product",
+        "variantHelper": "Add variants for different sizes (e.g. S, M, L or 160, 170). If it's one-size, keep Standard."
+      },
+      "assetForm": {
+        "title": "Add inventory assets",
+        "selectProduct": "Select product",
+        "selectVariant": "Select size / variant",
+        "chooseProduct": "Choose a product...",
+        "quantity": "Quantity",
+        "startingNumber": "Starting number",
+        "tagPrefix": "Tag prefix",
+        "location": "Location",
+        "preview": "Preview",
+        "back": "Back",
+        "next": "Next",
+        "create": "Create {{count}} assets",
+        "success": "Successfully added {{count}} assets!",
+        "error": "Failed to create assets"
+      },
+      "grid": {
+        "searchPlaceholder": "Search assets...",
+        "status": "Status",
+        "category": "Category",
+        "reset": "Reset",
+        "selected": "{{count}} selected",
+        "maintenance": "Maintenance",
+        "delete": "Delete",
+        "view": "View",
+        "markAs": {
+          "available": "Mark as available",
+          "maintenance": "Mark as maintenance",
+          "retired": "Mark as retired"
+        },
+        "columns": {
+          "tag": "Tag",
+          "product": "Product",
+          "category": "Category",
+          "status": "Status",
+          "location": "Location",
+          "health": "Health"
+        },
+        "statuses": {
+          "available": "Available",
+          "active": "Active",
+          "maintenance": "Maintenance",
+          "lost": "Lost",
+          "retired": "Retired",
+          "reserved": "Reserved",
+          "quarantine": "Quarantine"
+        },
+        "empty": "No assets found.",
+        "loading": "Loading inventory...",
+        "showing": "Showing {{visible}} of {{total}} items",
+        "page": "Page {{page}} of {{pages}}",
+        "previous": "Previous",
+        "next": "Next",
+        "actions": {
+          "label": "Actions",
+          "openMenu": "Open menu",
+          "copyTag": "Copy asset tag",
+          "edit": "Edit details",
+          "logMaintenance": "Log maintenance"
+        }
+      }
     }
   },
   "analytics": {

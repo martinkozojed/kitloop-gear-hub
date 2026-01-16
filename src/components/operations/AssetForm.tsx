@@ -10,6 +10,7 @@ import { Loader2, Box, ArrowRight, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface AssetFormProps {
     open: boolean;
@@ -27,6 +28,7 @@ type ProductOption = {
 
 export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
     const { provider } = useAuth();
+    const { t } = useTranslation();
     const [step, setStep] = useState<1 | 2>(1);
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState<ProductOption[]>([]);
@@ -95,7 +97,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
             const { error } = await supabase.from('assets').insert(assetsToCreate as any);
             if (error) throw error;
 
-            toast.success(`Successfully added ${quantity} assets!`);
+            toast.success(t('provider.inventory.assetForm.success', { count: quantity }));
             onSuccess();
             onOpenChange(false);
             // Reset
@@ -104,7 +106,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
 
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Unknown error';
-            toast.error('Failed to create assets', { description: message });
+            toast.error(t('provider.inventory.assetForm.error'), { description: message });
         } finally {
             setLoading(false);
         }
@@ -116,17 +118,17 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-xl">
                 <DialogHeader>
-                    <DialogTitle>Add Inventory Assets</DialogTitle>
+                    <DialogTitle>{t('provider.inventory.assetForm.title')}</DialogTitle>
                 </DialogHeader>
 
                 <div className="py-4 space-y-6">
                     {step === 1 && (
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Select Product</Label>
+                                <Label>{t('provider.inventory.assetForm.selectProduct')}</Label>
                                 <Select value={selectedProductId} onValueChange={(val) => { setSelectedProductId(val); setSelectedVariantId(''); }}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Choose a product..." />
+                                        <SelectValue placeholder={t('provider.inventory.assetForm.chooseProduct')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {products.map(p => (
@@ -138,7 +140,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
 
                             {selectedProduct && (
                                 <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                                    <Label>Select Size / Variant</Label>
+                                    <Label>{t('provider.inventory.assetForm.selectVariant')}</Label>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                         {selectedProduct.variants.map(v => (
                                             <div
@@ -169,22 +171,22 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Quantity</Label>
+                                    <Label>{t('provider.inventory.assetForm.quantity')}</Label>
                                     <Input type="number" min={1} value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 1)} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Starting Number</Label>
+                                    <Label>{t('provider.inventory.assetForm.startingNumber')}</Label>
                                     <Input type="number" value={startNumber} onChange={e => setStartNumber(parseInt(e.target.value) || 1)} />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <Label>Tag Prefix</Label>
+                                    <Label>{t('provider.inventory.assetForm.tagPrefix')}</Label>
                                     <Input value={tagPrefix} onChange={e => setTagPrefix(e.target.value)} placeholder="SKI-24-" />
                                     <p className="text-xs text-muted-foreground mt-1">
-                                        Preview: <span className="font-mono bg-muted px-1">{tagPrefix}{(startNumber).toString().padStart(3, '0')}</span> ... <span className="font-mono bg-muted px-1">{tagPrefix}{(startNumber + quantity - 1).toString().padStart(3, '0')}</span>
+                                        {t('provider.inventory.assetForm.preview')}: <span className="font-mono bg-muted px-1">{tagPrefix}{(startNumber).toString().padStart(3, '0')}</span> ... <span className="font-mono bg-muted px-1">{tagPrefix}{(startNumber + quantity - 1).toString().padStart(3, '0')}</span>
                                     </p>
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <Label>Location</Label>
+                                    <Label>{t('provider.inventory.assetForm.location')}</Label>
                                     <Input value={location} onChange={e => setLocation(e.target.value)} />
                                 </div>
                             </div>
@@ -194,16 +196,16 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
 
                 <DialogFooter>
                     {step === 2 && (
-                        <Button variant="ghost" onClick={() => setStep(1)} className="mr-auto">Back</Button>
+                        <Button variant="ghost" onClick={() => setStep(1)} className="mr-auto">{t('provider.inventory.assetForm.back')}</Button>
                     )}
                     {step === 1 ? (
                         <Button onClick={() => setStep(2)} disabled={!selectedVariantId}>
-                            Next <ArrowRight className="w-4 h-4 ml-2" />
+                            {t('provider.inventory.assetForm.next')} <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                     ) : (
                         <Button onClick={handleSubmit} disabled={loading}>
                             {loading && <Loader2 className="animate-spin w-4 h-4 mr-2" />}
-                            Create {quantity} Assets
+                            {t('provider.inventory.assetForm.create', { count: quantity })}
                         </Button>
                     )}
                 </DialogFooter>

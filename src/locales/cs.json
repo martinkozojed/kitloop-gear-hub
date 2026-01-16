@@ -834,6 +834,118 @@
         "searching": "Hledám...",
         "empty": "Nenalezeno."
       }
+    },
+    "inventory": {
+      "title": "Inventář",
+      "subtitle": "Spravujte fyzické vybavení, sledujte status a organizujte sklad.",
+      "fallbacks": {
+        "unknown": "Neznámé",
+        "uncategorized": "Nezařazeno"
+      },
+      "actions": {
+        "scan": "Skenovat",
+        "demo": "Demo",
+        "import": "Import",
+        "product": "Produkt",
+        "addAsset": "Přidat položku"
+      },
+      "toasts": {
+        "fetchError": "Nepodařilo se načíst inventář",
+        "archiveSuccess": "Archivováno {{count}} položek (soft delete)",
+        "archiveError": "Mazání se nezdařilo",
+        "statusSuccess": "Aktualizován status u {{count}} položek",
+        "statusError": "Změna statusu selhala",
+        "scanFound": "Nalezeno: {{code}}",
+        "scanNotFound": "Položka nenalezena: {{code}}",
+        "scanError": "Chyba při hledání položky",
+        "demoDisabled": "Demo režim je v tomto prostředí vypnutý",
+        "demoSuccess": "Vygenerováno 5 demo položek!",
+        "demoError": "Generování dema selhalo",
+        "unknown": "Neznámá chyba"
+      },
+      "productForm": {
+        "readyForAssets": "Připraveno přidat položky!",
+        "updateSuccess": "Produkt upraven",
+        "createSuccess": "Produkt vytvořen",
+        "missingFields": "Chybí povinná pole",
+        "saveError": "Uložení produktu selhalo",
+        "titleCreate": "Vytvořit nový produkt",
+        "titleEdit": "Upravit produkt",
+        "name": "Název produktu",
+        "category": "Kategorie",
+        "price": "Základní cena / den",
+        "description": "Popis",
+        "imageUrl": "URL obrázku",
+        "variants": "Varianty",
+        "variantName": "Název varianty",
+        "variantSku": "SKU",
+        "addVariant": "Přidat variantu",
+        "remove": "Odebrat",
+        "update": "Uložit produkt",
+        "create": "Vytvořit produkt",
+        "variantHelper": "Přidejte varianty pro různé velikosti (např. S, M, L nebo 160, 170). Pokud je jen jedna velikost, ponechte \"Standard\"."
+      },
+      "assetForm": {
+        "title": "Přidat položky inventáře",
+        "selectProduct": "Vyberte produkt",
+        "selectVariant": "Vyberte velikost / variantu",
+        "chooseProduct": "Vyberte produkt...",
+        "quantity": "Počet",
+        "startingNumber": "Počáteční číslo",
+        "tagPrefix": "Prefix tagu",
+        "location": "Umístění",
+        "preview": "Náhled",
+        "back": "Zpět",
+        "next": "Další",
+        "create": "Vytvořit {{count}} položek",
+        "success": "Úspěšně přidáno {{count}} položek!",
+        "error": "Vytvoření položek selhalo"
+      },
+      "grid": {
+        "searchPlaceholder": "Hledat v inventáři...",
+        "status": "Status",
+        "category": "Kategorie",
+        "reset": "Reset",
+        "selected": "{{count}} vybráno",
+        "maintenance": "Servis",
+        "delete": "Smazat",
+        "view": "Zobrazení",
+        "markAs": {
+          "available": "Označit jako dostupné",
+          "maintenance": "Označit jako servis",
+          "retired": "Označit jako vyřazeno"
+        },
+        "columns": {
+          "tag": "Tag",
+          "product": "Produkt",
+          "category": "Kategorie",
+          "status": "Status",
+          "location": "Umístění",
+          "health": "Stav"
+        },
+        "statuses": {
+          "available": "Dostupné",
+          "active": "Aktivní",
+          "maintenance": "Servis",
+          "lost": "Ztraceno",
+          "retired": "Vyřazeno",
+          "reserved": "Rezervováno",
+          "quarantine": "Karanténa"
+        },
+        "empty": "Žádné položky.",
+        "loading": "Načítám inventář...",
+        "showing": "Zobrazeno {{visible}} z {{total}} položek",
+        "page": "Stránka {{page}} z {{pages}}",
+        "previous": "Předchozí",
+        "next": "Další",
+        "actions": {
+          "label": "Akce",
+          "openMenu": "Otevřít menu",
+          "copyTag": "Zkopírovat tag",
+          "edit": "Upravit detaily",
+          "logMaintenance": "Zapsat servis"
+        }
+      }
     }
   },
   "dashboard": {

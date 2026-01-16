@@ -32,6 +32,7 @@ import { ChevronDown, MoreHorizontal, SlidersHorizontal, ArrowUpDown, Wrench, Ci
 import { Database } from '@/integrations/supabase/types';
 import { DataTableFacetedFilter } from '@/components/ui/data-table-faceted-filter';
 import { LogMaintenanceModal } from './LogMaintenanceModal';
+import { useTranslation } from 'react-i18next';
 
 // Derived Type for the Join View
 export type InventoryAsset = {
@@ -67,6 +68,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
+    const { t } = useTranslation();
 
     // Maintenance Modal State
     const [showMaintenance, setShowMaintenance] = useState(false);
@@ -97,7 +99,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                 accessorKey: 'asset_tag',
                 header: ({ column }) => (
                     <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                        Tag
+                        {t('provider.inventory.grid.columns.tag')}
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                 ),
@@ -106,7 +108,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
             {
                 id: 'product_name',
                 accessorFn: (row) => row.product.name,
-                header: 'Product',
+                header: t('provider.inventory.grid.columns.product'),
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
                         {row.original.product.image_url && (
@@ -126,7 +128,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
             {
                 id: 'category',
                 accessorFn: (row) => row.product.category,
-                header: 'Category',
+                header: t('provider.inventory.grid.columns.category'),
                 cell: ({ row }) => <Badge variant="secondary" className="capitalize">{row.original.product.category}</Badge>,
                 filterFn: (row, id, value) => {
                     return value.includes(row.original.product.category);
@@ -134,36 +136,36 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
             },
             {
                 accessorKey: 'status',
-                header: 'Status',
+                header: t('provider.inventory.grid.columns.status'),
                 filterFn: (row, id, value) => {
                     return value.includes(row.getValue(id));
                 },
                 cell: ({ row }) => {
                     const status = row.getValue('status') as string;
                     const colorStyles = {
-                        available: 'bg-green-50 text-green-700 border-green-200',
+                        available: 'bg-emerald-50 text-emerald-700 border-emerald-200',
                         active: 'bg-blue-50 text-blue-700 border-blue-200',
                         maintenance: 'bg-amber-50 text-amber-700 border-amber-200',
-                        lost: 'bg-red-50 text-red-700 border-red-200',
-                        retired: 'bg-gray-100 text-gray-700 border-gray-200',
-                        reserved: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-                        quarantine: 'bg-purple-50 text-purple-700 border-purple-200',
+                        lost: 'bg-rose-50 text-rose-700 border-rose-200',
+                        retired: 'bg-slate-100 text-slate-700 border-slate-200',
+                        reserved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                        quarantine: 'bg-orange-50 text-orange-700 border-orange-200',
                     };
 
                     return (
                         <Badge variant="outline" className={colorStyles[status as keyof typeof colorStyles] || ''}>
-                            {status}
+                            {t(`provider.inventory.grid.statuses.${status as keyof typeof colorStyles}`, status)}
                         </Badge>
                     );
                 },
             },
             {
                 accessorKey: 'location',
-                header: 'Location',
+                header: t('provider.inventory.grid.columns.location'),
             },
             {
                 accessorKey: 'condition_score',
-                header: 'Health',
+                header: t('provider.inventory.grid.columns.health'),
                 cell: ({ row }) => {
                     const score = row.getValue('condition_score') as number;
                     if (!score) return <span className="text-muted-foreground text-xs">-</span>;
@@ -182,29 +184,29 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <span className="sr-only">Open menu</span>
+                                    <span className="sr-only">{t('provider.inventory.grid.actions.openMenu')}</span>
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>{t('provider.inventory.grid.actions.label')}</DropdownMenuLabel>
                                 <DropdownMenuItem onClick={() => navigator.clipboard.writeText(asset.asset_tag)}>
-                                    Copy Asset Tag
+                                    {t('provider.inventory.grid.actions.copyTag')}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onEdit(asset)}>Edit Details</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => onEdit(asset)}>{t('provider.inventory.grid.actions.edit')}</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => {
                                     setMaintenanceIds([asset.id]);
                                     setShowMaintenance(true);
                                 }}>
                                     <Wrench className="w-4 h-4 mr-2" />
-                                    Log Maintenance
+                                    {t('provider.inventory.grid.actions.logMaintenance')}
                                 </DropdownMenuItem>
                                 {canDelete && (
                                     <>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={() => onDelete([asset.id])} className="text-red-600">
-                                            Delete
+                                            {t('provider.inventory.grid.delete')}
                                         </DropdownMenuItem>
                                     </>
                                 )}
@@ -214,7 +216,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                 },
             },
         ],
-        [onDelete, onEdit, canDelete]
+        [onDelete, onEdit, canDelete, t]
     );
 
     const table = useReactTable({
@@ -247,11 +249,11 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
     }));
 
     const statuses = [
-        { label: 'Available', value: 'available', icon: CircleCheck },
-        { label: 'Active', value: 'active', icon: Home },
-        { label: 'Maintenance', value: 'maintenance', icon: Wrench },
-        { label: 'Reserved', value: 'reserved', icon: CircleAlert },
-        { label: 'Retired', value: 'retired', icon: CircleX },
+        { label: t('provider.inventory.grid.statuses.available'), value: 'available', icon: CircleCheck },
+        { label: t('provider.inventory.grid.statuses.active'), value: 'active', icon: Home },
+        { label: t('provider.inventory.grid.statuses.maintenance'), value: 'maintenance', icon: Wrench },
+        { label: t('provider.inventory.grid.statuses.reserved'), value: 'reserved', icon: CircleAlert },
+        { label: t('provider.inventory.grid.statuses.retired'), value: 'retired', icon: CircleX },
     ];
 
     return (
@@ -260,7 +262,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                 {/* Search & Filters */}
                 <div className="flex flex-1 items-center gap-2">
                     <Input
-                        placeholder="Search assets..."
+                        placeholder={t('provider.inventory.grid.searchPlaceholder')}
                         value={(table.getColumn('product_name')?.getFilterValue() as string) ?? ''}
                         onChange={(event) =>
                             table.getColumn('product_name')?.setFilterValue(event.target.value)
@@ -271,7 +273,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                     {table.getColumn('status') && (
                         <DataTableFacetedFilter
                             column={table.getColumn('status')}
-                            title="Status"
+                            title={t('provider.inventory.grid.status')}
                             options={statuses}
                         />
                     )}
@@ -279,7 +281,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                     {table.getColumn('category') && categories.length > 0 && (
                         <DataTableFacetedFilter
                             column={table.getColumn('category')}
-                            title="Category"
+                            title={t('provider.inventory.grid.category')}
                             options={categories}
                         />
                     )}
@@ -291,7 +293,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                             onClick={() => table.resetColumnFilters()}
                             className="h-8 px-2 lg:px-3"
                         >
-                            Reset
+                            {t('provider.inventory.grid.reset')}
                             <CircleX className="ml-2 h-4 w-4" />
                         </Button>
                     )}
@@ -301,7 +303,9 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                 <div className="flex gap-2">
                     {selectedIds.length > 0 ? (
                         <div className="flex items-center gap-2 mr-4 bg-primary/10 p-1 rounded-md px-3 animate-in fade-in">
-                            <span className="text-sm font-medium text-primary">{selectedIds.length} selected</span>
+                            <span className="text-sm font-medium text-primary">
+                                {t('provider.inventory.grid.selected', { count: selectedIds.length })}
+                            </span>
                             <div className="h-4 w-px bg-primary/20 mx-2" />
 
                             <Button
@@ -314,25 +318,29 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                                 }}
                             >
                                 <Wrench className="w-3.5 h-3.5 mr-2" />
-                                Maintenance
+                                {t('provider.inventory.grid.maintenance')}
                             </Button>
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button size="sm" variant="outline" className="h-7 bg-white">Status</Button>
+                                    <Button size="sm" variant="outline" className="h-7 bg-white">{t('provider.inventory.grid.status')}</Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    {['available', 'maintenance', 'retired'].map(s => (
-                                        <DropdownMenuItem key={s} onClick={() => onStatusChange(selectedIds, s)}>
-                                            Mark as {s}
-                                        </DropdownMenuItem>
-                                    ))}
+                                    <DropdownMenuItem onClick={() => onStatusChange(selectedIds, 'available')}>
+                                        {t('provider.inventory.grid.markAs.available')}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onStatusChange(selectedIds, 'maintenance')}>
+                                        {t('provider.inventory.grid.markAs.maintenance')}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onStatusChange(selectedIds, 'retired')}>
+                                        {t('provider.inventory.grid.markAs.retired')}
+                                    </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
                             {canDelete && (
                                 <Button size="sm" variant="destructive" className="h-7" onClick={() => onDelete(selectedIds)}>
-                                    Delete
+                                    {t('provider.inventory.grid.delete')}
                                 </Button>
                             )}
                         </div>
@@ -341,7 +349,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="ml-auto h-8 bg-white">
                                     <SlidersHorizontal className="mr-2 h-4 w-4" />
-                                    View
+                                    {t('provider.inventory.grid.view')}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -406,7 +414,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                                     colSpan={columns.length}
                                     className="h-24 text-center text-muted-foreground"
                                 >
-                                    {loading ? "Loading inventory..." : "No assets found."}
+                                    {loading ? t('provider.inventory.grid.loading') : t('provider.inventory.grid.empty')}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -416,7 +424,10 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
 
             <div className="flex items-center justify-between py-4">
                 <div className="text-xs text-muted-foreground">
-                    Showing {table.getFilteredRowModel().rows.length} of {data.length} items
+                    {t('provider.inventory.grid.showing', {
+                        visible: table.getFilteredRowModel().rows.length,
+                        total: data.length
+                    })}
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button
@@ -425,10 +436,13 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        Previous
+                        {t('provider.inventory.grid.previous')}
                     </Button>
                     <div className="text-sm font-medium">
-                        Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                        {t('provider.inventory.grid.page', {
+                            page: table.getState().pagination.pageIndex + 1,
+                            pages: table.getPageCount()
+                        })}
                     </div>
                     <Button
                         variant="outline"
@@ -436,7 +450,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        Next
+                        {t('provider.inventory.grid.next')}
                     </Button>
                 </div>
             </div>
