@@ -1,5 +1,5 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
-import { faker } from "https://deno.land/x/faker@5.5.3/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0?target=denonext&pin=v135";
+import { faker } from "https://esm.sh/@faker-js/faker@8.4.1?target=denonext&pin=v135";
 
 // Load env vars if running locally with dotenv, or expect them in env
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
