@@ -27,8 +27,8 @@ jobs:
       E2E_PENDING_PROVIDER_EMAIL: ${{ secrets.E2E_PENDING_PROVIDER_EMAIL }}
       E2E_PENDING_PROVIDER_PASSWORD: ${{ secrets.E2E_PENDING_PROVIDER_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -53,14 +53,14 @@ jobs:
         run: npm run test:e2e -- --project=chromium
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: playwright-report
           if-no-files-found: ignore
       - name: Upload Playwright traces
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-traces
           path: test-results/playwright
