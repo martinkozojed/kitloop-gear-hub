@@ -46,6 +46,16 @@ test.describe('Reservation smoke', () => {
       await page.waitForURL(/\/provider\/reservations/, { timeout: 20000 });
 
       await expect(page.getByText(customerName)).toBeVisible({ timeout: 10000 });
+      await page.goto('/provider/reservations');
+      const listRow = page.getByTestId(/reservation-row-/).filter({ hasText: customerName });
+      await expect(listRow).toBeVisible({ timeout: 15000 });
+
+      const latest = await callHarness('latest_reservation_for_provider', runId, {
+        provider_id: seed.provider_id,
+        customer_name: customerName,
+      });
+      expect(latest?.reservation?.customer_name).toBe(customerName);
+      expect(latest?.reservation?.status).toBeTruthy();
     } finally {
       await callHarness('cleanup', runId);
     }

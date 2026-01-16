@@ -17,6 +17,8 @@ import { Upload, Package } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { requestUploadTicket, uploadWithTicket, publicUrlForTicket, UploadTicketError } from "@/lib/upload/client";
+import { rulesForUseCase } from "@/lib/upload/validation";
 
 
 // Form schema (Zod validation)
@@ -87,24 +89,26 @@ export default function AddRental() {
     setIsSubmitting(true);
 
     try {
-      let imageUrl: string | null = null;
-
-      if (values.logoFile) {
-        const file = values.logoFile as File;
-        const path = `logos/${crypto.randomUUID()}.png`;
-        const { error } = await supabase.storage
-          .from("logos")
-          .upload(path, file);
-
-        if (error) throw error;
-
-        const { data: urlData } = supabase.storage
-          .from("logos")
-          .getPublicUrl(path);
-        imageUrl = urlData.publicUrl;
+      const logoRule = rulesForUseCase("provider_logo");
+      const logoFile = values.logoFile as File | null;
+      if (logoFile && logoRule && logoFile.size > logoRule.maxBytes) {
+        toast.error("Logo je příliš velké", {
+          description: `Maximální velikost je ${Math.round(logoRule.maxBytes / (1024 * 1024))} MB.`,
+        });
+        setIsSubmitting(false);
+        return;
       }
 
-      const { error: insertError } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Musíte být přihlášeni pro vytvoření rentalu.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      let logoUrl: string | null = null;
+
+      const { data: providerRow, error: insertError } = await supabase
         .from("providers")
         .insert({
           rental_name: values.rental_name,
@@ -117,11 +121,40 @@ export default function AddRental() {
           location: values.location,
           category: values.category,
           availability_notes: values.availability_notes ?? null,
-          logo_url: imageUrl,
+          logo_url: null,
+          user_id: user.id,
           status: "pending",
-        });
+        })
+        .select("id")
+        .single();
 
       if (insertError) throw insertError;
+
+      if (logoFile && providerRow?.id) {
+        try {
+          const ticket = await requestUploadTicket({
+            useCase: "provider_logo",
+            fileName: logoFile.name,
+            mimeType: logoFile.type || "application/octet-stream",
+            sizeBytes: logoFile.size,
+            providerId: providerRow.id,
+          });
+
+          await uploadWithTicket(ticket, logoFile);
+          logoUrl = publicUrlForTicket(ticket);
+
+          await supabase
+            .from("providers")
+            .update({ logo_url: logoUrl })
+            .eq("id", providerRow.id);
+        } catch (uploadErr) {
+          console.error(uploadErr);
+          const description = uploadErr instanceof UploadTicketError
+            ? uploadErr.message
+            : "Logo nebylo nahráno. Můžete ho přidat později v profilu.";
+          toast.warning("Logo nebylo nahráno", { description });
+        }
+      }
 
       toast.success("Rental submitted for review");
       form.reset();

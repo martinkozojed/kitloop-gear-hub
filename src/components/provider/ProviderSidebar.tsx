@@ -70,7 +70,8 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
     navGroups.push({
       title: 'Admin',
       items: [
-        { path: '/admin/providers', label: 'Approvals', icon: ShieldAlert }
+        { path: '/admin/providers', label: 'Approvals', icon: ShieldAlert },
+        { path: '/admin/audit', label: 'Audit log', icon: List }
       ]
     });
   }

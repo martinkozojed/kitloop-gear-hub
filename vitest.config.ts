@@ -8,6 +8,14 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: [],
+    include: [
+      "src/**/*.{test,spec}.{ts,tsx}",
+      "shared/**/*.{test,spec}.ts",
+      "supabase/functions/upload_ticket/handler.test.ts",
+    ],
+    exclude: [
+      "e2e/**",
+    ],
   },
   resolve: {
     alias: {

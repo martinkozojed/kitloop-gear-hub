@@ -20,6 +20,8 @@ import {
 } from '@/lib/error-utils';
 import { logger } from '@/lib/logger';
 import { validateImageFiles } from '@/lib/file-validation';
+import { requestUploadTicket, uploadWithTicket, publicUrlForTicket, UploadTicketError } from '@/lib/upload/client';
+import { rulesForUseCase } from '@/lib/upload/validation';
 
 interface FormData {
   name: string;
@@ -194,6 +196,14 @@ const InventoryForm = () => {
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
     if (files.length === 0) return [];
+    if (!provider?.id) {
+      toast.error('Chybí kontext poskytovatele', {
+        description: 'Nelze nahrát obrázky bez Provider ID.'
+      });
+      return [];
+    }
+
+    const rule = rulesForUseCase("gear_image");
 
     logger.debug('Uploading images:', files.length);
     setUploadingImages(true);
@@ -203,47 +213,48 @@ const InventoryForm = () => {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${provider?.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-        logger.debug(`Uploading file ${i + 1}/${files.length}`);
-
-        const { data, error } = await supabase.storage
-          .from('gear-images')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (error) {
-          logger.error('Upload error', error);
+        if (rule && file.size > rule.maxBytes) {
           failedUploads.push(file.name);
-
-          if (error.message.includes('storage/object-not-found')) {
-            toast.error('Chyba storage', {
-              description: 'Bucket "gear-images" nenalezen. Zkontrolujte nastavení.'
-            });
-          } else if (error.message.includes('Payload too large')) {
-            toast.error(`Soubor ${file.name} je příliš velký`, {
-              description: 'Maximální velikost je 5MB.'
-            });
-          }
+          toast.error(`Soubor ${file.name} je příliš velký`, {
+            description: `Maximální velikost je ${Math.round(rule.maxBytes / (1024 * 1024))} MB.`
+          });
           continue;
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('gear-images')
-          .getPublicUrl(fileName);
+        logger.debug(`Requesting upload ticket for file ${i + 1}/${files.length}`);
+
+        const ticket = await requestUploadTicket({
+          useCase: "gear_image",
+          fileName: file.name,
+          mimeType: file.type || "application/octet-stream",
+          sizeBytes: file.size,
+          providerId: provider.id,
+        });
+
+        await uploadWithTicket(ticket, file);
+        const publicUrl = publicUrlForTicket(ticket);
 
         urls.push(publicUrl);
-        logger.debug(`Image ${i + 1}/${files.length} uploaded successfully`);
+        logger.debug(`Image ${i + 1}/${files.length} uploaded successfully via ticket`);
       } catch (error) {
         logger.error('Error uploading image', error);
         failedUploads.push(file.name);
 
-        if (isFetchError(error)) {
+        if (error instanceof UploadTicketError) {
+          let description = error.message || 'Neplatný upload request';
+          if (error.reasonCode === 'mime_not_allowed') {
+            description = 'Formát souboru není povolen.';
+          } else if (error.reasonCode === 'file_too_large') {
+            description = 'Soubor je příliš velký pro tento upload.';
+          }
+          toast.error(`Nahrání ${file.name} selhalo`, { description });
+        } else if (isFetchError(error)) {
           toast.error('Chyba připojení', {
             description: 'Zkontrolujte internetové připojení.'
+          });
+        } else {
+          toast.error('Nepodařilo se nahrát obrázek', {
+            description: getErrorMessage(error) || 'Zkuste to znovu.'
           });
         }
       }

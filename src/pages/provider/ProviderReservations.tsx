@@ -310,8 +310,12 @@ const ProviderReservations = () => {
                   <tbody>
                     {filteredReservations.map(r => (
                       <React.Fragment key={r.id}>
-                        <tr className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => toggleRowExpansion(r.id)}>
-                          <td className="p-4 font-medium">{r.customer_name}</td>
+                        <tr
+                          className="border-b hover:bg-muted/50 cursor-pointer"
+                          onClick={() => toggleRowExpansion(r.id)}
+                          data-testid={`reservation-row-${r.id}`}
+                        >
+                          <td className="p-4 font-medium" data-testid={`reservation-customer-${r.id}`}>{r.customer_name}</td>
                           <td className="p-4">
                             <div className="font-medium">{getItemName(r)}</div>
                             <div className="text-xs text-muted-foreground">{getItemCategory(r)}</div>
@@ -319,7 +323,7 @@ const ProviderReservations = () => {
                           <td className="p-4">
                             {r.start_date && r.end_date && formatDateRange(new Date(r.start_date), new Date(r.end_date))}
                           </td>
-                          <td className="p-4">{getStatusBadge(r.status)}</td>
+                          <td className="p-4" data-testid={`reservation-status-${r.id}`}>{getStatusBadge(r.status)}</td>
                           <td className="p-4">{expandedRows.has(r.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</td>
                         </tr>
                         {expandedRows.has(r.id) && (
