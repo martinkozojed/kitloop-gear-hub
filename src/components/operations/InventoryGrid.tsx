@@ -33,6 +33,7 @@ import { Database } from '@/integrations/supabase/types';
 import { DataTableFacetedFilter } from '@/components/ui/data-table-faceted-filter';
 import { LogMaintenanceModal } from './LogMaintenanceModal';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Derived Type for the Join View
 export type InventoryAsset = {
@@ -60,10 +61,12 @@ interface InventoryGridProps {
     onEdit: (asset: InventoryAsset) => void;
     onDelete: (ids: string[]) => void;
     onStatusChange: (ids: string[], status: string) => void;
+    onAddAsset?: () => void;
+    onImport?: () => void;
     canDelete?: boolean;
 }
 
-export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onStatusChange, canDelete = true }: InventoryGridProps) {
+export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onStatusChange, onAddAsset, onImport, canDelete = true }: InventoryGridProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -408,7 +411,17 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, idx) => (
+                                <TableRow key={`skeleton-${idx}`}>
+                                    {table.getVisibleFlatColumns().map((col, colIdx) => (
+                                        <TableCell key={`${col.id}-${colIdx}`}>
+                                            <Skeleton className="h-4 w-24" />
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
@@ -427,7 +440,24 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                                     colSpan={columns.length}
                                     className="h-24 text-center text-muted-foreground"
                                 >
-                                    {loading ? t('provider.inventory.grid.loading') : t('provider.inventory.grid.empty')}
+                                    {t('provider.inventory.grid.emptyCta')}
+                                    <div className="mt-3 flex justify-center gap-2">
+                                        {onAddAsset && (
+                                            <Button size="sm" onClick={onAddAsset}>
+                                                {t('provider.inventory.actions.addAsset')}
+                                            </Button>
+                                        )}
+                                        {onImport && (
+                                            <Button size="sm" variant="outline" onClick={onImport}>
+                                                {t('provider.inventory.actions.import')}
+                                            </Button>
+                                        )}
+                                        {!onAddAsset && !onImport && (
+                                            <Button size="sm" variant="outline" onClick={onRefresh}>
+                                                {t('provider.inventory.grid.reset')}
+                                            </Button>
+                                        )}
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         )}

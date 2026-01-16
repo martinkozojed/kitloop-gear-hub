@@ -933,6 +933,7 @@
           "quarantine": "Karanténa"
         },
         "empty": "Žádné položky.",
+        "emptyCta": "Zatím zde nemáte žádné položky.",
         "loading": "Načítám inventář...",
         "showing": "Zobrazeno {{visible}} z {{total}} položek",
         "page": "Stránka {{page}} z {{pages}}",

@@ -806,6 +806,7 @@
           "quarantine": "Quarantine"
         },
         "empty": "No assets found.",
+        "emptyCta": "No assets found yet.",
         "loading": "Loading inventory...",
         "showing": "Showing {{visible}} of {{total}} items",
         "page": "Page {{page}} of {{pages}}",

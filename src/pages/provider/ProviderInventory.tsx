@@ -237,6 +237,8 @@ const ProviderInventory = () => {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onStatusChange={handleStatusChange}
+            onAddAsset={() => setShowAssetForm(true)}
+            onImport={() => setShowImportModal(true)}
             canDelete={canDeleteAssets}
           />
         </Card>
