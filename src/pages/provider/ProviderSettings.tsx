@@ -260,7 +260,7 @@ const ProviderSettings = () => {
 
   return (
     <ProviderLayout>
-      <div className="max-w-5xl space-y-6 pb-24">
+      <div className="w-full space-y-6 pb-24">
         <div className="rounded-2xl border border-emerald-100 bg-white p-6 flex flex-col gap-3 shadow-[0_12px_40px_-28px_rgba(16,185,129,0.6)]">
           <div className="flex items-start justify-between gap-4">
             <div>
