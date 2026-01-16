@@ -334,231 +334,6 @@
         "viewAll": "Zobrazit všechny rezervace →"
       }
     },
-    "inventory": {
-      "title": "Inventář",
-      "totalAll": "{{count}} položek celkem",
-      "totalFiltered": "Zobrazeno {{filtered}} z {{total}} položek",
-      "buttons": {
-        "import": "Import CSV",
-        "add": "Přidat položku",
-        "addFirst": "Přidat první položku"
-      },
-      "searchPlaceholder": "Hledat podle názvu, SKU nebo popisu...",
-      "filters": {
-        "categories": "Všechny kategorie",
-        "status": "Všechny stavy",
-        "condition": "Všechny stavy vybavení",
-        "clear": "Vymazat všechny filtry",
-        "badge": "Hledáno: \"{{value}}\"",
-        "categoryBadge": "Kategorie: {{value}}",
-        "statusBadge": "Stav: {{value}}",
-        "conditionBadge": "Stav vybavení: {{value}}"
-      },
-      "empty": {
-        "title": "Zatím žádný inventář",
-        "description": "Začni tím, že přidáš první položku a můžeš začít půjčovat."
-      },
-      "risk": {
-        "title": "Řízení rizik",
-        "safe": "Bezpečný",
-        "warning": "Pozor",
-        "blacklist": "ZABLOKOVÁN",
-        "trusted": "VIP",
-        "verified": "Ověřen",
-        "highRisk": "Vysoké riziko",
-        "markSafe": "Označit jako bezpečný",
-        "markWarning": "Přidat varování",
-        "markBlacklist": "ZABLOKOVAT ZÁKAZNÍKA",
-        "notesLabel": "Důvod rizika (interní)"
-      },
-      "table": {
-        "image": "Obrázek",
-        "name": "Název",
-        "category": "Kategorie",
-        "price": "Cena/den",
-        "quantity": "Množství",
-        "status": "Stav",
-        "actions": "Akce"
-      },
-      "mobileCard": {
-        "price": "Cena:",
-        "pricePerDay": "{{value}} Kč/den",
-        "availability": "Dostupnost:",
-        "availabilityValue": "{{available}}/{{total}} ks",
-        "sku": "SKU:",
-        "edit": "Upravit",
-        "delete": "Smazat"
-      },
-      "statusLabels": {
-        "available": "dostupné",
-        "reserved": "rezervováno",
-        "maintenance": "servis",
-        "retired": "vyřazeno"
-      },
-      "filterResults": {
-        "title": "Žádné položky nenalezeny",
-        "searchHint": "Zkus jiný vyhledávací výraz nebo uprav filtry",
-        "hint": "Zkus změnit filtry",
-        "button": "Vymazat všechny filtry"
-      },
-      "toasts": {
-        "noProviderTitle": "Chyba: Nenalezen profil poskytovatele",
-        "noProviderDescription": "Zkus se odhlásit a znovu přihlásit.",
-        "accessError": "Chyba přístupu",
-        "accessDescription": "Nemáš oprávnění zobrazit tento inventář.",
-        "networkError": "Chyba připojení",
-        "networkDescription": "Zkontroluj internetové připojení a zkus to znovu.",
-        "fetchError": "Nepodařilo se načíst inventář",
-        "fetchDescription": "Obnov stránku a zkus to znovu.",
-        "unexpectedError": "Neočekávaná chyba",
-        "unexpectedDescription": "Obnov stránku nebo kontaktuj podporu.",
-        "deleteAccessError": "Chyba přístupu",
-        "deleteForeignKey": "Nelze smazat položku",
-        "deleteForeignKeyDescription": "Položka je použita v aktivních rezervacích.",
-        "deleteError": "Nepodařilo se smazat položku",
-        "deleteSuccess": "Položka smazána",
-        "deleteSuccessDescription": "Inventář byl úspěšně aktualizován."
-      },
-      "dialog": {
-        "title": "Smazat položku?",
-        "question": "Opravdu chcete smazat \"{{name}}\"?",
-        "warning": "Tato akce je nevratná. Položka bude trvale odstraněna z inventáře.",
-        "highValue": "⚠️ Upozornění: Položka má vysokou hodnotu ({{price}} Kč/den)",
-        "cancel": "Zrušit",
-        "confirm": "Smazat položku"
-      }
-    },
-    "reservations": {
-      "alreadyConfirmed": "Tato rezervace již byla potvrzena",
-      "confirmSuccess": "Rezervace byla úspěšně potvrzena",
-      "confirmError": "Nepodařilo se potvrdit rezervaci",
-      "cannotCancel": "Tuto rezervaci nelze zrušit",
-      "cancelConfirm": "Opravdu chcete zrušit tuto rezervaci?",
-      "cancelSuccess": "Rezervace byla úspěšně zrušena",
-      "cancelError": "Nepodařilo se zrušit rezervaci"
-    },
-    "reservationDetail": {
-      "header": {
-        "reservation": "Rezervace",
-        "manage": "Správa rezervace a komunikace"
-      },
-      "tabs": {
-        "details": "Detail",
-        "messages": "Zprávy"
-      },
-      "cards": {
-        "rentalInfo": "Informace o výpůjčce",
-        "customer": "Zákazník",
-        "actions": "Akce",
-        "history": "Historie komunikace",
-        "historyDesc": "Automatické emaily odeslané tomuto zákazníkovi",
-        "noMessages": "Žádné zprávy zatím nebyly odeslány."
-      },
-      "labels": {
-        "item": "Vybavení",
-        "totalPrice": "Cena celkem",
-        "start": "Od",
-        "end": "Do",
-        "notes": "Poznámka"
-      },
-      "actions": {
-        "edit": "Upravit",
-        "resend": "Znovu poslat potvrzení",
-        "resendSuccess": "Potvrzení bylo znovu odesláno",
-        "resendError": "Nepodařilo se odeslat zprávu"
-      },
-      "status": {
-        "sent": "Odesláno",
-        "failed": "Chyba"
-      },
-      "messageTypes": {
-        "confirmation": "Potvrzení",
-        "pickup_reminder": "Připomínka vyzvednutí",
-        "return_reminder": "Připomínka vrácení",
-        "review_request": "Žádost o recenzi"
-      },
-      "analytics": {
-        "title": "Analytika",
-        "headline": "Analytika a přehledy",
-        "subtitle": "Klíčové metriky tvé půjčovny – aktualizováno {{date}}.",
-        "loading": "Načítání analytických dat...",
-        "error": "Nepodařilo se načíst analytická data",
-        "lastUpdated": "Aktualizováno: {{time}}",
-        "periods": {
-          "last7Days": "Posledních 7 dní",
-          "last30Days": "Posledních 30 dní",
-          "thisMonth": "Tento měsíc",
-          "lastMonth": "Minulý měsíc"
-        },
-        "actions": {
-          "refresh": "Obnovit data",
-          "exportCustomers": "Exportovat zákazníky"
-        },
-        "tooltips": {
-          "revenue": "Celkové tržby z potvrzených a dokončených rezervací",
-          "activeReservations": "Počet rezervací ve stavu hold, potvrzeno nebo aktivní",
-          "utilization": "Procento inventáře, které je aktuálně půjčeno",
-          "rating": "Funkce hodnocení bude brzy k dispozici"
-        },
-        "cards": {
-          "revenue": {
-            "title": "Tržby (aktuální měsíc)",
-            "subtitle": "Období {{start}} – {{end}}",
-            "trendLabel": "vs. minulý měsíc"
-          },
-          "activeReservations": {
-            "title": "Aktivní rezervace",
-            "subtitle": "Rezervace probíhající právě teď"
-          },
-          "utilization": {
-            "title": "Vytížení inventáře",
-            "subtitle": "{{active}} z {{total}} jednotek využito",
-            "insightLow": "Vytížení je nízké – zvaž propagační akci.",
-            "insightHigh": "Skvělé! Inventář je téměř plně využit."
-          },
-          "rating": {
-            "title": "Průměrné hodnocení",
-            "subtitle": "Na základě zákaznických recenzí",
-            "value": "Již brzy"
-          },
-          "insights": {
-            "title": "Doporučení a insighty",
-            "subtitle": "Brzy přidáme chytré tipy a upozornění – zůstaňte naladěni.",
-            "value": "Pracujeme na AI doporučeních"
-          },
-          "customerKpis": {
-            "title": "Zákaznické metriky",
-            "aov": "Průměrná hodnota objednávky",
-            "repeat": "Podíl vracejících se zákazníků",
-            "deposit": "Podíl rezervací se zálohou",
-            "counts": "Zákazníci a rezervace"
-          }
-        },
-        "charts": {
-          "revenueTrend": {
-            "title": "Vývoj tržeb",
-            "empty": "Žádné tržby v tomto období"
-          },
-          "reservationStatus": {
-            "title": "Rezervace podle stavu",
-            "empty": "Žádné rezervace k zobrazení"
-          }
-        },
-        "tables": {
-          "topCustomers": {
-            "title": "Nejlepší zákazníci",
-            "empty": "Zatím žádní zákazníci",
-            "columns": {
-              "customer": "Zákazník",
-              "email": "Email",
-              "phone": "Telefon",
-              "revenue": "Celkem utraceno",
-              "reservations": "Počet rezervací"
-            }
-          }
-        }
-      }
-    },
     "analytics": {
       "headline": "Přehled výkonu",
       "title": "Analytika a business přehled",
@@ -710,5 +485,507 @@
           }
         }
       }
+    },
+    "inventory": {
+      "title": "Inventář",
+      "totalAll": "{{count}} položek celkem",
+      "totalFiltered": "Zobrazeno {{filtered}} z {{total}} položek",
+      "buttons": {
+        "import": "Import CSV",
+        "add": "Přidat položku",
+        "addFirst": "Přidat první položku"
+      },
+      "searchPlaceholder": "Hledat podle názvu, SKU nebo popisu...",
+      "filters": {
+        "categories": "Všechny kategorie",
+        "status": "Všechny stavy",
+        "condition": "Všechny stavy vybavení",
+        "clear": "Vymazat všechny filtry",
+        "badge": "Hledáno: \"{{value}}\"",
+        "categoryBadge": "Kategorie: {{value}}",
+        "statusBadge": "Stav: {{value}}",
+        "conditionBadge": "Stav vybavení: {{value}}"
+      },
+      "empty": {
+        "title": "Zatím žádný inventář",
+        "description": "Začni tím, že přidáš první položku a můžeš začít půjčovat."
+      },
+      "risk": {
+        "title": "Řízení rizik",
+        "safe": "Bezpečný",
+        "warning": "Pozor",
+        "blacklist": "ZABLOKOVÁN",
+        "trusted": "VIP",
+        "verified": "Ověřen",
+        "highRisk": "Vysoké riziko",
+        "markSafe": "Označit jako bezpečný",
+        "markWarning": "Přidat varování",
+        "markBlacklist": "ZABLOKOVAT ZÁKAZNÍKA",
+        "notesLabel": "Důvod rizika (interní)"
+      },
+      "table": {
+        "image": "Obrázek",
+        "name": "Název",
+        "category": "Kategorie",
+        "price": "Cena/den",
+        "quantity": "Množství",
+        "status": "Stav",
+        "actions": "Akce"
+      },
+      "mobileCard": {
+        "price": "Cena:",
+        "pricePerDay": "{{value}} Kč/den",
+        "availability": "Dostupnost:",
+        "availabilityValue": "{{available}}/{{total}} ks",
+        "sku": "SKU:",
+        "edit": "Upravit",
+        "delete": "Smazat"
+      },
+      "statusLabels": {
+        "available": "dostupné",
+        "reserved": "rezervováno",
+        "maintenance": "servis",
+        "retired": "vyřazeno"
+      },
+      "filterResults": {
+        "title": "Žádné položky nenalezeny",
+        "searchHint": "Zkus jiný vyhledávací výraz nebo uprav filtry",
+        "hint": "Zkus změnit filtry",
+        "button": "Vymazat všechny filtry"
+      },
+      "toasts": {
+        "noProviderTitle": "Chyba: Nenalezen profil poskytovatele",
+        "noProviderDescription": "Zkus se odhlásit a znovu přihlásit.",
+        "accessError": "Chyba přístupu",
+        "accessDescription": "Nemáš oprávnění zobrazit tento inventář.",
+        "networkError": "Chyba připojení",
+        "networkDescription": "Zkontroluj internetové připojení a zkus to znovu.",
+        "fetchError": "Nepodařilo se načíst inventář",
+        "fetchDescription": "Obnov stránku a zkus to znovu.",
+        "unexpectedError": "Neočekávaná chyba",
+        "unexpectedDescription": "Obnov stránku nebo kontaktuj podporu.",
+        "deleteAccessError": "Chyba přístupu",
+        "deleteForeignKey": "Nelze smazat položku",
+        "deleteForeignKeyDescription": "Položka je použita v aktivních rezervacích.",
+        "deleteError": "Nepodařilo se smazat položku",
+        "deleteSuccess": "Položka smazána",
+        "deleteSuccessDescription": "Inventář byl úspěšně aktualizován."
+      },
+      "dialog": {
+        "title": "Smazat položku?",
+        "question": "Opravdu chcete smazat \"{{name}}\"?",
+        "warning": "Tato akce je nevratná. Položka bude trvale odstraněna z inventáře.",
+        "highValue": "⚠️ Upozornění: Položka má vysokou hodnotu ({{price}} Kč/den)",
+        "cancel": "Zrušit",
+        "confirm": "Smazat položku"
+      }
+    },
+    "reservations": {
+      "title": "Rezervace",
+      "subtitle": "Spravujte rezervace vašeho vybavení",
+      "tabs": {
+        "list": "Seznam",
+        "calendar": "Kalendář"
+      },
+      "filters": {
+        "toggle": "Filtry",
+        "search": "Hledat...",
+        "status": "Stav",
+        "all": "Vše",
+        "confirmed": "Potvrzeno",
+        "active": "Aktivní",
+        "completed": "Dokončeno",
+        "cancelled": "Zrušeno"
+      },
+      "table": {
+        "customer": "Zákazník",
+        "item": "Vybavení",
+        "dates": "Termín",
+        "status": "Stav",
+        "contact": "Kontakt",
+        "note": "Poznámka"
+      },
+      "cta": {
+        "new": "Nová rezervace",
+        "confirm": "Potvrdit",
+        "detail": "Detail"
+      },
+      "empty": "Žádné rezervace k zobrazení.",
+      "toasts": {
+        "fetchError": "Chyba při načítání rezervací",
+        "actionError": "Akce se nezdařila",
+        "confirmed": "Rezervace potvrzena",
+        "cancelled": "Rezervace zrušena"
+      },
+      "status": {
+        "unknown": "Neznámý"
+      },
+      "calendar": {
+        "today": "Dnes",
+        "week": "Týden",
+        "month": "Měsíc",
+        "categories": "Kategorie",
+        "categoriesAll": "Všechny kategorie",
+        "statusAll": "Všechny statusy",
+        "unassigned": "Nepřiřazeno",
+        "header": "Vybavení / Varianta",
+        "load": "Vytížení: {{percent}}% ({{active}}/{{total}})"
+      }
+    },
+    "reservationDetail": {
+      "header": {
+        "reservation": "Rezervace",
+        "manage": "Správa rezervace a komunikace"
+      },
+      "tabs": {
+        "details": "Detail",
+        "messages": "Zprávy"
+      },
+      "cards": {
+        "rentalInfo": "Informace o výpůjčce",
+        "customer": "Zákazník",
+        "actions": "Akce",
+        "history": "Historie komunikace",
+        "historyDesc": "Automatické emaily odeslané tomuto zákazníkovi",
+        "noMessages": "Žádné zprávy zatím nebyly odeslány."
+      },
+      "labels": {
+        "item": "Vybavení",
+        "totalPrice": "Cena celkem",
+        "start": "Od",
+        "end": "Do",
+        "notes": "Poznámka"
+      },
+      "actions": {
+        "edit": "Upravit",
+        "resend": "Znovu poslat potvrzení",
+        "resendSuccess": "Potvrzení bylo znovu odesláno",
+        "resendError": "Nepodařilo se odeslat zprávu"
+      },
+      "status": {
+        "sent": "Odesláno",
+        "failed": "Chyba"
+      },
+      "messageTypes": {
+        "confirmation": "Potvrzení",
+        "pickup_reminder": "Připomínka vyzvednutí",
+        "return_reminder": "Připomínka vrácení",
+        "review_request": "Žádost o recenzi"
+      },
+      "analytics": {
+        "title": "Analytika",
+        "headline": "Analytika a přehledy",
+        "subtitle": "Klíčové metriky tvé půjčovny – aktualizováno {{date}}.",
+        "loading": "Načítání analytických dat...",
+        "error": "Nepodařilo se načíst analytická data",
+        "lastUpdated": "Aktualizováno: {{time}}",
+        "periods": {
+          "last7Days": "Posledních 7 dní",
+          "last30Days": "Posledních 30 dní",
+          "thisMonth": "Tento měsíc",
+          "lastMonth": "Minulý měsíc"
+        },
+        "actions": {
+          "refresh": "Obnovit data",
+          "exportCustomers": "Exportovat zákazníky"
+        },
+        "tooltips": {
+          "revenue": "Celkové tržby z potvrzených a dokončených rezervací",
+          "activeReservations": "Počet rezervací ve stavu hold, potvrzeno nebo aktivní",
+          "utilization": "Procento inventáře, které je aktuálně půjčeno",
+          "rating": "Funkce hodnocení bude brzy k dispozici"
+        },
+        "cards": {
+          "revenue": {
+            "title": "Tržby (aktuální měsíc)",
+            "subtitle": "Období {{start}} – {{end}}",
+            "trendLabel": "vs. minulý měsíc"
+          },
+          "activeReservations": {
+            "title": "Aktivní rezervace",
+            "subtitle": "Rezervace probíhající právě teď"
+          },
+          "utilization": {
+            "title": "Vytížení inventáře",
+            "subtitle": "{{active}} z {{total}} jednotek využito",
+            "insightLow": "Vytížení je nízké – zvaž propagační akci.",
+            "insightHigh": "Skvělé! Inventář je téměř plně využit."
+          },
+          "rating": {
+            "title": "Průměrné hodnocení",
+            "subtitle": "Na základě zákaznických recenzí",
+            "value": "Již brzy"
+          },
+          "insights": {
+            "title": "Doporučení a insighty",
+            "subtitle": "Brzy přidáme chytré tipy a upozornění – zůstaňte naladěni.",
+            "value": "Pracujeme na AI doporučeních"
+          },
+          "customerKpis": {
+            "title": "Zákaznické metriky",
+            "aov": "Průměrná hodnota objednávky",
+            "repeat": "Podíl vracejících se zákazníků",
+            "deposit": "Podíl rezervací se zálohou",
+            "counts": "Zákazníci a rezervace"
+          }
+        },
+        "charts": {
+          "revenueTrend": {
+            "title": "Vývoj tržeb",
+            "empty": "Žádné tržby v tomto období"
+          },
+          "reservationStatus": {
+            "title": "Rezervace podle stavu",
+            "empty": "Žádné rezervace k zobrazení"
+          }
+        },
+        "tables": {
+          "topCustomers": {
+            "title": "Nejlepší zákazníci",
+            "empty": "Zatím žádní zákazníci",
+            "columns": {
+              "customer": "Zákazník",
+              "email": "Email",
+              "phone": "Telefon",
+              "revenue": "Celkem utraceno",
+              "reservations": "Počet rezervací"
+            }
+          }
+        }
+      }
+    },
+    "reservationForm": {
+      "title": "Nová rezervace",
+      "subtitle": "Vytvořte manuální rezervaci pro zákazníka",
+      "sections": {
+        "customerInfo": "Informace o zákazníkovi",
+        "itemSelection": "Výběr vybavení"
+      },
+      "crmSelect": "Vybrat z databáze (CRM)",
+      "manualEntry": "Nebo vyplňte ručně",
+      "labels": {
+        "name": "Jméno zákazníka",
+        "phone": "Telefon",
+        "email": "E-mail",
+        "product": "Produkt",
+        "variant": "Varianta",
+        "start": "Začátek",
+        "end": "Konec",
+        "notes": "Poznámky",
+        "depositPaid": "Záloha zaplacena"
+      },
+      "placeholders": {
+        "product": "Vyberte produkt",
+        "variant": "Vyberte variantu",
+        "name": "Jméno...",
+        "email": "E-mail...",
+        "phone": "Telefon..."
+      },
+      "availability": {
+        "checking": "Kontroluji dostupnost..."
+      },
+      "pricing": {
+        "rate": "Sazba",
+        "perDay": "den",
+        "duration": "Doba",
+        "days": "dny",
+        "total": "Celkem"
+      },
+      "notes": {
+        "chars": "znaků"
+      },
+      "buttons": {
+        "cancel": "Zrušit",
+        "create": "Vytvořit rezervaci"
+      },
+      "errors": {
+        "nameRequired": "Jméno zákazníka je povinné",
+        "emailInvalid": "Neplatná e-mailová adresa",
+        "phoneInvalid": "Neplatné telefonní číslo",
+        "productRequired": "Vyberte produkt",
+        "variantRequired": "Vyberte variantu",
+        "startRequired": "Vyberte datum začátku",
+        "startPast": "Nelze rezervovat v minulosti",
+        "endRequired": "Vyberte datum konce",
+        "endBeforeStart": "Konec musí být po začátku",
+        "notAvailable": "Varianta není dostupná v tomto termínu"
+      },
+      "toasts": {
+        "fixErrors": "Opravte chyby ve formuláři",
+        "notAvailable": "Varianta již není dostupná",
+        "created": "Rezervace vytvořena. Status: {{status}}",
+        "createError": "Nepodařilo se vytvořit rezervaci",
+        "customerLoaded": "Údaje zákazníka načteny"
+      },
+      "calendar": {
+        "today": "Dnes",
+        "week": "Týden",
+        "month": "Měsíc",
+        "categories": "Kategorie",
+        "categoriesAll": "Všechny kategorie",
+        "statusAll": "Všechny statusy",
+        "unassigned": "Nepřiřazeno",
+        "header": "Vybavení / Varianta",
+        "load": "Vytížení: {{percent}}% ({{active}}/{{total}})"
+      },
+      "crm": {
+        "searchPlaceholder": "Hledat existujícího zákazníka...",
+        "inputPlaceholder": "Jméno...",
+        "searching": "Hledám...",
+        "empty": "Nenalezeno."
+      }
     }
-  }}
+  },
+  "dashboard": {
+    "header": {
+      "missionControl": "Řídicí panel",
+      "greeting": {
+        "morning": "Dobré ráno",
+        "afternoon": "Dobré odpoledne",
+        "evening": "Dobrý večer"
+      },
+      "today": "Dnes"
+    },
+    "kpis": {
+      "active": "Aktivní výpůjčky",
+      "returns": "Dnešní vratky",
+      "revenue": "Denní tržba"
+    },
+    "cta": {
+      "newReservation": "Nová rezervace",
+      "refresh": "Obnovit data",
+      "createReservation": "Vytvořit rezervaci"
+    },
+    "view": {
+      "overview": "Režim přehledu",
+      "operations": "Režim provozu"
+    },
+    "agenda": {
+      "titleOverview": "Dnešní práce",
+      "titleOperations": "Fronta práce",
+      "subtitle": "Všechny dnešní výdeje a vratky",
+      "tabs": {
+        "all": "Vše",
+        "pickups": "Výdeje",
+        "returns": "Vratky"
+      },
+      "items_one": "{{count}} položka",
+      "items_few": "{{count}} položky",
+      "items_other": "{{count}} položek",
+      "pickupLabel": "Výdej",
+      "returnLabel": "Vratka",
+      "issue": "Vydat",
+      "return": "Přijmout",
+      "completed": "Hotovo",
+      "emptyAllTitle": "Máte hotovo!",
+      "emptyAllDesc": "Teď není potřeba žádná akce.",
+      "emptyTabTitle": "Žádné {{tab}} dnes",
+      "emptyTabDesc": "Přepněte na „Vše“ pro další položky"
+    },
+    "status": {
+      "ready": "Připraveno",
+      "unpaid": "Nezaplaceno",
+      "conflict": "Konflikt",
+      "active": "Aktivní",
+      "completed": "Dokončeno"
+    },
+    "exceptions": {
+      "title": "Vyžaduje akci",
+      "resolve": "Vyřešit",
+      "healthyTitle": "Vše v pořádku",
+      "healthyDesc": "Žádné kritické problémy."
+    },
+    "quickStats": {
+      "title": "Rychlá čísla",
+      "revenue": "Tržba",
+      "active": "Aktivní"
+    },
+    "notesPlaceholder": "Poznámky na dnešek..."
+  },
+  "operations": {
+    "customerSheet": {
+      "tabs": {
+        "overview": "Přehled",
+        "timeline": "Timeline",
+        "profile": "Profil"
+      },
+      "risk": {
+        "title": "Řízení rizik",
+        "safe": "Bez rizika",
+        "warning": "Pozor",
+        "blacklist": "BLACKLIST",
+        "trusted": "Důvěryhodný",
+        "verified": "Ověřený",
+        "highRisk": "Vysoké riziko",
+        "markSafe": "Označit jako bezpečné",
+        "markWarning": "Varovat",
+        "markBlacklist": "Přidat na blacklist",
+        "notesLabel": "Poznámky k riziku (proč?)",
+        "notesPlaceholder": "Důvod označení..."
+      },
+      "stats": {
+        "totalSpend": "Celkové útraty",
+        "activeReservations": "Rezervace",
+        "activeNow": "Aktivní nyní"
+      },
+      "internalNotes": {
+        "label": "Interní poznámky",
+        "placeholder": "Přidejte poznámku...",
+        "save": "Uložit poznámky",
+        "saving": "Ukládám..."
+      },
+      "quickActions": {
+        "newReservation": "Nová rezervace",
+        "viewCalendar": "Zobrazit kalendář"
+      },
+      "toast": {
+        "notesSaved": "Poznámky aktualizovány",
+        "notesFailed": "Nepodařilo se uložit poznámky",
+        "riskUpdated": "Status rizika aktualizován na {{status}}"
+      },
+      "profile": {
+        "shoeSize": "Velikost bot",
+        "height": "Výška (cm)",
+        "skill": "Úroveň",
+        "tags": "Tagy"
+      }
+    },
+    "issueFlow": {
+      "title": "Vydat rezervaci",
+      "noAssets": {
+        "title": "Není přiřazené vybavení",
+        "desc": "Rezervace zatím nemá konkrétní položky. Přiřaďte vybavení v kalendáři před vydáním."
+      },
+      "blocked": {
+        "title": "Akce blokována",
+        "desc": "Tato rezervace je",
+        "descSuffix": "Nelze vydat, dokud není uhrazeno.",
+        "override": "Admin override (zapíše událost)"
+      },
+      "ready": "Připraveno k výdeji. Ověřena identita?",
+      "overrideActive": "⚠️ Override aktivní - akce bude zaznamenána.",
+      "cancel": "Zrušit",
+      "confirm": "Potvrdit výdej",
+      "contract": "Smlouva"
+    },
+    "returnFlow": {
+      "title": "Příjem rezervace",
+      "reportDamage": "Nahlásit poškození",
+      "describeIssue": "Popište problém",
+      "evidencePhoto": "Fotodokumentace",
+      "uploadPhoto": "Nahrát fotku",
+      "damageWarning": "Poškozené položky se nastaví do stavu „Servis“.",
+      "cancel": "Zrušit",
+      "complete": "Dokončit příjem",
+      "retry": "Zkusit znovu nahrát",
+      "processing": "Zpracovávám...",
+      "success": "Příjem byl úspěšně zpracován",
+      "alreadyReturned": "Rezervace už byla vrácena",
+      "errors": {
+        "tooLarge": "Soubor je příliš velký",
+        "uploadFailed": "Nahrání fotky selhalo",
+        "saveFailed": "Nepodařilo se zpracovat příjem"
+      }
+    }
+  }
+}

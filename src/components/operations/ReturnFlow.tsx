@@ -85,11 +85,11 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
             setAssets(mapped);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to load assets");
+            toast.error(t('error'));
         } finally {
             setFetching(false);
         }
-    }, [reservation.id]);
+    }, [reservation.id, t]);
 
     useEffect(() => {
         if (open && reservation.id) {
@@ -161,8 +161,8 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                 if (asset.isDamaged && asset.photoFile && reportId) {
                     if (damageRule && asset.photoFile.size > damageRule.maxBytes) {
                         uploadErrors++;
-                        toast.error("Soubor je příliš velký", {
-                            description: `Maximální velikost je ${Math.round(damageRule.maxBytes / (1024 * 1024))} MB.`,
+                        toast.error(t('operations.returnFlow.errors.tooLarge'), {
+                            description: `${Math.round(damageRule.maxBytes / (1024 * 1024))} MB`,
                         });
                         continue;
                     }
@@ -189,9 +189,9 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                         uploadErrors++;
 
                         if (uploadError instanceof UploadTicketError) {
-                            toast.error("Nahrání fotky selhalo", {
+                            toast.error(t('operations.returnFlow.errors.uploadFailed'), {
                                 description: uploadError.reasonCode === "mime_not_allowed"
-                                    ? "Formát souboru není povolen."
+                                    ? t('operations.returnFlow.errors.uploadFailed')
                                     : uploadError.message,
                             });
                         }
@@ -209,17 +209,17 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
                 if (attachError) {
                     console.error("Failed to attach photos", attachError);
-                    toast.error("Return saved, but photo attachment failed. Please retry.");
+                    toast.error(t('operations.returnFlow.errors.uploadFailed'));
                     throw attachError; // Trigger retry state
                 }
             }
 
             if (uploadErrors > 0) {
-                toast.warning(`Return processed but ${uploadErrors} photo(s) failed to upload. Please retry.`);
+                toast.warning(t('operations.returnFlow.errors.uploadFailed'));
                 // Don't close dialog if uploads failed, let user retry
                 return;
             } else {
-                toast.success(t('operations.returnFlow.success', 'Return processed successfully'));
+                toast.success(t('operations.returnFlow.success'));
             }
 
             await onConfirm(reservation.id, assets.some(a => a.isDamaged));
@@ -229,7 +229,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : 'Unknown error';
             console.error(e);
-            toast.error(message || "Failed to process return");
+            toast.error(message || t('operations.returnFlow.errors.saveFailed'));
             // Do NOT close dialog on error, allowing retry
         } finally {
             setLoading(false);
@@ -243,8 +243,8 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
             <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <PackageCheck className="w-5 h-5 text-blue-600" />
-                        {t('operations.returnFlow.title', 'Return Reservation')}
+                        <PackageCheck className="w-5 h-5 text-emerald-600" />
+                        {t('operations.returnFlow.title')}
                     </DialogTitle>
                     <DialogDescription>
                         {reservation.customerName} - {reservation.itemName}
@@ -273,7 +273,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                                 onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
                                             />
                                             <Label htmlFor={`dmg-${asset.id}`} className="text-sm cursor-pointer">
-                                                Report Damage
+                                                {t('operations.returnFlow.reportDamage')}
                                             </Label>
                                         </div>
                                     </div>
@@ -281,9 +281,9 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                     {asset.isDamaged && (
                                         <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
                                             <div className="space-y-1">
-                                                <Label className="text-xs">Describe Issue</Label>
+                                                <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
                                                 <Textarea
-                                                    placeholder="What is damaged?"
+                                                    placeholder={t('operations.returnFlow.describeIssue')}
                                                     className="h-20 text-xs bg-white"
                                                     value={asset.note}
                                                     onChange={(e) => updateNote(asset.id, e.target.value)}
@@ -291,7 +291,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                             </div>
 
                                             <div className="space-y-1">
-                                                <Label className="text-xs">Evidence Photo</Label>
+                                                <Label className="text-xs">{t('operations.returnFlow.evidencePhoto')}</Label>
                                                 <div className="flex items-center gap-2">
                                                     <input
                                                         type="file"
@@ -302,7 +302,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                                     />
                                                     <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-${asset.id}`)?.click()}>
                                                         <Camera className="w-3 h-3 mr-2" />
-                                                        {asset.photoFile ? asset.photoFile.name : "Upload Photo"}
+                                                        {asset.photoFile ? asset.photoFile.name : t('operations.returnFlow.uploadPhoto')}
                                                     </Button>
                                                 </div>
                                             </div>
@@ -316,17 +316,17 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                     {hasAnyDamage && (
                         <div className="flex items-center gap-2 p-3 text-xs text-orange-800 bg-orange-100 rounded-md">
                             <AlertOctagon className="w-4 h-4" />
-                            Items marked as damaged will be set to 'Maintenance' status.
+                            {t('operations.returnFlow.damageWarning')}
                         </div>
                     )}
                 </div>
 
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
-                        Cancel
+                        {t('operations.returnFlow.cancel')}
                     </Button>
                     <Button onClick={handleConfirm} disabled={loading || fetching} className={hasAnyDamage ? "bg-orange-600 hover:bg-orange-700" : ""}>
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (successfullyReturnedReportId ? "Retry Upload" : "Complete Return")}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (successfullyReturnedReportId ? t('operations.returnFlow.retry') : t('operations.returnFlow.complete'))}
                     </Button>
                 </DialogFooter>
             </DialogContent>

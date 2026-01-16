@@ -18,6 +18,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export interface CustomerOption {
     id: string;
@@ -35,6 +36,7 @@ export function CustomerPicker({ value, onSelect }: CustomerPickerProps) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const { provider } = useAuth();
+    const { t } = useTranslation();
 
     const { data: customers = [], isLoading } = useQuery({
         queryKey: ['crm-search', provider?.id, search],
@@ -81,18 +83,18 @@ export function CustomerPicker({ value, onSelect }: CustomerPickerProps) {
                             </span>
                         </span>
                     ) : (
-                        <span className="text-muted-foreground">Hledat existujícího zákazníka...</span>
+                        <span className="text-muted-foreground">{t('provider.reservationForm.crm.searchPlaceholder')}</span>
                     )}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0" align="start">
+            <PopoverContent className="w-[320px] p-0 bg-white shadow-lg border rounded-xl" align="start">
                 <Command shouldFilter={false}>
-                    <CommandInput placeholder="Jméno..." onValueChange={setSearch} />
+                    <CommandInput placeholder={t('provider.reservationForm.crm.inputPlaceholder')} onValueChange={setSearch} />
                     <CommandList>
-                        {isLoading && <div className="p-2 text-xs text-muted-foreground text-center">Hledám...</div>}
+                        {isLoading && <div className="p-2 text-xs text-muted-foreground text-center">{t('provider.reservationForm.crm.searching')}</div>}
                         {!isLoading && customers.length === 0 && (
-                            <CommandEmpty>Nenalezeno.</CommandEmpty>
+                            <CommandEmpty>{t('provider.reservationForm.crm.empty')}</CommandEmpty>
                         )}
                         <CommandGroup>
                             {!isLoading && customers.map((customer) => (

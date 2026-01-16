@@ -245,9 +245,13 @@ export function validatePhone(phone: string): boolean {
   // Remove all spaces
   const cleaned = phone.replace(/\s/g, '');
 
-  // Check format: +420 or +421 followed by 9 digits
-  const phoneRegex = /^(\+420|\+421)\d{9}$/;
-  return phoneRegex.test(cleaned);
+  // Primary: CZ/SK formats
+  const czSkRegex = /^(\+420|\+421)\d{9}$/;
+  if (czSkRegex.test(cleaned)) return true;
+
+  // Fallback: generic E.164-ish (+ and 8-15 digits)
+  const generic = /^\+?\d{8,15}$/;
+  return generic.test(cleaned);
 }
 
 /**

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Home,
   Package,
-  Calendar,
   BarChart3,
   Settings,
   Plus,
@@ -42,7 +41,6 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       title: 'Overview',
       items: [
         { path: '/provider/dashboard', label: 'provider.sidebar.nav.dashboard', icon: Home },
-        { path: '/provider/calendar', label: 'Kalendář', icon: CalendarDays },
         // Only show Analytics if permitted
         ...(canViewFinancials ? [{ path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 }] : []),
       ]

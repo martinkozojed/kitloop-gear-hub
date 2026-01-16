@@ -60,10 +60,10 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                 .eq('id', customerId);
 
             if (error) throw error;
-            toast.success('Notes updated');
+            toast.success(t('operations.customerSheet.toast.notesSaved'));
             if (onUpdate) onUpdate();
         } catch (err: any) {
-            toast.error('Failed to save notes');
+            toast.error(t('operations.customerSheet.toast.notesFailed'));
         } finally {
             setSavingNotes(false);
         }
@@ -78,11 +78,11 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                 .eq('id', customerId);
 
             if (error) throw error;
-            toast.success(`Risk status updated to ${status.toUpperCase()}`);
+            toast.success(t('operations.customerSheet.toast.riskUpdated', { status: status.toUpperCase() }));
             fetchCustomer360(customerId); // Refresh
             if (onUpdate) onUpdate();
         } catch (e) {
-            toast.error("Failed to update risk status");
+            toast.error(t('error'));
         }
     }
 
@@ -146,7 +146,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                         </div>
                                     )}
                                     {account && (
-                                        <div className="flex items-center gap-2 text-blue-600">
+                                        <div className="flex items-center gap-2 text-emerald-700">
                                             <Building2 className="w-3.5 h-3.5" />
                                             <span className="font-medium">{account.name}</span>
                                         </div>
@@ -158,10 +158,10 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                         {/* Quick Actions (Future placeholder) */}
                         <div className="grid grid-cols-2 gap-2">
                             <Button variant="outline" className="w-full">
-                                <Activity className="w-4 h-4 mr-2" /> New Reservation
+                                <Activity className="w-4 h-4 mr-2" /> {t('operations.customerSheet.quickActions.newReservation')}
                             </Button>
                             <Button variant="outline" className="w-full">
-                                <Calendar className="w-4 h-4 mr-2" /> View Calendar
+                                <Calendar className="w-4 h-4 mr-2" /> {t('operations.customerSheet.quickActions.viewCalendar')}
                             </Button>
                         </div>
 

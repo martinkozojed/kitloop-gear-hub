@@ -535,13 +535,56 @@
       }
     },
     "reservations": {
-      "alreadyConfirmed": "This reservation is already confirmed",
-      "confirmSuccess": "Reservation confirmed successfully",
-      "confirmError": "Failed to confirm reservation",
-      "cannotCancel": "This reservation cannot be cancelled",
-      "cancelConfirm": "Are you sure you want to cancel this reservation?",
-      "cancelSuccess": "Reservation cancelled successfully",
-      "cancelError": "Failed to cancel reservation"
+      "title": "Reservations",
+      "subtitle": "Manage reservations for your gear",
+      "tabs": {
+        "list": "List",
+        "calendar": "Calendar"
+      },
+      "filters": {
+        "toggle": "Filters",
+        "search": "Search...",
+        "status": "Status",
+        "all": "All",
+        "confirmed": "Confirmed",
+        "active": "Active",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "table": {
+        "customer": "Customer",
+        "item": "Item",
+        "dates": "Dates",
+        "status": "Status",
+        "contact": "Contact",
+        "note": "Note"
+      },
+      "cta": {
+        "new": "New reservation",
+        "confirm": "Confirm",
+        "detail": "Detail"
+      },
+      "empty": "No reservations to display.",
+      "toasts": {
+        "fetchError": "Failed to load reservations",
+        "actionError": "Action failed",
+        "confirmed": "Reservation confirmed",
+        "cancelled": "Reservation cancelled"
+      },
+      "status": {
+        "unknown": "Unknown"
+      },
+      "calendar": {
+        "today": "Today",
+        "week": "Week",
+        "month": "Month",
+        "categories": "Category",
+        "categoriesAll": "All categories",
+        "statusAll": "All statuses",
+        "unassigned": "Unassigned",
+        "header": "Gear / Variant",
+        "load": "Load: {{percent}}% ({{active}}/{{total}})"
+      }
     },
     "reservationDetail": {
       "header": {
@@ -582,6 +625,87 @@
         "pickup_reminder": "Pickup Reminder",
         "return_reminder": "Return Reminder",
         "review_request": "Review Request"
+      }
+    },
+    "reservationForm": {
+      "title": "New reservation",
+      "subtitle": "Create a manual reservation for a customer",
+      "sections": {
+        "customerInfo": "Customer information",
+        "itemSelection": "Gear selection"
+      },
+      "crmSelect": "Pick from CRM database",
+      "manualEntry": "Or fill manually",
+      "labels": {
+        "name": "Customer name",
+        "phone": "Phone",
+        "email": "Email",
+        "product": "Product",
+        "variant": "Variant",
+        "start": "Start",
+        "end": "End",
+        "notes": "Notes",
+        "depositPaid": "Deposit paid"
+      },
+      "placeholders": {
+        "product": "Select product",
+        "variant": "Select variant",
+        "name": "Full name",
+        "email": "Email...",
+        "phone": "Phone..."
+      },
+      "availability": {
+        "checking": "Checking availability..."
+      },
+      "pricing": {
+        "rate": "Rate",
+        "perDay": "day",
+        "duration": "Duration",
+        "days": "days",
+        "total": "Total"
+      },
+      "notes": {
+        "chars": "chars"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "create": "Create reservation"
+      },
+      "errors": {
+        "nameRequired": "Customer name is required",
+        "emailInvalid": "Invalid email address",
+        "phoneInvalid": "Invalid phone number",
+        "productRequired": "Select a product",
+        "variantRequired": "Select a variant",
+        "startRequired": "Select start date",
+        "startPast": "Cannot book in the past",
+        "endRequired": "Select end date",
+        "endBeforeStart": "End must be after start",
+        "notAvailable": "Variant is not available for these dates"
+      },
+      "toasts": {
+        "fixErrors": "Please fix the errors in the form",
+        "notAvailable": "Variant is no longer available",
+        "created": "Reservation created. Status: {{status}}",
+        "createError": "Failed to create reservation",
+        "customerLoaded": "Customer details loaded"
+      },
+      "calendar": {
+        "today": "Today",
+        "week": "Week",
+        "month": "Month",
+        "categories": "Category",
+        "categoriesAll": "All categories",
+        "statusAll": "All statuses",
+        "unassigned": "Unassigned",
+        "header": "Gear / Variant",
+        "load": "Load: {{percent}}% ({{active}}/{{total}})"
+      },
+      "crm": {
+        "searchPlaceholder": "Search existing customer...",
+        "inputPlaceholder": "Name...",
+        "searching": "Searching...",
+        "empty": "Not found."
       }
     }
   },
@@ -724,6 +848,71 @@
       }
     }
   },
+  "dashboard": {
+    "header": {
+      "missionControl": "Mission Control",
+      "greeting": {
+        "morning": "Good morning",
+        "afternoon": "Good afternoon",
+        "evening": "Good evening"
+      },
+      "today": "Today"
+    },
+    "kpis": {
+      "active": "Active rentals",
+      "returns": "Returns today",
+      "revenue": "Daily revenue"
+    },
+    "cta": {
+      "newReservation": "New reservation",
+      "refresh": "Refresh data",
+      "createReservation": "Create reservation"
+    },
+    "view": {
+      "overview": "Overview mode",
+      "operations": "Operations mode"
+    },
+    "agenda": {
+      "titleOverview": "Today's work",
+      "titleOperations": "Work Queue",
+      "subtitle": "All pickups and returns for today",
+      "tabs": {
+        "all": "All",
+        "pickups": "Pickups",
+        "returns": "Returns"
+      },
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "pickupLabel": "Pickup",
+      "returnLabel": "Return",
+      "issue": "Issue",
+      "return": "Complete return",
+      "completed": "Done",
+      "emptyAllTitle": "All caught up!",
+      "emptyAllDesc": "No actions required currently.",
+      "emptyTabTitle": "No {{tab}} today",
+      "emptyTabDesc": "Switch to \"All\" to see other items"
+    },
+    "status": {
+      "ready": "Ready",
+      "unpaid": "Unpaid",
+      "conflict": "Conflict",
+      "active": "Active",
+      "completed": "Completed"
+    },
+    "exceptions": {
+      "title": "Requires action",
+      "resolve": "Resolve",
+      "healthyTitle": "System healthy",
+      "healthyDesc": "No critical issues found."
+    },
+    "quickStats": {
+      "title": "Quick stats",
+      "revenue": "Revenue",
+      "active": "Active"
+    },
+    "notesPlaceholder": "Write daily notes here..."
+  },
   "operations": {
     "customerSheet": {
       "tabs": {
@@ -756,6 +945,15 @@
         "save": "Save Notes",
         "saving": "Saving..."
       },
+      "quickActions": {
+        "newReservation": "New reservation",
+        "viewCalendar": "View calendar"
+      },
+      "toast": {
+        "notesSaved": "Notes updated",
+        "notesFailed": "Failed to save notes",
+        "riskUpdated": "Risk status updated to {{status}}"
+      },
       "profile": {
         "shoeSize": "Shoe Size",
         "height": "Height (cm)",
@@ -780,6 +978,25 @@
       "cancel": "Cancel",
       "confirm": "Confirm Issue",
       "contract": "Contract"
+    },
+    "returnFlow": {
+      "title": "Return reservation",
+      "reportDamage": "Report damage",
+      "describeIssue": "Describe issue",
+      "evidencePhoto": "Evidence photo",
+      "uploadPhoto": "Upload photo",
+      "damageWarning": "Items marked as damaged will be set to \"Maintenance\" status.",
+      "cancel": "Cancel",
+      "complete": "Complete return",
+      "retry": "Retry upload",
+      "processing": "Processing...",
+      "success": "Return processed successfully",
+      "alreadyReturned": "Reservation already returned",
+      "errors": {
+        "tooLarge": "File is too large",
+        "uploadFailed": "Photo upload failed",
+        "saveFailed": "Failed to process return"
+      }
     }
   }
 }

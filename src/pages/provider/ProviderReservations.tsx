@@ -132,7 +132,7 @@ const ProviderReservations = () => {
         setFilteredReservations(normalizedReservations);
       } catch (error) {
         console.error('Error fetching reservations:', error);
-        toast.error('Chyba při načítání rezervací');
+        toast.error(t('provider.reservations.toasts.fetchError'));
       } finally {
         setLoading(false);
       }
@@ -192,10 +192,10 @@ const ProviderReservations = () => {
       if (error) throw error;
 
       setReservations(prev => prev.map(r => r.id === reservationId ? { ...r, status } : r));
-      toast.success(`Rezervace ${action === 'confirm' ? 'potvrzena' : 'zrušena'}`);
+      toast.success(action === 'confirm' ? t('provider.reservations.toasts.confirmed') : t('provider.reservations.toasts.cancelled'));
     } catch (e: unknown) {
       console.error(e);
-      toast.error('Akce se nezdařila');
+      toast.error(t('provider.reservations.toasts.actionError'));
     } finally {
       setLoadingActions(prev => ({ ...prev, [reservationId]: false }));
     }
@@ -225,7 +225,7 @@ const ProviderReservations = () => {
       cancelled: { label: t('provider.dashboard.status.cancelled'), variant: 'destructive' },
     };
 
-    const config = statusMap[status || 'pending'] || { label: status || 'Neznámý', variant: 'outline' };
+    const config = statusMap[status || 'pending'] || { label: status ? status : t('provider.reservations.status.unknown'), variant: 'outline' };
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -244,14 +244,14 @@ const ProviderReservations = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Rezervace</h1>
-            <p className="text-muted-foreground">Spravujte rezervace vašeho vybavení</p>
+            <h1 className="text-3xl font-bold mb-2">{t('provider.reservations.title')}</h1>
+            <p className="text-muted-foreground">{t('provider.reservations.subtitle')}</p>
           </div>
           <div className="flex gap-2">
             <Button asChild className="w-full sm:w-auto">
               <Link to="/provider/reservations/new">
                 <Plus className="w-4 h-4 mr-2" />
-                Nová rezervace
+                {t('provider.reservations.cta.new')}
               </Link>
             </Button>
           </div>
@@ -260,12 +260,12 @@ const ProviderReservations = () => {
         <Tabs defaultValue="list" className="w-full">
           <div className="flex items-center justify-between mb-4">
             <TabsList>
-              <TabsTrigger value="list"><List className="w-4 h-4 mr-2" /> Seznam</TabsTrigger>
-              <TabsTrigger value="calendar"><LayoutGrid className="w-4 h-4 mr-2" /> Kalendář</TabsTrigger>
+              <TabsTrigger value="list"><List className="w-4 h-4 mr-2" /> {t('provider.reservations.tabs.list')}</TabsTrigger>
+              <TabsTrigger value="calendar"><LayoutGrid className="w-4 h-4 mr-2" /> {t('provider.reservations.tabs.calendar')}</TabsTrigger>
             </TabsList>
 
             <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
-              <Filter className="w-4 h-4 mr-2" /> Filtry
+              <Filter className="w-4 h-4 mr-2" /> {t('provider.reservations.filters.toggle')}
             </Button>
           </div>
 
@@ -274,18 +274,18 @@ const ProviderReservations = () => {
               <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Hledat..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+                  <Input placeholder={t('provider.reservations.filters.search')} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Stav" />
+                    <SelectValue placeholder={t('provider.reservations.filters.status')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Vše</SelectItem>
-                    <SelectItem value="confirmed">Potvrzeno</SelectItem>
-                    <SelectItem value="active">Aktivní</SelectItem>
-                    <SelectItem value="completed">Dokončeno</SelectItem>
-                    <SelectItem value="cancelled">Zrušeno</SelectItem>
+                    <SelectItem value="all">{t('provider.reservations.filters.all')}</SelectItem>
+                    <SelectItem value="confirmed">{t('provider.reservations.filters.confirmed')}</SelectItem>
+                    <SelectItem value="active">{t('provider.reservations.filters.active')}</SelectItem>
+                    <SelectItem value="completed">{t('provider.reservations.filters.completed')}</SelectItem>
+                    <SelectItem value="cancelled">{t('provider.reservations.filters.cancelled')}</SelectItem>
                   </SelectContent>
                 </Select>
               </CardContent>
@@ -294,16 +294,16 @@ const ProviderReservations = () => {
 
           <TabsContent value="list" className="space-y-4">
             {filteredReservations.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">Žádné rezervace k zobrazení.</div>
+              <div className="text-center py-12 text-muted-foreground">{t('provider.reservations.empty')}</div>
             ) : (
               <div className="rounded-md border bg-card">
                 <table className="w-full text-sm text-left">
                   <thead className="bg-muted/50 border-b">
                     <tr>
-                      <th className="p-4 font-medium">Zákazník</th>
-                      <th className="p-4 font-medium">Vybavení</th>
-                      <th className="p-4 font-medium">Termín</th>
-                      <th className="p-4 font-medium">Stav</th>
+                      <th className="p-4 font-medium">{t('provider.reservations.table.customer')}</th>
+                      <th className="p-4 font-medium">{t('provider.reservations.table.item')}</th>
+                      <th className="p-4 font-medium">{t('provider.reservations.table.dates')}</th>
+                      <th className="p-4 font-medium">{t('provider.reservations.table.status')}</th>
                       <th className="p-4 font-medium w-[50px]"></th>
                     </tr>
                   </thead>
@@ -331,7 +331,7 @@ const ProviderReservations = () => {
                             <td colSpan={5} className="p-4">
                               <div className="grid md:grid-cols-2 gap-4">
                                 <div>
-                                  <h4 className="font-semibold mb-2">Kontakt</h4>
+                                  <h4 className="font-semibold mb-2">{t('provider.reservations.table.contact')}</h4>
                                   <div className="text-sm space-y-1">
                                     <div>{r.customer_email}</div>
                                     <div>{r.customer_phone}</div>
@@ -341,19 +341,19 @@ const ProviderReservations = () => {
                                   {r.status === 'hold' || r.status === 'pending' ? (
                                     <Button size="sm" onClick={() => handleAction(r.id, 'confirm')} disabled={loadingActions[r.id]}>
                                       {loadingActions[r.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-                                      Potvrdit
+                                      {t('provider.reservations.cta.confirm')}
                                     </Button>
                                   ) : null}
                                   <Button size="sm" variant="outline" asChild>
                                     <Link to={`/provider/reservations/edit/${r.id}`}>
-                                      <Edit className="w-4 h-4 mr-2" /> Detail
+                                      <Edit className="w-4 h-4 mr-2" /> {t('provider.reservations.cta.detail')}
                                     </Link>
                                   </Button>
                                 </div>
                               </div>
                               {r.notes && (
                                 <div className="mt-4 p-3 bg-background rounded border text-sm text-muted-foreground">
-                                  <span className="font-medium text-foreground">Poznámka: </span> {r.notes}
+                                  <span className="font-medium text-foreground">{t('provider.reservations.table.note')}: </span> {r.notes}
                                 </div>
                               )}
                             </td>

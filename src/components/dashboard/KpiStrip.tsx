@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Activity, RotateCcw, Euro } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface KpiMetric {
     label: string;
@@ -13,30 +14,41 @@ interface KpiMetric {
 import { KpiData } from "@/types/dashboard";
 
 export function KpiStrip({ data }: { data?: KpiData }) {
+    const { t } = useTranslation();
+    const numberFormatter = new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: 0 });
+    const currencyFormatter = new Intl.NumberFormat("cs-CZ", {
+        style: "currency",
+        currency: "CZK",
+        maximumFractionDigits: 0
+    });
+
+    const formatCount = (value?: number) => numberFormatter.format(value ?? 0);
+    const formatCurrency = (value?: number) => currencyFormatter.format(value ?? 0);
+
     const metrics: KpiMetric[] = [
         {
-            label: "Active Rentals",
-            value: data?.activeRentals.toString() || "0",
+            label: t("dashboard.kpis.active"),
+            value: formatCount(data?.activeRentals),
             trend: data?.activeTrend || "stable",
             trendDir: data?.activeTrendDir || "neutral",
             icon: Activity,
-            color: "text-blue-500"
+            color: "text-emerald-600"
         },
         {
-            label: "Returns Today",
-            value: data?.returnsToday.toString() || "0",
+            label: t("dashboard.kpis.returns"),
+            value: formatCount(data?.returnsToday),
             trend: data?.returnsTrend || "pending",
             trendDir: data?.returnsTrendDir || "neutral",
             icon: RotateCcw,
-            color: "text-orange-500"
+            color: "text-emerald-500"
         },
         {
-            label: "Daily Revenue",
-            value: `${data?.dailyRevenue || 0} Kč`,
+            label: t("dashboard.kpis.revenue"),
+            value: formatCurrency(data?.dailyRevenue),
             trend: data?.revenueTrend || "stable",
             trendDir: data?.revenueTrendDir || "neutral",
             icon: Euro,
-            color: "text-emerald-500"
+            color: "text-emerald-700"
         }
     ];
 

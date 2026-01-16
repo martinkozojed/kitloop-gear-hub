@@ -23,10 +23,20 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { toast } from "sonner";
 import { PageLoadingSkeleton } from "@/components/ui/loading-state";
+import { useTranslation } from "react-i18next";
+import { enUS } from "date-fns/locale";
+
+const numberFormatter = new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: 0 });
+const currencyFormatter = new Intl.NumberFormat("cs-CZ", {
+  style: "currency",
+  currency: "CZK",
+  maximumFractionDigits: 0
+});
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
   const { canViewFinancials } = usePermissions();
+  const { t, i18n } = useTranslation();
 
   // Use Custom Hook for Data & Mutations
   const {
@@ -77,10 +87,12 @@ const DashboardOverview = () => {
   // Memoize greeting to avoid recalculating on every render
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  }, []); // Empty deps = calculate once on mount
+    if (hour < 12) return t('dashboard.header.greeting.morning');
+    if (hour < 18) return t('dashboard.header.greeting.afternoon');
+    return t('dashboard.header.greeting.evening');
+  }, [t]); // Empty deps = calculate once on mount
+
+  const currentLocale = i18n.language.startsWith('cs') ? cs : enUS;
 
   // --- Handlers ---
   const handleIssueClick = (reservation: AgendaItemProps) => {
@@ -131,13 +143,13 @@ const DashboardOverview = () => {
   return (
     <ProviderLayout>
       <TooltipProvider>
-        <div className="space-y-8">
+        <div className="space-y-3 pt-0">
 
           {/* 1. Header & Controls */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 animate-fade-in">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 animate-fade-in -mt-3 sm:-mt-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                <span>Mission Control</span>
+                <span>{t('dashboard.header.missionControl')}</span>
                 <SyncIndicator />
               </div>
               <h1 className="text-3xl lg:text-4xl font-heading font-bold tracking-tight text-foreground flex items-center gap-2">
@@ -146,7 +158,7 @@ const DashboardOverview = () => {
               <p className="text-muted-foreground flex items-center gap-2 text-sm">
                 <CalendarIcon className="w-4 h-4 text-primary" />
                 <span className="text-foreground/80 font-medium">
-                  {format(new Date(), "EEEE, d. MMMM", { locale: cs })}
+                  {format(new Date(), "EEEE, d. MMMM", { locale: currentLocale })}
                 </span>
               </p>
             </div>
@@ -160,7 +172,7 @@ const DashboardOverview = () => {
                       <TooltipTrigger asChild>
                         <LayoutDashboard className="h-4 w-4" />
                       </TooltipTrigger>
-                      <TooltipContent>Overview Mode</TooltipContent>
+                      <TooltipContent>{t('dashboard.view.overview')}</TooltipContent>
                     </Tooltip>
                   </ToggleGroupItem>
                   <ToggleGroupItem value="operations" aria-label="Operations Mode">
@@ -168,7 +180,7 @@ const DashboardOverview = () => {
                       <TooltipTrigger asChild>
                         <ListTodo className="h-4 w-4" />
                       </TooltipTrigger>
-                      <TooltipContent>Operations Mode</TooltipContent>
+                      <TooltipContent>{t('dashboard.view.operations')}</TooltipContent>
                     </Tooltip>
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -181,7 +193,7 @@ const DashboardOverview = () => {
                     <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Refresh Data</TooltipContent>
+                <TooltipContent>{t('dashboard.cta.refresh')}</TooltipContent>
               </Tooltip>
 
               {/* FILTER - TODO: Implement filtering functionality */}
@@ -193,11 +205,11 @@ const DashboardOverview = () => {
                   <Button asChild>
                     <Link to="/provider/reservations/new">
                       <Plus className="w-4 h-4 mr-2" />
-                      New Reservation
+                      {t('dashboard.cta.newReservation')}
                     </Link>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Create a new booking (C)</TooltipContent>
+                <TooltipContent>{t('dashboard.cta.newReservation')}</TooltipContent>
               </Tooltip>
             </div>
           </div>
@@ -215,9 +227,9 @@ const DashboardOverview = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="font-semibold text-xl flex items-center gap-2 text-foreground">
-                    {viewMode === 'operations' ? "Work Queue" : "Today's Work"}
+                    {viewMode === 'operations' ? t('dashboard.agenda.titleOperations') : t('dashboard.agenda.titleOverview')}
                   </h3>
-                  <p className="text-sm text-muted-foreground">All pickups and returns for today</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.agenda.subtitle')}</p>
                 </div>
 
                 {/* Visual Tab Switcher (Functional) */}
@@ -228,7 +240,7 @@ const DashboardOverview = () => {
                     className={`h-8 text-xs font-semibold ${agendaTab === 'all' ? 'shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('all')}
                   >
-                    All <span className="ml-1 opacity-50">({agendaItems.length})</span>
+                    {t('dashboard.agenda.tabs.all')} <span className="ml-1 opacity-50">({agendaItems.length})</span>
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -236,7 +248,7 @@ const DashboardOverview = () => {
                     className={`h-8 text-xs ${agendaTab === 'pickups' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('pickups')}
                   >
-                    Pickups <span className="ml-1 opacity-50">({pickupsCount})</span>
+                    {t('dashboard.agenda.tabs.pickups')} <span className="ml-1 opacity-50">({pickupsCount})</span>
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -244,7 +256,7 @@ const DashboardOverview = () => {
                     className={`h-8 text-xs ${agendaTab === 'returns' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('returns')}
                   >
-                    Returns <span className="ml-1 opacity-50">({returnsCount})</span>
+                    {t('dashboard.agenda.tabs.returns')} <span className="ml-1 opacity-50">({returnsCount})</span>
                   </Button>
                 </div>
               </div>
@@ -263,10 +275,10 @@ const DashboardOverview = () => {
                 {filteredAgendaItems.length === 0 && agendaItems.length === 0 && (
                   <EmptyState
                     icon={CheckCircle2}
-                    title="All caught up!"
-                    description="No actions required currently."
+                    title={t('dashboard.agenda.emptyAllTitle')}
+                    description={t('dashboard.agenda.emptyAllDesc')}
                     action={{
-                      label: "Create Reservation",
+                      label: t('dashboard.cta.createReservation'),
                       onClick: () => navigate('/provider/reservations/new')
                     }}
                     className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted/10 rounded-xl"
@@ -276,8 +288,8 @@ const DashboardOverview = () => {
                 {filteredAgendaItems.length === 0 && agendaItems.length > 0 && (
                   <EmptyState
                     icon={CheckCircle2}
-                    title={`No ${agendaTab} today`}
-                    description={`Switch to "All" to see other items`}
+                    title={t('dashboard.agenda.emptyTabTitle', { tab: t(`dashboard.agenda.tabs.${agendaTab}`) })}
+                    description={t('dashboard.agenda.emptyTabDesc')}
                     className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted/10 rounded-xl"
                   />
                 )}
@@ -285,28 +297,32 @@ const DashboardOverview = () => {
             </div>
 
             {/* Right Column: Exceptions & Notes (Taking 4 cols) */}
-            <div className="lg:col-span-4 xl:col-span-3 space-y-6">
+            <div className="lg:col-span-4 xl:col-span-3 space-y-6" id="exceptions-panel">
               <ExceptionsQueue exceptions={exceptions} />
 
               <div className="bento-card p-4 space-y-4">
                 <h4 className="font-semibold text-sm flex items-center gap-2">
-                  <LayoutDashboard className="w-4 h-4 text-muted-foreground" /> Quick Stats
+                  <LayoutDashboard className="w-4 h-4 text-muted-foreground" /> {t('dashboard.quickStats.title')}
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <div className="text-xs text-muted-foreground uppercase font-bold">Revenue</div>
-                    <div className="text-lg font-bold text-blue-700">{(kpiData.dailyRevenue / 100).toFixed(0)}</div>
+                  <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                    <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.revenue')}</div>
+                    <div className="text-lg font-bold text-emerald-700">
+                      {currencyFormatter.format(kpiData.dailyRevenue || 0)}
+                    </div>
                   </div>
-                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
-                    <div className="text-xs text-muted-foreground uppercase font-bold">Active</div>
-                    <div className="text-lg font-bold text-purple-700">{kpiData.activeRentals}</div>
+                  <div className="p-3 bg-emerald-100 rounded-lg border border-emerald-200">
+                    <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.active')}</div>
+                    <div className="text-lg font-bold text-emerald-800">
+                      {numberFormatter.format(kpiData.activeRentals || 0)}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {viewMode === 'overview' && (
                 <div className="p-4 rounded-lg border bg-amber-50/50 border-amber-200/50 border-dashed text-center text-sm text-amber-900/60">
-                  Write daily notes here...
+                  {t('dashboard.notesPlaceholder')}
                 </div>
               )}
             </div>
@@ -349,6 +365,7 @@ const DashboardOverview = () => {
 
         </div>
       </TooltipProvider>
+
     </ProviderLayout>
   );
 };

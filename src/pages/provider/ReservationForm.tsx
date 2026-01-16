@@ -18,6 +18,8 @@ import { getErrorMessage } from '@/lib/error-utils';
 import { CustomerPicker, CustomerOption } from '@/components/crm/CustomerPicker';
 import { Separator } from '@/components/ui/separator';
 import { logger } from '@/lib/logger';
+import { useTranslation } from 'react-i18next';
+import { cs, enUS } from 'date-fns/locale';
 
 interface Variant {
   id: string;
@@ -70,6 +72,8 @@ interface AvailabilityState {
 const ReservationForm = () => {
   const navigate = useNavigate();
   const { provider } = useAuth();
+  const { t, i18n } = useTranslation();
+  const currentLocale = i18n.language.startsWith('cs') ? cs : enUS;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,7 +82,7 @@ const ReservationForm = () => {
   const [formData, setFormData] = useState<FormData>({
     customer_name: '',
     customer_email: '',
-    customer_phone: '+420 ',
+    customer_phone: '',
     product_id: '',
     variant_id: '',
     quantity: 1,
@@ -93,6 +97,7 @@ const ReservationForm = () => {
     checking: false,
     result: null,
   });
+  const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
 
   // Fetch Products & Variants
   useEffect(() => {
@@ -146,8 +151,15 @@ const ReservationForm = () => {
         return;
       }
 
-      const start = new Date(formData.start_date);
-      const end = new Date(formData.end_date);
+      const startLocal = new Date(formData.start_date);
+      const endLocal = new Date(formData.end_date);
+
+      // Avoid timezone shift by preserving wall time
+      const normalizeToUtc = (d: Date) =>
+        new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()));
+
+      const start = normalizeToUtc(startLocal);
+      const end = normalizeToUtc(endLocal);
 
       if (end <= start) {
         setAvailability({
@@ -225,37 +237,37 @@ const ReservationForm = () => {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!formData.customer_name.trim()) newErrors.customer_name = 'Jméno zákazníka je povinné';
+    if (!formData.customer_name.trim()) newErrors.customer_name = t('provider.reservationForm.errors.nameRequired');
     if (formData.customer_email && !validateEmail(formData.customer_email)) {
-      newErrors.customer_email = 'Neplatná e-mailová adresa';
+      newErrors.customer_email = t('provider.reservationForm.errors.emailInvalid');
     }
     if (!validatePhone(formData.customer_phone)) {
-      newErrors.customer_phone = 'Neplatné telefonní číslo';
+      newErrors.customer_phone = t('provider.reservationForm.errors.phoneInvalid');
     }
-    if (!formData.product_id) newErrors.product_id = 'Vyberte produkt';
-    if (!formData.variant_id) newErrors.variant_id = 'Vyberte variantu';
+    if (!formData.product_id) newErrors.product_id = t('provider.reservationForm.errors.productRequired');
+    if (!formData.variant_id) newErrors.variant_id = t('provider.reservationForm.errors.variantRequired');
 
     if (!formData.start_date) {
-      newErrors.start_date = 'Vyberte datum začátku';
+      newErrors.start_date = t('provider.reservationForm.errors.startRequired');
     } else {
       const start = new Date(formData.start_date);
       const now = new Date();
       now.setMinutes(now.getMinutes() - 1);
       if (start < now) {
-        newErrors.start_date = 'Nelze rezervovat v minulosti';
+        newErrors.start_date = t('provider.reservationForm.errors.startPast');
       }
     }
 
     if (!formData.end_date) {
-      newErrors.end_date = 'Vyberte datum konce';
+      newErrors.end_date = t('provider.reservationForm.errors.endRequired');
     } else if (formData.start_date) {
       const start = new Date(formData.start_date);
       const end = new Date(formData.end_date);
-      if (end <= start) newErrors.end_date = 'Konec musí být po začátku';
+      if (end <= start) newErrors.end_date = t('provider.reservationForm.errors.endBeforeStart');
     }
 
     if (!availability.result?.isAvailable && formData.variant_id && formData.start_date && formData.end_date) {
-      newErrors.variant_id = 'Varianta není dostupná v tomto termínu';
+      newErrors.variant_id = t('provider.reservationForm.errors.notAvailable');
     }
 
     setErrors(newErrors);
@@ -265,7 +277,7 @@ const ReservationForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
-      toast.error('Opravte chyby ve formuláři');
+      toast.error(t('provider.reservationForm.toasts.fixErrors'));
       return;
     }
 
@@ -273,13 +285,20 @@ const ReservationForm = () => {
 
     setSubmitting(true);
     try {
-      const start = new Date(formData.start_date);
-      const end = new Date(formData.end_date);
+      const startLocal = new Date(formData.start_date);
+      const endLocal = new Date(formData.end_date);
+
+      // Preserve wall time to avoid timezone date shift
+      const normalizeToUtc = (d: Date) =>
+        new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()));
+
+      const start = normalizeToUtc(startLocal);
+      const end = normalizeToUtc(endLocal);
 
       // Re-check availability
       const availCheck = await checkVariantAvailability(formData.variant_id, start, end);
       if (!availCheck.isAvailable) {
-        toast.error('Varianta již není dostupná');
+        toast.error(t('provider.reservationForm.toasts.notAvailable'));
         setSubmitting(false);
         return;
       }
@@ -303,12 +322,12 @@ const ReservationForm = () => {
         customerUserId: null,
       });
 
-      toast.success(`Rezervace vytvořena. Status: ${reservationResult.status}`);
+      toast.success(t('provider.reservationForm.toasts.created', { status: reservationResult.status }));
       navigate('/provider/reservations');
 
     } catch (error: unknown) {
       logger.error('Reservation creation failed', error);
-      toast.error(getErrorMessage(error) || 'Nepodařilo se vytvořit rezervaci');
+      toast.error(getErrorMessage(error) || t('provider.reservationForm.toasts.createError'));
     } finally {
       setSubmitting(false);
     }
@@ -319,6 +338,7 @@ const ReservationForm = () => {
     if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+    setTouched(prev => ({ ...prev, [field]: true }));
   };
 
   // Group products by category
@@ -342,18 +362,18 @@ const ReservationForm = () => {
     <ProviderLayout>
       <div className="max-w-3xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Nová rezervace</h1>
-          <p className="text-muted-foreground">Vytvořte manuální rezervaci pro zákazníka</p>
+          <h1 className="text-3xl font-bold mb-2">{t('provider.reservationForm.title')}</h1>
+          <p className="text-muted-foreground">{t('provider.reservationForm.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Customer Info */}
           <Card>
-            <CardHeader><CardTitle>Informace o zákazníkovi</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('provider.reservationForm.sections.customerInfo')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
 
               <div className="bg-muted/10 p-4 rounded-lg border border-dashed mb-4">
-                <Label className="mb-2 block">Vybrat z databáze (CRM)</Label>
+                <Label className="mb-2 block">{t('provider.reservationForm.crmSelect')}</Label>
                 <CustomerPicker
                   value={undefined} // We don't strictly bind ID yet, just pre-fill
                   onSelect={(c) => {
@@ -362,11 +382,11 @@ const ReservationForm = () => {
                         ...prev,
                         customer_name: c.full_name,
                         customer_email: c.email || '',
-                        customer_phone: c.phone || '+420 ',
+                        customer_phone: c.phone || '',
                       }));
                       // Clear errors
                       setErrors(prev => ({ ...prev, customer_name: undefined, customer_phone: undefined }));
-                      toast.success("Údaje zákazníka načteny");
+                      toast.success(t('provider.reservationForm.toasts.customerLoaded'));
                     }
                   }}
                 />
@@ -377,47 +397,55 @@ const ReservationForm = () => {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Nebo vyplňte ručně</span>
+                  <span className="bg-card px-2 text-muted-foreground">{t('provider.reservationForm.manualEntry')}</span>
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="customer_name">Jméno zákazníka *</Label>
+                <Label htmlFor="customer_name">{t('provider.reservationForm.labels.name')} *</Label>
                 <Input
                   id="customer_name"
                   value={formData.customer_name}
                   onChange={e => handleInputChange('customer_name', e.target.value)}
-                  className={errors.customer_name ? 'border-red-500' : ''}
+                  onBlur={() => setTouched(prev => ({ ...prev, customer_name: true }))}
+                  className={errors.customer_name && touched.customer_name ? 'border-red-500' : ''}
+                  placeholder={t('provider.reservationForm.placeholders.name')}
                 />
-                {errors.customer_name && <p className="text-sm text-red-500 mt-1">{errors.customer_name}</p>}
+                {errors.customer_name && touched.customer_name && <p className="text-sm text-red-500 mt-1">{errors.customer_name}</p>}
               </div>
               <div>
-                <Label htmlFor="customer_phone">Telefon *</Label>
+                <Label htmlFor="customer_phone">{t('provider.reservationForm.labels.phone')} *</Label>
                 <Input
                   id="customer_phone"
                   value={formData.customer_phone}
                   onChange={e => handleInputChange('customer_phone', e.target.value)}
-                  className={errors.customer_phone ? 'border-red-500' : ''}
+                  onBlur={() => setTouched(prev => ({ ...prev, customer_phone: true }))}
+                  className={errors.customer_phone && touched.customer_phone ? 'border-red-500' : ''}
+                  placeholder={i18n.language.startsWith('cs') ? '+420 123 456 789' : '+1 415 555 1234'}
                 />
-                {errors.customer_phone && <p className="text-sm text-red-500 mt-1">{errors.customer_phone}</p>}
+                {errors.customer_phone && touched.customer_phone && <p className="text-sm text-red-500 mt-1">{errors.customer_phone}</p>}
               </div>
               <div>
-                <Label htmlFor="customer_email">E-mail</Label>
+                <Label htmlFor="customer_email">{t('provider.reservationForm.labels.email')}</Label>
                 <Input
                   id="customer_email" type="email"
                   value={formData.customer_email}
                   onChange={e => handleInputChange('customer_email', e.target.value)}
+                  onBlur={() => setTouched(prev => ({ ...prev, customer_email: true }))}
+                  className={errors.customer_email && touched.customer_email ? 'border-red-500' : ''}
+                  placeholder={t('provider.reservationForm.placeholders.email')}
                 />
+                {errors.customer_email && touched.customer_email && <p className="text-sm text-red-500 mt-1">{errors.customer_email}</p>}
               </div>
             </CardContent>
           </Card>
 
           {/* Product Selection */}
           <Card>
-            <CardHeader><CardTitle>Výběr vybavení</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('provider.reservationForm.sections.itemSelection')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Produkt *</Label>
+                <Label>{t('provider.reservationForm.labels.product')} *</Label>
                 <Select
                   value={formData.product_id}
                   onValueChange={v => {
@@ -426,10 +454,10 @@ const ReservationForm = () => {
                   }}
                 >
                   <SelectTrigger
-                    className={errors.product_id ? 'border-red-500' : ''}
+                    className={errors.product_id && touched.product_id ? 'border-red-500' : ''}
                     data-testid="reservation-product-select"
                   >
-                    <SelectValue placeholder="Vyberte produkt" />
+                    <SelectValue placeholder={t('provider.reservationForm.placeholders.product')} />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(productsByCategory).map(([cat, prods]) => (
@@ -446,16 +474,16 @@ const ReservationForm = () => {
 
               {selectedProduct && (
                 <div>
-                  <Label>Varianta *</Label>
+                  <Label>{t('provider.reservationForm.labels.variant')} *</Label>
                   <Select
                     value={formData.variant_id}
                     onValueChange={v => handleInputChange('variant_id', v)}
                   >
                     <SelectTrigger
-                      className={errors.variant_id ? 'border-red-500' : ''}
+                      className={errors.variant_id && touched.variant_id ? 'border-red-500' : ''}
                       data-testid="reservation-variant-select"
                     >
-                      <SelectValue placeholder="Vyberte variantu" />
+                      <SelectValue placeholder={t('provider.reservationForm.placeholders.variant')} />
                     </SelectTrigger>
                     <SelectContent>
                       {selectedProduct.product_variants.map(v => (
@@ -472,32 +500,34 @@ const ReservationForm = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Začátek *</Label>
+                  <Label>{t('provider.reservationForm.labels.start')} *</Label>
                   <div className="relative">
                     <Input
                       type="datetime-local"
                       value={formData.start_date}
                       onChange={e => handleInputChange('start_date', e.target.value)}
                       data-testid="reservation-start"
-                      className={errors.start_date ? 'border-red-500' : ''}
+                      onBlur={() => setTouched(prev => ({ ...prev, start_date: true }))}
+                      className={errors.start_date && touched.start_date ? 'border-red-500' : ''}
                     />
                   </div>
-                  {errors.start_date && <p className="text-sm text-red-500 mt-1">{errors.start_date}</p>}
+                  {errors.start_date && touched.start_date && <p className="text-sm text-red-500 mt-1">{errors.start_date}</p>}
                 </div>
                 <div>
-                  <Label>Konec *</Label>
+                  <Label>{t('provider.reservationForm.labels.end')} *</Label>
                   <div className="relative">
                     <Input
                       type="datetime-local"
                       value={formData.end_date}
                       onChange={e => handleInputChange('end_date', e.target.value)}
                       data-testid="reservation-end"
-                      className={errors.end_date ? 'border-red-500' : ''}
+                      onBlur={() => setTouched(prev => ({ ...prev, end_date: true }))}
+                      className={errors.end_date && touched.end_date ? 'border-red-500' : ''}
                     />
                   </div>
-                  {errors.end_date && <p className="text-sm text-red-500 mt-1">{errors.end_date}</p>}
+                  {errors.end_date && touched.end_date && <p className="text-sm text-red-500 mt-1">{errors.end_date}</p>}
                 </div>
               </div>
 
@@ -507,7 +537,7 @@ const ReservationForm = () => {
                   availability.result?.isAvailable ? 'text-green-600 bg-green-50/50' : 'text-red-600 bg-red-50/50'
                   }`}>
                   {availability.checking ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Kontrola dostupnosti...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> {t('provider.reservationForm.availability.checking')}</>
                   ) : availability.result ? (
                     <>
                       {availability.result.isAvailable ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
@@ -521,22 +551,22 @@ const ReservationForm = () => {
               {selectedVariant && rentalDays > 0 && (
                 <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span>Sazba:</span>
-                    <span className="font-medium">{formatPrice(pricePerDay)} / den</span>
+                    <span>{t('provider.reservationForm.pricing.rate')}</span>
+                    <span className="font-medium">{formatPrice(pricePerDay)} / {t('provider.reservationForm.pricing.perDay')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Doba:</span>
-                    <span className="font-medium">{rentalDays} dny</span>
+                    <span>{t('provider.reservationForm.pricing.duration')}</span>
+                    <span className="font-medium">{rentalDays} {t('provider.reservationForm.pricing.days')}</span>
                   </div>
                   <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                    <span>Celkem:</span>
+                    <span>{t('provider.reservationForm.pricing.total')}</span>
                     <span>{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
               )}
 
               <div>
-                <Label htmlFor="notes">Poznámky</Label>
+                <Label htmlFor="notes">{t('provider.reservationForm.labels.notes')}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
@@ -547,7 +577,7 @@ const ReservationForm = () => {
                   <p className={`text-sm mt-1 ${
                     formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
                   }`}>
-                    {formData.notes.length}/1000 znaků
+                    {formData.notes.length}/1000 {t('provider.reservationForm.notes.chars')}
                   </p>
                 )}
               </div>
@@ -558,21 +588,21 @@ const ReservationForm = () => {
                   checked={formData.deposit_paid}
                   onCheckedChange={c => handleInputChange('deposit_paid', c)}
                 />
-                <Label htmlFor="deposit_paid">Záloha zaplacena</Label>
+                <Label htmlFor="deposit_paid">{t('provider.reservationForm.labels.depositPaid')}</Label>
               </div>
             </CardContent>
           </Card>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 sticky bottom-4 bg-background/80 backdrop-blur-sm py-2">
             <Button type="button" variant="outline" onClick={() => navigate('/provider/reservations')}>
-              Zrušit
+              {t('provider.reservationForm.buttons.cancel')}
             </Button>
             <Button
               type="submit"
               data-testid="reservation-submit"
               disabled={submitting || (availability.result !== null && !availability.result.isAvailable)}
             >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Vytvořit rezervaci'}
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t('provider.reservationForm.buttons.create')}
             </Button>
           </div>
         </form>

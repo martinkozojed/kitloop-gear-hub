@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from "@/lib/supabase";
 import { addDays, format, startOfDay, isSameDay, isWithinInterval, differenceInDays } from 'date-fns';
-import { cs } from 'date-fns/locale';
+import { cs, enUS } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { ReservationDetailSheet } from "./ReservationDetailSheet";
 import { useCalendarData, CalendarReservation as Reservation, CalendarVariant as ProductVariant } from "@/hooks/useCalendarData";
+import { useTranslation } from "react-i18next";
 
 interface CalendarProps {
     providerId: string;
@@ -21,6 +22,8 @@ const HEADER_HEIGHT = 60;
 const SIDEBAR_WIDTH = 250;
 
 const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
+    const { t, i18n } = useTranslation();
+    const currentLocale = i18n.language.startsWith('cs') ? cs : enUS;
     // View State
     const [viewMode, setViewMode] = useState<'week' | 'month'>('month');
     const [dateRange, setDateRange] = useState({
@@ -141,10 +144,10 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Button variant="outline" size="icon" onClick={handlePrev}><ChevronLeft className="h-4 w-4" /></Button>
-                        <Button variant="outline" onClick={handleToday} className="px-4">Dnes</Button>
+                        <Button variant="outline" onClick={handleToday} className="px-4">{t('provider.reservations.calendar.today')}</Button>
                         <Button variant="outline" size="icon" onClick={handleNext}><ChevronRight className="h-4 w-4" /></Button>
                         <span className="font-semibold ml-4 min-w-[200px] text-lg">
-                            {format(dateRange.start, 'd. MMMM', { locale: cs })} - {format(addDays(dateRange.start, dateRange.days - 1), 'd. MMMM yyyy', { locale: cs })}
+                            {format(dateRange.start, 'd. MMMM', { locale: currentLocale })} - {format(addDays(dateRange.start, dateRange.days - 1), 'd. MMMM yyyy', { locale: currentLocale })}
                         </span>
                     </div>
 
@@ -155,13 +158,13 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                 onClick={() => setViewMode('week')}
                                 className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'week' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                             >
-                                Týden
+                                {t('provider.reservations.calendar.week')}
                             </button>
                             <button
                                 onClick={() => setViewMode('month')}
                                 className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'month' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                             >
-                                Měsíc
+                                {t('provider.reservations.calendar.month')}
                             </button>
                         </div>
                     </div>
@@ -173,10 +176,10 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                         <Filter className="w-4 h-4 text-muted-foreground" />
                         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                             <SelectTrigger className="w-[180px] h-8 text-xs">
-                                <SelectValue placeholder="Kategorie" />
+                                <SelectValue placeholder={t('provider.reservations.calendar.categories')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Všechny kategorie</SelectItem>
+                                <SelectItem value="all">{t('provider.reservations.calendar.categoriesAll')}</SelectItem>
                                 {availableCategories.map(cat => (
                                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                                 ))}
@@ -185,22 +188,22 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
 
                         <Select value={selectedCalendarStatus} onValueChange={setSelectedCalendarStatus}>
                             <SelectTrigger className="w-[150px] h-8 text-xs">
-                                <SelectValue placeholder="Status" />
+                                <SelectValue placeholder={t('provider.reservations.filters.status')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Všechny statusy</SelectItem>
-                                <SelectItem value="confirmed">Potvrzeno</SelectItem>
-                                <SelectItem value="active">Aktivní</SelectItem>
-                                <SelectItem value="hold">Hold / Neplaceno</SelectItem>
+                                <SelectItem value="all">{t('provider.reservations.calendar.statusAll')}</SelectItem>
+                                <SelectItem value="confirmed">{t('provider.dashboard.status.confirmed')}</SelectItem>
+                                <SelectItem value="active">{t('provider.dashboard.status.active')}</SelectItem>
+                                <SelectItem value="hold">{t('provider.dashboard.status.hold')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="flex gap-2 text-xs text-muted-foreground border-l pl-4 ml-auto">
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-sky-500 rounded-sm"></div> Potvrzeno</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-emerald-500 rounded-sm"></div> Aktivní</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-amber-400 rounded-sm"></div> Hold</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-red-400 rounded-sm"></div> Nepřiřazeno</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-sky-500 rounded-sm"></div> {t('provider.dashboard.status.confirmed')}</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-emerald-500 rounded-sm"></div> {t('provider.dashboard.status.active')}</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-amber-400 rounded-sm"></div> {t('provider.dashboard.status.hold')}</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-red-400 rounded-sm"></div> {t('provider.reservations.calendar.unassigned')}</div>
                     </div>
                 </div>
             </div>
@@ -211,7 +214,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                     {/* Header Row */}
                     <div className="flex sticky top-0 z-20 bg-background border-b shadow-sm">
                         <div className="sticky left-0 z-30 bg-background border-r p-3 flex items-center font-bold text-sm text-muted-foreground uppercase tracking-wider" style={{ width: SIDEBAR_WIDTH }}>
-                            Vybavení / Varianta
+                            {t('provider.reservations.calendar.header')}
                         </div>
                         <div className="flex">
                             {days.map((day, i) => (
@@ -220,7 +223,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                     className={`border-r p-2 flex flex-col items-center justify-center text-sm ${isSameDay(day, new Date()) ? 'bg-blue-50/80 border-blue-100' : 'bg-background'}`}
                                     style={{ width: CELL_WIDTH, height: HEADER_HEIGHT }}
                                 >
-                                    <span className="text-muted-foreground text-[10px] uppercase">{format(day, 'EEE', { locale: cs })}</span>
+                                    <span className="text-muted-foreground text-[10px] uppercase">{format(day, 'EEE', { locale: currentLocale })}</span>
                                     <span className={`font-bold ${isSameDay(day, new Date()) ? 'text-blue-600' : ''}`}>{format(day, 'd')}</span>
                                 </div>
                             ))}
@@ -285,7 +288,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                                             <div
                                                                 className={`h-1.5 rounded-full ${loadColor} transition-all`}
                                                                 style={{ width: `${Math.max(20, load.percentage)}%`, opacity: 0.8 }}
-                                                                title={`Vytížení: ${load.percentage.toFixed(0)}% (${load.activeCount}/${load.totalAssets})`}
+                                                                title={t('provider.reservations.calendar.load', { percent: load.percentage.toFixed(0), active: load.activeCount, total: load.totalAssets })}
                                                             ></div>
                                                         )}
                                                     </div>
