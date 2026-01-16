@@ -13,6 +13,13 @@
   - Uses `actions/dependency-review-action@v4` with `fail-on-severity: high`, `warn-only: true` (non-blocking gate for PR4a).
 - To tighten later: remove `warn-only` or lower severity threshold.
 
+### PR4b: Blocking gate
+- Dependency Review is now blocking on high+ severity (warn-only removed; still scoped to the PR’s dependency diff).
+- What blocks: newly introduced high/critical vulnerabilities in dependency changes.
+- What doesn’t block: PRs without dependency changes; existing/out-of-band CVEs outside the diff.
+- How to handle findings: prefer upgrade/revert of the offending dependency; avoid disabling the check unless there is a documented, time-bound exception.
+- GitHub UI: Settings → Branch protections → Require status checks → add `Dependency Review` (job name) as a required check on the protected branch.
+
 ### GitHub UI checklist (manual)
 - Repo Settings → Security → enable **Dependabot alerts**.
 - Repo Settings → Security → enable **Dependabot security updates** (optional to auto-patch CVEs).
