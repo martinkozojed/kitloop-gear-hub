@@ -1056,6 +1056,9 @@
         "email": "E-mail nelze měnit zde",
         "terms": "Text se připojí k nájemní smlouvě. Pouze čistý text."
       },
+      "microcopy": {
+        "contactEmail": "Kontakt pro zákazníky (na fakturách a e-mailech)"
+      },
       "actions": {
         "uploadSoon": "Nahrát logo (brzy)",
         "cancel": "Zrušit",
@@ -1071,6 +1074,21 @@
         "missingFields": "Vyplňte prosím povinná pole",
         "saved": "Nastavení bylo uloženo",
         "error": "Uložení nastavení se nezdařilo"
+      },
+      "errors": {
+        "required": "Toto pole je povinné",
+        "phone": "Zadejte platné číslo ve formátu +420…",
+        "email": "Zadejte platný e-mail",
+        "website": "Zadejte platnou URL (např. https://kitloop.cz)",
+        "termsLength": "Maximálně 1000 znaků"
+      },
+      "preview": {
+        "title": "Náhled ve smlouvě",
+        "empty": "Žádné doplňující podmínky"
+      },
+      "readonly": {
+        "title": "Nemáte oprávnění k úpravě nastavení",
+        "desc": "Požádejte administrátora o změnu údajů."
       },
       "soon": "Tato funkce bude k dispozici brzy.",
       "soonDetail": "Zde připravujeme správu týmu, notifikací a fakturace."

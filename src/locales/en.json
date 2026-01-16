@@ -929,6 +929,9 @@
         "email": "Email cannot be changed here",
         "terms": "Will be appended to the rental agreement. Plain text only."
       },
+      "microcopy": {
+        "contactEmail": "Contact for customers (on invoices and emails)"
+      },
       "actions": {
         "uploadSoon": "Upload logo (soon)",
         "cancel": "Cancel",
@@ -944,6 +947,21 @@
         "missingFields": "Please fill in required fields",
         "saved": "Settings saved successfully",
         "error": "Failed to save settings"
+      },
+      "errors": {
+        "required": "This field is required",
+        "phone": "Enter a valid phone number in +420 format",
+        "email": "Enter a valid email",
+        "website": "Enter a valid URL (e.g. https://kitloop.cz)",
+        "termsLength": "Max 1000 characters"
+      },
+      "preview": {
+        "title": "Contract preview",
+        "empty": "No additional terms"
+      },
+      "readonly": {
+        "title": "You don't have permission to edit settings",
+        "desc": "Contact an administrator to change company details."
       },
       "soon": "This feature will be available soon.",
       "soonDetail": "We are preparing team management, notifications and billing here."
