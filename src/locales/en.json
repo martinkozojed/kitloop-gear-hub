@@ -818,6 +818,35 @@
           "edit": "Edit details",
           "logMaintenance": "Log maintenance"
         }
+      },
+      "importModal": {
+        "title": "Import inventory (CSV)",
+        "subtitle": "Upload a CSV file with columns:",
+        "chooseFile": "Choose CSV file",
+        "helper": "Supported format: CSV. First row must be headers.",
+        "analyzing": "Analyzing...",
+        "preview": "Preview: {{count}} rows found",
+        "valid": "{{count}} valid",
+        "errors": "{{count}} errors",
+        "headers": {
+          "assetTag": "Asset tag",
+          "product": "Product",
+          "variant": "Variant",
+          "condition": "Condition",
+          "status": "Status"
+        },
+        "ok": "OK",
+        "invalid": "Invalid",
+        "warning": "Warning: {{count}} rows have errors and will be skipped. Ensure Product and Variant names match exactly.",
+        "cancel": "Cancel",
+        "import": "Import {{count}} items",
+        "matchError": "Product/Variant not found",
+        "emptyFile": "CSV file appears to be empty or invalid",
+        "parseError": "Error parsing CSV",
+        "noValidRows": "No valid rows to import",
+        "importSuccess": "Successfully imported {{count}} assets",
+        "importFailed": "Import failed",
+        "analyzeError": "Failed to analyze CSV"
       }
     }
   },

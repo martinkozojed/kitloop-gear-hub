@@ -945,6 +945,35 @@
           "edit": "Upravit detaily",
           "logMaintenance": "Zapsat servis"
         }
+      },
+      "importModal": {
+        "title": "Import inventáře (CSV)",
+        "subtitle": "Nahrajte CSV soubor se sloupci:",
+        "chooseFile": "Vybrat CSV soubor",
+        "helper": "Podporovaný formát: CSV. První řádek musí být hlavička.",
+        "analyzing": "Analyzuji...",
+        "preview": "Náhled: nalezeno {{count}} řádků",
+        "valid": "{{count}} v pořádku",
+        "errors": "{{count}} chyb",
+        "headers": {
+          "assetTag": "Inventární štítek",
+          "product": "Produkt",
+          "variant": "Varianta",
+          "condition": "Stav",
+          "status": "Status"
+        },
+        "ok": "OK",
+        "invalid": "Neplatné",
+        "warning": "Upozornění: {{count}} řádků obsahuje chyby a bude přeskočeno. Ujistěte se, že názvy Produktu a Varianty přesně sedí.",
+        "cancel": "Zrušit",
+        "import": "Importovat {{count}} položek",
+        "matchError": "Produkt/varianta nenalezena",
+        "emptyFile": "CSV soubor je prázdný nebo neplatný",
+        "parseError": "Chyba při čtení CSV",
+        "noValidRows": "Žádné platné řádky k importu",
+        "importSuccess": "Úspěšně importováno {{count}} položek",
+        "importFailed": "Import se nezdařil",
+        "analyzeError": "Analýza CSV selhala"
       }
     }
   },
