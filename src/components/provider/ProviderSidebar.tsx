@@ -79,20 +79,17 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
     <div className="flex h-full flex-col bg-muted/30 border-r border-border">
       {/* Header & Command Trigger */}
       <div className="px-4 pt-6 pb-4">
-        <div className="flex items-center justify-between gap-2 mb-4 px-2">
-          <span className="font-heading font-semibold text-lg tracking-tight">Kitloop</span>
-          {onToggleCollapse && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleCollapse}
-              className="h-8 w-8 hover:bg-accent"
-              title="Skrýt menu"
-            >
-              <PanelLeftClose className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        {onToggleCollapse && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleCollapse}
+            className="h-8 w-8 hover:bg-accent mb-3"
+            title="Skrýt menu"
+          >
+            <PanelLeftClose className="h-4 w-4" />
+          </Button>
+        )}
 
         <button
           onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
