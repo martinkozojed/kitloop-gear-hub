@@ -256,6 +256,19 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
         { label: t('provider.inventory.grid.statuses.retired'), value: 'retired', icon: CircleX },
     ];
 
+    const getColumnLabel = (columnId: string) => {
+        const map: Record<string, string> = {
+            asset_tag: t('provider.inventory.grid.columns.tag'),
+            product_name: t('provider.inventory.grid.columns.product'),
+            category: t('provider.inventory.grid.columns.category'),
+            status: t('provider.inventory.grid.columns.status'),
+            location: t('provider.inventory.grid.columns.location'),
+            condition_score: t('provider.inventory.grid.columns.health'),
+            actions: t('provider.inventory.grid.actions.label'),
+        };
+        return map[columnId] || columnId;
+    };
+
     return (
         <div className="w-full space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between py-4">
@@ -364,7 +377,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                                                 checked={column.getIsVisible()}
                                                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
                                             >
-                                                {column.id}
+                                                {getColumnLabel(column.id)}
                                             </DropdownMenuCheckboxItem>
                                         );
                                     })}
