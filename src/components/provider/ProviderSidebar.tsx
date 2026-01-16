@@ -80,17 +80,6 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       {/* Header & Command Trigger */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-center gap-2">
-          {onToggleCollapse && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleCollapse}
-              className="h-9 w-9 hover:bg-accent shrink-0"
-              title="Skrýt menu"
-            >
-              <PanelLeftClose className="h-4 w-4" />
-            </Button>
-          )}
           <button
             onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
             className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-background border border-input text-sm text-muted-foreground hover:border-primary/50 transition-colors group shadow-sm"
@@ -103,6 +92,17 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
               <span className="text-xs">⌘</span>K
             </kbd>
           </button>
+          {onToggleCollapse && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleCollapse}
+              className="h-9 w-9 hover:bg-accent shrink-0"
+              title="Skrýt menu"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
