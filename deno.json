@@ -1,0 +1,8 @@
+{
+  "lock": "deno.lock",
+  "nodeModulesDir": "none",
+  "tasks": {
+    "deno:cache": "deno cache --lock=deno.lock --frozen supabase/functions/**/*.ts scripts/**/*.ts",
+    "deno:test": "deno test --allow-env --allow-read --lock=deno.lock --frozen supabase/functions"
+  }
+}

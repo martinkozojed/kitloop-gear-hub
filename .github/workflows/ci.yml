@@ -63,16 +63,20 @@ jobs:
           deno-version: "v2.5.6"
       - name: Deno version
         run: deno --version
+      - name: Cache dependencies (frozen lock)
+        run: deno cache --lock=deno.lock --frozen supabase/functions/**/*.ts scripts/**/*.ts
       - name: Run reserve_gear unit tests
-        run: deno test supabase/functions/reserve_gear --allow-env --allow-read
+        run: deno test supabase/functions/reserve_gear --allow-env --allow-read --lock=deno.lock --frozen
       - name: Run confirm_reservation unit tests
-        run: deno test --quiet --allow-env --allow-read --no-lock supabase/functions/confirm_reservation
+        run: deno test --quiet --allow-env --allow-read --lock=deno.lock --frozen supabase/functions/confirm_reservation
       - name: Run cleanup_reservation_holds unit tests
-        run: deno test --quiet supabase/functions/cleanup_reservation_holds || echo "cleanup tests skipped"
+        run: deno test --quiet --lock=deno.lock --frozen supabase/functions/cleanup_reservation_holds || echo "cleanup tests skipped"
       - name: Run create_payment_intent unit tests
-        run: deno test --quiet supabase/functions/create_payment_intent || echo "create_payment_intent tests skipped"
+        run: deno test --quiet --lock=deno.lock --frozen supabase/functions/create_payment_intent || echo "create_payment_intent tests skipped"
       - name: Run stripe_webhook unit tests
-        run: deno test --quiet supabase/functions/stripe_webhook
+        run: deno test --quiet --lock=deno.lock --frozen supabase/functions/stripe_webhook
+      - name: Verify lockfile unchanged
+        run: git diff --exit-code deno.lock
       - name: TODO Supabase RLS tests
         run: |
           echo "TODO: configure Supabase CLI db test to run supabase/tests/rls_membership.sql"
