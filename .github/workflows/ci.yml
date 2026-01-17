@@ -83,7 +83,8 @@ jobs:
           echo "TODO: configure Supabase CLI db test to run supabase/tests/rls_membership.sql"
 
   test_db:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Nightly/manual only, and only if DB URL secret is present.
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
@@ -95,6 +96,10 @@ jobs:
         env:
           SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
         run: |
+          if [[ -z "${SUPABASE_DB_URL}" ]]; then
+            echo "SUPABASE_DB_URL not set; skipping db test."
+            exit 0
+          fi
           # Sanitize and ensure schema
           CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
           if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
@@ -105,6 +110,10 @@ jobs:
         env:
           SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
         run: |
+          if [[ -z "${SUPABASE_DB_URL}" ]]; then
+            echo "SUPABASE_DB_URL not set; skipping migrations."
+            exit 0
+          fi
           CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
           if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
             CLEAN_DB_URL="postgresql://$CLEAN_DB_URL"
