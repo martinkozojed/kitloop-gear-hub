@@ -3,7 +3,7 @@ import { Pool } from "https://deno.land/x/postgres@v0.17.1/mod.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 function getDatabaseUrl() {
@@ -39,16 +39,22 @@ const jsonResponse = (
     },
   });
 
-/**
- * Runbook:
- *   - Deploy this function (`supabase functions deploy cleanup_reservation_holds`).
- *   - Configure a Supabase Scheduled Function in the dashboard (Project Settings
- *     → Functions → Scheduled) to POST to `/functions/v1/cleanup_reservation_holds`
- *     with the service role key automatically attached (Supabase UI, set schedule to every 5 minutes).
- *   - Suggested cadence: every 5 minutes to keep hold inventory fresh.
- *   - To execute manually: `supabase functions invoke cleanup_reservation_holds --no-verify-jwt`.
- *   - Scheduler configuration files in repo: NENALEZENO (manage via Supabase UI).
- */
+function isAuthorized(req: Request) {
+  const cronSecret = Deno.env.get("CRON_SECRET") ?? "";
+  const headerSecret = req.headers.get("x-cron-secret") ?? "";
+  if (cronSecret && headerSecret === cronSecret) return true;
+
+  const auth = req.headers.get("authorization");
+  if (!auth?.startsWith("Bearer ")) return false;
+  const [, token] = auth.split(" ");
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1] ?? ""));
+    return payload?.role === "service_role";
+  } catch {
+    return false;
+  }
+}
+
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -59,8 +65,7 @@ async function handle(req: Request): Promise<Response> {
       return jsonResponse({ error: "Method not allowed" }, 405);
     }
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!isAuthorized(req)) {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
@@ -99,3 +104,4 @@ async function handle(req: Request): Promise<Response> {
 if (import.meta.main) {
   Deno.serve(handle);
 }
+

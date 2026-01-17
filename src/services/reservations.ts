@@ -100,12 +100,11 @@ const checkForOverlap = async (
 
   if (gearId) {
     const { data, error } = await supabase
-      .from("reservations")
-      .select("id, start_date, end_date, status")
-      .eq("gear_id", gearId)
-      .in("status", ACTIVE_RESERVATION_STATUSES)
-      .lt("start_date", endIso)
-      .gt("end_date", startIso);
+      .rpc('check_variant_availability', {
+        p_variant_id: gearId,
+        p_start_date: startIso,
+        p_end_date: endIso
+      });
 
     if (error) {
       throw new ReservationError(
@@ -115,123 +114,13 @@ const checkForOverlap = async (
       );
     }
 
-    if (data && data.length > 0) {
+    if (data === false) {
       throw new ReservationError(
         "conflict",
         "V tomto termínu již existuje jiná rezervace."
       );
     }
   }
-};
-
-const insertReservationDirectly = async (
-  input: CreateReservationHoldInput,
-  startIso: string,
-  endIso: string,
-  expiresAtIso: string,
-  idempotencyKey: string
-): Promise<ReservationHoldResult> => {
-  const pricingSnapshot = buildPricingSnapshot(
-    input.pricePerDay,
-    input.rentalDays
-  );
-
-  const amountTotalCents = Math.max(
-    0,
-    Math.round(input.totalPrice * 100)
-  );
-
-  const insertPayload = {
-    provider_id: input.providerId,
-    gear_id: input.gearId ?? null,
-    product_variant_id: input.productVariantId ?? null,
-    user_id: input.customerUserId ?? null,
-    customer_name: input.customer.name.trim() || "Neznámý zákazník",
-    customer_email: input.customer.email?.trim() || null,
-    customer_phone: input.customer.phone?.trim() || null,
-    start_date: startIso,
-    end_date: endIso,
-    status: "hold" as const,
-    payment_status: "unpaid" as const,
-    notes: input.notes?.trim() || null,
-    total_price: input.totalPrice ?? null,
-    deposit_paid: input.depositPaid ?? false,
-    amount_total_cents: amountTotalCents ?? null,
-    currency: "CZK",
-    pricing_snapshot: pricingSnapshot,
-    idempotency_key: idempotencyKey,
-    expires_at: expiresAtIso,
-  };
-
-  const { data, error } = await supabase
-    .from("reservations")
-    .insert(insertPayload)
-    .select("id, expires_at, status, idempotency_key")
-    .single();
-
-  if (error) {
-    // ... error handling ...
-    logger.error("Reservation insert failed", error);
-    if (error.code === "23505") { // ... existing error handling ...
-      const message = error.message ?? "";
-      if (message.includes("reservations_provider_id_idempotency_key_key")) {
-        // ... existing idempotency handling ...
-        const { data: existing, error: fetchError } = await supabase
-          .from("reservations")
-          .select("id, expires_at, status")
-          .eq("provider_id", input.providerId)
-          .eq("idempotency_key", idempotencyKey)
-          .maybeSingle();
-
-        if (fetchError) throw new ReservationError("idempotent", "Fetch failed", fetchError);
-        if (existing) return { reservation_id: existing.id, expires_at: existing.expires_at, status: existing.status as ActiveStatus ?? "hold", idempotent: true, via: "direct" };
-        throw new ReservationError("idempotent", "Reservation already created");
-      }
-    }
-    // ... other error codes ...
-    if (error.code === "23P01" || error.message?.includes("reservations_no_overlap")) {
-      throw new ReservationError("conflict", "Termín se překrývá s jinou rezervací.");
-    }
-    if (error.code === "42501") throw new ReservationError("rls_denied", "Nemáte oprávnění vytvořit rezervaci.", error);
-
-    throw new ReservationError("unknown", getErrorMessage(error) || "Rezervaci se nepodařilo vytvořit.", error);
-  }
-
-  if (!data) {
-    throw new ReservationError("unknown", "Supabase nevrátilo data o nové rezervaci.");
-  }
-
-  // V3: Create Reservation Line (Demand)
-  // Currently MVP supports 1 item per reservation, so we create 1 line.
-  if (input.productVariantId || input.gearId) { // Fallback to gearId if variant not present (legacy)
-    // ideally find variant from gearId if needed, but for now assuming variantId is passed for V3
-    const variantId = input.productVariantId;
-
-    if (variantId) {
-      const { error: lineError } = await supabase
-        .from('reservation_lines')
-        .insert({
-          reservation_id: data.id,
-          product_variant_id: variantId,
-          quantity: 1, // MVP 1 qty
-          price_per_item_cents: (input.totalPrice * 100) // Snapshot price
-        });
-
-      if (lineError) {
-        logger.error("Failed to create reservation line", lineError);
-        // Non-blocking but critical for V3 data integrity. 
-        // Should we rollback? For now, logging error.
-      }
-    }
-  }
-
-  return {
-    reservation_id: data.id,
-    expires_at: data.expires_at,
-    status: (data.status as ActiveStatus) ?? "hold",
-    idempotent: false,
-    via: "direct",
-  };
 };
 
 const invokeEdgeReserveGear = async (
@@ -301,30 +190,19 @@ export const createReservationHold = async (
   try {
     await checkForOverlap(input.gearId, input.productVariantId, startIso, endIso);
 
-    return await insertReservationDirectly(
+    // Always use edge path for inserts to enforce locking and server-side constraints
+    return await invokeEdgeReserveGear(
       input,
       startIso,
       endIso,
-      expiresAtIso,
       idempotencyKey
     );
   } catch (error) {
     if (error instanceof ReservationError) {
-      if (error.code === "rls_denied") {
-        return invokeEdgeReserveGear(
-          input,
-          startIso,
-          endIso,
-          idempotencyKey
-        );
-      }
-      // ...
-
       if (error.code === "conflict" || error.code === "idempotent") {
         throw error;
       }
 
-      // Try edge fallback only when direct insert failed for non-conflict reasons
       try {
         return await invokeEdgeReserveGear(
           input,

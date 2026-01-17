@@ -91,7 +91,14 @@ const AppRoutes = () => {
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/admin/observability" element={<Observability />} />
+          <Route
+            path="/admin/observability"
+            element={
+              <AdminRoute>
+                <Observability />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/admin/providers"
             element={

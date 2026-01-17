@@ -347,14 +347,20 @@ Deno.serve(async (req) => {
     } catch (error) {
       await client.queryObject`ROLLBACK`;
 
-      if (
-        error instanceof Error &&
-        error.message.includes("reservations_idempotency_key_key")
-      ) {
-        return jsonResponse(
-          { error: "Duplicate idempotency key", details: error.message },
-          422,
-        );
+      if (error instanceof Error) {
+        if (error.message.includes("reservations_idempotency_key_key")) {
+          return jsonResponse(
+            { error: "Duplicate idempotency key", details: error.message },
+            422,
+          );
+        }
+        const code = (error as { code?: string }).code;
+        if (code === "23P01" || error.message.includes("reservations_no_overlap")) {
+          return jsonResponse(
+            { error: "overlap_conflict", message: "Reservation overlaps an active booking" },
+            409,
+          );
+        }
       }
 
       console.error("reserve_gear error:", error);

@@ -26,9 +26,6 @@ on:
       - 'netlify.toml'        # Deployment config
       - 'verify_console_guard.sh'  # Release gate script
       - '.github/workflows/**'  # All workflow files (including ci.yml)
-    paths-ignore:
-      - 'docs/**'    # Documentation (doesn't affect build)
-      - '**.md'      # Markdown files (README, changelogs, etc.)
   pull_request:
     branches: [main]  # Block merge to main if failing
     # NOTE: No paths filter on pull_request - always run as required check

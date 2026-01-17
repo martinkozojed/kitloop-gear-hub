@@ -12,6 +12,8 @@ concurrency:
 
 jobs:
   smoke:
+    # Skip Dependabot PRs (no secrets) but allow manual/scheduled runs.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event.pull_request.user.login != 'dependabot[bot]' && github.actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -10,24 +10,21 @@
 
 ## 🔎 JAK ZKONTROLOVAT, KDO MÁ ADMIN PRÁVA
 
-### Metoda 1: SQL Dotaz (doporučeno)
+### Metoda 1: SQL Dotaz (trusted allowlist)
 
-1. Otevřít: https://supabase.com/dashboard/project/bkyokcjpelqwtndienos/sql
-2. Spustit tento dotaz:
+Admin práva se řídí tabulkou `public.user_roles` (role = 'admin'), nikoli editovatelným sloupcem `profiles.role`.
 
 ```sql
--- Zobrazit všechny uživatele a jejich role
 SELECT 
-  p.user_id,
-  p.email,
-  p.role,
-  p.full_name,
-  p.created_at
-FROM public.profiles p
-ORDER BY p.created_at DESC;
+  ur.user_id,
+  u.email,
+  ur.role,
+  ur.granted_at
+FROM public.user_roles ur
+LEFT JOIN auth.users u ON u.id = ur.user_id
+WHERE ur.role = 'admin'
+ORDER BY ur.granted_at DESC;
 ```
-
-**Hledáte:** `role = 'admin'`
 
 ---
 
@@ -47,53 +44,33 @@ console.warn("Your user ID:", userId);
 
 ```sql
 SELECT role 
-FROM public.profiles 
+FROM public.user_roles 
 WHERE user_id = 'VÁŠ_USER_ID_ZDE';
 ```
 
 **Možné hodnoty:**
-- `role = 'admin'` → ✅ Můžete používat admin_action
-- `role = 'provider'` → ❌ Nemůžete (to jste nejspíš vy)
-- `NULL` nebo jiné → ❌ Nemůžete
+- `role = 'admin'` → ✅ Platform admin (admin_action povoleno)
+- jiná hodnota / žádný záznam → ❌ Nejste admin
 
 ---
 
 ## 🛠️ JAK VYTVOŘIT ADMIN ÚČET
 
-### Pokud žádný admin neexistuje:
+Admina přidáváme pouze do `public.user_roles`. Úpravy `profiles.role`/`is_admin` jsou blokované RLS.
 
-**Možnost A: Manuální Update (rychlé)**
-
-1. Supabase SQL Editor:
-
+1. Najděte user_id:  
 ```sql
--- Zobrazit své user_id
-SELECT user_id, email, role 
-FROM public.profiles 
-WHERE email = 'vase@email.com';
-
--- Upgradovat na admina
-UPDATE public.profiles 
-SET role = 'admin' 
-WHERE email = 'vase@email.com';
-
--- Ověřit změnu
-SELECT email, role 
-FROM public.profiles 
-WHERE email = 'vase@email.com';
+SELECT id, email FROM auth.users WHERE email = 'vase@email.com';
 ```
-
-**Možnost B: Dedikovaný Script (robustnější)**
-
-V terminálu:
-
-```bash
-cd /Users/mp/Downloads/kitloop-gear-hub-main
-
-# Pokud existuje skript:
-deno run --allow-net --allow-env scripts/create_admin.ts your@email.com
-
-# Nebo použít Supabase SQL přímo
+2. Přidejte do allowlistu:  
+```sql
+INSERT INTO public.user_roles (user_id, role)
+VALUES ('<USER_ID>', 'admin')
+ON CONFLICT (user_id, role) DO NOTHING;
+```
+3. Ověřte:  
+```sql
+SELECT role FROM public.user_roles WHERE user_id = '<USER_ID>';
 ```
 
 ---
@@ -127,14 +104,14 @@ deno run --allow-net --allow-env scripts/create_admin.ts your@email.com
 
 **Vaše situace:**
 - ✅ Jste přihlášený (Provider Admin)
-- ❌ Nejste Platform Admin
+- ❌ Nejste Platform Admin, dokud nejste v `user_roles` s rolí `admin`
 - ❌ Nemůžete testovat admin_action endpoint
 
 **Co udělat:**
-1. Spustit SQL: `SELECT role FROM profiles WHERE user_id = auth.uid();`
-2. Pokud není 'admin' → změnit: `UPDATE profiles SET role = 'admin' WHERE user_id = auth.uid();`
-3. Znovu login
-4. Pak můžete testovat admin_action
+1. Spustit SQL: `SELECT role FROM public.user_roles WHERE user_id = auth.uid();`
+2. Pokud není 'admin' → požádat existujícího admina, aby vás přidal do allowlistu (viz výše).
+3. Znovu login.
+4. Pak můžete testovat admin_action.
 
 ---
 
@@ -146,7 +123,7 @@ Po změně role na 'admin':
 2. V browser console:
 
 ```javascript
-const result = await supabase.rpc('is_admin');
+const result = await supabase.rpc('is_admin_trusted');
 console.warn("Am I admin?", result.data);
 // Očekáváno: true
 ```
