@@ -2,51 +2,41 @@ import { Page, expect } from '@playwright/test';
 
 export const loginAs = async (page: Page, email: string, password: string) => {
   await page.goto('/login');
-  const fillFirst = async (locators: ReturnType<Page['locator']>[], value: string) => {
+  const pickLocator = async (locators: ReturnType<Page['locator']>[]) => {
     for (const loc of locators) {
+      const candidate = loc.first();
       try {
-        await loc.first().fill(value, { timeout: 4000 });
-        return;
+        await expect(candidate).toBeVisible({ timeout: 5000 });
+        await expect(candidate).toBeEnabled({ timeout: 5000 });
+        return candidate;
       } catch {
         // try next
       }
     }
-    throw new Error('No matching locator found to fill value');
+    throw new Error('No matching locator found');
   };
 
-  await fillFirst(
-    [
-      page.getByTestId('login-email'),
-      page.getByPlaceholder(/hello@example\.com/i),
-      page.getByLabel(/email/i),
-    ],
-    email
-  );
+  const emailLocator = await pickLocator([
+    page.getByTestId('login-email'),
+    page.getByPlaceholder(/hello@example\.com/i),
+    page.getByLabel(/email/i),
+  ]);
+  await emailLocator.fill(email, { timeout: 5000 });
 
-  await fillFirst(
-    [
-      page.getByTestId('login-password'),
-      page.getByPlaceholder(/•/i),
-      page.getByLabel(/password/i),
-    ],
-    password
-  );
+  const passwordLocator = await pickLocator([
+    page.getByTestId('login-password'),
+    page.getByPlaceholder(/•/i),
+    page.getByLabel(/password/i),
+  ]);
+  await passwordLocator.fill(password, { timeout: 5000 });
 
-  const submitLocators = [
+  const submitLocator = await pickLocator([
     page.getByTestId('login-submit'),
     page.getByRole('button', { name: /sign in/i }),
-  ];
-  let clicked = false;
-  for (const loc of submitLocators) {
-    try {
-      await loc.first().click({ timeout: 4000 });
-      clicked = true;
-      break;
-    } catch {
-      // try next
-    }
-  }
-  if (!clicked) throw new Error('Login submit button not found');
+  ]);
+  await submitLocator.click({ timeout: 5000 });
+
   await page.waitForLoadState('networkidle');
-  await expect(page).toHaveURL(/\/(provider\/dashboard|provider\/pending|provider|admin|)$/);
+  await page.waitForURL(/\/(provider\/dashboard|provider\/pending|provider\/|admin\/|browse\/|)$/i, { timeout: 15000 });
+  await expect(emailLocator).not.toBeVisible({ timeout: 3000 });
 };
