@@ -12,8 +12,8 @@ concurrency:
 
 jobs:
   smoke:
-    # Dependabot PRs lack E2E secrets; skip automatically, allow maintainers (incl. workflow_dispatch) to run.
-    if: github.actor != 'dependabot[bot]'
+    # Dependabot PRs lack E2E secrets; skip automatically. Manual (workflow_dispatch) and schedule always run.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event.pull_request.user.login != 'dependabot[bot]' && github.actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     permissions:
       contents: read
