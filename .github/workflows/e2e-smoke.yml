@@ -2,9 +2,10 @@ name: e2e_smoke
 
 on:
   workflow_dispatch:
-  pull_request:
   schedule:
     - cron: "0 3 * * *"
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 concurrency:
   group: e2e-smoke-staging
@@ -12,8 +13,13 @@ concurrency:
 
 jobs:
   smoke:
-    # Dependabot PRs lack E2E secrets; skip automatically, allow maintainers (incl. workflow_dispatch) to run.
-    if: github.actor != 'dependabot[bot]'
+    # Run only nightly/scheduled, manual dispatch, or PRs explicitly labeled release/canary (Dependabot always skipped).
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'pull_request' &&
+        (contains(github.event.pull_request.labels.*.name, 'release') || contains(github.event.pull_request.labels.*.name, 'canary')) &&
+        github.actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     permissions:
       contents: read
