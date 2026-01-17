@@ -8,6 +8,25 @@ updates:
     labels:
       - "dependencies"
       - "security"
+    ignore:
+      - dependency-name: "react-leaflet"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "react-i18next"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "i18next"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "tailwindcss"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "@tailwindcss/typography"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "tailwindcss-animate"
+        update-types:
+          - "version-update:semver-major"
     groups:
       npm-minor-patch:
         patterns:
