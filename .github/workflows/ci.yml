@@ -64,7 +64,7 @@ jobs:
       - name: Deno version
         run: deno --version
       - name: Cache dependencies (frozen lock)
-        run: deno cache --lock=deno.lock --frozen supabase/functions/**/*.ts scripts/**/*.ts
+        run: deno task deno:cache
       - name: Run reserve_gear unit tests
         run: deno test supabase/functions/reserve_gear --allow-env --allow-read --lock=deno.lock --frozen
       - name: Run confirm_reservation unit tests

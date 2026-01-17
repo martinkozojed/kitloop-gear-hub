@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   smoke:
+    # Dependabot PRs lack E2E secrets; skip automatically, allow maintainers (incl. workflow_dispatch) to run.
     if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:

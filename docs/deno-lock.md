@@ -7,8 +7,8 @@ deno task lock
 ```
 
 What it does:
-- Caches all Deno entrypoints (`supabase/functions/**/*.ts`, `scripts/**/*.ts`) with `--lock-write`.
-- Regenerates `deno.lock` in place so CI (`deno task deno:cache` + `--frozen` checks) stays clean.
+- Caches all Deno entrypoints (`supabase/functions/**/*.ts`, `scripts/**/*.ts`) with `--lock` (no `--frozen`), updating `deno.lock` in place.
+- Keeps CI (`deno task deno:cache` + `--frozen` checks) clean by ensuring the lock matches imports.
 
 Checklist before opening a PR:
 - Run `deno task lock`.
