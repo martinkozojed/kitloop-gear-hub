@@ -1,5 +1,6 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0?target=denonext&pin=v135";
-import { faker } from "https://esm.sh/@faker-js/faker@8.4.1?target=denonext&pin=v135";
+import { createClient } from "https://esm.sh/v135/@supabase/supabase-js@2.7.1";
+// Use maintained npm faker via Deno npm: spec to avoid dead deno.land/x mirror.
+import { faker } from "npm:@faker-js/faker";
 
 // Load env vars if running locally with dotenv, or expect them in env
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
