@@ -182,7 +182,10 @@ async function handle(req: Request): Promise<Response> {
           SELECT public.mock_send_notification(${reservation.id}::uuid, 'confirmation'::notification_type)
         `;
       } else {
-        console.log("Mock notifications disabled; skipping send for", reservation.id);
+        console.warn(
+          "Mock notifications disabled; skipping send for",
+          reservation.id,
+        );
       }
 
       await client.queryObject`COMMIT`;
