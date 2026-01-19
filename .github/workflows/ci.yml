@@ -5,18 +5,19 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Fetch full git history for diff
       - name: Fetch base branch
         run: |
           git fetch origin ${{ github.base_ref || 'main' }} --depth=1
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -32,8 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -43,7 +44,7 @@ jobs:
         run: npm run typecheck
 
   test_deno:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     needs: lint
     env:
@@ -54,10 +55,10 @@ jobs:
       STRIPE_SECRET_KEY: "${{ secrets.STRIPE_SECRET_KEY }}"
       SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: "Install npm deps for Deno npm: resolution"
         run: npm ci
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
           # Pin to a Deno version that supports lockfile version 5
           deno-version: "v2.5.6"
@@ -66,15 +67,15 @@ jobs:
       - name: Cache dependencies (frozen lock)
         run: deno task deno:cache
       - name: Run reserve_gear unit tests
-        run: deno test supabase/functions/reserve_gear --allow-env --allow-read --lock=deno.lock --frozen
+        run: deno test supabase/functions/reserve_gear --allow-env --allow-read --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock --frozen
       - name: Run confirm_reservation unit tests
-        run: deno test --quiet --allow-env --allow-read --lock=deno.lock --frozen supabase/functions/confirm_reservation
+        run: deno test --quiet --allow-env --allow-read --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock --frozen supabase/functions/confirm_reservation
       - name: Run cleanup_reservation_holds unit tests
-        run: deno test --quiet --lock=deno.lock --frozen supabase/functions/cleanup_reservation_holds || echo "cleanup tests skipped"
+        run: deno test --quiet --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock --frozen supabase/functions/cleanup_reservation_holds || echo "cleanup tests skipped"
       - name: Run create_payment_intent unit tests
-        run: deno test --quiet --lock=deno.lock --frozen supabase/functions/create_payment_intent || echo "create_payment_intent tests skipped"
+        run: deno test --quiet --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock --frozen supabase/functions/create_payment_intent || echo "create_payment_intent tests skipped"
       - name: Run stripe_webhook unit tests
-        run: deno test --quiet --lock=deno.lock --frozen supabase/functions/stripe_webhook
+        run: deno test --quiet --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock --frozen supabase/functions/stripe_webhook
       - name: Verify lockfile unchanged
         run: git diff --exit-code deno.lock
       - name: TODO Supabase RLS tests
@@ -82,12 +83,12 @@ jobs:
           echo "TODO: configure Supabase CLI db test to run supabase/tests/rls_membership.sql"
 
   test_db:
-    # Nightly/manual only.
+    # Nightly/manual only, and only if DB URL secret is present.
     if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: supabase/setup-cli@v1
         with:
           version: latest
@@ -95,6 +96,10 @@ jobs:
         env:
           SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
         run: |
+          if [[ -z "${SUPABASE_DB_URL}" ]]; then
+            echo "SUPABASE_DB_URL not set; skipping db test."
+            exit 0
+          fi
           # Sanitize and ensure schema
           CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
           if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
@@ -105,6 +110,10 @@ jobs:
         env:
           SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
         run: |
+          if [[ -z "${SUPABASE_DB_URL}" ]]; then
+            echo "SUPABASE_DB_URL not set; skipping migrations."
+            exit 0
+          fi
           CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
           if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
             CLEAN_DB_URL="postgresql://$CLEAN_DB_URL"
@@ -115,8 +124,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [typecheck, test_deno]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -130,8 +139,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"

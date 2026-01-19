@@ -28,6 +28,12 @@ updates:
         update-types:
           - "version-update:semver-major"
     groups:
+      npm-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
       npm-major:
         patterns:
           - "*"

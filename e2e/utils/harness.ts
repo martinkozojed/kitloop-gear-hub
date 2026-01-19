@@ -1,5 +1,6 @@
 import { request } from '@playwright/test';
 import { getHarnessConfig } from './env';
+import { rulesForUseCase, type UploadUseCase } from '../../shared/upload/validation';
 
 type UploadRulesResponse = {
   rules: Record<string, { maxBytes: number; allowedMime: string[]; bucket: string; allowedPrefix: string } | null>;
@@ -65,7 +66,19 @@ export const runSeedPreflight = async (runId: string, params: SeedPreflightParam
 
 export const getUploadRules = async (): Promise<UploadRulesResponse> => {
   if (cachedUploadRules) return cachedUploadRules;
-  const res = await callHarness('get_upload_rules', `rules_${Date.now()}`);
-  cachedUploadRules = res as UploadRulesResponse;
-  return cachedUploadRules;
+  try {
+    const res = await callHarness('get_upload_rules', `rules_${Date.now()}`);
+    cachedUploadRules = res as UploadRulesResponse;
+    return cachedUploadRules;
+  } catch (error) {
+    // Some environments may run an older harness without get_upload_rules; fall back to local rules.
+    const useCases: UploadUseCase[] = ['gear_image', 'damage_photo', 'provider_logo'];
+    const rules: UploadRulesResponse['rules'] = {};
+    for (const useCase of useCases) {
+      rules[useCase] = rulesForUseCase(useCase);
+    }
+    cachedUploadRules = { rules };
+    console.warn('Harness get_upload_rules unavailable, using local upload rules', error);
+    return cachedUploadRules;
+  }
 };

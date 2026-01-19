@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0?target=denonext&pin=v135";
+import { createClient } from "https://esm.sh/v135/@supabase/supabase-js@2.50.0";
 import { Pool } from "https://deno.land/x/postgres@v0.17.1/mod.ts";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
@@ -17,9 +17,8 @@ type EnvConfig = {
 function getEnv(): EnvConfig {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-const databaseUrl =
-  Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
-const mockNotificationsEnabled = Deno.env.get("ENABLE_MOCK_NOTIFICATIONS") === "true";
+  const databaseUrl =
+    Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error("Missing required Supabase environment variables");
@@ -31,6 +30,9 @@ const mockNotificationsEnabled = Deno.env.get("ENABLE_MOCK_NOTIFICATIONS") === "
 
   return { supabaseUrl, supabaseAnonKey, databaseUrl };
 }
+
+const mockNotificationsEnabled =
+  Deno.env.get("ENABLE_MOCK_NOTIFICATIONS") === "true";
 
 let pool: Pool | null = null;
 function getPool(databaseUrl: string) {
@@ -180,7 +182,10 @@ async function handle(req: Request): Promise<Response> {
           SELECT public.mock_send_notification(${reservation.id}::uuid, 'confirmation'::notification_type)
         `;
       } else {
-        console.log("Mock notifications disabled; skipping send for", reservation.id);
+        console.warn(
+          "Mock notifications disabled; skipping send for",
+          reservation.id,
+        );
       }
 
       await client.queryObject`COMMIT`;

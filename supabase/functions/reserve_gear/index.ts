@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0?target=denonext&pin=v135";
+import { createClient } from "https://esm.sh/v135/@supabase/supabase-js@2.50.0";
 import { Pool } from "https://deno.land/x/postgres@v0.17.1/mod.ts";
 import { reservationRequestSchema } from "./validation.ts";
 
