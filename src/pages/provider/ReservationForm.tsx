@@ -266,8 +266,13 @@ const ReservationForm = () => {
       if (end <= start) newErrors.end_date = t('provider.reservationForm.errors.endBeforeStart');
     }
 
-    if (!availability.result?.isAvailable && formData.variant_id && formData.start_date && formData.end_date) {
+    if (availability.result && !availability.result.isAvailable && formData.variant_id && formData.start_date && formData.end_date) {
       newErrors.variant_id = t('provider.reservationForm.errors.notAvailable');
+    }
+
+
+    if (Object.keys(newErrors).length > 0) {
+      console.log('[ResForm] Validation errors:', newErrors);
     }
 
     setErrors(newErrors);
@@ -276,6 +281,7 @@ const ReservationForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[ResForm] Submit clicked', { validate: validateForm() });
     if (!validateForm()) {
       toast.error(t('provider.reservationForm.toasts.fixErrors'));
       return;
@@ -296,13 +302,17 @@ const ReservationForm = () => {
       const end = normalizeToUtc(endLocal);
 
       // Re-check availability
+      console.log('[ResForm] Checking availability...');
       const availCheck = await checkVariantAvailability(formData.variant_id, start, end);
+      console.log('[ResForm] Availability result:', availCheck);
+
       if (!availCheck.isAvailable) {
         toast.error(t('provider.reservationForm.toasts.notAvailable'));
         setSubmitting(false);
         return;
       }
 
+      console.log('[ResForm] Creating hold...');
       const reservationResult = await createReservationHold({
         providerId: provider.id,
         // gearId is explicitly excluded or null for Inventory 2.0 reservations
@@ -322,10 +332,14 @@ const ReservationForm = () => {
         customerUserId: null,
       });
 
+      console.log('[ResForm] Hold created:', reservationResult);
+
       toast.success(t('provider.reservationForm.toasts.created', { status: reservationResult.status }));
+      console.log('[ResForm] Navigating to /provider/reservations');
       navigate('/provider/reservations');
 
     } catch (error: unknown) {
+      console.error('[ResForm] Creation failed:', error);
       logger.error('Reservation creation failed', error);
       toast.error(getErrorMessage(error) || t('provider.reservationForm.toasts.createError'));
     } finally {
@@ -510,7 +524,7 @@ const ReservationForm = () => {
                 </div>
               )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>{t('provider.reservationForm.labels.start')} *</Label>
                   <div className="relative">
@@ -584,9 +598,8 @@ const ReservationForm = () => {
                   maxLength={1000}
                 />
                 {formData.notes.length > 800 && (
-                  <p className={`text-sm mt-1 ${
-                    formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
-                  }`}>
+                  <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                    }`}>
                     {formData.notes.length}/1000 {t('provider.reservationForm.notes.chars')}
                   </p>
                 )}

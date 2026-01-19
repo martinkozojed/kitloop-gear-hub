@@ -153,224 +153,54 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Forbidden: provider membership required" }, 403);
     }
 
-    const client = await pool.connect();
+    // Use RPC for atomic reservation creation (Inventory 2.0)
+    // We map gear_id -> p_variant_id since legacy UI sends variant ID as gear_id
+    const { data: reservation, error: rpcError } = await supabaseClient.rpc("create_reservation", {
+      p_provider_id: providerId,
+      p_user_id: customerUserId || user.id, // Use explicit user_id if provided (admin/provider flow), else token user
+      p_variant_id: gearId,
+      p_quantity: requestedQuantity || 1,
+      p_start_date: startDateISO,
+      p_end_date: endDateISO,
+      p_customer_name: customer?.name || "Unnamed customer",
+      p_customer_email: customer?.email || null,
+      p_customer_phone: customer?.phone || null,
+      p_total_price_cents: Math.round((totalPrice || 0) * 100), // Ensure cents
+      p_idempotency_key: idempotencyKey,
+      p_notes: notes || null
+    });
 
-    try {
-      await client.queryObject`BEGIN`;
+    if (rpcError) {
+      console.error("create_reservation RPC error:", rpcError);
 
-      // Idempotency check
-      const existingReservation = await client.queryObject<{
-        id: string;
-        status: string;
-        expires_at: Date | null;
-      }>`
-        SELECT id, status, expires_at
-        FROM public.reservations
-        WHERE idempotency_key = ${idempotencyKey}
-        FOR UPDATE
-      `;
-
-      if (existingReservation.rows.length > 0) {
-        await client.queryObject`COMMIT`;
-        const match = existingReservation.rows[0];
-        return jsonResponse(
-          {
-            reservation_id: match.id,
-            status: match.status,
-            expires_at: match.expires_at,
-            idempotent: true,
-          },
-          200,
-        );
-      }
-
-      // Lock gear row to ensure consistent availability
-      const gearRow = await client.queryObject<{
-        provider_id: string;
-        active: boolean | null;
-        price_per_day: number | null;
-        quantity: number | null;
-      }>`
-        SELECT provider_id, active, price_per_day, quantity
-        FROM public.gear_items
-        WHERE id = ${gearId}
-        FOR UPDATE
-      `;
-
-      if (gearRow.rows.length === 0) {
-        await client.queryObject`ROLLBACK`;
-        return jsonResponse({ error: "Gear item not found" }, 400);
-      }
-
-      if (gearRow.rows[0].provider_id !== providerId) {
-        await client.queryObject`ROLLBACK`;
-        return jsonResponse(
-          { error: "Gear does not belong to the specified provider" },
-          400,
-        );
-      }
-
-      if (gearRow.rows[0].active === false) {
-        await client.queryObject`ROLLBACK`;
-        return jsonResponse(
-          { error: "Gear item is not currently active" },
-          409,
-        );
-      }
-
-      // Check quantity availability
-      const totalQuantity = gearRow.rows[0].quantity ?? 1;
-
-      // Get overlapping reservations and sum their quantities
-      const overlapping = await client.queryObject<{
-        quantity: number | null;
-      }>`
-        SELECT quantity
-        FROM public.reservations
-        WHERE gear_id = ${gearId}
-          AND status IN ('hold', 'confirmed', 'active')
-          AND start_date < ${endDate}
-          AND end_date > ${startDate}
-        FOR UPDATE
-      `;
-
-      const reservedQuantity = overlapping.rows.reduce(
-        (sum, row) => sum + (row.quantity ?? 1),
-        0
-      );
-
-      const availableQuantity = totalQuantity - reservedQuantity;
-
-      if (availableQuantity < (requestedQuantity ?? 1)) {
-        await client.queryObject`ROLLBACK`;
+      // Handle known errors
+      if (rpcError.code === "P0001" || rpcError.message?.includes("Insufficient availability")) {
         return jsonResponse(
           {
             error: "insufficient_quantity",
-            message: `Only ${availableQuantity} items available, but ${requestedQuantity ?? 1} requested`,
-            available: availableQuantity,
-            requested: requestedQuantity ?? 1,
-            total: totalQuantity,
+            message: rpcError.message
           },
-          409,
+          409
         );
       }
 
-      const pricePerDay =
-        typeof gearRow.rows[0].price_per_day === "number"
-          ? gearRow.rows[0].price_per_day
-          : 0;
-      const dailyRateCents = Math.max(0, Math.round(pricePerDay * 100));
-      const diffMs = endDate.getTime() - startDate.getTime();
-      const rentalDays = Math.max(
-        1,
-        Math.ceil(diffMs / (1000 * 60 * 60 * 24)),
-      );
-      const quantity = requestedQuantity ?? 1;
-      const amountTotalCents = dailyRateCents * rentalDays * quantity;
-      const currency = "CZK";
-
-      const pricingSnapshot = JSON.stringify({
-        daily_rate_cents: dailyRateCents,
-        days: rentalDays,
-        quantity: quantity,
-        currency,
-        subtotal_cents: amountTotalCents,
-      });
-
-      const normalizedTotalPrice =
-        typeof totalPrice === "number"
-          ? totalPrice
-          : amountTotalCents / 100;
-
-      const expiresAt = new Date(Date.now() + HOLD_DURATION_MS);
-
-      const insertResult = await client.queryObject<{
-        id: string;
-        expires_at: Date | null;
-      }>`
-        INSERT INTO public.reservations (
-          provider_id,
-          gear_id,
-          user_id,
-          customer_name,
-          customer_email,
-          customer_phone,
-          start_date,
-          end_date,
-          status,
-          quantity,
-          notes,
-          total_price,
-          deposit_paid,
-          amount_total_cents,
-          currency,
-          pricing_snapshot,
-          idempotency_key,
-          expires_at
-        )
-        VALUES (
-          ${providerId},
-          ${gearId},
-          ${customerUserId ?? null},
-          ${customer?.name ?? "Unnamed customer"},
-          ${customer?.email ?? null},
-          ${customer?.phone ?? null},
-          ${startDate.toISOString()},
-          ${endDate.toISOString()},
-          'hold',
-          ${quantity},
-          ${notes ?? null},
-          ${normalizedTotalPrice ?? null},
-          ${depositPaid ?? false},
-          ${amountTotalCents || null},
-          ${currency},
-          ${pricingSnapshot},
-          ${idempotencyKey},
-          ${expiresAt.toISOString()}
-        )
-        RETURNING id, expires_at
-      `;
-
-      await client.queryObject`COMMIT`;
-
-      const reservation = insertResult.rows[0];
-
-      return jsonResponse(
-        {
-          reservation_id: reservation.id,
-          status: "hold",
-          expires_at: reservation.expires_at,
-          idempotent: false,
-        },
-        201,
-      );
-    } catch (error) {
-      await client.queryObject`ROLLBACK`;
-
-      if (error instanceof Error) {
-        if (error.message.includes("reservations_idempotency_key_key")) {
-          return jsonResponse(
-            { error: "Duplicate idempotency key", details: error.message },
-            422,
-          );
-        }
-        const code = (error as { code?: string }).code;
-        if (code === "23P01" || error.message.includes("reservations_no_overlap")) {
-          return jsonResponse(
-            { error: "overlap_conflict", message: "Reservation overlaps an active booking" },
-            409,
-          );
-        }
+      if (rpcError.message?.includes("Variant does not belong")) {
+        return jsonResponse({ error: "Invalid variant/provider combination" }, 400);
       }
 
-      console.error("reserve_gear error:", error);
-      return jsonResponse(
-        { error: "Failed to create reservation hold" },
-        500,
-      );
-    } finally {
-      client.release();
+      return jsonResponse({ error: "Reservation failed", details: rpcError.message }, 500);
     }
+
+    return jsonResponse(
+      {
+        reservation_id: reservation.reservation_id,
+        status: reservation.status,
+        expires_at: reservation.expires_at,
+        idempotent: reservation.idempotent || false,
+      },
+      201 // Created
+    );
+
   } catch (error) {
     console.error("Unhandled reserve_gear error:", error);
     return jsonResponse({ error: "Internal server error" }, 500);

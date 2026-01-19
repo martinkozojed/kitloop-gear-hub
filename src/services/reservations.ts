@@ -129,29 +129,47 @@ const invokeEdgeReserveGear = async (
   endIso: string,
   idempotencyKey: string
 ): Promise<ReservationHoldResult> => {
+
+
+
   const { data, error } = await supabase.functions.invoke(
     EDGE_FUNCTION_NAME,
     {
       body: {
-        gear_id: input.gearId,
+        gear_id: input.gearId || input.productVariantId,
         provider_id: input.providerId,
         start_date: startIso,
         end_date: endIso,
         idempotency_key: idempotencyKey,
         total_price: input.totalPrice,
         deposit_paid: input.depositPaid,
-        notes: input.notes?.trim() || null,
-        user_id: input.customerUserId ?? null,
+        notes: input.notes?.trim() || undefined,
+        user_id: input.customerUserId ?? undefined,
         customer: {
           name: input.customer.name,
-          email: input.customer.email?.trim() || null,
-          phone: input.customer.phone?.trim() || null,
+          email: input.customer.email?.trim() || undefined,
+          phone: input.customer.phone?.trim() || undefined,
         },
       },
     }
   );
 
   if (error) {
+    let errorBody = "Unknown";
+    try {
+      if (error && typeof (error as any).context?.json === 'function') {
+        const json = await (error as any).context.json();
+        errorBody = JSON.stringify(json, null, 2);
+      } else if (error && typeof (error as any).context?.text === 'function') {
+        errorBody = await (error as any).context.text();
+      }
+    } catch (e) {
+      errorBody = "Could not read body";
+    }
+    if (import.meta.env.DEV) {
+      console.error('[ResService] Edge Error Body:', errorBody);
+    }
+
     throw new ReservationError(
       "edge_failed",
       typeof error.message === "string"

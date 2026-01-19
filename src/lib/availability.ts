@@ -65,12 +65,13 @@ export async function checkAvailability(
   }
 
   // 2. Get overlapping reservations
+  // Check both gear_id (legacy) and product_variant_id (Inventory 2.0)
   // Two date ranges overlap if: (start1 < end2) AND (end1 > start2)
   const { data: reservations, error: reservationError } = await supabase
     .from('reservations')
-    .select('id, start_date, end_date, status')
-    .eq('gear_id', gearId)
-    .in('status', ['hold', 'confirmed', 'active']) // Only count active/held bookings
+    .select('id, start_date, end_date, status, quantity')
+    .or(`gear_id.eq.${gearId},product_variant_id.eq.${gearId}`)
+    .in('status', ['hold', 'confirmed', 'active']) // Only active/held bookings
     .lt('start_date', endDate.toISOString())
     .gt('end_date', startDate.toISOString());
 
@@ -84,7 +85,8 @@ export async function checkAvailability(
     excludeReservationId ? r.id !== excludeReservationId : true
   );
 
-  const overlappingCount = overlapping.length;
+  // Use quantity sum (Inventory 2.0) instead of row count
+  const overlappingCount = overlapping.reduce((sum, r) => sum + (r.quantity || 1), 0);
   const quantityAvailable = gear.quantity_available || 0;
   const available = Math.max(0, quantityAvailable - overlappingCount);
 
@@ -277,7 +279,7 @@ export function validateEmail(email: string): boolean {
 
   // Split into local and domain parts
   const [local, domain] = trimmed.split('@');
-  
+
   if (!local || !domain) {
     return false;
   }

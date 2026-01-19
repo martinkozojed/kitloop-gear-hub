@@ -79,6 +79,7 @@ BODY=$(cat <<JSON
   "run_id": "$RUN_ID",
   "provider_email": "$PROVIDER_EMAIL",
   "provider_status": "approved",
+  "password": "${E2E_PROVIDER_PASSWORD:-}",
   "external_key_base": "${EXTERNAL_BASE}"
 }
 JSON

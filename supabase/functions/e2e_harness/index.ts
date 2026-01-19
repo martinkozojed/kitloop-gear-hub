@@ -21,20 +21,28 @@ const jsonResponse = (status: number, body: unknown) =>
 
 serve(async (req) => {
   try {
-    if (!REQUIRE_HARNESS) {
-      return jsonResponse(403, { error: "Harness disabled (REQUIRE_E2E_HARNESS!=true)" });
+    // 1. Strict Environment Check (Kill Switch)
+    // Harness is ONLY allowed if HARNESS_ENV is explicitly set to 'staging'.
+    // This prevents accidental usage in production even if deployed with --no-verify-jwt.
+    if (!ALLOWED_ENV || ALLOWED_ENV !== "staging") {
+      // Return 404 to avoid revealing existence/structure if misconfigured in prod
+      return jsonResponse(404, { error: "Not Found" });
     }
 
-    if (!ALLOWED_ENV) {
-      return jsonResponse(500, { error: "HARNESS_ENV not configured" });
+    if (!REQUIRE_HARNESS) {
+      return jsonResponse(403, { error: "Harness disabled" });
     }
 
     if (!CURRENT_ENV || CURRENT_ENV !== ALLOWED_ENV) {
       return jsonResponse(403, { error: "Harness disabled for this environment" });
     }
 
+    // 2. Strict Token Gate
+    // Constant-time comparison is not strictly necessary for this entropy, 
+    // but the check must be absolute.
     const token = req.headers.get("x-e2e-token");
     if (!token || token !== SEED_TOKEN) {
+      // Do not log the received token
       return jsonResponse(401, { error: "Unauthorized" });
     }
 
@@ -51,59 +59,191 @@ serve(async (req) => {
     const runId = (body?.run_id as string | undefined)?.slice(0, 64) ?? `run_${Date.now()}`;
     const prefix = `e2e_${runId}`;
 
+    // 3. Allowed Actions Allowlist
+    // Removed: audit, cleanup_user, getters, upload_rules
     switch (action) {
       case "seed":
-        return await handleSeed(supabase, prefix);
+        return await handleSeed(supabase, prefix, body);
       case "seed_preflight":
         return await handleSeedPreflight(supabase, body, { runId: prefix });
       case "cleanup":
         return await handleCleanup(supabase, prefix);
-      case "latest_audit_for_provider":
-        return await handleAuditFetch(supabase, body?.provider_id as string | undefined);
-      case "seed_staging_pack":
-        return await handleSeedStagingPack(supabase, body, { runId: prefix });
-      case "get_upload_rules":
-        return handleGetUploadRules();
+      case "reset_password":
+        return await handleResetPassword(supabase, body?.email as string | undefined, body?.password as string | undefined);
+      case "seed_admin":
+        return await handleSeedAdmin(supabase, body?.password as string | undefined);
+      case "check_schema":
+        return await handleCheckSchema(supabase);
       case "latest_reservation_for_provider":
         return await handleLatestReservation(supabase, body?.provider_id as string | undefined, body?.customer_name as string | undefined);
       default:
         return jsonResponse(400, { error: "Invalid action" });
     }
   } catch (error) {
-    return jsonResponse(500, { error: "Unhandled error", message: `${error}` });
+    return jsonResponse(500, { error: "Unhandled error", message: JSON.stringify(error, Object.getOwnPropertyNames(error)) });
   }
 });
+
+const handleSeedAdmin = async (
+  supabase: ReturnType<typeof createClient>,
+  password?: string
+) => {
+  const email = "admin@kitloop.com";
+  const pwd = password || SEED_USER_PASSWORD || "password123";
+
+  try {
+    const user = await ensureUser(supabase, email, pwd);
+    // Promote to admin
+    const { error } = await supabase.from("profiles").upsert({
+      user_id: user.id,
+      role: "admin",
+      is_admin: true,
+      is_verified: true,
+    }, { onConflict: "user_id" });
+
+    if (error) return jsonResponse(500, { error: "Failed to promote admin (profile)", details: error });
+
+    // Also update auth.users app_metadata (critical for JWT claims and RPCs using auth.jwt())
+    const { error: authError } = await supabase.auth.admin.updateUserById(user.id, {
+      app_metadata: { role: "admin", is_admin: true }
+    });
+
+    if (authError) return jsonResponse(500, { error: "Failed to set admin metadata", details: authError });
+
+    // CRITICAL: Insert into user_roles to pass is_admin_trusted() check
+    const { error: roleError } = await supabase.from("user_roles").upsert({
+      user_id: user.id,
+      role: "admin"
+    }, { onConflict: "user_id, role" }); // Assuming composite key or unique constraint
+
+    if (roleError) {
+      // Fallback: try onConflict on just user_id if that's the key, or ignore mismatch if unique key different
+      // But better to fail loud?
+      // Let's list ignoring checking constraints for now, assumes (user_id, role) is safe
+      console.error("Failed to seed user_roles:", roleError);
+      return jsonResponse(500, { error: "Failed to seed user_roles", details: roleError });
+    }
+
+    // Also likely needs to be in a provider membership? Or global admin?
+    // Assuming global admin based on role='admin'.
+
+    return jsonResponse(200, { success: true, email, user_id: user.id });
+  } catch (e) {
+    return jsonResponse(500, { error: "Failed to seed admin", details: e });
+  }
+};
+
+const handleResetPassword = async (
+  supabase: ReturnType<typeof createClient>,
+  email?: string,
+  password?: string
+) => {
+  if (!email || !password) return jsonResponse(400, { error: "Missing email or password" });
+
+  const user = await findUserByEmail(supabase, email);
+  if (!user) return jsonResponse(404, { error: "User not found" });
+
+  const { error } = await supabase.auth.admin.updateUserById(user.id, { password });
+  if (error) return jsonResponse(500, { error: "Update failed", details: error });
+
+  return jsonResponse(200, { success: true, user_id: user.id });
+};
 
 const handleSeed = async (
   supabase: ReturnType<typeof createClient>,
   prefix: string,
-  opts?: { provider_email?: string; provider_status?: string }
+  opts?: { provider_email?: string; provider_status?: string; password?: string }
 ) => {
   // Ensure at least one product + variant + asset exists for E2E.
   const name = `${prefix}_product`;
 
   let providerId: string | undefined;
+  let resultProvider;
+  let debugUpdate;
 
   if (opts?.provider_email) {
-    const { data: providerByEmail } = await supabase
+    const pwd = opts.password || SEED_USER_PASSWORD;
+    const userResult = await ensureUser(supabase, opts.provider_email, pwd);
+    await upsertProfile(supabase, userResult.id);
+
+    let { data: provider } = await supabase
       .from("providers")
       .select("id")
       .eq("email", opts.provider_email)
       .maybeSingle();
-    providerId = providerByEmail?.id;
-    if (!providerId) {
-      return jsonResponse(500, { error: "Provider not found for email" });
-    }
-    if (opts.provider_status) {
-      await supabase
+
+    if (!provider) {
+      // Fallback: Find by owner
+      const { data: byOwner } = await supabase
         .from("providers")
-        .update({
-          status: opts.provider_status,
-          verified: opts.provider_status === "approved",
-        })
-        .eq("id", providerId);
+        .select("id")
+        .eq("user_id", userResult.id)
+        .maybeSingle();
+      provider = byOwner;
+    }
+
+    if (provider) {
+      providerId = provider.id;
+      // Sync status and email if reusing
+      const updatePayload = {
+        status: opts.provider_status,
+        email: opts.provider_email,
+        verified: opts.provider_status === "approved",
+      };
+
+      const { error: updateError, data: updatedData } = await supabase.from("providers").update(updatePayload)
+        .eq("id", providerId)
+        .select();
+
+      if (updateError) {
+        return jsonResponse(500, { error: "Failed to update provider", details: updateError });
+      }
+
+      debugUpdate = updatedData;
+      resultProvider = (updatedData && updatedData[0]) ? updatedData[0] : null; // Snapshot for debug
+
+      // Verify update
+      if (!updatedData || updatedData.length === 0) {
+        // Check if row exists
+        const { data: check } = await supabase.from("providers").select("id").eq("id", providerId);
+        return jsonResponse(500, { error: "Update returned no rows", providerId, exists: !!check?.length });
+      }
+
+      if (updatedData[0].email !== opts.provider_email) {
+        return jsonResponse(200, {
+          success: false,
+          error: "Update silently failed",
+          expected: opts.provider_email,
+          actual: updatedData[0].email,
+          payload: updatePayload
+        });
+      }
+
+    } else {
+      // Create if missing
+      const { data: created } = await supabase.from("providers").insert({
+        name: `Provider ${prefix}`,
+        rental_name: `Rental ${prefix}`,
+        email: opts.provider_email,
+        contact_name: "Seeded Contact",
+        phone: "+420777000888",
+        status: opts.provider_status ?? "approved",
+        verified: opts.provider_status === "approved",
+        user_id: userResult.id,
+        category: "seed",
+        currency: "CZK",
+        time_zone: "UTC",
+        location: "Seeded City",
+        external_key: `${prefix}_provider`,
+      }).select().single();
+
+      if (!created) return jsonResponse(500, { error: "Failed to create provider" });
+      providerId = created.id;
+      resultProvider = created;
+      debugUpdate = [created];
     }
   } else {
+    // No email provided, find existing approved
     const { data: provider } = await supabase
       .from("providers")
       .select("id")
@@ -273,7 +413,7 @@ const handleSeedPreflight = async (
   }
 
   const start = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-  const end = new Date(Date.now() + 27 * 60 * 60 * 1000).toISOString();
+  const end = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
   const reservation = await upsertReservationWithExternalKey(supabase, {
     externalKey: `${baseKey}_reservation`,
@@ -484,57 +624,8 @@ const handleCleanup = async (supabase: ReturnType<typeof createClient>, prefix: 
   return jsonResponse(200, { success: true, prefix });
 };
 
-const handleAuditFetch = async (
-  supabase: ReturnType<typeof createClient>,
-  providerId?: string
-) => {
-  if (!providerId) return jsonResponse(400, { error: "provider_id required" });
+// Unused helper functions removed
 
-  const { data, error } = await supabase
-    .from("admin_audit_logs")
-    .select("id, action, target_id, created_at")
-    .eq("target_id", providerId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) return jsonResponse(500, { error: "Audit fetch failed" });
-
-  return jsonResponse(200, { audit: data ?? null });
-};
-
-const handleGetUploadRules = () => {
-  const useCases: UploadUseCase[] = ["gear_image", "damage_photo", "provider_logo"];
-  const rules: Record<string, ReturnType<typeof rulesForUseCase>> = {};
-  for (const useCase of useCases) {
-    rules[useCase] = rulesForUseCase(useCase);
-  }
-  return jsonResponse(200, { rules });
-};
-
-const handleLatestReservation = async (
-  supabase: ReturnType<typeof createClient>,
-  providerId?: string,
-  customerName?: string,
-) => {
-  if (!providerId) return jsonResponse(400, { error: "provider_id required" });
-
-  let query = supabase
-    .from("reservations")
-    .select("id, status, customer_name, provider_id, created_at")
-    .eq("provider_id", providerId)
-    .order("created_at", { ascending: false });
-
-  if (customerName) {
-    query = query.eq("customer_name", customerName);
-  }
-
-  const { data, error } = await query.limit(1).maybeSingle();
-
-  if (error) return jsonResponse(500, { error: "Reservation fetch failed" });
-
-  return jsonResponse(200, { reservation: data ?? null });
-};
 
 // ---------------------------------------------------------------------------
 // Staging Pack Seed (PR7/P1 verification)
@@ -570,8 +661,16 @@ async function ensureUser(
   email: string,
   password?: string
 ): Promise<{ id: string; created: boolean }> {
+  // console.log(`Ensuring user: ${email}`); // Cannot log to console in Edge Function easily visible.
+  // I can return log array? No, handleSeed returns json.
+  // I will throw error with debug info if mismatch?
+
   const existing = await findUserByEmail(supabase, email);
-  if (existing) return { id: existing.id, created: false };
+  if (existing) {
+    // Verify email match strictly just in case logic was flawed
+    // Actually findUserByEmail does verify.
+    return { id: existing.id, created: false };
+  }
 
   if (!password) {
     throw new Error("User does not exist and SEED_USER_PASSWORD not provided");
@@ -582,7 +681,16 @@ async function ensureUser(
     password,
     email_confirm: true,
   });
-  if (error || !data?.user) throw error ?? new Error("Failed to create auth user");
+
+  if (error) {
+    // If error is "User already registered", try to find it again? (Race condition)
+    if (error.message?.includes("already registered")) {
+      const retry = await findUserByEmail(supabase, email);
+      if (retry) return { id: retry.id, created: false };
+    }
+    throw error ?? new Error("Failed to create auth user");
+  }
+  if (!data?.user) throw new Error("Failed to create auth user (no data)");
   return { id: data.user.id, created: true };
 }
 
@@ -897,4 +1005,60 @@ const handleSeedStagingPack = async (
     user_id: userResult.id,
     providers: providerResults,
   });
+};
+
+async function handleCheckSchema(supabase: ReturnType<typeof createClient>) {
+  // Check reservations columns (by selecting 1 row if exists, or probing columns)
+  const { data: rows, error: rowError } = await supabase
+    .from("reservations")
+    .select("*")
+    .limit(1);
+
+  // Probe specific expected columns
+  const { error: gearError } = await supabase.from("reservations").select("gear_id").limit(1);
+  const { error: variantError } = await supabase.from("reservations").select("product_variant_id").limit(1);
+  const { error: quantityError } = await supabase.from("reservations").select("quantity").limit(1);
+  const { error: providerError } = await supabase.from("reservations").select("provider_id").limit(1);
+
+  return jsonResponse(200, {
+    columns_probe: {
+      gear_id: !gearError,
+      gear_error: gearError?.message,
+      product_variant_id: !variantError,
+      variant_error: variantError?.message,
+      quantity: !quantityError,
+      quantity_error: quantityError?.message,
+      provider_id: !providerError,
+      provider_error: providerError?.message
+    },
+    row_sample_keys: rows && rows.length > 0 ? Object.keys(rows[0]) : [],
+    row_error: rowError?.message
+  });
+}
+
+
+async function handleLatestReservation(
+  supabase: ReturnType<typeof createClient>,
+  providerId?: string,
+  customerName?: string
+) {
+  if (!providerId) return jsonResponse(400, { error: "Missing provider_id" });
+
+  let query = supabase
+    .from("reservations")
+    .select("*")
+    .eq("provider_id", providerId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (customerName) {
+    query = query.ilike("customer_name", customerName);
+  }
+
+  const { data, error } = await query.maybeSingle();
+
+  if (error) {
+    return jsonResponse(400, { error: error.message });
+  }
+  return jsonResponse(200, { reservation: data });
 };
