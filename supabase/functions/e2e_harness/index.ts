@@ -54,6 +54,8 @@ serve(async (req) => {
     switch (action) {
       case "seed":
         return await handleSeed(supabase, prefix);
+      case "seed_preflight":
+        return await handleSeedPreflight(supabase, body, { runId: prefix });
       case "cleanup":
         return await handleCleanup(supabase, prefix);
       case "latest_audit_for_provider":
@@ -188,6 +190,281 @@ const handleSeed = async (
     product_name: productName,
     variant_name: variantName,
     prefix,
+  });
+};
+
+type PreflightSeedBody = {
+  provider_email?: string;
+  provider_status?: "approved" | "pending";
+  provider_name?: string;
+  product_name?: string;
+  variant_name?: string;
+  asset_count?: number;
+  reservation_status?: string;
+  password?: string;
+  external_key_base?: string;
+};
+
+const normalizeKeyPart = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 40);
+
+const handleSeedPreflight = async (
+  supabase: ReturnType<typeof createClient>,
+  body: PreflightSeedBody,
+  opts: { runId: string }
+) => {
+  const providerEmail = body?.provider_email;
+  if (!providerEmail) {
+    return jsonResponse(400, { error: "provider_email required" });
+  }
+
+  const emailSlug = normalizeKeyPart(providerEmail);
+  const rawBase = body.external_key_base || `${opts.runId}_preflight`;
+  const baseKey = `${rawBase}_${emailSlug}`.slice(0, 120);
+  const providerStatus = body.provider_status === "pending" ? "pending" : "approved";
+  const assetCount = Number.isFinite(body.asset_count) ? Math.max(1, Math.min(10, Number(body.asset_count))) : 3;
+  const productName = body.product_name || `${baseKey}_product`;
+  const variantName = body.variant_name || `${baseKey}_variant`;
+  const reservationStatus = body.reservation_status || "active";
+
+  const userResult = await ensureUser(supabase, providerEmail, body.password ?? SEED_USER_PASSWORD);
+  await upsertProfile(supabase, userResult.id);
+
+  const providerId = await upsertProviderWithExternalKey(supabase, {
+    externalKey: `${baseKey}_provider`,
+    name: body.provider_name || `Preflight ${opts.runId}`,
+    email: providerEmail,
+    status: providerStatus,
+    userId: userResult.id,
+  });
+
+  await upsertMembershipWithExternalKey(supabase, {
+    externalKey: `${baseKey}_membership`,
+    userId: userResult.id,
+    providerId,
+  });
+
+  const product = await upsertProductWithExternalKey(supabase, {
+    externalKey: `${baseKey}_product`,
+    providerId,
+    name: productName,
+  });
+
+  const variant = await upsertVariantWithExternalKey(supabase, {
+    externalKey: `${baseKey}_variant`,
+    productId: product.id,
+    name: variantName,
+  });
+
+  const assetIds: string[] = [];
+  for (let i = 1; i <= assetCount; i += 1) {
+    const asset = await upsertAssetWithExternalKey(supabase, {
+      externalKey: `${baseKey}_asset_${i}`,
+      providerId,
+      variantId: variant.id,
+      assetTag: `${baseKey}_asset_${i}`,
+    });
+    assetIds.push(asset.id);
+  }
+
+  const start = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const end = new Date(Date.now() + 27 * 60 * 60 * 1000).toISOString();
+
+  const reservation = await upsertReservationWithExternalKey(supabase, {
+    externalKey: `${baseKey}_reservation`,
+    providerId,
+    variantId: variant.id,
+    assetId: assetIds[0],
+    start,
+    end,
+    status: reservationStatus,
+    customerName: `Preflight Customer ${opts.runId}`,
+  });
+
+  if (assetIds[0] && reservation.id) {
+    await ensureAssignmentForReservation(supabase, reservation.id, assetIds[0], start);
+  }
+
+  return jsonResponse(200, {
+    success: true,
+    external_key_base: baseKey,
+    provider_id: providerId,
+    product_id: product.id,
+    variant_id: variant.id,
+    asset_ids: assetIds,
+    reservation_id: reservation.id,
+    reservation_status: reservation.status,
+  });
+};
+
+const upsertProviderWithExternalKey = async (
+  supabase: ReturnType<typeof createClient>,
+  seed: { externalKey: string; name: string; email: string; status: "approved" | "pending"; userId: string }
+): Promise<string> => {
+  const { data, error } = await supabase
+    .from("providers")
+    .upsert({
+      external_key: seed.externalKey,
+      name: seed.name,
+      rental_name: seed.name,
+      email: seed.email,
+      contact_name: "Preflight Owner",
+      phone: "+420777000111",
+      status: seed.status,
+      verified: seed.status === "approved",
+      user_id: seed.userId,
+      category: "seed",
+      currency: "CZK",
+      time_zone: "UTC",
+      location: "Preflight City",
+    }, { onConflict: "external_key" })
+    .select("id")
+    .single();
+
+  if (error || !data?.id) throw error ?? new Error("Failed to upsert provider");
+  return data.id;
+};
+
+const upsertMembershipWithExternalKey = async (
+  supabase: ReturnType<typeof createClient>,
+  seed: { externalKey: string; userId: string; providerId: string }
+) => {
+  const { error } = await supabase
+    .from("user_provider_memberships")
+    .upsert({
+      external_key: seed.externalKey,
+      user_id: seed.userId,
+      provider_id: seed.providerId,
+      role: "owner",
+    }, { onConflict: "external_key" });
+
+  if (error) throw error;
+};
+
+const upsertProductWithExternalKey = async (
+  supabase: ReturnType<typeof createClient>,
+  seed: { externalKey: string; providerId: string; name: string }
+): Promise<{ id: string; name: string }> => {
+  const { data, error } = await supabase
+    .from("products")
+    .upsert({
+      external_key: seed.externalKey,
+      provider_id: seed.providerId,
+      name: seed.name,
+      category: "seed",
+      base_price_cents: 2500,
+      description: "E2E preflight product",
+    }, { onConflict: "provider_id,external_key" })
+    .select("id, name")
+    .single();
+
+  if (error || !data?.id) throw error ?? new Error("Failed to upsert product");
+  return { id: data.id, name: data.name };
+};
+
+const upsertVariantWithExternalKey = async (
+  supabase: ReturnType<typeof createClient>,
+  seed: { externalKey: string; productId: string; name: string }
+): Promise<{ id: string; name: string }> => {
+  const { data, error } = await supabase
+    .from("product_variants")
+    .upsert({
+      external_key: seed.externalKey,
+      product_id: seed.productId,
+      name: seed.name,
+      is_active: true,
+    }, { onConflict: "product_id,external_key" })
+    .select("id, name")
+    .single();
+
+  if (error || !data?.id) throw error ?? new Error("Failed to upsert variant");
+  return { id: data.id, name: data.name };
+};
+
+const upsertAssetWithExternalKey = async (
+  supabase: ReturnType<typeof createClient>,
+  seed: { externalKey: string; providerId: string; variantId: string; assetTag: string }
+): Promise<{ id: string }> => {
+  const { data, error } = await supabase
+    .from("assets")
+    .upsert({
+      external_key: seed.externalKey,
+      provider_id: seed.providerId,
+      variant_id: seed.variantId,
+      asset_tag: seed.assetTag,
+      status: "available",
+      condition_score: 95,
+      location: "Preflight WH",
+    }, { onConflict: "provider_id,external_key" })
+    .select("id")
+    .single();
+
+  if (error || !data?.id) throw error ?? new Error("Failed to upsert asset");
+  return { id: data.id };
+};
+
+const upsertReservationWithExternalKey = async (
+  supabase: ReturnType<typeof createClient>,
+  seed: {
+    externalKey: string;
+    providerId: string;
+    variantId: string;
+    assetId?: string;
+    start: string;
+    end: string;
+    status: string;
+    customerName: string;
+  }
+): Promise<{ id: string; status: string }> => {
+  const { data, error } = await supabase
+    .from("reservations")
+    .upsert({
+      external_key: seed.externalKey,
+      provider_id: seed.providerId,
+      product_variant_id: seed.variantId,
+      customer_name: seed.customerName,
+      customer_email: "customer@example.com",
+      customer_phone: "+420777000333",
+      start_date: seed.start,
+      end_date: seed.end,
+      status: seed.status,
+      payment_status: "unpaid",
+      currency: "CZK",
+      idempotency_key: seed.externalKey,
+      total_price: 1500,
+      amount_total_cents: 150000,
+    }, { onConflict: "provider_id,external_key" })
+    .select("id, status")
+    .single();
+
+  if (error || !data?.id) throw error ?? new Error("Failed to upsert reservation");
+  return { id: data.id, status: data.status ?? seed.status };
+};
+
+const ensureAssignmentForReservation = async (
+  supabase: ReturnType<typeof createClient>,
+  reservationId: string,
+  assetId: string,
+  start: string
+) => {
+  const { data: existing } = await supabase
+    .from("reservation_assignments")
+    .select("id")
+    .eq("reservation_id", reservationId)
+    .eq("asset_id", assetId)
+    .maybeSingle();
+
+  if (existing?.id) return;
+
+  await supabase.from("reservation_assignments").insert({
+    reservation_id: reservationId,
+    asset_id: assetId,
+    assigned_at: start,
   });
 };
 

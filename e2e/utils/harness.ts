@@ -5,6 +5,29 @@ type UploadRulesResponse = {
   rules: Record<string, { maxBytes: number; allowedMime: string[]; bucket: string; allowedPrefix: string } | null>;
 };
 
+export type SeedPreflightParams = {
+  provider_email: string;
+  provider_status?: 'approved' | 'pending';
+  provider_name?: string;
+  product_name?: string;
+  variant_name?: string;
+  asset_count?: number;
+  reservation_status?: string;
+  password?: string;
+  external_key_base?: string;
+};
+
+export type SeedPreflightResponse = {
+  success: boolean;
+  external_key_base: string;
+  provider_id: string;
+  product_id: string;
+  variant_id: string;
+  asset_ids: string[];
+  reservation_id: string;
+  reservation_status: string;
+};
+
 let cachedUploadRules: UploadRulesResponse | null = null;
 
 export const callHarness = async (action: string, runId: string, extra?: Record<string, unknown>) => {
@@ -33,6 +56,11 @@ export const callHarness = async (action: string, runId: string, extra?: Record<
   }
 
   return res.json();
+};
+
+export const runSeedPreflight = async (runId: string, params: SeedPreflightParams) => {
+  const res = await callHarness('seed_preflight', runId, params);
+  return res as SeedPreflightResponse;
 };
 
 export const getUploadRules = async (): Promise<UploadRulesResponse> => {

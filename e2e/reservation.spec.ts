@@ -18,8 +18,6 @@ test.describe('Reservation smoke', () => {
     const { email, password } = getProviderCreds();
     const runId = `res_${Date.now()}`;
     const seed = await callHarness('seed', runId, { provider_email: email, provider_status: 'approved' });
-    const productName = seed.product_name || seed.prefix;
-    const variantName = seed.variant_name || seed.prefix;
 
     const customerName = `E2E Customer ${Date.now()}`;
     const start = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -34,10 +32,10 @@ test.describe('Reservation smoke', () => {
       await page.locator('#customer_email').fill(`qa+${Date.now()}@example.com`);
 
       await page.getByTestId('reservation-product-select').click();
-      await page.getByRole('option', { name: productName, exact: false }).click();
+      await page.getByTestId(`reservation-product-option-${seed.product_id}`).click();
 
       await page.getByTestId('reservation-variant-select').click();
-      await page.getByRole('option', { name: new RegExp(variantName, 'i') }).first().click();
+      await page.getByTestId(`reservation-variant-option-${seed.variant_id}`).click();
 
       await page.getByTestId('reservation-start').fill(formatDateTimeLocal(start));
       await page.getByTestId('reservation-end').fill(formatDateTimeLocal(end));

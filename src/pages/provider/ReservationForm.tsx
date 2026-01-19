@@ -464,7 +464,13 @@ const ReservationForm = () => {
                       <SelectGroup key={cat}>
                         <SelectLabel>{cat}</SelectLabel>
                         {prods.map(p => (
-                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                          <SelectItem
+                            key={p.id}
+                            value={p.id}
+                            data-testid={`reservation-product-option-${p.id}`}
+                          >
+                            {p.name}
+                          </SelectItem>
                         ))}
                       </SelectGroup>
                     ))}
@@ -487,7 +493,11 @@ const ReservationForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {selectedProduct.product_variants.map(v => (
-                        <SelectItem key={v.id} value={v.id}>
+                        <SelectItem
+                          key={v.id}
+                          value={v.id}
+                          data-testid={`reservation-variant-option-${v.id}`}
+                        >
                           {v.name}
                           {v.price_override_cents
                             ? ` (${formatPrice(v.price_override_cents / 100)}/den)`

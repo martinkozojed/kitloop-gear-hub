@@ -9,6 +9,13 @@ DROP POLICY IF EXISTS "membership_update_self_or_owner" ON public.user_provider_
 DROP POLICY IF EXISTS "membership_delete_provider_owner" ON public.user_provider_memberships;
 DROP POLICY IF EXISTS "membership_insert_by_owner" ON public.user_provider_memberships;
 
+-- Expand allowed roles to match downstream usage
+ALTER TABLE public.user_provider_memberships
+  DROP CONSTRAINT IF EXISTS user_provider_memberships_role_check;
+ALTER TABLE public.user_provider_memberships
+  ADD CONSTRAINT user_provider_memberships_role_check
+  CHECK (role IN ('owner','manager','staff','viewer','revoked'));
+
 ALTER TABLE public.user_provider_memberships ENABLE ROW LEVEL SECURITY;
 
 -- Read: self only (no cross-tenant leak)

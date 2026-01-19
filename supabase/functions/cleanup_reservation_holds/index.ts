@@ -27,6 +27,48 @@ export function summarizeCleanupResult(deleted: number) {
   return { deleted_count: deleted };
 }
 
+async function logCronRunStart(client: ReturnType<Pool["connect"]>, cronName: string) {
+  const startedAtMs = Date.now();
+  try {
+    const { rows } = await client.queryObject<{ id: string }>`
+      INSERT INTO public.cron_runs (cron_name, status, started_at)
+      VALUES (${cronName}, 'started', now())
+      RETURNING id
+    `;
+    return { id: rows[0]?.id ?? null, startedAtMs };
+  } catch (error) {
+    console.error("cron_runs start log failed:", error);
+    return { id: null, startedAtMs };
+  }
+}
+
+async function logCronRunFinish(
+  client: ReturnType<Pool["connect"]>,
+  runId: string | null,
+  startedAtMs: number,
+  status: "success" | "failed",
+  opts?: { error?: unknown; metadata?: Record<string, unknown> }
+) {
+  if (!runId) return;
+  const durationMs = Math.max(0, Date.now() - startedAtMs);
+  const errorMessage = opts?.error ? `${opts.error}` : null;
+  const metadata = opts?.metadata ?? null;
+
+  try {
+    await client.queryObject`
+      UPDATE public.cron_runs
+      SET status = ${status},
+          finished_at = now(),
+          duration_ms = ${durationMs},
+          error_message = ${errorMessage},
+          metadata = ${metadata}
+      WHERE id = ${runId}
+    `;
+  } catch (error) {
+    console.error("cron_runs finish log failed:", error);
+  }
+}
+
 const jsonResponse = (
   body: unknown,
   status = 200,
@@ -70,6 +112,7 @@ async function handle(req: Request): Promise<Response> {
     }
 
     const client = await getPool().connect();
+    const cronRun = await logCronRunStart(client, "cleanup_reservation_holds_manual");
 
     try {
       await client.queryObject`BEGIN`;
@@ -85,11 +128,13 @@ async function handle(req: Request): Promise<Response> {
       await client.queryObject`COMMIT`;
 
       const payload = summarizeCleanupResult(rows.length);
-      console.log(JSON.stringify({ event: "cleanup_reservation_holds", ...payload }));
+      await logCronRunFinish(client, cronRun.id, cronRun.startedAtMs, "success", { metadata: payload });
+      console.log(JSON.stringify({ event: "cleanup_reservation_holds", ...payload, cron_run_id: cronRun.id }));
 
-      return jsonResponse(payload);
+      return jsonResponse({ ...payload, cron_run_id: cronRun.id });
     } catch (error) {
       await client.queryObject`ROLLBACK`;
+      await logCronRunFinish(client, cronRun.id, cronRun.startedAtMs, "failed", { error });
       console.error("cleanup_reservation_holds error:", error);
       return jsonResponse({ error: "Failed to cleanup holds" }, 500);
     } finally {
@@ -104,4 +149,3 @@ async function handle(req: Request): Promise<Response> {
 if (import.meta.main) {
   Deno.serve(handle);
 }
-
