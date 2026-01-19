@@ -157,10 +157,14 @@ const invokeEdgeReserveGear = async (
   if (error) {
     let errorBody = "Unknown";
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (error && typeof (error as any).context?.json === 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const json = await (error as any).context.json();
         errorBody = JSON.stringify(json, null, 2);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } else if (error && typeof (error as any).context?.text === 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         errorBody = await (error as any).context.text();
       }
     } catch (e) {

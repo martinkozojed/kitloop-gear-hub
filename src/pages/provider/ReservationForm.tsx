@@ -271,9 +271,6 @@ const ReservationForm = () => {
     }
 
 
-    if (Object.keys(newErrors).length > 0) {
-      console.log('[ResForm] Validation errors:', newErrors);
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -281,7 +278,7 @@ const ReservationForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[ResForm] Submit clicked', { validate: validateForm() });
+
     if (!validateForm()) {
       toast.error(t('provider.reservationForm.toasts.fixErrors'));
       return;
@@ -302,9 +299,9 @@ const ReservationForm = () => {
       const end = normalizeToUtc(endLocal);
 
       // Re-check availability
-      console.log('[ResForm] Checking availability...');
+      // console.log('[ResForm] Checking availability...');
       const availCheck = await checkVariantAvailability(formData.variant_id, start, end);
-      console.log('[ResForm] Availability result:', availCheck);
+      // console.log('[ResForm] Availability result:', availCheck);
 
       if (!availCheck.isAvailable) {
         toast.error(t('provider.reservationForm.toasts.notAvailable'));
@@ -312,7 +309,7 @@ const ReservationForm = () => {
         return;
       }
 
-      console.log('[ResForm] Creating hold...');
+      // console.log('[ResForm] Creating hold...');
       const reservationResult = await createReservationHold({
         providerId: provider.id,
         // gearId is explicitly excluded or null for Inventory 2.0 reservations
@@ -332,14 +329,14 @@ const ReservationForm = () => {
         customerUserId: null,
       });
 
-      console.log('[ResForm] Hold created:', reservationResult);
+      // console.log('[ResForm] Hold created:', reservationResult);
 
       toast.success(t('provider.reservationForm.toasts.created', { status: reservationResult.status }));
-      console.log('[ResForm] Navigating to /provider/reservations');
+      // console.log('[ResForm] Navigating to /provider/reservations');
       navigate('/provider/reservations');
 
     } catch (error: unknown) {
-      console.error('[ResForm] Creation failed:', error);
+      // console.error('[ResForm] Creation failed:', error);
       logger.error('Reservation creation failed', error);
       toast.error(getErrorMessage(error) || t('provider.reservationForm.toasts.createError'));
     } finally {
