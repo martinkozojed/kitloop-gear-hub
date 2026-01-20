@@ -93,7 +93,7 @@
     "https://esm.sh/v135/base64-js@1.5.1/esnext/base64-js.mjs": "349361f227d34ff80b673a7741ea0b509dbb6c9c89d650b86a0b55705e25c8dc",
     "https://esm.sh/v135/browserify-zlib@0.2.0/esnext/browserify-zlib.mjs": "2186f3fe5baa1a90a152ba1a4fb6a9e534ef19ad7ca0812fbdbbb421ef4dfd8d",
     "https://esm.sh/v135/buffer@6.0.3/esnext/buffer.bundle.mjs": "ab5d16329391983e74b9224bf9187663b639e5bc1f4284b2676ab4c137dd6622",
-    "https://esm.sh/v135/buffer@6.0.3/esnext/buffer.mjs": "f6de86b04b58a64f82d591b05fff1626ed7c8f4a9c7726c274c96abef31326c3",
+    "https://esm.sh/v135/buffer@6.0.3/esnext/buffer.mjs": "96d3feae3c85458674c2b7e912a41e680a44a762ec606f7c3baa3c781455f043",
     "https://esm.sh/v135/builtin-status-codes@3.0.0/esnext/builtin-status-codes.mjs": "115d232e6df14cad0677b0c2aaa8b1711e91fec3c31cf81c31a6ad8c01ec37f8",
     "https://esm.sh/v135/call-bind@1.0.5/esnext/call-bind.mjs": "47a3b8fbceec90dd30b971b539a608c8325e673c8cd7db106d76228d3e27471e",
     "https://esm.sh/v135/call-bind@1.0.5/esnext/callBound.js": "e6a5ba3c7567e4790270c749bb470a645a8477c872c2d1f8e57de414a426b174",
