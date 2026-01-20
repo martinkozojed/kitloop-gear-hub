@@ -1,4 +1,4 @@
-
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const SUPABASE_URL = Deno.env.get("E2E_SUPABASE_URL") || "";

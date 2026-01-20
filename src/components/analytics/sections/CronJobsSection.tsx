@@ -10,7 +10,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
 
-interface CronHealth {
+export interface CronHealth {
     jobname: string;
     schedule: string;
     command: string;

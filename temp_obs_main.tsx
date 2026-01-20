@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
-import { CronJobsSection, CronHealth } from "@/components/analytics/sections/CronJobsSection";
 
 interface RpcLog {
     id: string;
@@ -19,7 +18,6 @@ interface RpcLog {
 }
 
 export default function Observability() {
-    // 1. Existing RPC Logs Query
     const { data: logs, isLoading } = useQuery({
         queryKey: ["rpc_logs"],
         queryFn: async () => {
@@ -34,34 +32,12 @@ export default function Observability() {
         },
     });
 
-    // 2. New Cron Health Query
-    const { data: cronHealth, isLoading: cronHealthLoading } = useQuery({
-        queryKey: ["cron_health"],
-        queryFn: async () => {
-            // RPC might fail if RLS not set up for current user context (requires admin)
-            // But we handle error gracefully in UI (empty list or error state)
-            const { data, error } = await supabase.rpc("get_cron_health");
-            if (error) throw error;
-            return data as unknown as CronHealth[];
-        }
-    });
-
     return (
         <div className="container mx-auto py-8 space-y-8">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">System Observability</h1>
             </div>
 
-            {/* Cron Jobs Section (P2 Epic B) */}
-            <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Cron Jobs Health</h2>
-                <CronJobsSection data={cronHealth || []} isLoading={cronHealthLoading} />
-            </div>
-
-            <div className="border-t pt-4"></div>
-
-            {/* Existing RPC Metrics */}
-            <h2 className="text-xl font-semibold">RPC Metrics & Logs</h2>
             <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
