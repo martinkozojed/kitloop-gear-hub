@@ -1,0 +1,30 @@
+name: security_regression
+
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  security_regression:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'pull_request' && secrets.SECURITY_DB_URL != '') }}
+    runs-on: ubuntu-latest
+    env:
+      DB_URL: ${{ secrets.SECURITY_DB_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install psql
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Run security regression
+        if: env.DB_URL != ''
+        env:
+          SUPABASE_DB_URL: ${{ env.DB_URL }}
+        run: ./scripts/test_security_regression.sh
+
+      - name: Skip (no secret)
+        if: env.DB_URL == ''
+        run: echo "Skipping security_regression: missing SECURITY_DB_URL secret"

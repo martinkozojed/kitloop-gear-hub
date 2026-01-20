@@ -18,6 +18,7 @@ export interface MetricCardProps {
   isLoading?: boolean;
   className?: string;
   children?: ReactNode;
+  skeletonClassName?: string;
 }
 
 const trendToneClasses: Record<NonNullable<TrendProps["tone"]>, string> = {
@@ -35,6 +36,7 @@ export const MetricCard = memo(function MetricCard({
   isLoading,
   className,
   children,
+  skeletonClassName,
 }: MetricCardProps) {
   return (
     <Card
@@ -51,7 +53,7 @@ export const MetricCard = memo(function MetricCard({
       </CardHeader>
       <CardContent className="space-y-3">
         {isLoading ? (
-          <Skeleton className="h-8 w-24" />
+          <Skeleton className={cn("h-8 w-24", skeletonClassName)} />
         ) : (
           <div className="text-3xl font-bold tracking-tight">{value}</div>
         )}

@@ -6,6 +6,7 @@ import { DENSITY } from "@/components/ui/density";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { AgendaItemProps } from "@/types/dashboard";
+import { useTranslation } from "react-i18next";
 
 /**
  * Agenda Row - The Atomic Unit of the Operational Dashboard
@@ -19,6 +20,7 @@ interface AgendaRowActions {
 }
 
 export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: AgendaItemProps } & AgendaRowActions) {
+    const { t } = useTranslation();
     // Determine actionable state
     const isPickup = data.type === 'pickup';
     const isBlocker = data.status === 'unpaid' || data.status === 'conflict';
@@ -27,11 +29,11 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
     const getStatusBadge = () => {
         switch (data.status) {
             case 'ready':
-                return <span className="bg-emerald-100/80 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1 shadow-sm"><CheckCircle2 className="w-3 h-3" /> Ready</span>;
+                return <span className="bg-emerald-100/80 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1 shadow-sm"><CheckCircle2 className="w-3 h-3" /> {t('dashboard.status.ready')}</span>;
             case 'unpaid':
-                return <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Unpaid</span>;
+                return <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> {t('dashboard.status.unpaid')}</span>;
             case 'conflict':
-                return <span className="bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">Conflict</span>;
+                return <span className="bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">{t('dashboard.status.conflict')}</span>;
             default: return null;
         }
     };
@@ -53,9 +55,9 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                 <span className="text-xl font-bold font-mono tracking-tight text-foreground group-hover:text-primary transition-colors">{data.time}</span>
                 <span className={cn(
                     "text-[9px] uppercase font-extrabold tracking-wider mt-0.5",
-                    isPickup ? "text-emerald-600/80" : "text-blue-600/80"
+                    isPickup ? "text-emerald-600/80" : "text-emerald-700/80"
                 )}>
-                    {isPickup ? 'Výdej' : 'Návrat'}
+                    {isPickup ? t('dashboard.agenda.pickupLabel') : t('dashboard.agenda.returnLabel')}
                 </span>
             </div>
 
@@ -77,7 +79,7 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                 </div>
 
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><Package className="w-3.5 h-3.5 opacity-70" /> {data.itemCount} items</span>
+                    <span className="flex items-center gap-1.5"><Package className="w-3.5 h-3.5 opacity-70" /> {t('dashboard.agenda.items', { count: data.itemCount })}</span>
                     {getStatusBadge()}
                 </div>
             </div>
@@ -97,9 +99,9 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                         onClick={() => onIssue?.(data)}
                     >
                         {isBlocker ? (
-                            <span className="flex items-center gap-2">Vydat <AlertTriangle className="w-3.5 h-3.5" /></span>
+                            <span className="flex items-center gap-2">{t('dashboard.agenda.issue')} <AlertTriangle className="w-3.5 h-3.5" /></span>
                         ) : (
-                            <span className="flex items-center gap-2">Vydat <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" /></span>
+                            <span className="flex items-center gap-2">{t('dashboard.agenda.issue')} <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" /></span>
                         )}
                     </Button>
                 ) : (
@@ -108,7 +110,7 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                             "font-semibold transition-all h-9 px-4",
                             data.status === 'completed'
                                 ? "bg-muted text-muted-foreground hover:bg-muted cursor-not-allowed"
-                                : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-blue-500/25 hover:shadow-lg hover:-translate-y-0.5"
+                                : "bg-emerald-600 hover:bg-emerald-700 text-white hover:shadow-emerald-500/25 hover:shadow-lg hover:-translate-y-0.5"
                         )}
                         variant={data.status === 'completed' ? "ghost" : "primary"}
                         size="sm"
@@ -116,9 +118,9 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                         disabled={data.status === 'completed'}
                     >
                         {data.status === 'completed' ? (
-                            <span className="flex items-center gap-2"><Check className="w-3.5 h-3.5" /> Hotovo</span>
+                            <span className="flex items-center gap-2"><Check className="w-3.5 h-3.5" /> {t('dashboard.agenda.completed')}</span>
                         ) : (
-                            "Přijmout"
+                            t('dashboard.agenda.return')
                         )}
                     </Button>
                 )}

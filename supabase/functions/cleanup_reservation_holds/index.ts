@@ -3,7 +3,7 @@ import { Pool } from "https://deno.land/x/postgres@v0.17.1/mod.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 function getDatabaseUrl() {
@@ -27,6 +27,48 @@ export function summarizeCleanupResult(deleted: number) {
   return { deleted_count: deleted };
 }
 
+async function logCronRunStart(client: ReturnType<Pool["connect"]>, cronName: string) {
+  const startedAtMs = Date.now();
+  try {
+    const { rows } = await client.queryObject<{ id: string }>`
+      INSERT INTO public.cron_runs (cron_name, status, started_at)
+      VALUES (${cronName}, 'started', now())
+      RETURNING id
+    `;
+    return { id: rows[0]?.id ?? null, startedAtMs };
+  } catch (error) {
+    console.error("cron_runs start log failed:", error);
+    return { id: null, startedAtMs };
+  }
+}
+
+async function logCronRunFinish(
+  client: ReturnType<Pool["connect"]>,
+  runId: string | null,
+  startedAtMs: number,
+  status: "success" | "failed",
+  opts?: { error?: unknown; metadata?: Record<string, unknown> }
+) {
+  if (!runId) return;
+  const durationMs = Math.max(0, Date.now() - startedAtMs);
+  const errorMessage = opts?.error ? `${opts.error}` : null;
+  const metadata = opts?.metadata ?? null;
+
+  try {
+    await client.queryObject`
+      UPDATE public.cron_runs
+      SET status = ${status},
+          finished_at = now(),
+          duration_ms = ${durationMs},
+          error_message = ${errorMessage},
+          metadata = ${metadata}
+      WHERE id = ${runId}
+    `;
+  } catch (error) {
+    console.error("cron_runs finish log failed:", error);
+  }
+}
+
 const jsonResponse = (
   body: unknown,
   status = 200,
@@ -39,16 +81,22 @@ const jsonResponse = (
     },
   });
 
-/**
- * Runbook:
- *   - Deploy this function (`supabase functions deploy cleanup_reservation_holds`).
- *   - Configure a Supabase Scheduled Function in the dashboard (Project Settings
- *     → Functions → Scheduled) to POST to `/functions/v1/cleanup_reservation_holds`
- *     with the service role key automatically attached (Supabase UI, set schedule to every 5 minutes).
- *   - Suggested cadence: every 5 minutes to keep hold inventory fresh.
- *   - To execute manually: `supabase functions invoke cleanup_reservation_holds --no-verify-jwt`.
- *   - Scheduler configuration files in repo: NENALEZENO (manage via Supabase UI).
- */
+function isAuthorized(req: Request) {
+  const cronSecret = Deno.env.get("CRON_SECRET") ?? "";
+  const headerSecret = req.headers.get("x-cron-secret") ?? "";
+  if (cronSecret && headerSecret === cronSecret) return true;
+
+  const auth = req.headers.get("authorization");
+  if (!auth?.startsWith("Bearer ")) return false;
+  const [, token] = auth.split(" ");
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1] ?? ""));
+    return payload?.role === "service_role";
+  } catch {
+    return false;
+  }
+}
+
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -59,12 +107,12 @@ async function handle(req: Request): Promise<Response> {
       return jsonResponse({ error: "Method not allowed" }, 405);
     }
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!isAuthorized(req)) {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
     const client = await getPool().connect();
+    const cronRun = await logCronRunStart(client, "cleanup_reservation_holds_manual");
 
     try {
       await client.queryObject`BEGIN`;
@@ -80,11 +128,14 @@ async function handle(req: Request): Promise<Response> {
       await client.queryObject`COMMIT`;
 
       const payload = summarizeCleanupResult(rows.length);
-      console.log(JSON.stringify({ event: "cleanup_reservation_holds", ...payload }));
+      await logCronRunFinish(client, cronRun.id, cronRun.startedAtMs, "success", { metadata: payload });
+      // eslint-disable-next-line no-console
+      console.log(JSON.stringify({ event: "cleanup_reservation_holds", ...payload, cron_run_id: cronRun.id }));
 
-      return jsonResponse(payload);
+      return jsonResponse({ ...payload, cron_run_id: cronRun.id });
     } catch (error) {
       await client.queryObject`ROLLBACK`;
+      await logCronRunFinish(client, cronRun.id, cronRun.startedAtMs, "failed", { error });
       console.error("cleanup_reservation_holds error:", error);
       return jsonResponse({ error: "Failed to cleanup holds" }, 500);
     } finally {

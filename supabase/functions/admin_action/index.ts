@@ -139,14 +139,14 @@ async function handle(req: Request): Promise<Response> {
     }
 
     // ========================================================================
-    // 2. ADMIN AUTHORIZATION (Server-side check)
+    // 2. ADMIN AUTHORIZATION (Trusted: backed by user_roles.allowlist)
     // ========================================================================
     const { data: isAdmin, error: adminCheckError } = await supabaseClient.rpc(
-      "is_admin"
+      "is_admin_trusted"
     );
 
     if (adminCheckError) {
-      console.error("Admin check failed:", adminCheckError);
+      console.error("Trusted admin check failed:", adminCheckError);
       return jsonResponse(
         { error: "Authorization check failed", code: "AUTH_CHECK_ERROR" },
         500
@@ -154,7 +154,7 @@ async function handle(req: Request): Promise<Response> {
     }
 
     if (!isAdmin) {
-      console.warn(`Non-admin user ${user.id} attempted admin action`);
+      console.warn(`Non-trusted-admin user ${user.id} attempted admin action`);
       return jsonResponse(
         { error: "Forbidden: Admin access required", code: "FORBIDDEN" },
         403

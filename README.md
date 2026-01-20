@@ -91,6 +91,16 @@ npm run test:e2e
 npm run test:e2e:headed -- --project=chromium --debug
 ```
 
+### Deno functions & lockfile
+- Canonical lock update: `deno task lock` (regenerates `deno.lock` for Supabase functions/scripts).
+- CI uses `deno task deno:cache` with `--frozen`; run the lock task after dependency bumps and commit the updated `deno.lock` to keep `test_deno` green.
+- More detail: `docs/deno-lock.md`.
+
+### Deno functions & lockfile
+- Canonical lock update: `deno task lock` (regenerates `deno.lock` for Supabase functions/scripts).
+- CI uses `deno task deno:cache` with `--frozen`; run the lock task after dependency bumps and commit the updated `deno.lock` to keep `test_deno` green.
+- More detail: `docs/deno-lock.md`.
+
 ### Admin Audit Log UI (PR3)
 - Route: `/admin/audit` (admin-only).
 - Data source: `admin_audit_logs` (RLS ensures only admins can read).

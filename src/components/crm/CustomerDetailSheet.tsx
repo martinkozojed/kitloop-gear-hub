@@ -24,6 +24,7 @@ interface CustomerDetailSheetProps {
 export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }: CustomerDetailSheetProps) {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [data, setData] = useState<any>(null); // Full 360 Object
 
     // Notes Editing
@@ -43,6 +44,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
             if (error) throw error;
             setData(data);
             setNotes(data.profile.notes || '');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             toast.error(t('error'), { description: err.message });
         } finally {
@@ -60,10 +62,11 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                 .eq('id', customerId);
 
             if (error) throw error;
-            toast.success('Notes updated');
+            toast.success(t('operations.customerSheet.toast.notesSaved'));
             if (onUpdate) onUpdate();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
-            toast.error('Failed to save notes');
+            toast.error(t('operations.customerSheet.toast.notesFailed'));
         } finally {
             setSavingNotes(false);
         }
@@ -78,11 +81,11 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                 .eq('id', customerId);
 
             if (error) throw error;
-            toast.success(`Risk status updated to ${status.toUpperCase()}`);
+            toast.success(t('operations.customerSheet.toast.riskUpdated', { status: status.toUpperCase() }));
             fetchCustomer360(customerId); // Refresh
             if (onUpdate) onUpdate();
         } catch (e) {
-            toast.error("Failed to update risk status");
+            toast.error(t('error'));
         }
     }
 
@@ -146,7 +149,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                         </div>
                                     )}
                                     {account && (
-                                        <div className="flex items-center gap-2 text-blue-600">
+                                        <div className="flex items-center gap-2 text-emerald-700">
                                             <Building2 className="w-3.5 h-3.5" />
                                             <span className="font-medium">{account.name}</span>
                                         </div>
@@ -158,10 +161,10 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                         {/* Quick Actions (Future placeholder) */}
                         <div className="grid grid-cols-2 gap-2">
                             <Button variant="outline" className="w-full">
-                                <Activity className="w-4 h-4 mr-2" /> New Reservation
+                                <Activity className="w-4 h-4 mr-2" /> {t('operations.customerSheet.quickActions.newReservation')}
                             </Button>
                             <Button variant="outline" className="w-full">
-                                <Calendar className="w-4 h-4 mr-2" /> View Calendar
+                                <Calendar className="w-4 h-4 mr-2" /> {t('operations.customerSheet.quickActions.viewCalendar')}
                             </Button>
                         </div>
 
@@ -266,6 +269,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                     <div className="text-center py-8 text-muted-foreground">No events recorded.</div>
                                 ) : (
                                     <div className="space-y-6 ml-2 border-l-2 border-muted pl-4">
+                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                         {timeline.map((event: any) => (
                                             <div key={event.id} className="relative">
                                                 <div className="absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-primary" />

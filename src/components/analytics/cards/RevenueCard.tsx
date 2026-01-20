@@ -11,6 +11,7 @@ interface RevenueCardProps {
   subtitle?: string;
   trendLabel?: string;
   iconComponent?: ReactNode;
+  skeletonClassName?: string;
 }
 
 export const RevenueCard = memo(function RevenueCard({
@@ -20,6 +21,7 @@ export const RevenueCard = memo(function RevenueCard({
   subtitle,
   trendLabel = "vs. minulý měsíc",
   iconComponent,
+  skeletonClassName,
 }: RevenueCardProps) {
   const currentTotal =
     data && formatCurrencyCZ(data.current.totalCents, data.current.currency);
@@ -35,8 +37,8 @@ export const RevenueCard = memo(function RevenueCard({
     changeTone === "positive"
       ? ArrowUpRight
       : changeTone === "negative"
-      ? ArrowDownRight
-      : null;
+        ? ArrowDownRight
+        : null;
 
   return (
     <MetricCard
@@ -46,23 +48,22 @@ export const RevenueCard = memo(function RevenueCard({
       trend={
         data
           ? {
-              value: formatPercentDelta(data.changeRatio),
-              tone: changeTone,
-              label: trendLabel,
-            }
+            value: formatPercentDelta(data.changeRatio),
+            tone: changeTone,
+            label: trendLabel,
+          }
           : undefined
       }
       icon={
         iconComponent ?? (
           TrendIcon ? (
             <span
-              className={`rounded-full p-2 ${
-                changeTone === "positive"
-                  ? "bg-emerald-50 text-emerald-600"
-                  : changeTone === "negative"
+              className={`rounded-full p-2 ${changeTone === "positive"
+                ? "bg-emerald-50 text-emerald-600"
+                : changeTone === "negative"
                   ? "bg-rose-50 text-rose-700"
                   : "bg-slate-100 text-slate-600"
-              }`}
+                }`}
             >
               <TrendIcon className="h-4 w-4" />
             </span>
@@ -74,6 +75,7 @@ export const RevenueCard = memo(function RevenueCard({
         )
       }
       isLoading={isLoading}
+      skeletonClassName={skeletonClassName}
     />
   );
 });

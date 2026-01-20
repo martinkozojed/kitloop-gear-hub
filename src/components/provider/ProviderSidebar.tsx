@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Home,
   Package,
-  Calendar,
   BarChart3,
   Settings,
   Plus,
@@ -42,7 +41,6 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       title: 'Overview',
       items: [
         { path: '/provider/dashboard', label: 'provider.sidebar.nav.dashboard', icon: Home },
-        { path: '/provider/calendar', label: 'Kalendář', icon: CalendarDays },
         // Only show Analytics if permitted
         ...(canViewFinancials ? [{ path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 }] : []),
       ]
@@ -80,34 +78,32 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
   return (
     <div className="flex h-full flex-col bg-muted/30 border-r border-border">
       {/* Header & Command Trigger */}
-      <div className="px-4 pt-6 pb-4">
-        <div className="flex items-center justify-between gap-2 mb-4 px-2">
-          <span className="font-heading font-semibold text-lg tracking-tight">Kitloop</span>
+      <div className="px-4 pt-4 pb-4">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-background border border-input text-sm text-muted-foreground hover:border-primary/50 transition-colors group shadow-sm"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+              <span>Search...</span>
+            </span>
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </button>
           {onToggleCollapse && (
             <Button
               variant="ghost"
               size="icon"
               onClick={onToggleCollapse}
-              className="h-8 w-8 hover:bg-accent"
+              className="h-9 w-9 hover:bg-accent shrink-0"
               title="Skrýt menu"
             >
               <PanelLeftClose className="h-4 w-4" />
             </Button>
           )}
         </div>
-
-        <button
-          onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-background border border-input text-sm text-muted-foreground hover:border-primary/50 transition-colors group shadow-sm"
-        >
-          <span className="flex items-center gap-2">
-            <Search className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-            <span>Search...</span>
-          </span>
-          <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
-            <span className="text-xs">⌘</span>K
-          </kbd>
-        </button>
       </div>
 
       {/* Navigation Groups */}

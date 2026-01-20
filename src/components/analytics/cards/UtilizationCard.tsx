@@ -11,6 +11,7 @@ interface UtilizationCardProps {
   subtitle?: string;
   insight?: string | null;
   iconComponent?: ReactNode;
+  skeletonClassName?: string;
 }
 
 export const UtilizationCard = memo(function UtilizationCard({
@@ -20,6 +21,7 @@ export const UtilizationCard = memo(function UtilizationCard({
   subtitle,
   insight,
   iconComponent,
+  skeletonClassName,
 }: UtilizationCardProps) {
   const utilization = data ? formatPercent(data.utilizationRatio) : "—";
 
@@ -30,9 +32,9 @@ export const UtilizationCard = memo(function UtilizationCard({
       subtitle={
         data
           ? subtitle ??
-            `${formatInteger(data.activeUnits)} z ${formatInteger(
-              data.totalUnits
-            )} jednotek využito`
+          `${formatInteger(data.activeUnits)} z ${formatInteger(
+            data.totalUnits
+          )} jednotek využito`
           : subtitle ?? "Sledujeme aktivní rezervace proti dostupným jednotkám."
       }
       icon={
@@ -43,6 +45,7 @@ export const UtilizationCard = memo(function UtilizationCard({
         )
       }
       isLoading={isLoading}
+      skeletonClassName={skeletonClassName}
     >
       {insight ? (
         <p className="text-xs font-medium text-purple-700 bg-purple-50 border border-purple-100 rounded-md px-2 py-1">

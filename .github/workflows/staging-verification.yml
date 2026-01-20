@@ -1,0 +1,186 @@
+name: staging_verification
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: staging-verification
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      E2E_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
+      E2E_SEED_TOKEN: ${{ secrets.E2E_SEED_TOKEN }}
+      E2E_PROVIDER_EMAIL: ${{ secrets.E2E_PROVIDER_EMAIL }}
+      E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
+      E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+      E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+      E2E_PENDING_PROVIDER_EMAIL: ${{ secrets.E2E_PENDING_PROVIDER_EMAIL }}
+      E2E_PENDING_PROVIDER_PASSWORD: ${{ secrets.E2E_PENDING_PROVIDER_PASSWORD }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: "v2.5.6"
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Log env presence (no secrets)
+        run: |
+          for var in SUPABASE_DB_URL E2E_SUPABASE_URL E2E_SEED_TOKEN E2E_PROVIDER_EMAIL E2E_PROVIDER_PASSWORD E2E_ADMIN_EMAIL E2E_ADMIN_PASSWORD E2E_PENDING_PROVIDER_EMAIL E2E_PENDING_PROVIDER_PASSWORD SUPABASE_ACCESS_TOKEN SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -n "${!var}" ]; then
+              echo "$var set: yes"
+            else
+              echo "$var set: no"
+            fi
+          done
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Apply migrations (db push via db-url)
+        if: env.SUPABASE_DB_URL != ''
+        run: |
+          CLEAN_DB_URL=$(echo "$SUPABASE_DB_URL" | tr -d '\n' | xargs)
+          if [[ "$CLEAN_DB_URL" != postgresql://* ]]; then
+            CLEAN_DB_URL="postgresql://$CLEAN_DB_URL"
+          fi
+          supabase db push --db-url "$CLEAN_DB_URL"
+
+      - name: Deploy e2e_harness
+        if: env.SUPABASE_ACCESS_TOKEN != ''
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy e2e_harness --project-ref cnlqceulvvqgonvskset
+
+      - name: Seed preflight x3
+        if: env.E2E_SUPABASE_URL != '' && env.E2E_SEED_TOKEN != '' && env.E2E_PROVIDER_EMAIL != ''
+        run: |
+          RUN_ID="fixed-run-001"
+          ./scripts/e2e_preflight.sh "$E2E_PROVIDER_EMAIL" --run-id "$RUN_ID" --raw > run1.json
+          ./scripts/e2e_preflight.sh "$E2E_PROVIDER_EMAIL" --run-id "$RUN_ID" --raw > run2.json
+          ./scripts/e2e_preflight.sh "$E2E_PROVIDER_EMAIL" --run-id "$RUN_ID" --raw > run3.json
+          echo "Seed outputs captured to run1.json/run2.json/run3.json"
+
+      - name: Idempotence SQL checks
+        if: env.SUPABASE_DB_URL != ''
+        run: |
+          RUN_BASE="fixed-run-001"
+          psql "$SUPABASE_DB_URL" <<'SQL'
+          \set base '''' || :'RUN_BASE' || ''''
+          -- Assets count for this seed
+          SELECT count(*) AS assets_for_seed
+          FROM public.assets
+          WHERE external_key LIKE :'base' || '%';
+          -- Reservations count for this seed
+          SELECT count(*) AS reservations_for_seed
+          FROM public.reservations
+          WHERE external_key LIKE :'base' || '%';
+          -- Membership exists exactly once
+          SELECT count(*) AS membership_rows
+          FROM public.user_provider_memberships
+          WHERE external_key = :'base' || '_membership';
+          -- No duplicate external keys for this seed
+          SELECT external_key, count(*)
+          FROM public.products
+          WHERE external_key LIKE :'base' || '%'
+          GROUP BY external_key
+          HAVING count(*) > 1;
+          SELECT external_key, count(*)
+          FROM public.product_variants
+          WHERE external_key LIKE :'base' || '%'
+          GROUP BY external_key
+          HAVING count(*) > 1;
+          SELECT external_key, count(*)
+          FROM public.assets
+          WHERE external_key LIKE :'base' || '%'
+          GROUP BY external_key
+          HAVING count(*) > 1;
+          SELECT external_key, count(*)
+          FROM public.reservations
+          WHERE external_key LIKE :'base' || '%'
+          GROUP BY external_key
+          HAVING count(*) > 1;
+          -- Global uniqueness guard
+          SELECT 'providers' AS table, external_key, count(*)
+          FROM public.providers
+          WHERE external_key IS NOT NULL
+          GROUP BY table, external_key
+          HAVING count(*) > 1
+          UNION ALL
+          SELECT 'user_provider_memberships', external_key, count(*)
+          FROM public.user_provider_memberships
+          WHERE external_key IS NOT NULL
+          GROUP BY table, external_key
+          HAVING count(*) > 1
+          UNION ALL
+          SELECT 'products', external_key, count(*)
+          FROM public.products
+          WHERE external_key IS NOT NULL
+          GROUP BY table, external_key
+          HAVING count(*) > 1
+          UNION ALL
+          SELECT 'product_variants', external_key, count(*)
+          FROM public.product_variants
+          WHERE external_key IS NOT NULL
+          GROUP BY table, external_key
+          HAVING count(*) > 1
+          UNION ALL
+          SELECT 'assets', external_key, count(*)
+          FROM public.assets
+          WHERE external_key IS NOT NULL
+          GROUP BY table, external_key
+          HAVING count(*) > 1
+          UNION ALL
+          SELECT 'reservations', external_key, count(*)
+          FROM public.reservations
+          WHERE external_key IS NOT NULL
+          GROUP BY table, external_key
+          HAVING count(*) > 1;
+          SQL
+
+      - name: E2E tests x3 (Playwright)
+        if: env.E2E_SUPABASE_URL != '' && env.E2E_SEED_TOKEN != '' && env.E2E_PROVIDER_EMAIL != '' && env.E2E_PROVIDER_PASSWORD != '' && env.E2E_ADMIN_EMAIL != '' && env.E2E_ADMIN_PASSWORD != ''
+        run: |
+          for i in 1 2 3; do
+            echo "Run $i/3"
+            npm run test:e2e -- --project=chromium || exit 1
+          done
+
+      - name: Cron runs
+        if: env.SUPABASE_DB_URL != ''
+        run: |
+          psql "$SUPABASE_DB_URL" -c "select cron_name,status,metadata,finished_at from cron_runs where cron_name='cleanup_reservation_holds_cron' order by started_at desc limit 5;"
+          psql "$SUPABASE_DB_URL" -c "select jobid, jobname, schedule, command from cron.job where jobname ilike '%cleanup%' order by jobid desc;"
+
+      - name: Security regression
+        if: env.SUPABASE_DB_URL != ''
+        run: ./scripts/test_security_regression.sh
+
+      - name: Upload seed outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seed-preflight-outputs
+          path: |
+            run1.json
+            run2.json
+            run3.json
+          if-no-files-found: ignore

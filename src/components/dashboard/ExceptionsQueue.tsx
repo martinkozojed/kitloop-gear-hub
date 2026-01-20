@@ -5,6 +5,7 @@ import { AlertCircle, Clock, CreditCard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 import { ExceptionItem } from "@/types/dashboard";
 
@@ -14,12 +15,13 @@ interface ExceptionsQueueProps {
 
 export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     return (
         <Card className="h-fit">
             <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium uppercase tracking-wider text-foreground flex items-center justify-between">
-                    <span className="font-semibold">Requires Action</span>
+                    <span className="font-semibold">{t('dashboard.exceptions.title')}</span>
                     <Badge variant="destructive" className="px-1.5 h-5">{exceptions.length}</Badge>
                 </CardTitle>
             </CardHeader>
@@ -51,9 +53,9 @@ export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
                             variant="outline"
                             size="sm"
                             className={`w-full h-7 text-xs bg-white ${ex.priority === 'high' ? 'text-red-700 hover:text-red-800' : 'text-orange-700 hover:text-orange-800'}`}
-                            onClick={() => navigate(`/provider/reservations/${ex.id}`)}
+                            onClick={() => navigate(`/provider/reservations/edit/${ex.id}`)}
                         >
-                            Resolve
+                            {t('dashboard.exceptions.resolve')}
                         </Button>
                     </div>
                 ))}
@@ -61,8 +63,8 @@ export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
                 {exceptions.length === 0 && (
                     <EmptyState
                         icon={ShieldCheck}
-                        title="System Healthy"
-                        description="No critical issues found."
+                        title={t('dashboard.exceptions.healthyTitle')}
+                        description={t('dashboard.exceptions.healthyDesc')}
                         className="py-6 border-none bg-transparent"
                     />
                 )}

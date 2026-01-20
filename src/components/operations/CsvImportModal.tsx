@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2, Upload, AlertCircle, CheckCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useTranslation } from 'react-i18next';
 
 interface CsvImportModalProps {
     open: boolean;
@@ -43,6 +44,7 @@ interface PreviewRow extends CsvRow {
 
 export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModalProps) {
     const { provider } = useAuth();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [previewData, setPreviewData] = useState<PreviewRow[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -95,14 +97,14 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 if (variantId) {
                     return { ...row, importStatus: 'matched', variantId };
                 } else {
-                    return { ...row, importStatus: 'error', message: 'Product/Variant not found' };
+                    return { ...row, importStatus: 'error', message: t('provider.inventory.importModal.matchError') };
                 }
             });
 
             setPreviewData(processed);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Unknown error';
-            toast.error('Failed to analyze CSV', { description: message });
+            toast.error(t('provider.inventory.importModal.analyzeError'), { description: message });
         } finally {
             setIsAnalyzing(false);
         }
@@ -119,11 +121,11 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 if (results.data && results.data.length > 0) {
                     analyzeData(results.data);
                 } else {
-                    toast.error('CSV File appears to be empty or invalid');
+                    toast.error(t('provider.inventory.importModal.emptyFile'));
                 }
             },
             error: (error) => {
-                toast.error('Error parsing CSV', { description: error.message });
+                toast.error(t('provider.inventory.importModal.parseError'), { description: error.message });
             }
         });
 
@@ -136,7 +138,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
 
         const validRows = previewData.filter(r => r.importStatus === 'matched');
         if (validRows.length === 0) {
-            toast.error('No valid rows to import');
+            toast.error(t('provider.inventory.importModal.noValidRows'));
             return;
         }
 
@@ -163,13 +165,13 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             const { error } = await supabase.from('assets').insert(payload);
             if (error) throw error;
 
-            toast.success(`Successfully imported ${validRows.length} assets`);
+            toast.success(t('provider.inventory.importModal.importSuccess', { count: validRows.length }));
             onSuccess();
             onOpenChange(false);
             setPreviewData([]);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Unknown error';
-            toast.error('Import failed', { description: message });
+            toast.error(t('provider.inventory.importModal.importFailed'), { description: message });
         } finally {
             setLoading(false);
         }
@@ -178,13 +180,13 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
     const matchedCount = previewData.filter(r => r.importStatus === 'matched').length;
     const errorCount = previewData.filter(r => r.importStatus === 'error').length;
 
-    return (
+        return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[800px] h-[80vh] flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>Import Inventory (CSV)</DialogTitle>
+                    <DialogTitle>{t('provider.inventory.importModal.title')}</DialogTitle>
                     <DialogDescription>
-                        Upload a CSV file with columns: <code>asset_tag, product_name, variant_name, condition_score, location</code>
+                        {t('provider.inventory.importModal.subtitle')} <code>asset_tag, product_name, variant_name, condition_score, location</code>
                     </DialogDescription>
                 </DialogHeader>
 
@@ -194,7 +196,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                         <div className="flex-1">
                             <label className="cursor-pointer">
                                 <span className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                                    Choose CSV File
+                                    {t('provider.inventory.importModal.chooseFile')}
                                 </span>
                                 <input
                                     type="file"
@@ -205,40 +207,40 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                                 />
                             </label>
                             <p className="text-xs text-muted-foreground mt-2">
-                                Supported format: CSV. First row must be headers.
+                                {t('provider.inventory.importModal.helper')}
                             </p>
                         </div>
                         {isAnalyzing && (
                             <div className="flex items-center gap-2 text-sm text-blue-600">
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                Analyzing...
+                                {t('provider.inventory.importModal.analyzing')}
                             </div>
                         )}
                     </div>
 
                     {previewData.length > 0 && (
                         <div className="flex-1 flex flex-col border rounded-md overflow-hidden">
-                            <div className="bg-muted px-4 py-2 text-xs font-medium flex justify-between items-center">
-                                <span>Preview: {previewData.length} rows found</span>
-                                <div className="flex gap-3">
-                                    <span className="text-green-600 flex items-center gap-1">
-                                        <CheckCircle className="w-3 h-3" /> {matchedCount} Valid
-                                    </span>
-                                    <span className="text-destructive flex items-center gap-1">
-                                        <AlertCircle className="w-3 h-3" /> {errorCount} Errors
-                                    </span>
+                                <div className="bg-muted px-4 py-2 text-xs font-medium flex justify-between items-center">
+                                    <span>{t('provider.inventory.importModal.preview', { count: previewData.length })}</span>
+                                    <div className="flex gap-3">
+                                        <span className="text-green-600 flex items-center gap-1">
+                                            <CheckCircle className="w-3 h-3" /> {t('provider.inventory.importModal.valid', { count: matchedCount })}
+                                        </span>
+                                        <span className="text-destructive flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" /> {t('provider.inventory.importModal.errors', { count: errorCount })}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
 
                             <ScrollArea className="flex-1">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Asset Tag</TableHead>
-                                            <TableHead>Product</TableHead>
-                                            <TableHead>Variant</TableHead>
-                                            <TableHead>Condition</TableHead>
-                                            <TableHead>Status</TableHead>
+                                            <TableHead>{t('provider.inventory.importModal.headers.assetTag')}</TableHead>
+                                            <TableHead>{t('provider.inventory.importModal.headers.product')}</TableHead>
+                                            <TableHead>{t('provider.inventory.importModal.headers.variant')}</TableHead>
+                                            <TableHead>{t('provider.inventory.importModal.headers.condition')}</TableHead>
+                                            <TableHead>{t('provider.inventory.importModal.headers.status')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -251,11 +253,11 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                                                 <TableCell>
                                                     {row.importStatus === 'matched' ? (
                                                         <span className="text-green-600 text-xs flex items-center gap-1">
-                                                            <CheckCircle className="w-3 h-3" /> OK
+                                                            <CheckCircle className="w-3 h-3" /> {t('provider.inventory.importModal.ok')}
                                                         </span>
                                                     ) : (
                                                         <span className="text-destructive text-xs flex items-center gap-1" title={row.message}>
-                                                            <AlertCircle className="w-3 h-3" /> {row.message || 'Invalid'}
+                                                            <AlertCircle className="w-3 h-3" /> {row.message || t('provider.inventory.importModal.invalid')}
                                                         </span>
                                                     )}
                                                 </TableCell>
@@ -267,7 +269,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
 
                             {errorCount > 0 && (
                                 <div className="p-3 bg-destructive/10 text-destructive text-xs border-t border-destructive/20">
-                                    Warning: {errorCount} rows have errors and will be skipped. Ensure Product and Variant names match exactly.
+                                    {t('provider.inventory.importModal.warning', { count: errorCount })}
                                 </div>
                             )}
                         </div>
@@ -275,13 +277,13 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 </div>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>{t('provider.inventory.importModal.cancel')}</Button>
                     <Button
                         onClick={handleImport}
                         disabled={loading || matchedCount === 0}
                         className="w-32"
                     >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : `Import ${matchedCount} Items`}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('provider.inventory.importModal.import', { count: matchedCount })}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -88,7 +88,7 @@ const ProviderAnalytics = () => {
   );
 
   const revenueData = analytics.revenue.comparison;
-  const revenueSubtitle = useMemo(() => {
+  const revenueSubtitle = (() => {
     if (!revenueData) return undefined;
     const start = new Date(revenueData.current.periodStart);
     const end = new Date(revenueData.current.periodEnd);
@@ -97,7 +97,7 @@ const ProviderAnalytics = () => {
       start: formatLongDate(start),
       end: formatLongDate(end),
     });
-  }, [revenueData, t]);
+  })();
 
   const statusLabels = useMemo(
     () => ({
@@ -292,7 +292,7 @@ const ProviderAnalytics = () => {
   const activeReservationsIcon = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="rounded-full bg-blue-50 p-2 text-blue-600">
+        <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">
           <Info className="h-4 w-4" />
         </span>
       </TooltipTrigger>
@@ -305,7 +305,7 @@ const ProviderAnalytics = () => {
   const utilizationIcon = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="rounded-full bg-purple-50 p-2 text-purple-600">
+        <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">
           <Info className="h-4 w-4" />
         </span>
       </TooltipTrigger>
@@ -318,9 +318,7 @@ const ProviderAnalytics = () => {
   const ratingIcon = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="rounded-full bg-amber-50 p-2 text-amber-500">
-          ★
-        </span>
+        <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">★</span>
       </TooltipTrigger>
       <TooltipContent>
         {t("provider.analytics.tooltips.rating")}
@@ -328,9 +326,7 @@ const ProviderAnalytics = () => {
     </Tooltip>
   );
 
-  const insightsIcon = (
-    <span className="rounded-full bg-sky-50 p-2 text-sky-500">💡</span>
-  );
+  const insightsIcon = <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">💡</span>;
 
   const hasAnyError =
     analytics.isError ||
@@ -351,10 +347,7 @@ const ProviderAnalytics = () => {
         <header className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-emerald-500/70">
-                {t("provider.analytics.headline")}
-              </p>
-              <h1 className="text-3xl font-semibold text-emerald-950">
+              <h1 className="text-3xl font-heading font-bold text-emerald-950">
                 {t("provider.analytics.title")}
               </h1>
               <p className="text-sm text-muted-foreground">
@@ -366,13 +359,13 @@ const ProviderAnalytics = () => {
                 type="single"
                 value={period}
                 onValueChange={handlePeriodChange}
-                className="flex rounded-full border border-emerald-100 bg-white p-1 shadow-sm"
+                className="flex rounded-full border border-emerald-100 bg-white p-1 shadow-[0_10px_25px_-18px_rgba(16,185,129,0.45)]"
               >
                 {periodOptions.map((option) => (
                   <ToggleGroupItem
                     key={option.value}
                     value={option.value}
-                    className="rounded-full px-3 py-1 text-xs font-medium data-[state=on]:bg-emerald-500 data-[state=on]:text-white"
+                    className="rounded-full px-3 py-1 text-xs font-medium data-[state=on]:bg-gradient-to-r data-[state=on]:from-[#4FCB84] data-[state=on]:via-[#43B273] data-[state=on]:to-[#2F8C55] data-[state=on]:text-white data-[state=on]:shadow-[0_14px_35px_-20px_rgba(41,120,72,0.65)] data-[state=on]:hover:from-[#47BC79] data-[state=on]:hover:via-[#3FA467] data-[state=on]:hover:to-[#297A4B]"
                   >
                     {option.label}
                   </ToggleGroupItem>
@@ -388,7 +381,7 @@ const ProviderAnalytics = () => {
                       variant="outline"
                       size="icon"
                       onClick={handleRefresh}
-                      className="h-8 w-8"
+                      className="h-8 w-8 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
                     >
                       <RefreshCcw className="h-4 w-4" />
                     </Button>
@@ -417,6 +410,7 @@ const ProviderAnalytics = () => {
               subtitle={revenueSubtitle}
               trendLabel={t("provider.analytics.cards.revenue.trendLabel")}
               iconComponent={revenueIcon}
+              skeletonClassName="h-[140px]"
             />
             <ActiveReservationsCard
               activeCount={analytics.utilization.data?.activeReservationCount}
@@ -426,6 +420,7 @@ const ProviderAnalytics = () => {
               subtitle={t("provider.analytics.cards.activeReservations.subtitle")}
               statusLabels={statusLabels}
               iconComponent={activeReservationsIcon}
+              skeletonClassName="h-[140px]"
             />
             <UtilizationCard
               data={analytics.utilization.data}
@@ -434,12 +429,14 @@ const ProviderAnalytics = () => {
               subtitle={utilizationSubtitle ?? undefined}
               insight={utilizationInsight}
               iconComponent={utilizationIcon}
+              skeletonClassName="h-[140px]"
             />
             <MetricCard
               title={t("provider.analytics.cards.rating.title")}
               value={t("provider.analytics.cards.rating.value")}
               subtitle={t("provider.analytics.cards.rating.subtitle")}
               icon={ratingIcon}
+              isLoading={analytics.isLoading}
             />
           </AnalyticsGrid>
         </section>

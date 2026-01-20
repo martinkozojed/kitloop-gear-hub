@@ -205,6 +205,7 @@ export type Database = {
           condition_score: number | null
           created_at: string | null
           deleted_at: string | null
+          external_key: string | null
           id: string
           location: string | null
           provider_id: string
@@ -221,6 +222,7 @@ export type Database = {
           condition_score?: number | null
           created_at?: string | null
           deleted_at?: string | null
+          external_key?: string | null
           id?: string
           location?: string | null
           provider_id: string
@@ -237,6 +239,7 @@ export type Database = {
           condition_score?: number | null
           created_at?: string | null
           deleted_at?: string | null
+          external_key?: string | null
           id?: string
           location?: string | null
           provider_id?: string
@@ -308,6 +311,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cron_runs: {
+        Row: {
+          cron_name: string
+          duration_ms: number | null
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          metadata: Json | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          cron_name: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          cron_name?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
       }
       customer_events: {
         Row: {
@@ -827,6 +863,7 @@ export type Database = {
           buffer_minutes: number | null
           created_at: string | null
           deleted_at: string | null
+          external_key: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -839,6 +876,7 @@ export type Database = {
           buffer_minutes?: number | null
           created_at?: string | null
           deleted_at?: string | null
+          external_key?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -851,6 +889,7 @@ export type Database = {
           buffer_minutes?: number | null
           created_at?: string | null
           deleted_at?: string | null
+          external_key?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
@@ -875,6 +914,7 @@ export type Database = {
           created_at: string | null
           deleted_at: string | null
           description: string | null
+          external_key: string | null
           id: string
           image_url: string | null
           is_active: boolean | null
@@ -888,6 +928,7 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           description?: string | null
+          external_key?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
@@ -901,6 +942,7 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           description?: string | null
+          external_key?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
@@ -995,6 +1037,7 @@ export type Database = {
           currency: string | null
           current_season: string | null
           deleted_at: string | null
+          external_key: string | null
           email: string
           id: string
           location: string | null
@@ -1028,6 +1071,7 @@ export type Database = {
           currency?: string | null
           current_season?: string | null
           deleted_at?: string | null
+          external_key?: string | null
           email: string
           id?: string
           location?: string | null
@@ -1061,6 +1105,7 @@ export type Database = {
           currency?: string | null
           current_season?: string | null
           deleted_at?: string | null
+          external_key?: string | null
           email?: string
           id?: string
           location?: string | null
@@ -1228,6 +1273,7 @@ export type Database = {
           gear_id: string | null
           id: string
           idempotency_key: string | null
+          external_key: string | null
           notes: string | null
           paid_at: string | null
           payment_intent_id: string | null
@@ -1267,6 +1313,7 @@ export type Database = {
           gear_id?: string | null
           id?: string
           idempotency_key?: string | null
+          external_key?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_intent_id?: string | null
@@ -1306,6 +1353,7 @@ export type Database = {
           gear_id?: string | null
           id?: string
           idempotency_key?: string | null
+          external_key?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_intent_id?: string | null
@@ -1490,18 +1538,21 @@ export type Database = {
       user_provider_memberships: {
         Row: {
           created_at: string
+          external_key: string | null
           provider_id: string
           role: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          external_key?: string | null
           provider_id: string
           role: string
           user_id: string
         }
         Update: {
           created_at?: string
+          external_key?: string | null
           provider_id?: string
           role?: string
           user_id?: string
@@ -2978,4 +3029,3 @@ export const Constants = {
     },
   },
 } as const
-

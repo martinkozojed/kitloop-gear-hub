@@ -13,6 +13,7 @@ interface ActiveReservationsCardProps {
   subtitle?: string;
   statusLabels?: Record<string, string>;
   iconComponent?: ReactNode;
+  skeletonClassName?: string;
 }
 
 export const ActiveReservationsCard = memo(function ActiveReservationsCard({
@@ -23,6 +24,7 @@ export const ActiveReservationsCard = memo(function ActiveReservationsCard({
   subtitle = "Rezervace probíhající právě teď",
   statusLabels,
   iconComponent,
+  skeletonClassName,
 }: ActiveReservationsCardProps) {
   const { t } = useTranslation();
   const labels: Record<string, string> = {
@@ -48,6 +50,7 @@ export const ActiveReservationsCard = memo(function ActiveReservationsCard({
         )
       }
       isLoading={isLoading}
+      skeletonClassName={skeletonClassName}
     >
       {statusStats && statusStats.length > 0 ? (
         <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
