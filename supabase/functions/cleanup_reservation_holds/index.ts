@@ -27,7 +27,7 @@ export function summarizeCleanupResult(deleted: number) {
   return { deleted_count: deleted };
 }
 
-async function logCronRunStart(client: ReturnType<Pool["connect"]>, cronName: string) {
+async function logCronRunStart(client: Awaited<ReturnType<Pool["connect"]>>, cronName: string) {
   const startedAtMs = Date.now();
   try {
     const { rows } = await client.queryObject<{ id: string }>`
@@ -43,7 +43,7 @@ async function logCronRunStart(client: ReturnType<Pool["connect"]>, cronName: st
 }
 
 async function logCronRunFinish(
-  client: ReturnType<Pool["connect"]>,
+  client: Awaited<ReturnType<Pool["connect"]>>,
   runId: string | null,
   startedAtMs: number,
   status: "success" | "failed",
