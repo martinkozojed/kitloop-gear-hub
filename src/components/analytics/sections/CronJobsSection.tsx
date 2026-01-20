@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Loader2, AlertCircle, CheckCircle2, Clock, PlayCircle } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
 
@@ -34,20 +34,46 @@ interface CronRun {
     metadata: Record<string, unknown> | null;
 }
 
+export type CronFilter = 'all' | 'stale' | 'failing' | 'ok';
+
+export interface CronStats {
+    total: number;
+    stale: number;
+    failed: number;
+    active: number;
+}
+
 interface CronJobsSectionProps {
     data: CronHealth[];
     isLoading: boolean;
+    initialFilter?: CronFilter;
 }
 
-export function CronJobsSection({ data, isLoading }: CronJobsSectionProps) {
+export function CronJobsSection({ data, isLoading, initialFilter = 'all' }: CronJobsSectionProps) {
     const [selectedJob, setSelectedJob] = useState<string | null>(null);
+    const [filter, setFilter] = useState<CronFilter>(initialFilter);
 
-    const stats = {
+    const stats: CronStats = {
         total: data.length,
         stale: data.filter(j => j.stale).length,
         failed: data.filter(j => j.last_status === 'failed').length,
         active: data.filter(j => j.active).length
     };
+
+    // Sync filter with parent when changed (e.g., from banner CTA)
+    useEffect(() => {
+        setFilter(initialFilter);
+    }, [initialFilter]);
+
+    // Filter data based on selected filter
+    const filteredData = data.filter(job => {
+        switch (filter) {
+            case 'stale': return job.stale;
+            case 'failing': return job.last_status === 'failed';
+            case 'ok': return !job.stale && job.last_status === 'success';
+            default: return true;
+        }
+    });
 
     const { data: jobHistory, isLoading: isLoadingHistory } = useQuery({
         queryKey: ['cron_history', selectedJob],
@@ -107,9 +133,49 @@ export function CronJobsSection({ data, isLoading }: CronJobsSectionProps) {
             </div>
 
             <Card>
-                <CardHeader><CardTitle>Cron Jobs Health</CardTitle></CardHeader>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <CardTitle>Cron Jobs Health</CardTitle>
+                        <div className="flex gap-2">
+                            <Button
+                                variant={filter === 'all' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setFilter('all')}
+                                data-testid="cron-filter-all"
+                            >
+                                All ({stats.total})
+                            </Button>
+                            <Button
+                                variant={filter === 'stale' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setFilter('stale')}
+                                className={stats.stale > 0 ? 'border-amber-400 text-amber-700' : ''}
+                                data-testid="cron-filter-stale"
+                            >
+                                Stale ({stats.stale})
+                            </Button>
+                            <Button
+                                variant={filter === 'failing' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setFilter('failing')}
+                                className={stats.failed > 0 ? 'border-red-400 text-red-700' : ''}
+                                data-testid="cron-filter-failing"
+                            >
+                                Failing ({stats.failed})
+                            </Button>
+                            <Button
+                                variant={filter === 'ok' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setFilter('ok')}
+                                data-testid="cron-filter-ok"
+                            >
+                                OK
+                            </Button>
+                        </div>
+                    </div>
+                </CardHeader>
                 <CardContent>
-                    <Table>
+                    <Table data-testid="cron-jobs-table">
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Job Name</TableHead>
@@ -123,10 +189,10 @@ export function CronJobsSection({ data, isLoading }: CronJobsSectionProps) {
                         <TableBody>
                             {isLoading ? (
                                 <TableRow><TableCell colSpan={6} className="text-center py-4"><Loader2 className="animate-spin mx-auto" /></TableCell></TableRow>
-                            ) : data.length === 0 ? (
-                                <TableRow><TableCell colSpan={6} className="text-center py-4">No cron jobs found.</TableCell></TableRow>
+                            ) : filteredData.length === 0 ? (
+                                <TableRow><TableCell colSpan={6} className="text-center py-4">{filter === 'all' ? 'No cron jobs found.' : `No ${filter} jobs found.`}</TableCell></TableRow>
                             ) : (
-                                data.map(job => (
+                                filteredData.map(job => (
                                     <TableRow key={job.jobname}>
                                         <TableCell className="font-medium font-mono text-sm">{job.jobname}</TableCell>
                                         <TableCell className="font-mono text-xs text-muted-foreground">{job.schedule}</TableCell>

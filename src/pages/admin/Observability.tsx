@@ -1,13 +1,14 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, AlertCircle, CheckCircle2, AlertTriangle, ArrowDown } from "lucide-react";
 import { format } from "date-fns";
-import { CronJobsSection, CronHealth } from "@/components/analytics/sections/CronJobsSection";
+import { CronJobsSection, CronHealth, CronFilter } from "@/components/analytics/sections/CronJobsSection";
 
 interface RpcLog {
     id: string;
@@ -19,6 +20,9 @@ interface RpcLog {
 }
 
 export default function Observability() {
+    const cronSectionRef = useRef<HTMLDivElement>(null);
+    const [cronFilter, setCronFilter] = useState<CronFilter>('all');
+
     // 1. Existing RPC Logs Query
     const { data: logs, isLoading } = useQuery({
         queryKey: ["rpc_logs"],
@@ -46,16 +50,73 @@ export default function Observability() {
         }
     });
 
+    // Compute stats for alert banner
+    const cronStats = {
+        stale: cronHealth?.filter(j => j.stale).length ?? 0,
+        failed: cronHealth?.filter(j => j.last_status === 'failed').length ?? 0
+    };
+
+    const scrollToCronSection = (filter: CronFilter) => {
+        setCronFilter(filter);
+        cronSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     return (
         <div className="container mx-auto py-8 space-y-8">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">System Observability</h1>
             </div>
 
+            {/* Alert Banner for Cron Issues */}
+            {!cronHealthLoading && (cronStats.failed > 0 || cronStats.stale > 0) && (
+                <div className="space-y-2" data-testid="cron-alert-banner">
+                    {cronStats.failed > 0 && (
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-red-50 border border-red-200">
+                            <div className="flex items-center gap-3">
+                                <AlertCircle className="h-5 w-5 text-red-600" />
+                                <span className="font-medium text-red-800">
+                                    {cronStats.failed} cron job{cronStats.failed > 1 ? 's' : ''} failing
+                                </span>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-red-300 text-red-700 hover:bg-red-100"
+                                onClick={() => scrollToCronSection('failing')}
+                            >
+                                View Failing <ArrowDown className="ml-1 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                    {cronStats.stale > 0 && (
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-amber-50 border border-amber-200">
+                            <div className="flex items-center gap-3">
+                                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                                <span className="font-medium text-amber-800">
+                                    {cronStats.stale} cron job{cronStats.stale > 1 ? 's' : ''} stale
+                                </span>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                                onClick={() => scrollToCronSection('stale')}
+                            >
+                                View Stale <ArrowDown className="ml-1 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Cron Jobs Section (P2 Epic B) */}
-            <div className="space-y-4">
+            <div className="space-y-4" ref={cronSectionRef}>
                 <h2 className="text-xl font-semibold">Cron Jobs Health</h2>
-                <CronJobsSection data={cronHealth || []} isLoading={cronHealthLoading} />
+                <CronJobsSection
+                    data={cronHealth || []}
+                    isLoading={cronHealthLoading}
+                    initialFilter={cronFilter}
+                />
             </div>
 
             <div className="border-t pt-4"></div>
