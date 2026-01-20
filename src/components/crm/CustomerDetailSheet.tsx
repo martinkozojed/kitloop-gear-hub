@@ -24,6 +24,7 @@ interface CustomerDetailSheetProps {
 export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }: CustomerDetailSheetProps) {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [data, setData] = useState<any>(null); // Full 360 Object
 
     // Notes Editing
@@ -43,6 +44,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
             if (error) throw error;
             setData(data);
             setNotes(data.profile.notes || '');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             toast.error(t('error'), { description: err.message });
         } finally {
@@ -62,6 +64,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
             if (error) throw error;
             toast.success(t('operations.customerSheet.toast.notesSaved'));
             if (onUpdate) onUpdate();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             toast.error(t('operations.customerSheet.toast.notesFailed'));
         } finally {
@@ -266,6 +269,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                     <div className="text-center py-8 text-muted-foreground">No events recorded.</div>
                                 ) : (
                                     <div className="space-y-6 ml-2 border-l-2 border-muted pl-4">
+                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                         {timeline.map((event: any) => (
                                             <div key={event.id} className="relative">
                                                 <div className="absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-primary" />

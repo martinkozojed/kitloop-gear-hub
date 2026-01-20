@@ -129,6 +129,7 @@ async function handle(req: Request): Promise<Response> {
 
       const payload = summarizeCleanupResult(rows.length);
       await logCronRunFinish(client, cronRun.id, cronRun.startedAtMs, "success", { metadata: payload });
+      // eslint-disable-next-line no-console
       console.log(JSON.stringify({ event: "cleanup_reservation_holds", ...payload, cron_run_id: cronRun.id }));
 
       return jsonResponse({ ...payload, cron_run_id: cronRun.id });

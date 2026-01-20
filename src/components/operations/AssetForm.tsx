@@ -94,6 +94,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
                 };
             });
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { error } = await supabase.from('assets').insert(assetsToCreate as any);
             if (error) throw error;
 
