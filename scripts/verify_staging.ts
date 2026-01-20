@@ -5,11 +5,11 @@ const SUPABASE_URL = Deno.env.get("E2E_SUPABASE_URL") || "";
 // We will use User Auth, so we need Anon Key. Since it's not in .env.staging, I'll try VITE_SUPABASE_ANON_KEY from local .env if available, or ask/fail.
 const SUPABASE_ANON_KEY = Deno.env.get("VITE_SUPABASE_ANON_KEY") || "";
 
-const ADMIN_EMAIL = Deno.env.get("E2E_ADMIN_EMAIL") || "admin@kitloop.com";
-const ADMIN_PASSWORD = Deno.env.get("E2E_ADMIN_PASSWORD") || "password123";
+const ADMIN_EMAIL = Deno.env.get("E2E_ADMIN_EMAIL") || "";
+const ADMIN_PASSWORD = Deno.env.get("E2E_ADMIN_PASSWORD") || "";
 
-const PROVIDER_EMAIL = Deno.env.get("E2E_PROVIDER_EMAIL") || "mail@mail.cz";
-const PROVIDER_PASSWORD = Deno.env.get("E2E_PROVIDER_PASSWORD") || "123456789";
+const PROVIDER_EMAIL = Deno.env.get("E2E_PROVIDER_EMAIL") || "";
+const PROVIDER_PASSWORD = Deno.env.get("E2E_PROVIDER_PASSWORD") || "";
 
 
 console.log("--- Staging Verification Epic B ---");
