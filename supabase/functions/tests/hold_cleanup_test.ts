@@ -1,5 +1,6 @@
 
 import { assertEquals, assertExists } from "https://deno.land/std@0.192.0/testing/asserts.ts";
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 // 1. Env Check (Skip if missing)
