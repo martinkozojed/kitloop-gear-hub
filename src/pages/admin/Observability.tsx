@@ -167,6 +167,24 @@ export default function Observability() {
                         )}
                     </CardContent>
                 </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Expired Holds (Last Run)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {latestCleanupDeleted ?? 0}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            {latestCleanup ? (
+                                <>
+                                    Last run: {format(new Date(latestCleanup.started_at), "HH:mm")}
+                                    {latestCleanup.status === "failed" && <span className="text-red-500 ml-1">(Failed)</span>}
+                                </>
+                            ) : "No data"}
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
 
             <Card>
