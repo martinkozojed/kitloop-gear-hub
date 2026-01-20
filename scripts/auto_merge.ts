@@ -1,4 +1,4 @@
-
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 // Watcher script for PR 62
 const prId = 62;
 console.log(`Starting auto-merge watcher for PR ${prId}...`);
