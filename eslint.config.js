@@ -32,9 +32,10 @@ export default tseslint.config(
   },
   // Exception for logger.ts which needs console access internally
   {
-    files: ["src/lib/logger.ts"],
+    files: ["src/lib/logger.ts", "scripts/**/*.ts", "supabase/functions/tests/**/*.ts"],
     rules: {
       "no-console": "off",
+      "@typescript-eslint/no-explicit-any": "off"
     },
   }
 );
