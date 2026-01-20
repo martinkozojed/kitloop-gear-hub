@@ -84,7 +84,8 @@ jobs:
 
   test_db:
     # Nightly/manual only, and only if DB URL secret is present.
-    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    # Run on Schedule, Manual Dispatch, OR Push to Main
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
     needs: [lint]
     steps:

@@ -1,110 +1,27 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
-import { format } from "date-fns";
-import { useState } from "react";
+import { CronJobsSection, CronHealth } from "@/components/analytics/sections/CronJobsSection";
 
-interface RpcLog {
-    id: string;
-    rpc_name: string;
-    duration_ms: number;
-    success: boolean;
-    error_details: string | null;
-    created_at: string;
-}
-
-interface CronRun {
-    id: string;
-    cron_name: string;
-    status: string;
-    started_at: string;
-    finished_at: string | null;
-    duration_ms: number | null;
-    error_message: string | null;
-    metadata: Record<string, unknown> | null;
-}
+// ... existing imports
 
 export default function Observability() {
-    const [errorMsg, setErrorMsg] = useState<string | null>(null);
-    const [cronError, setCronError] = useState<string | null>(null);
+    // ... existing state
 
-    const { data: logs, isLoading } = useQuery({
-        queryKey: ["rpc_logs"],
+    const { data: logs, isLoading } = useQuery({ /* ... */ });
+
+    const { data: cronHealth, isLoading: cronHealthLoading } = useQuery({
+        queryKey: ["cron_health"],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from("rpc_logs")
-                .select("*")
-                .order("created_at", { ascending: false })
-                .limit(100);
-
-            if (error) {
-                if (error.code === "PGRST301" || error.code === "42501") {
-                    setErrorMsg("Nemáte oprávnění zobrazit tyto záznamy.");
-                } else {
-                    setErrorMsg("Nepodařilo se načíst logy.");
-                }
-                throw error;
-            }
-            setErrorMsg(null);
-            return data as unknown as RpcLog[];
-        },
+            const { data, error } = await supabase.rpc("get_cron_health");
+            if (error) throw error;
+            return data as unknown as CronHealth[];
+        }
     });
 
-    const { data: cronRuns, isLoading: cronLoading } = useQuery({
-        queryKey: ["cron_runs"],
-        queryFn: async () => {
-            const { data, error } = await supabase
-                .from("cron_runs")
-                .select("*")
-                .order("started_at", { ascending: false })
-                .limit(50);
+    const { data: cronRuns, isLoading: cronLoading } = useQuery({ /* ... */ });
 
-            if (error) {
-                if (error.code === "PGRST301" || error.code === "42501") {
-                    setCronError("Nemáte oprávnění zobrazit cron běhy.");
-                } else {
-                    setCronError("Cron běhy se nepodařilo načíst.");
-                }
-                throw error;
-            }
-            setCronError(null);
-            return data as unknown as CronRun[];
-        },
-    });
+    // ... existing derived state (latestCleanup etc)
 
-    const latestCleanup = cronRuns?.find((run) => run.cron_name === "cleanup_reservation_holds_cron");
-    const latestCleanupMeta = (latestCleanup?.metadata as Record<string, unknown> | null) || null;
-    const latestCleanupDeleted = typeof latestCleanupMeta?.deleted_count === "number" ? latestCleanupMeta.deleted_count : undefined;
-
-    const renderCronStatus = (status: string, testId?: string) => {
-        if (status === "success") {
-            return (
-                <Badge
-                    variant="outline"
-                    className="bg-green-50 text-green-700 border-green-200"
-                    data-testid={testId}
-                >
-                    <CheckCircle2 className="w-3 h-3 mr-1" /> Success
-                </Badge>
-            );
-        }
-        if (status === "failed") {
-            return (
-                <Badge variant="destructive" data-testid={testId}>
-                    <AlertCircle className="w-3 h-3 mr-1" /> Failed
-                </Badge>
-            );
-        }
-        return (
-            <Badge variant="secondary" data-testid={testId}>
-                <Loader2 className="w-3 h-3 mr-1 animate-spin" /> Running
-            </Badge>
-        );
-    };
+    const renderCronStatus = (status: string, testId?: string) => { /* ... */ };
 
     return (
         <div className="container mx-auto py-8 space-y-8">
@@ -112,8 +29,10 @@ export default function Observability() {
                 <h1 className="text-3xl font-bold">System Observability</h1>
             </div>
 
+            {/* RPC Metrics */}
             <div className="grid gap-4 md:grid-cols-4">
-                <Card>
+               {/* ... existing RPC cards ... */}
+                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Requests (Last 100)</CardTitle>
                     </CardHeader>
@@ -145,28 +64,28 @@ export default function Observability() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card data-testid="cron-cleanup-summary">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Cleanup Holds Cron</CardTitle>
+                 <Card>
+                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Expired Holds (Last Run)</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {latestCleanup ? (
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                    {renderCronStatus(latestCleanup.status)}
-                                    <span className="text-sm text-muted-foreground">
-                                        {format(new Date(latestCleanup.started_at), "yyyy-MM-dd HH:mm")}
-                                    </span>
-                                </div>
-                                <div className="text-xs text-muted-foreground" data-testid="cron-cleanup-meta">
-                                    Deleted: {latestCleanupDeleted ?? "—"}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="text-sm text-muted-foreground">No cron runs recorded.</div>
-                        )}
+                        <div className="text-2xl font-bold">
+                            {latestCleanupDeleted ?? 0}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            {latestCleanup ? (
+                                <>
+                                    Last run: {format(new Date(latestCleanup.started_at), "HH:mm")}
+                                    {latestCleanup.status === "failed" && <span className="text-red-500 ml-1">(Failed)</span>}
+                                </>
+                            ) : "No data"}
+                        </p>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* New Cron Jobs Section */}
+            <CronJobsSection data={cronHealth || []} isLoading={cronHealthLoading} />
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Expired Holds (Last Run)</CardTitle>
@@ -292,6 +211,6 @@ export default function Observability() {
                     )}
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 }
