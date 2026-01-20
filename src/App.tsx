@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Index from "./pages/Index";
@@ -254,10 +255,13 @@ const AppRoutes = () => {
 
 const App = () => {
   // Expose Supabase for Manual Verification (Console Snippets)
-  if (import.meta.env.MODE !== "production" && (import.meta.env.DEV || import.meta.env.VITE_EXPOSE_SUPABASE === "true")) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).supabase = supabase;
-  }
+  useEffect(() => {
+    // Expose Supabase for Manual Verification (Console Snippets)
+    if (import.meta.env.MODE !== "production" && (import.meta.env.DEV || import.meta.env.VITE_EXPOSE_SUPABASE === "true")) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).supabase = supabase;
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
