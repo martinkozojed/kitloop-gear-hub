@@ -1,0 +1,56 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › e2e/admin-approval.spec.ts:7:3 › Admin approvals › approve and reject pending provider (23.0s)
+
+
+  1) [chromium] › e2e/admin-approval.spec.ts:7:3 › Admin approvals › approve and reject pending provider 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).not.[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('pending-provider-row-1d16c1f2-f99d-4d24-9acc-fb5b463b00b4')
+    Expected: not visible
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+    [2m  - Expect "not toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByTestId('pending-provider-row-1d16c1f2-f99d-4d24-9acc-fb5b463b00b4')[22m
+    [2m    19 × locator resolved to <tr data-lov-name="TableRow" data-component-line="92" data-component-name="TableRow" data-component-content="%7B%7D" data-component-file="ProviderApprovals.tsx" data-lov-id="src/pages/admin/ProviderApprovals.tsx:92:18" data-component-path="src/pages/admin/ProviderApprovals.tsx" data-testid="pending-provider-row-1d16c1f2-f99d-4d24-9acc-fb5b463b00b4" class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">…</tr>[22m
+    [2m       - unexpected value "visible"[22m
+
+
+      35 |
+      36 |     try {
+    > 37 |       await expect(row).not.toBeVisible({ timeout: 15000 });
+         |                             ^
+      38 |
+      39 |       // Provider can now access dashboard
+      40 |       const providerContext = await page.context().browser()?.newContext();
+        at /Users/mp/Downloads/kitloop-gear-hub-main/e2e/admin-approval.spec.ts:37:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/playwright/admin-approval-Admin-appro-908aa-and-reject-pending-provider-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/playwright/admin-approval-Admin-appro-908aa-and-reject-pending-provider-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/playwright/admin-approval-Admin-appro-908aa-and-reject-pending-provider-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/playwright/admin-approval-Admin-appro-908aa-and-reject-pending-provider-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/playwright/admin-approval-Admin-appro-908aa-and-reject-pending-provider-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/admin-approval.spec.ts:7:3 › Admin approvals › approve and reject pending provider 
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m
