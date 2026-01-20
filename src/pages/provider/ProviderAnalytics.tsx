@@ -88,7 +88,7 @@ const ProviderAnalytics = () => {
   );
 
   const revenueData = analytics.revenue.comparison;
-  const revenueSubtitle = useMemo(() => {
+  const revenueSubtitle = (() => {
     if (!revenueData) return undefined;
     const start = new Date(revenueData.current.periodStart);
     const end = new Date(revenueData.current.periodEnd);
@@ -97,7 +97,7 @@ const ProviderAnalytics = () => {
       start: formatLongDate(start),
       end: formatLongDate(end),
     });
-  }, [revenueData, t]);
+  })();
 
   const statusLabels = useMemo(
     () => ({
