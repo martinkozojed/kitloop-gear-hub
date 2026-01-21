@@ -38,13 +38,13 @@
     "npm:@sentry/react@^7.120.0": "7.120.4_react@18.3.1",
     "npm:@stripe/react-stripe-js@^5.4.1": "5.4.1_@stripe+stripe-js@8.6.3_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:@stripe/stripe-js@^8.6.1": "8.6.3",
+    "npm:@supabase/supabase-js@2.45.0": "2.45.0",
     "npm:@supabase/supabase-js@2.50.0": "2.50.0",
     "npm:@supabase/supabase-js@^2.90.1": "2.91.0",
     "npm:@tailwindcss/typography@~0.5.19": "0.5.19_tailwindcss@3.4.19__postcss@8.5.6__jiti@1.21.7",
     "npm:@tanstack/react-query@^5.90.18": "5.90.19_react@18.3.1",
     "npm:@tanstack/react-table@^8.21.3": "8.21.3_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:@types/leaflet@^1.9.21": "1.9.21",
-    "npm:@types/node@20": "20.19.30",
     "npm:@types/node@^22.5.5": "22.19.7",
     "npm:@types/papaparse@^5.5.2": "5.5.2",
     "npm:@types/pg@^8.16.0": "8.16.0",
@@ -2171,6 +2171,12 @@
     "@stripe/stripe-js@8.6.3": {
       "integrity": "sha512-MQsPNsMMprOu+p+BWYvD69aPjD52yQNXZaENRQX7IkbWqu7lp9k04D+RPeHWJEsuyzmCCoHx3Kqqf3tcXPoNvQ=="
     },
+    "@supabase/auth-js@2.64.4": {
+      "integrity": "sha512-9ITagy4WP4FLl+mke1rchapOH0RQpf++DI+WSG2sO1OFOZ0rW3cwAM0nCrMOxu+Zw4vJ4zObc08uvQrXx590Tg==",
+      "dependencies": [
+        "@supabase/node-fetch"
+      ]
+    },
     "@supabase/auth-js@2.70.0": {
       "integrity": "sha512-BaAK/tOAZFJtzF1sE3gJ2FwTjLf4ky3PSvcvLGEgEmO4BSBkwWKu8l67rLLIBZPDnCyV7Owk2uPyKHa0kj5QGg==",
       "dependencies": [
@@ -2181,6 +2187,12 @@
       "integrity": "sha512-9ywvsKLsxTwv7fvN5fXzP3UfRreqrX2waylTBDu0lkmeHXa8WtSQS9e0WV9FBduiazYqQbgfBQXBNPRPsRgWOQ==",
       "dependencies": [
         "tslib"
+      ]
+    },
+    "@supabase/functions-js@2.4.1": {
+      "integrity": "sha512-8sZ2ibwHlf+WkHDUZJUXqqmPvWQ3UHN0W30behOJngVh/qHHekhJLCFbh0AjkE9/FqqXtf9eoVvmYgfCLk5tNA==",
+      "dependencies": [
+        "@supabase/node-fetch"
       ]
     },
     "@supabase/functions-js@2.4.4": {
@@ -2201,6 +2213,12 @@
         "whatwg-url"
       ]
     },
+    "@supabase/postgrest-js@1.15.8": {
+      "integrity": "sha512-YunjXpoQjQ0a0/7vGAvGZA2dlMABXFdVI/8TuVKtlePxyT71sl6ERl6ay1fmIeZcqxiuFQuZw/LXUuStUG9bbg==",
+      "dependencies": [
+        "@supabase/node-fetch"
+      ]
+    },
     "@supabase/postgrest-js@1.19.4": {
       "integrity": "sha512-O4soKqKtZIW3olqmbXXbKugUtByD2jPa8kL2m2c1oozAO11uCcGrRhkZL0kVxjBLrXHE0mdSkFsMj7jDSfyNpw==",
       "dependencies": [
@@ -2211,6 +2229,15 @@
       "integrity": "sha512-5S41zv2euNpGucvtM4Wy+xOmLznqt/XO+Lh823LOFEQ00ov7QJfvqb6VzIxufvzhooZpmGR0BxvMcJtWxCIFdQ==",
       "dependencies": [
         "tslib"
+      ]
+    },
+    "@supabase/realtime-js@2.10.2": {
+      "integrity": "sha512-qyCQaNg90HmJstsvr2aJNxK2zgoKh9ZZA8oqb7UT2LCh3mj9zpa3Iwu167AuyNxsxrUE8eEJ2yH6wLCij4EApA==",
+      "dependencies": [
+        "@supabase/node-fetch",
+        "@types/phoenix",
+        "@types/ws",
+        "ws"
       ]
     },
     "@supabase/realtime-js@2.11.10": {
@@ -2231,6 +2258,12 @@
         "ws"
       ]
     },
+    "@supabase/storage-js@2.6.0": {
+      "integrity": "sha512-REAxr7myf+3utMkI2oOmZ6sdplMZZ71/2NEIEMBZHL9Fkmm3/JnaOZVSRqvG4LStYj2v5WhCruCzuMn6oD/Drw==",
+      "dependencies": [
+        "@supabase/node-fetch"
+      ]
+    },
     "@supabase/storage-js@2.7.1": {
       "integrity": "sha512-asYHcyDR1fKqrMpytAS1zjyEfvxuOIp1CIXX7ji4lHHcJKqyk+sLl/Vxgm4sN6u8zvuUtae9e4kDxQP2qrwWBA==",
       "dependencies": [
@@ -2242,6 +2275,17 @@
       "dependencies": [
         "iceberg-js",
         "tslib"
+      ]
+    },
+    "@supabase/supabase-js@2.45.0": {
+      "integrity": "sha512-j66Mfs8RhzCQCKxKogAFQYH9oNhRmgIdKk6pexguI2Oc7hi+nL9UNJug5aL1tKnBdaBM3h65riPLQSdL6sWa3Q==",
+      "dependencies": [
+        "@supabase/auth-js@2.64.4",
+        "@supabase/functions-js@2.4.1",
+        "@supabase/node-fetch",
+        "@supabase/postgrest-js@1.15.8",
+        "@supabase/realtime-js@2.10.2",
+        "@supabase/storage-js@2.6.0"
       ]
     },
     "@supabase/supabase-js@2.50.0": {
@@ -4916,9 +4960,6 @@
     "https://esm.sh/ws@8.19.0?target=denonext": "5754cf6636f02a4d1d3d9aaa9ebca9f6c08c121d3b3f0935dc2936b7a14c9453"
   },
   "workspace": {
-    "dependencies": [
-      "npm:@types/node@20"
-    ],
     "packageJson": {
       "dependencies": [
         "npm:@emotion/react@^11.14.0",
