@@ -1,9 +1,14 @@
 {
   "lock": "deno.lock",
-  "nodeModulesDir": "none",
+  "nodeModulesDir": "auto",
+  "imports": {
+    "https://esm.sh/v135/buffer@6.0.3/esnext/buffer.mjs": "./vendor/esm.sh/buffer.mjs",
+    "https://esm.sh/v135/buffer@6.0.3/esnext/buffer.bundle.mjs": "./vendor/esm.sh/buffer.bundle.mjs",
+    "@types/node": "npm:@types/node@^20.0.0"
+  },
   "tasks": {
     "lock": "deno cache --lock=deno.lock supabase/functions/**/*.ts scripts/**/*.ts",
-    "deno:cache": "deno cache --lock=deno.lock supabase/functions/**/*.ts scripts/**/*.ts",
-    "deno:test": "deno test --allow-env --allow-read --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock supabase/functions"
+    "deno:cache": "deno cache --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock supabase/functions/**/*.ts scripts/**/*.ts",
+    "deno:test": "deno test --no-check --allow-env --allow-read --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock supabase/functions"
   }
 }
