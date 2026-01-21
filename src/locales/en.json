@@ -254,9 +254,15 @@
         "analytics": "Analytics",
         "inventory": "Inventory",
         "reservations": "Reservations",
+        "maintenance": "Maintenance",
+        "crm": "Customers",
+        "accounts": "Organizations",
         "reports": "Reports",
-        "settings": "Settings"
+        "settings": "Settings",
+        "approvals": "Approvals",
+        "auditLog": "Audit Log"
       },
+      "loggedIn": "Logged in as",
       "newReservation": "New Reservation"
     },
     "bottomNav": {
@@ -274,7 +280,11 @@
         "confirmed": "Confirmed",
         "active": "Active",
         "completed": "Completed",
-        "cancelled": "Cancelled"
+        "cancelled": "Cancelled",
+        "overdue": "Overdue",
+        "ready": "Ready",
+        "unpaid": "Unpaid",
+        "conflict": "Conflict"
       },
       "empty": {
         "welcome": "👋 Welcome, {{name}}!",
@@ -565,6 +575,8 @@
         "detail": "Detail"
       },
       "empty": "No reservations to display.",
+      "emptyDesc": "Create your first reservation and start tracking your rentals.",
+      "expandRow": "Expand reservation for {{customer}}",
       "toasts": {
         "fetchError": "Failed to load reservations",
         "actionError": "Action failed",
@@ -1255,6 +1267,97 @@
         "uploadFailed": "Photo upload failed",
         "saveFailed": "Failed to process return"
       }
+    },
+    "maintenance": {
+      "title": "Maintenance & Service",
+      "subtitle": "Track and manage equipment currently out of service.",
+      "stats": {
+        "inService": "In Service",
+        "inServiceDesc": "Assets currently unavailable",
+        "avgRepairTime": "Avg. Repair Time",
+        "avgRepairTimeDesc": "Last 30 days",
+        "serviceCosts": "Service Costs",
+        "serviceCostsDesc": "This month",
+        "noData": "–"
+      },
+      "queue": {
+        "title": "Service Queue",
+        "empty": "All clear! No items in maintenance.",
+        "loading": "Loading...",
+        "health": "Health: {{score}}%",
+        "since": "Since: {{date}}"
+      },
+      "actions": {
+        "finish": "Finish",
+        "logWork": "Log Work"
+      },
+      "toasts": {
+        "resolved": "Asset returned to inventory",
+        "error": "Failed to resolve",
+        "loadError": "Failed to load maintenance items"
+      }
+    },
+    "crm": {
+      "title": "Customers",
+      "subtitle": "Manage operational contacts and organizations.",
+      "cta": {
+        "add": "Add Customer"
+      },
+      "search": "Search names, emails, or companies...",
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "organization": "Organization",
+        "lastActive": "Last Active",
+        "actions": "Actions"
+      },
+      "empty": "No customers yet.",
+      "emptyDesc": "Add your first customer or create a reservation – customers are created automatically.",
+      "view": "View",
+      "openCustomerDetail": "Open customer details for {{name}}"
+    },
+    "accounts": {
+      "title": "Organizations (B2B)",
+      "subtitle": "Manage schools, clubs, and corporate partners.",
+      "cta": {
+        "new": "New Organization"
+      },
+      "search": "Search organizations...",
+      "table": {
+        "name": "Name",
+        "taxId": "Tax ID",
+        "contact": "Contact",
+        "updated": "Updated",
+        "actions": "Actions"
+      },
+      "empty": "No organizations yet.",
+      "emptyDesc": "Add schools, clubs, or corporate partners for B2B orders.",
+      "menu": {
+        "edit": "Edit Details",
+        "delete": "Delete"
+      },
+      "confirm": {
+        "title": "Delete Organization?",
+        "delete": "Are you sure? This will unlink all customers from this organization.",
+        "cancel": "Cancel",
+        "confirmDelete": "Delete"
+      },
+      "toasts": {
+        "deleted": "Organization deleted",
+        "deleteError": "Failed to delete"
+      }
+    }
+  },
+  "scanner": {
+    "title": "Scan Asset Tag",
+    "pointCamera": "Point camera at QR Code",
+    "orEnterManually": "Or enter manually",
+    "placeholder": "e.g. FER-001",
+    "manualEntryLabel": "Enter asset tag manually",
+    "check": "Check",
+    "useManualEntry": "Use manual entry below",
+    "errors": {
+      "cameraNotAvailable": "Camera not available or permission denied"
     }
   }
 }

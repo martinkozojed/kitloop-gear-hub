@@ -3,12 +3,15 @@ import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
 import { formatPrice } from '@/lib/availability';
 
+// Contract data comes from various sources with flexible schemas
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface ContractTemplateProps {
     reservation: any;
     provider: any;
     customer: any;
     items?: any[];
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const ContractTemplate = forwardRef<HTMLDivElement, ContractTemplateProps>(({ reservation, provider, customer, items = [] }, ref) => {
     const totalDeposit = reservation.deposit_amount || 0;

@@ -50,9 +50,9 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       items: [
         { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: List },
         { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
-        { path: '/provider/maintenance', label: 'Servis', icon: Wrench },
-        { path: '/provider/customers', label: 'Zákazníci (CRM)', icon: Users },
-        { path: '/provider/accounts', label: 'Organizace (B2B)', icon: Building2 },
+        { path: '/provider/maintenance', label: 'provider.sidebar.nav.maintenance', icon: Wrench },
+        { path: '/provider/customers', label: 'provider.sidebar.nav.crm', icon: Users },
+        { path: '/provider/accounts', label: 'provider.sidebar.nav.accounts', icon: Building2 },
       ]
     },
     {
@@ -68,8 +68,8 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
     navGroups.push({
       title: 'Admin',
       items: [
-        { path: '/admin/providers', label: 'Approvals', icon: ShieldAlert },
-        { path: '/admin/audit', label: 'Audit log', icon: List }
+        { path: '/admin/providers', label: 'provider.sidebar.nav.approvals', icon: ShieldAlert },
+        { path: '/admin/audit', label: 'provider.sidebar.nav.auditLog', icon: List }
       ]
     });
   }
@@ -139,7 +139,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       <div className="px-4 pb-6 pt-2 border-t border-border mt-auto">
         <div className="mb-4 px-2">
           <p className="text-xs text-muted-foreground truncate">
-            Logged in as <span className="font-medium text-foreground">Provider Admin</span>
+            {t('provider.sidebar.loggedIn')} <span className="font-medium text-foreground">Provider Admin</span>
           </p>
         </div>
         <Button

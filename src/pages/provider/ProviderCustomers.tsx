@@ -6,12 +6,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import { Loader2, Plus, Search, Building2, User } from 'lucide-react';
+import { Loader2, Plus, Search, Building2, User, Users } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
+import { FilterBar, SearchInput } from '@/components/ui/filter-bar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { CustomerDetailSheet } from '@/components/crm/CustomerDetailSheet';
 import { formatDistanceToNow } from 'date-fns';
 import { UpsertCustomerModal } from '@/components/crm/UpsertCustomerModal';
+import { useTranslation } from 'react-i18next';
 
 interface Customer {
     id: string;
@@ -30,6 +34,7 @@ const ProviderCustomers = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const { provider } = useAuth();
+    const { t } = useTranslation();
     const [createOpen, setCreateOpen] = useState(false);
 
     // Sheet State
@@ -73,38 +78,35 @@ const ProviderCustomers = () => {
     return (
         <ProviderLayout>
             <div className="max-w-6xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
-                        <p className="text-muted-foreground">Manage operational contacts and organizations.</p>
-                    </div>
-                    <Button onClick={() => setCreateOpen(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Customer
-                    </Button>
-                </div>
+                <PageHeader
+                    title={t('operations.crm.title')}
+                    description={t('operations.crm.subtitle')}
+                    actions={
+                        <Button onClick={() => setCreateOpen(true)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            {t('operations.crm.cta.add')}
+                        </Button>
+                    }
+                />
 
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-1 max-w-sm">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search names, emails, or companies..."
-                            className="pl-9"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
+                <FilterBar>
+                    <SearchInput
+                        placeholder={t('operations.crm.search')}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        icon={<Search className="w-4 h-4" />}
+                    />
+                </FilterBar>
 
                 <div className="border rounded-md bg-white shadow-sm overflow-hidden">
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Organization</TableHead>
-                                <TableHead>Last Active</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>{t('operations.crm.table.name')}</TableHead>
+                                <TableHead>{t('operations.crm.table.status')}</TableHead>
+                                <TableHead>{t('operations.crm.table.organization')}</TableHead>
+                                <TableHead>{t('operations.crm.table.lastActive')}</TableHead>
+                                <TableHead className="text-right">{t('operations.crm.table.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -116,16 +118,34 @@ const ProviderCustomers = () => {
                                 </TableRow>
                             ) : filteredCustomers.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                        No customers found.
+                                    <TableCell colSpan={5} className="p-0">
+                                        <EmptyState
+                                            icon={Users}
+                                            title={t('operations.crm.empty')}
+                                            description={t('operations.crm.emptyDesc')}
+                                            action={{
+                                                label: t('operations.crm.cta.add'),
+                                                onClick: () => setCreateOpen(true),
+                                            }}
+                                            variant="subtle"
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 filteredCustomers.map((customer) => (
                                     <TableRow
                                         key={customer.id}
-                                        className="cursor-pointer hover:bg-muted/50"
+                                        className="cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                                         onClick={() => handleRowClick(customer.id)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                handleRowClick(customer.id);
+                                            }
+                                        }}
+                                        tabIndex={0}
+                                        role="button"
+                                        aria-label={t('operations.crm.openCustomerDetail', { name: customer.full_name })}
                                     >
                                         <TableCell>
                                             <div className="flex items-center gap-3">
@@ -159,7 +179,7 @@ const ProviderCustomers = () => {
                                             {customer.updated_at ? formatDistanceToNow(new Date(customer.updated_at), { addSuffix: true }) : '-'}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm">View</Button>
+                                            <Button variant="ghost" size="sm">{t('operations.crm.view')}</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -186,3 +206,4 @@ const ProviderCustomers = () => {
 };
 
 export default ProviderCustomers;
+

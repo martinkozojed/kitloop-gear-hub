@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Plus, Search, Building2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
+import { FilterBar, SearchInput } from '@/components/ui/filter-bar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { UpsertAccountModal } from '@/components/crm/UpsertAccountModal';
@@ -17,7 +20,18 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useTranslation } from 'react-i18next';
 
 
 interface Account {
@@ -34,10 +48,15 @@ const ProviderAccounts = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const { provider } = useAuth();
+    const { t } = useTranslation();
 
     // Modal State
     const [modalOpen, setModalOpen] = useState(false);
     const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+
+    // Delete Confirmation State
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [accountToDelete, setAccountToDelete] = useState<string | null>(null);
 
     const fetchAccounts = React.useCallback(async () => {
         if (!provider?.id) return;
@@ -72,16 +91,23 @@ const ProviderAccounts = () => {
         setModalOpen(true);
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure? This will unlink all customers from this organization.')) return;
+    const handleDeleteClick = (id: string) => {
+        setAccountToDelete(id);
+        setDeleteDialogOpen(true);
+    };
 
-        const { error } = await supabase.from('accounts').delete().eq('id', id).eq('provider_id', provider?.id || '');
+    const handleDeleteConfirm = async () => {
+        if (!accountToDelete) return;
+
+        const { error } = await supabase.from('accounts').delete().eq('id', accountToDelete).eq('provider_id', provider?.id || '');
         if (error) {
-            toast.error("Failed to delete");
+            toast.error(t('operations.accounts.toasts.deleteError'));
         } else {
-            toast.success("Account deleted");
+            toast.success(t('operations.accounts.toasts.deleted'));
             fetchAccounts();
         }
+        setDeleteDialogOpen(false);
+        setAccountToDelete(null);
     };
 
     const filteredAccounts = accounts.filter(a =>
@@ -92,38 +118,35 @@ const ProviderAccounts = () => {
     return (
         <ProviderLayout>
             <div className="max-w-6xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Organizations (B2B)</h1>
-                        <p className="text-muted-foreground">Manage schools, clubs, and corporate partners.</p>
-                    </div>
-                    <Button onClick={handleCreate}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        New Organization
-                    </Button>
-                </div>
+                <PageHeader
+                    title={t('operations.accounts.title')}
+                    description={t('operations.accounts.subtitle')}
+                    actions={
+                        <Button onClick={handleCreate}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            {t('operations.accounts.cta.new')}
+                        </Button>
+                    }
+                />
 
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-1 max-w-sm">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search organizations..."
-                            className="pl-9"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
+                <FilterBar>
+                    <SearchInput
+                        placeholder={t('operations.accounts.search')}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        icon={<Search className="w-4 h-4" />}
+                    />
+                </FilterBar>
 
                 <div className="border rounded-md bg-white shadow-sm overflow-hidden">
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Tax ID</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead>Updated</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>{t('operations.accounts.table.name')}</TableHead>
+                                <TableHead>{t('operations.accounts.table.taxId')}</TableHead>
+                                <TableHead>{t('operations.accounts.table.contact')}</TableHead>
+                                <TableHead>{t('operations.accounts.table.updated')}</TableHead>
+                                <TableHead className="text-right">{t('operations.accounts.table.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -135,8 +158,17 @@ const ProviderAccounts = () => {
                                 </TableRow>
                             ) : filteredAccounts.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                        No organizations found.
+                                    <TableCell colSpan={5} className="p-0">
+                                        <EmptyState
+                                            icon={Building2}
+                                            title={t('operations.accounts.empty')}
+                                            description={t('operations.accounts.emptyDesc')}
+                                            action={{
+                                                label: t('operations.accounts.cta.new'),
+                                                onClick: handleCreate,
+                                            }}
+                                            variant="subtle"
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -160,11 +192,11 @@ const ProviderAccounts = () => {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem onClick={() => handleEdit(account)}>
-                                                        <Pencil className="w-4 h-4 mr-2" /> Edit Details
+                                                        <Pencil className="w-4 h-4 mr-2" /> {t('operations.accounts.menu.edit')}
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(account.id)}>
-                                                        <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                                    <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClick(account.id)}>
+                                                        <Trash2 className="w-4 h-4 mr-2" /> {t('operations.accounts.menu.delete')}
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -182,9 +214,31 @@ const ProviderAccounts = () => {
                     accountToEdit={editingAccount}
                     onSuccess={fetchAccounts}
                 />
+
+                {/* Delete Confirmation Dialog */}
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>{t('operations.accounts.confirm.title')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                {t('operations.accounts.confirm.delete')}
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>{t('operations.accounts.confirm.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDeleteConfirm}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                                {t('operations.accounts.confirm.confirmDelete')}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </ProviderLayout>
     );
 };
 
 export default ProviderAccounts;
+

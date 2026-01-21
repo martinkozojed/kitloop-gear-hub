@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { ReservationStatus } from "@/lib/status-colors";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +23,9 @@ import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone,
 import ReservationCalendar from "@/components/reservations/ReservationCalendar";
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
+import { track } from '@/lib/telemetry';
 
 interface Reservation {
   id: string;
@@ -173,6 +177,7 @@ const ProviderReservations = () => {
   }, [reservations, searchQuery, statusFilter]);
 
   const toggleRowExpansion = (reservationId: string) => {
+    track('reservations.open_detail', { reservation_id: reservationId }, 'ProviderReservations');
     setExpandedRows(prev => {
       const newSet = new Set(prev);
       if (newSet.has(reservationId)) {
@@ -186,14 +191,18 @@ const ProviderReservations = () => {
 
   const handleAction = async (reservationId: string, action: 'confirm' | 'cancel') => {
     setLoadingActions(prev => ({ ...prev, [reservationId]: true }));
+    const status = action === 'confirm' ? 'confirmed' : 'cancelled';
+    track('reservations.status_change_started', { reservation_id: reservationId, target_status: status }, 'ProviderReservations');
+
     try {
-      const status = action === 'confirm' ? 'confirmed' : 'cancelled';
       const { error } = await supabase.from('reservations').update({ status }).eq('id', reservationId);
       if (error) throw error;
 
       setReservations(prev => prev.map(r => r.id === reservationId ? { ...r, status } : r));
+      track('reservations.status_change_succeeded', { reservation_id: reservationId, new_status: status }, 'ProviderReservations');
       toast.success(action === 'confirm' ? t('provider.reservations.toasts.confirmed') : t('provider.reservations.toasts.cancelled'));
     } catch (e: unknown) {
+      track('reservations.status_change_failed', { reservation_id: reservationId, target_status: status }, 'ProviderReservations');
       console.error(e);
       toast.error(t('provider.reservations.toasts.actionError'));
     } finally {
@@ -215,18 +224,13 @@ const ProviderReservations = () => {
     return r.gear_items?.category;
   };
 
-  const getStatusBadge = (status: string | null) => {
-    const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-      hold: { label: t('provider.dashboard.status.hold'), variant: 'outline' },
-      pending: { label: t('provider.dashboard.status.pending'), variant: 'outline' },
-      confirmed: { label: t('provider.dashboard.status.confirmed'), variant: 'default' },
-      active: { label: t('provider.dashboard.status.active'), variant: 'secondary' },
-      completed: { label: t('provider.dashboard.status.completed'), variant: 'secondary' },
-      cancelled: { label: t('provider.dashboard.status.cancelled'), variant: 'destructive' },
-    };
-
-    const config = statusMap[status || 'pending'] || { label: status ? status : t('provider.reservations.status.unknown'), variant: 'outline' };
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+  // Status normalization helper for StatusBadge
+  const normalizeStatus = (status: string | null): ReservationStatus => {
+    const validStatuses: ReservationStatus[] = ['hold', 'pending', 'confirmed', 'active', 'completed', 'cancelled', 'overdue', 'ready', 'unpaid', 'conflict'];
+    if (status && validStatuses.includes(status as ReservationStatus)) {
+      return status as ReservationStatus;
+    }
+    return 'pending';
   };
 
   if (loading) {
@@ -242,20 +246,18 @@ const ProviderReservations = () => {
   return (
     <ProviderLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{t('provider.reservations.title')}</h1>
-            <p className="text-muted-foreground">{t('provider.reservations.subtitle')}</p>
-          </div>
-          <div className="flex gap-2">
+        <PageHeader
+          title={t('provider.reservations.title')}
+          description={t('provider.reservations.subtitle')}
+          actions={
             <Button asChild className="w-full sm:w-auto">
               <Link to="/provider/reservations/new">
                 <Plus className="w-4 h-4 mr-2" />
                 {t('provider.reservations.cta.new')}
               </Link>
             </Button>
-          </div>
-        </div>
+          }
+        />
 
         <Tabs defaultValue="list" className="w-full">
           <div className="flex items-center justify-between mb-4">
@@ -294,7 +296,15 @@ const ProviderReservations = () => {
 
           <TabsContent value="list" className="space-y-4">
             {filteredReservations.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">{t('provider.reservations.empty')}</div>
+              <EmptyState
+                icon={Calendar}
+                title={t('provider.reservations.empty')}
+                description={t('provider.reservations.emptyDesc')}
+                action={{
+                  label: t('provider.reservations.cta.new'),
+                  onClick: () => navigate('/provider/reservations/new'),
+                }}
+              />
             ) : (
               <div className="rounded-md border bg-card">
                 <table className="w-full text-sm text-left">
@@ -311,8 +321,18 @@ const ProviderReservations = () => {
                     {filteredReservations.map(r => (
                       <React.Fragment key={r.id}>
                         <tr
-                          className="border-b hover:bg-muted/50 cursor-pointer"
+                          className="border-b hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                           onClick={() => toggleRowExpansion(r.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              toggleRowExpansion(r.id);
+                            }
+                          }}
+                          tabIndex={0}
+                          role="button"
+                          aria-expanded={expandedRows.has(r.id)}
+                          aria-label={t('provider.reservations.expandRow', { customer: r.customer_name })}
                           data-testid={`reservation-row-${r.id}`}
                         >
                           <td className="p-4 font-medium" data-testid={`reservation-customer-${r.id}`}>{r.customer_name}</td>
@@ -323,7 +343,7 @@ const ProviderReservations = () => {
                           <td className="p-4">
                             {r.start_date && r.end_date && formatDateRange(new Date(r.start_date), new Date(r.end_date))}
                           </td>
-                          <td className="p-4" data-testid={`reservation-status-${r.id}`}>{getStatusBadge(r.status)}</td>
+                          <td className="p-4" data-testid={`reservation-status-${r.id}`}><StatusBadge status={normalizeStatus(r.status)} size="sm" /></td>
                           <td className="p-4">{expandedRows.has(r.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</td>
                         </tr>
                         {expandedRows.has(r.id) && (

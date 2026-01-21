@@ -253,10 +253,16 @@
         "dashboard": "Přehled",
         "inventory": "Inventář",
         "reservations": "Rezervace",
+        "maintenance": "Servis",
+        "crm": "Zákazníci",
+        "accounts": "Organizace",
         "reports": "Reporty",
         "settings": "Nastavení",
-        "analytics": "Analytika"
+        "analytics": "Analytika",
+        "approvals": "Schvalování",
+        "auditLog": "Audit log"
       },
+      "loggedIn": "Přihlášen jako",
       "newReservation": "Nová rezervace"
     },
     "bottomNav": {
@@ -274,7 +280,11 @@
         "confirmed": "Potvrzeno",
         "active": "Aktivní",
         "completed": "Dokončeno",
-        "cancelled": "Zrušeno"
+        "cancelled": "Zrušeno",
+        "overdue": "Po termínu",
+        "ready": "Připraveno",
+        "unpaid": "Nezaplaceno",
+        "conflict": "Konflikt"
       },
       "empty": {
         "welcome": "👋 Vítej, {{name}}!",
@@ -611,6 +621,8 @@
         "detail": "Detail"
       },
       "empty": "Žádné rezervace k zobrazení.",
+      "emptyDesc": "Vytvořte první rezervaci a začněte sledovat vaše výpůjčky.",
+      "expandRow": "Rozbalit rezervaci pro {{customer}}",
       "toasts": {
         "fetchError": "Chyba při načítání rezervací",
         "actionError": "Akce se nezdařila",
@@ -1244,6 +1256,97 @@
         "uploadFailed": "Nahrání fotky selhalo",
         "saveFailed": "Nepodařilo se zpracovat příjem"
       }
+    },
+    "maintenance": {
+      "title": "Servis a údržba",
+      "subtitle": "Sledujte a spravujte vybavení mimo provoz.",
+      "stats": {
+        "inService": "V servisu",
+        "inServiceDesc": "Položky momentálně nedostupné",
+        "avgRepairTime": "Prům. doba opravy",
+        "avgRepairTimeDesc": "Posledních 30 dní",
+        "serviceCosts": "Náklady na servis",
+        "serviceCostsDesc": "Tento měsíc",
+        "noData": "–"
+      },
+      "queue": {
+        "title": "Servisní fronta",
+        "empty": "Vše v pořádku! Žádné položky v servisu.",
+        "loading": "Načítání...",
+        "health": "Stav: {{score}}%",
+        "since": "Od: {{date}}"
+      },
+      "actions": {
+        "finish": "Dokončit",
+        "logWork": "Zaznamenat práci"
+      },
+      "toasts": {
+        "resolved": "Položka vrácena do inventáře",
+        "error": "Nepodařilo se dokončit",
+        "loadError": "Nepodařilo se načíst položky v servisu"
+      }
+    },
+    "crm": {
+      "title": "Zákazníci",
+      "subtitle": "Správa kontaktů a organizací.",
+      "cta": {
+        "add": "Přidat zákazníka"
+      },
+      "search": "Hledat jména, e-maily nebo firmy...",
+      "table": {
+        "name": "Jméno",
+        "status": "Status",
+        "organization": "Organizace",
+        "lastActive": "Poslední aktivita",
+        "actions": "Akce"
+      },
+      "empty": "Zatím žádní zákazníci.",
+      "emptyDesc": "Přidejte prvního zákazníka nebo vytvořte rezervaci – zákazník se vytvoří automaticky.",
+      "view": "Zobrazit",
+      "openCustomerDetail": "Otevřít detail zákazníka {{name}}"
+    },
+    "accounts": {
+      "title": "Organizace (B2B)",
+      "subtitle": "Správa škol, klubů a firemních partnerů.",
+      "cta": {
+        "new": "Nová organizace"
+      },
+      "search": "Hledat organizace...",
+      "table": {
+        "name": "Název",
+        "taxId": "IČO",
+        "contact": "Kontakt",
+        "updated": "Aktualizováno",
+        "actions": "Akce"
+      },
+      "empty": "Zatím žádné organizace.",
+      "emptyDesc": "Přidejte školy, kluby nebo firemní partnery pro B2B objednávky.",
+      "menu": {
+        "edit": "Upravit",
+        "delete": "Smazat"
+      },
+      "confirm": {
+        "title": "Smazat organizaci?",
+        "delete": "Opravdu chcete smazat? Všichni zákazníci budou odpojeni od této organizace.",
+        "cancel": "Zrušit",
+        "confirmDelete": "Smazat"
+      },
+      "toasts": {
+        "deleted": "Organizace smazána",
+        "deleteError": "Nepodařilo se smazat"
+      }
+    }
+  },
+  "scanner": {
+    "title": "Skenovat štítek",
+    "pointCamera": "Namiřte kameru na QR kód",
+    "orEnterManually": "Nebo zadejte ručně",
+    "placeholder": "např. FER-001",
+    "manualEntryLabel": "Zadejte štítek ručně",
+    "check": "Zkontrolovat",
+    "useManualEntry": "Použijte ruční zadání níže",
+    "errors": {
+      "cameraNotAvailable": "Kamera není dostupná nebo bylo odepřeno povolení"
     }
   }
 }

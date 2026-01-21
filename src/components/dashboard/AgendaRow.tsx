@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Phone, CheckCircle2, AlertTriangle, Package, ShieldCheck, ArrowRight, Check } from "lucide-react";
 import { DENSITY } from "@/components/ui/density";
@@ -25,17 +25,12 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
     const isPickup = data.type === 'pickup';
     const isBlocker = data.status === 'unpaid' || data.status === 'conflict';
 
-    // Status Pill Styles
-    const getStatusBadge = () => {
-        switch (data.status) {
-            case 'ready':
-                return <span className="bg-emerald-100/80 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1 shadow-sm"><CheckCircle2 className="w-3 h-3" /> {t('dashboard.status.ready')}</span>;
-            case 'unpaid':
-                return <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> {t('dashboard.status.unpaid')}</span>;
-            case 'conflict':
-                return <span className="bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">{t('dashboard.status.conflict')}</span>;
-            default: return null;
+    // Status Pill via StatusBadge component
+    const renderStatusBadge = () => {
+        if (data.status === 'ready' || data.status === 'unpaid' || data.status === 'conflict') {
+            return <StatusBadge status={data.status} size="sm" />;
         }
+        return null;
     };
 
     return (
@@ -80,7 +75,7 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
 
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5"><Package className="w-3.5 h-3.5 opacity-70" /> {t('dashboard.agenda.items', { count: data.itemCount })}</span>
-                    {getStatusBadge()}
+                    {renderStatusBadge()}
                 </div>
             </div>
 

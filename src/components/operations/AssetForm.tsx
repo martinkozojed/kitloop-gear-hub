@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { track, trackError } from '@/lib/telemetry';
 
 interface AssetFormProps {
     open: boolean;
@@ -98,6 +99,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
             const { error } = await supabase.from('assets').insert(assetsToCreate as any);
             if (error) throw error;
 
+            track('inventory.asset_created', { count: quantity, variant_id: selectedVariantId }, 'AssetForm');
             toast.success(t('provider.inventory.assetForm.success', { count: quantity }));
             onSuccess();
             onOpenChange(false);
@@ -106,6 +108,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
             setQuantity(1);
 
         } catch (err: unknown) {
+            trackError('asset_create', err);
             const message = err instanceof Error ? err.message : 'Unknown error';
             toast.error(t('provider.inventory.assetForm.error'), { description: message });
         } finally {
