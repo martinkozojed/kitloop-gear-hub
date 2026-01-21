@@ -1,12 +1,14 @@
 
+import { useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, AlertCircle, CheckCircle2, AlertTriangle, ArrowDown } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { CronJobsSection, CronHealth, CronFilter } from "@/components/analytics/sections/CronJobsSection";
 
 interface RpcLog {
     id: string;
@@ -17,21 +19,11 @@ interface RpcLog {
     created_at: string;
 }
 
-interface CronRun {
-    id: string;
-    cron_name: string;
-    status: string;
-    started_at: string;
-    finished_at: string | null;
-    duration_ms: number | null;
-    error_message: string | null;
-    metadata: Record<string, unknown> | null;
-}
-
 export default function Observability() {
-    const [errorMsg, setErrorMsg] = useState<string | null>(null);
-    const [cronError, setCronError] = useState<string | null>(null);
+    const cronSectionRef = useRef<HTMLDivElement>(null);
+    const [cronFilter, setCronFilter] = useState<CronFilter>('all');
 
+    // 1. Existing RPC Logs Query
     const { data: logs, isLoading } = useQuery({
         queryKey: ["rpc_logs"],
         queryFn: async () => {
@@ -41,69 +33,32 @@ export default function Observability() {
                 .order("created_at", { ascending: false })
                 .limit(100);
 
-            if (error) {
-                if (error.code === "PGRST301" || error.code === "42501") {
-                    setErrorMsg("Nemáte oprávnění zobrazit tyto záznamy.");
-                } else {
-                    setErrorMsg("Nepodařilo se načíst logy.");
-                }
-                throw error;
-            }
-            setErrorMsg(null);
+            if (error) throw error;
             return data as unknown as RpcLog[];
         },
     });
 
-    const { data: cronRuns, isLoading: cronLoading } = useQuery({
-        queryKey: ["cron_runs"],
+    // 2. New Cron Health Query
+    const { data: cronHealth, isLoading: cronHealthLoading } = useQuery({
+        queryKey: ["cron_health"],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from("cron_runs")
-                .select("*")
-                .order("started_at", { ascending: false })
-                .limit(50);
-
-            if (error) {
-                if (error.code === "PGRST301" || error.code === "42501") {
-                    setCronError("Nemáte oprávnění zobrazit cron běhy.");
-                } else {
-                    setCronError("Cron běhy se nepodařilo načíst.");
-                }
-                throw error;
-            }
-            setCronError(null);
-            return data as unknown as CronRun[];
-        },
+            // RPC might fail if RLS not set up for current user context (requires admin)
+            // But we handle error gracefully in UI (empty list or error state)
+            const { data, error } = await supabase.rpc("get_cron_health");
+            if (error) throw error;
+            return data as unknown as CronHealth[];
+        }
     });
 
-    const latestCleanup = cronRuns?.find((run) => run.cron_name === "cleanup_reservation_holds_cron");
-    const latestCleanupMeta = (latestCleanup?.metadata as Record<string, unknown> | null) || null;
-    const latestCleanupDeleted = typeof latestCleanupMeta?.deleted_count === "number" ? latestCleanupMeta.deleted_count : undefined;
+    // Compute stats for alert banner
+    const cronStats = {
+        stale: cronHealth?.filter(j => j.stale).length ?? 0,
+        failed: cronHealth?.filter(j => j.last_status === 'failed').length ?? 0
+    };
 
-    const renderCronStatus = (status: string, testId?: string) => {
-        if (status === "success") {
-            return (
-                <Badge
-                    variant="outline"
-                    className="bg-green-50 text-green-700 border-green-200"
-                    data-testid={testId}
-                >
-                    <CheckCircle2 className="w-3 h-3 mr-1" /> Success
-                </Badge>
-            );
-        }
-        if (status === "failed") {
-            return (
-                <Badge variant="destructive" data-testid={testId}>
-                    <AlertCircle className="w-3 h-3 mr-1" /> Failed
-                </Badge>
-            );
-        }
-        return (
-            <Badge variant="secondary" data-testid={testId}>
-                <Loader2 className="w-3 h-3 mr-1 animate-spin" /> Running
-            </Badge>
-        );
+    const scrollToCronSection = (filter: CronFilter) => {
+        setCronFilter(filter);
+        cronSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     return (
@@ -112,7 +67,63 @@ export default function Observability() {
                 <h1 className="text-3xl font-bold">System Observability</h1>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-4">
+            {/* Alert Banner for Cron Issues */}
+            {!cronHealthLoading && (cronStats.failed > 0 || cronStats.stale > 0) && (
+                <div className="space-y-2" data-testid="cron-alert-banner">
+                    {cronStats.failed > 0 && (
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-red-50 border border-red-200">
+                            <div className="flex items-center gap-3">
+                                <AlertCircle className="h-5 w-5 text-red-600" />
+                                <span className="font-medium text-red-800">
+                                    {cronStats.failed} cron job{cronStats.failed > 1 ? 's' : ''} failing
+                                </span>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-red-300 text-red-700 hover:bg-red-100"
+                                onClick={() => scrollToCronSection('failing')}
+                            >
+                                View Failing <ArrowDown className="ml-1 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                    {cronStats.stale > 0 && (
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-amber-50 border border-amber-200">
+                            <div className="flex items-center gap-3">
+                                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                                <span className="font-medium text-amber-800">
+                                    {cronStats.stale} cron job{cronStats.stale > 1 ? 's' : ''} stale
+                                </span>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                                onClick={() => scrollToCronSection('stale')}
+                            >
+                                View Stale <ArrowDown className="ml-1 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Cron Jobs Section (P2 Epic B) */}
+            <div className="space-y-4" ref={cronSectionRef}>
+                <h2 className="text-xl font-semibold">Cron Jobs Health</h2>
+                <CronJobsSection
+                    data={cronHealth || []}
+                    isLoading={cronHealthLoading}
+                    initialFilter={cronFilter}
+                />
+            </div>
+
+            <div className="border-t pt-4"></div>
+
+            {/* Existing RPC Metrics */}
+            <h2 className="text-xl font-semibold">RPC Metrics & Logs</h2>
+            <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Requests (Last 100)</CardTitle>
@@ -145,28 +156,6 @@ export default function Observability() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card data-testid="cron-cleanup-summary">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Cleanup Holds Cron</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {latestCleanup ? (
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                    {renderCronStatus(latestCleanup.status)}
-                                    <span className="text-sm text-muted-foreground">
-                                        {format(new Date(latestCleanup.started_at), "yyyy-MM-dd HH:mm")}
-                                    </span>
-                                </div>
-                                <div className="text-xs text-muted-foreground" data-testid="cron-cleanup-meta">
-                                    Deleted: {latestCleanupDeleted ?? "—"}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="text-sm text-muted-foreground">No cron runs recorded.</div>
-                        )}
-                    </CardContent>
-                </Card>
             </div>
 
             <Card>
@@ -174,104 +163,46 @@ export default function Observability() {
                     <CardTitle>RPC Logs</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {errorMsg ? (
-                        <div className="text-sm text-red-600">{errorMsg}</div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Timestamp</TableHead>
+                                <TableHead>RPC Name</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Duration</TableHead>
+                                <TableHead>Error Details</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
                                 <TableRow>
-                                    <TableHead>Timestamp</TableHead>
-                                    <TableHead>RPC Name</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Duration</TableHead>
-                                    <TableHead>Error Details</TableHead>
+                                    <TableCell colSpan={5} className="text-center py-4">
+                                        <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-4">
-                                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                                        </TableCell>
-                                    </TableRow>
-                                ) : logs?.map((log) => (
-                                    <TableRow key={log.id}>
-                                        <TableCell>{format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")}</TableCell>
-                                        <TableCell className="font-mono">{log.rpc_name}</TableCell>
-                                        <TableCell>
-                                            {log.success ? (
-                                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                                    <CheckCircle2 className="w-3 h-3 mr-1" /> Success
-                                                </Badge>
-                                            ) : (
-                                                <Badge variant="destructive">
-                                                    <AlertCircle className="w-3 h-3 mr-1" /> Error
-                                                </Badge>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>{log.duration_ms} ms</TableCell>
-                                        <TableCell className="text-red-500 text-sm max-w-xs truncate" title={log.error_details || ""}>
-                                            {log.error_details}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Cron Runs</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {cronError ? (
-                        <div className="text-sm text-red-600">{cronError}</div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Started</TableHead>
-                                    <TableHead>Cron</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Duration</TableHead>
-                                    <TableHead>Details</TableHead>
+                            ) : logs?.map((log) => (
+                                <TableRow key={log.id}>
+                                    <TableCell>{format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")}</TableCell>
+                                    <TableCell className="font-mono">{log.rpc_name}</TableCell>
+                                    <TableCell>
+                                        {log.success ? (
+                                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                                <CheckCircle2 className="w-3 h-3 mr-1" /> Success
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="destructive">
+                                                <AlertCircle className="w-3 h-3 mr-1" /> Error
+                                            </Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>{log.duration_ms} ms</TableCell>
+                                    <TableCell className="text-red-500 text-sm max-w-xs truncate" title={log.error_details || ""}>
+                                        {log.error_details}
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {cronLoading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-4">
-                                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (cronRuns?.length ?? 0) === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-4">
-                                            No cron runs recorded.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : cronRuns?.map((run) => {
-                                    const meta = (run.metadata as Record<string, unknown> | null) || null;
-                                    const deletedCount = typeof meta?.deleted_count === "number" ? meta.deleted_count : null;
-                                    const detail = run.error_message || (deletedCount !== null ? `Deleted ${deletedCount}` : "—");
-
-                                    return (
-                                        <TableRow key={run.id} data-testid={`cron-run-row-${run.id}`}>
-                                            <TableCell>{format(new Date(run.started_at), "yyyy-MM-dd HH:mm:ss")}</TableCell>
-                                            <TableCell className="font-mono">{run.cron_name}</TableCell>
-                                            <TableCell>{renderCronStatus(run.status, `cron-status-${run.id}`)}</TableCell>
-                                            <TableCell>{run.duration_ms ? `${run.duration_ms} ms` : "—"}</TableCell>
-                                            <TableCell className="text-sm text-muted-foreground max-w-xs truncate" title={detail}>
-                                                {detail}
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    )}
+                            ))}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
