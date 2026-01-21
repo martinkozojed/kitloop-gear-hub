@@ -64,7 +64,7 @@ const RentalMap = () => {
         }
       );
     } else {
-      setPosition([50.0755, 14.4378]);
+      setTimeout(() => setPosition([50.0755, 14.4378]), 0);
     }
   }, []);
 

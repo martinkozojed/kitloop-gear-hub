@@ -39,7 +39,7 @@ export function CommandMenu() {
     const runCommand = React.useCallback((command: () => unknown) => {
         setOpen(false)
         command()
-    }, [])
+    }, [setOpen])
 
     // If user is not logged in, maybe show limited menu or nothing?
     // For now showing limited menu for guests is fine, but mostly this is for providers.

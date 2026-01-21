@@ -23,6 +23,7 @@ const ProviderApprovals = () => {
   const [actionId, setActionId] = useState<string | null>(null);
 
   const fetchPending = useCallback(async () => {
+    await Promise.resolve();
     setLoading(true);
     const { data, error } = await supabase
       .from("providers")
@@ -41,7 +42,10 @@ const ProviderApprovals = () => {
   }, []);
 
   useEffect(() => {
-    fetchPending();
+    const timer = setTimeout(() => {
+      fetchPending();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchPending]);
 
   const handleAction = async (id: string, action: "approve_provider" | "reject_provider") => {

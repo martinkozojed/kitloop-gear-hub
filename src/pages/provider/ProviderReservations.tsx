@@ -143,7 +143,7 @@ const ProviderReservations = () => {
     };
 
     fetchReservations();
-  }, [provider?.id]);
+  }, [provider?.id, t]);
 
   // Filter reservations
   useEffect(() => {

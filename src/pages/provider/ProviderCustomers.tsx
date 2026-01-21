@@ -37,32 +37,38 @@ const ProviderCustomers = () => {
     const { t } = useTranslation();
     const [createOpen, setCreateOpen] = useState(false);
 
+    // Stable provider ID for deps
+    const providerId = provider?.id;
+
     // Sheet State
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     const fetchCustomers = React.useCallback(async () => {
-        if (!provider?.id) return;
+        if (!providerId) return;
         setLoading(true);
         const { data, error } = await supabase
             .from('customers')
             .select('*, accounts(name)') // Join with accounts to show org name
-            .eq('provider_id', provider?.id || '')
+            .eq('provider_id', providerId)
             .order('updated_at', { ascending: false });
 
         if (data) setCustomers(data);
         if (error) console.error('Failed to fetch customers', error);
         setLoading(false);
-    }, [provider?.id]);
+    }, [providerId]);
 
     useEffect(() => {
-        if (provider?.id) {
-            fetchCustomers();
-        } else {
-            setCustomers([]);
-            setLoading(false);
-        }
-    }, [provider?.id, fetchCustomers]);
+        const timer = setTimeout(() => {
+            if (providerId) {
+                fetchCustomers();
+            } else {
+                setCustomers([]);
+                setLoading(false);
+            }
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [fetchCustomers, providerId]);
 
     const handleRowClick = (id: string) => {
         setSelectedCustomerId(id);

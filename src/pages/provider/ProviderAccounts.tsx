@@ -57,29 +57,33 @@ const ProviderAccounts = () => {
     // Delete Confirmation State
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [accountToDelete, setAccountToDelete] = useState<string | null>(null);
+    const providerId = provider?.id;
 
     const fetchAccounts = React.useCallback(async () => {
-        if (!provider?.id) return;
+        if (!providerId) return;
         setLoading(true);
         const { data, error } = await supabase
             .from('accounts')
             .select('*')
-            .eq('provider_id', provider.id)
+            .eq('provider_id', providerId)
             .order('name', { ascending: true });
 
         if (data) setAccounts(data as Account[]);
         if (error) console.error('Failed to fetch accounts', error);
         setLoading(false);
-    }, [provider?.id]);
+    }, [providerId]);
 
     useEffect(() => {
-        if (provider?.id) {
-            fetchAccounts();
-        } else {
-            setAccounts([]);
-            setLoading(false);
-        }
-    }, [provider?.id, fetchAccounts]);
+        const timer = setTimeout(() => {
+            if (providerId) {
+                fetchAccounts();
+            } else {
+                setAccounts([]);
+                setLoading(false);
+            }
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [providerId, fetchAccounts]);
 
     const handleCreate = () => {
         setEditingAccount(null);

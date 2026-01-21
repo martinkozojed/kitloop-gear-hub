@@ -46,12 +46,67 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         asset_id: string;
         assets: { status: string } | null;
     }
-    const buildItems = (rows: AssetAssignment[]) => {
+    const buildItems = useCallback((rows: AssetAssignment[]) => {
         return (rows || []).map((d) => ({
             id: d.asset_id,
             status: d.assets?.status as ItemState['status']
         })) as ItemState[];
-    };
+    }, []);
+
+    interface ReservationData {
+        id: string;
+        start_date: string;
+        end_date: string;
+        product_variant_id: string | null;
+        provider_id: string | null;
+    }
+
+    const autoAssignAsset = useCallback(async (res: ReservationData) => {
+        setAutoAssigning(true);
+        setAutoAssignError(null);
+        try {
+            if (!res.start_date || !res.end_date) {
+                setAutoAssignError('Invalid dates'); return;
+            }
+            const { data: candidates } = await supabase
+                .from('assets')
+                .select('id, status, asset_tag')
+                .eq('variant_id', res.product_variant_id!)
+                .eq('provider_id', res.provider_id!)
+                .not('status', 'in', '("maintenance","retired","lost")');
+
+            if (!candidates?.length) {
+                setAutoAssignError('No assets available'); return;
+            }
+
+            for (const asset of candidates) {
+                const { data: conflicts } = await supabase
+                    .from('reservation_assignments')
+                    .select('reservation:reservations!inner(start_date,end_date,status)')
+                    .eq('asset_id', asset.id)
+                    .in('reservations.status', ['hold', 'confirmed', 'active'])
+                    .lt('reservations.start_date', res.end_date)
+                    .gt('reservations.end_date', res.start_date);
+
+                if (!conflicts?.length) {
+                    const { error: insertError } = await supabase
+                        .from('reservation_assignments')
+                        .insert({ reservation_id: res.id, asset_id: asset.id });
+
+                    if (insertError) throw insertError;
+                    setItems(prev => [...prev, { id: asset.id, status: asset.status as ItemState['status'] }]);
+                    toast.success(`Auto-assigned: ${asset.asset_tag || asset.id}`);
+                    return;
+                }
+            }
+            setAutoAssignError('No assets available for this date');
+        } catch (err: unknown) {
+            console.error('Auto-assign failed', err);
+            setAutoAssignError('Auto-assign failed');
+        } finally {
+            setAutoAssigning(false);
+        }
+    }, []);
 
     const fetchReservation = useCallback(async () => {
         if (!open || !reservation.id) return;
@@ -99,61 +154,9 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         } finally {
             setFetchingItems(false);
         }
-    }, [open, reservation.id, t]);
+    }, [open, reservation.id, t, buildItems, autoAssignAsset]);
 
-    interface ReservationData {
-        id: string;
-        start_date: string;
-        end_date: string;
-        product_variant_id: string | null;
-        provider_id: string | null;
-    }
-    const autoAssignAsset = async (res: ReservationData) => {
-        setAutoAssigning(true);
-        setAutoAssignError(null);
-        try {
-            if (!res.start_date || !res.end_date) {
-                setAutoAssignError('Invalid dates'); return;
-            }
-            const { data: candidates } = await supabase
-                .from('assets')
-                .select('id, status, asset_tag')
-                .eq('variant_id', res.product_variant_id!)
-                .eq('provider_id', res.provider_id!)
-                .not('status', 'in', '("maintenance","retired","lost")');
 
-            if (!candidates?.length) {
-                setAutoAssignError('No assets available'); return;
-            }
-
-            for (const asset of candidates) {
-                const { data: conflicts } = await supabase
-                    .from('reservation_assignments')
-                    .select('reservation:reservations!inner(start_date,end_date,status)')
-                    .eq('asset_id', asset.id)
-                    .in('reservations.status', ['hold', 'confirmed', 'active'])
-                    .lt('reservations.start_date', res.end_date)
-                    .gt('reservations.end_date', res.start_date);
-
-                if (!conflicts?.length) {
-                    const { error: insertError } = await supabase
-                        .from('reservation_assignments')
-                        .insert({ reservation_id: res.id, asset_id: asset.id });
-
-                    if (insertError) throw insertError;
-                    setItems(prev => [...prev, { id: asset.id, status: asset.status as ItemState['status'] }]);
-                    toast.success(`Auto-assigned: ${asset.asset_tag || asset.id}`);
-                    return;
-                }
-            }
-            setAutoAssignError('No assets available for this date');
-        } catch (err: unknown) {
-            console.error('Auto-assign failed', err);
-            setAutoAssignError('Auto-assign failed');
-        } finally {
-            setAutoAssigning(false);
-        }
-    };
 
     useEffect(() => {
         fetchReservation();
@@ -174,7 +177,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
             if (!userId) throw new Error("Not authenticated");
 
             // Strict RPC Call
-            // @ts-ignore - RPC types might be stale
+
             const { data, error } = await supabase.rpc('issue_reservation', {
                 p_reservation_id: reservation.id,
                 p_provider_id: reservationRecord.provider_id,

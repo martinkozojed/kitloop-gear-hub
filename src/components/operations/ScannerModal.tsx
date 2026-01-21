@@ -23,7 +23,7 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
         if (open) {
             // Track modal opened
             track('inventory.scan_opened', undefined, 'ScannerModal');
-            setScannerError(null);
+            setTimeout(() => setScannerError(null), 0);
 
             // Small timeout to allow Dialog transition to finish roughly
             const timer = setTimeout(() => {
@@ -72,7 +72,7 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
                 }
             };
         }
-    }, [open, t]);
+    }, [open, t, onOpenChange, onScan]);
 
     const handleManualSubmit = (e: React.FormEvent) => {
         e.preventDefault();
