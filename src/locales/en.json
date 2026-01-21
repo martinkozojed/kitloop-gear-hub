@@ -463,87 +463,6 @@
         }
       }
     },
-    "inventory": {
-      "title": "Inventory",
-      "totalAll": "{{count}} items total",
-      "totalFiltered": "Showing {{filtered}} of {{total}} items",
-      "buttons": {
-        "import": "Import CSV",
-        "add": "Add Item",
-        "addFirst": "Add First Item"
-      },
-      "searchPlaceholder": "Search by name, SKU or description...",
-      "filters": {
-        "categories": "All categories",
-        "status": "All statuses",
-        "condition": "All conditions",
-        "clear": "Clear all filters",
-        "badge": "Search: \"{{value}}\"",
-        "categoryBadge": "Category: {{value}}",
-        "statusBadge": "Status: {{value}}",
-        "conditionBadge": "Condition: {{value}}"
-      },
-      "empty": {
-        "title": "No inventory yet",
-        "description": "Start by adding your first gear item to begin renting."
-      },
-      "table": {
-        "image": "Image",
-        "name": "Name",
-        "category": "Category",
-        "price": "Price/Day",
-        "quantity": "Quantity",
-        "status": "Status",
-        "actions": "Actions"
-      },
-      "mobileCard": {
-        "price": "Price:",
-        "pricePerDay": "{{value}} CZK/day",
-        "availability": "Availability:",
-        "availabilityValue": "{{available}}/{{total}} pcs",
-        "sku": "SKU:",
-        "edit": "Edit",
-        "delete": "Delete"
-      },
-      "statusLabels": {
-        "available": "available",
-        "reserved": "reserved",
-        "maintenance": "maintenance",
-        "retired": "retired"
-      },
-      "filterResults": {
-        "title": "No items match your filters",
-        "searchHint": "Try a different search query or adjust filters",
-        "hint": "Try adjusting the filters",
-        "button": "Clear all filters"
-      },
-      "toasts": {
-        "noProviderTitle": "Provider profile not found",
-        "noProviderDescription": "Try signing out and back in.",
-        "accessError": "Access denied",
-        "accessDescription": "You don't have permission to view this inventory.",
-        "networkError": "Network error",
-        "networkDescription": "Check your internet connection and try again.",
-        "fetchError": "Failed to load inventory",
-        "fetchDescription": "Please refresh the page.",
-        "unexpectedError": "Unexpected error",
-        "unexpectedDescription": "Try refreshing the page or contact support.",
-        "deleteAccessError": "Access denied",
-        "deleteForeignKey": "Cannot delete item",
-        "deleteForeignKeyDescription": "The item is linked to active reservations.",
-        "deleteError": "Failed to delete item",
-        "deleteSuccess": "Item deleted",
-        "deleteSuccessDescription": "Inventory has been updated."
-      },
-      "dialog": {
-        "title": "Delete item?",
-        "question": "Are you sure you want to delete \"{{name}}\"?",
-        "warning": "This action cannot be undone. The item will be permanently removed from your inventory.",
-        "highValue": "⚠️ Warning: This item has a high value ({{price}} CZK/day)",
-        "cancel": "Cancel",
-        "confirm": "Delete item"
-      }
-    },
     "reservations": {
       "title": "Reservations",
       "subtitle": "Manage reservations for your gear",
@@ -723,6 +642,66 @@
     "inventory": {
       "title": "Inventory",
       "subtitle": "Manage your physical assets, track status, and organize warehouse.",
+      "totalAll": "{{count}} items total",
+      "totalFiltered": "Showing {{filtered}} of {{total}} items",
+      "buttons": {
+        "import": "Import CSV",
+        "add": "Add Item",
+        "addFirst": "Add First Item"
+      },
+      "searchPlaceholder": "Search by name, SKU or description...",
+      "filters": {
+        "categories": "All categories",
+        "status": "All statuses",
+        "condition": "All conditions",
+        "clear": "Clear all filters",
+        "badge": "Search: \"{{value}}\"",
+        "categoryBadge": "Category: {{value}}",
+        "statusBadge": "Status: {{value}}",
+        "conditionBadge": "Condition: {{value}}"
+      },
+      "empty": {
+        "title": "No inventory yet",
+        "description": "Start by adding your first gear item to begin renting."
+      },
+      "table": {
+        "image": "Image",
+        "name": "Name",
+        "category": "Category",
+        "price": "Price/Day",
+        "quantity": "Quantity",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "mobileCard": {
+        "price": "Price:",
+        "pricePerDay": "{{value}} CZK/day",
+        "availability": "Availability:",
+        "availabilityValue": "{{available}}/{{total}} pcs",
+        "sku": "SKU:",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "statusLabels": {
+        "available": "available",
+        "reserved": "reserved",
+        "maintenance": "maintenance",
+        "retired": "retired"
+      },
+      "filterResults": {
+        "title": "No items match your filters",
+        "searchHint": "Try a different search query or adjust filters",
+        "hint": "Try adjusting the filters",
+        "button": "Clear all filters"
+      },
+      "dialog": {
+        "title": "Delete item?",
+        "question": "Are you sure you want to delete \"{{name}}\"?",
+        "warning": "This action cannot be undone. The item will be permanently removed from your inventory.",
+        "highValue": "⚠️ Warning: This item has a high value ({{price}} CZK/day)",
+        "cancel": "Cancel",
+        "confirm": "Delete item"
+      },
       "fallbacks": {
         "unknown": "Unknown",
         "uncategorized": "Uncategorized"
@@ -735,6 +714,21 @@
         "addAsset": "Add asset"
       },
       "toasts": {
+        "noProviderTitle": "Provider profile not found",
+        "noProviderDescription": "Try signing out and back in.",
+        "accessError": "Access denied",
+        "accessDescription": "You don't have permission to view this inventory.",
+        "networkError": "Network error",
+        "networkDescription": "Check your internet connection and try again.",
+        "fetchDescription": "Please refresh the page.",
+        "unexpectedError": "Unexpected error",
+        "unexpectedDescription": "Try refreshing the page or contact support.",
+        "deleteAccessError": "Access denied",
+        "deleteForeignKey": "Cannot delete item",
+        "deleteForeignKeyDescription": "The item is linked to active reservations.",
+        "deleteError": "Failed to delete item",
+        "deleteSuccess": "Item deleted",
+        "deleteSuccessDescription": "Inventory has been updated.",
         "fetchError": "Failed to load inventory",
         "archiveSuccess": "Archived {{count}} items (soft delete)",
         "archiveError": "Deletion failed",

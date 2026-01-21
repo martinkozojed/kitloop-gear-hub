@@ -496,100 +496,6 @@
         }
       }
     },
-    "inventory": {
-      "title": "Inventář",
-      "totalAll": "{{count}} položek celkem",
-      "totalFiltered": "Zobrazeno {{filtered}} z {{total}} položek",
-      "buttons": {
-        "import": "Import CSV",
-        "add": "Přidat položku",
-        "addFirst": "Přidat první položku"
-      },
-      "searchPlaceholder": "Hledat podle názvu, SKU nebo popisu...",
-      "filters": {
-        "categories": "Všechny kategorie",
-        "status": "Všechny stavy",
-        "condition": "Všechny stavy vybavení",
-        "clear": "Vymazat všechny filtry",
-        "badge": "Hledáno: \"{{value}}\"",
-        "categoryBadge": "Kategorie: {{value}}",
-        "statusBadge": "Stav: {{value}}",
-        "conditionBadge": "Stav vybavení: {{value}}"
-      },
-      "empty": {
-        "title": "Zatím žádný inventář",
-        "description": "Začni tím, že přidáš první položku a můžeš začít půjčovat."
-      },
-      "risk": {
-        "title": "Řízení rizik",
-        "safe": "Bezpečný",
-        "warning": "Pozor",
-        "blacklist": "ZABLOKOVÁN",
-        "trusted": "VIP",
-        "verified": "Ověřen",
-        "highRisk": "Vysoké riziko",
-        "markSafe": "Označit jako bezpečný",
-        "markWarning": "Přidat varování",
-        "markBlacklist": "ZABLOKOVAT ZÁKAZNÍKA",
-        "notesLabel": "Důvod rizika (interní)"
-      },
-      "table": {
-        "image": "Obrázek",
-        "name": "Název",
-        "category": "Kategorie",
-        "price": "Cena/den",
-        "quantity": "Množství",
-        "status": "Stav",
-        "actions": "Akce"
-      },
-      "mobileCard": {
-        "price": "Cena:",
-        "pricePerDay": "{{value}} Kč/den",
-        "availability": "Dostupnost:",
-        "availabilityValue": "{{available}}/{{total}} ks",
-        "sku": "SKU:",
-        "edit": "Upravit",
-        "delete": "Smazat"
-      },
-      "statusLabels": {
-        "available": "dostupné",
-        "reserved": "rezervováno",
-        "maintenance": "servis",
-        "retired": "vyřazeno"
-      },
-      "filterResults": {
-        "title": "Žádné položky nenalezeny",
-        "searchHint": "Zkus jiný vyhledávací výraz nebo uprav filtry",
-        "hint": "Zkus změnit filtry",
-        "button": "Vymazat všechny filtry"
-      },
-      "toasts": {
-        "noProviderTitle": "Chyba: Nenalezen profil poskytovatele",
-        "noProviderDescription": "Zkus se odhlásit a znovu přihlásit.",
-        "accessError": "Chyba přístupu",
-        "accessDescription": "Nemáš oprávnění zobrazit tento inventář.",
-        "networkError": "Chyba připojení",
-        "networkDescription": "Zkontroluj internetové připojení a zkus to znovu.",
-        "fetchError": "Nepodařilo se načíst inventář",
-        "fetchDescription": "Obnov stránku a zkus to znovu.",
-        "unexpectedError": "Neočekávaná chyba",
-        "unexpectedDescription": "Obnov stránku nebo kontaktuj podporu.",
-        "deleteAccessError": "Chyba přístupu",
-        "deleteForeignKey": "Nelze smazat položku",
-        "deleteForeignKeyDescription": "Položka je použita v aktivních rezervacích.",
-        "deleteError": "Nepodařilo se smazat položku",
-        "deleteSuccess": "Položka smazána",
-        "deleteSuccessDescription": "Inventář byl úspěšně aktualizován."
-      },
-      "dialog": {
-        "title": "Smazat položku?",
-        "question": "Opravdu chcete smazat \"{{name}}\"?",
-        "warning": "Tato akce je nevratná. Položka bude trvale odstraněna z inventáře.",
-        "highValue": "⚠️ Upozornění: Položka má vysokou hodnotu ({{price}} Kč/den)",
-        "cancel": "Zrušit",
-        "confirm": "Smazat položku"
-      }
-    },
     "reservations": {
       "title": "Rezervace",
       "subtitle": "Spravujte rezervace vašeho vybavení",
@@ -850,6 +756,79 @@
     "inventory": {
       "title": "Inventář",
       "subtitle": "Spravujte fyzické vybavení, sledujte status a organizujte sklad.",
+      "totalAll": "{{count}} položek celkem",
+      "totalFiltered": "Zobrazeno {{filtered}} z {{total}} položek",
+      "buttons": {
+        "import": "Import CSV",
+        "add": "Přidat položku",
+        "addFirst": "Přidat první položku"
+      },
+      "searchPlaceholder": "Hledat podle názvu, SKU nebo popisu...",
+      "filters": {
+        "categories": "Všechny kategorie",
+        "status": "Všechny stavy",
+        "condition": "Všechny stavy vybavení",
+        "clear": "Vymazat všechny filtry",
+        "badge": "Hledáno: \"{{value}}\"",
+        "categoryBadge": "Kategorie: {{value}}",
+        "statusBadge": "Stav: {{value}}",
+        "conditionBadge": "Stav vybavení: {{value}}"
+      },
+      "empty": {
+        "title": "Zatím žádný inventář",
+        "description": "Začni tím, že přidáš první položku a můžeš začít půjčovat."
+      },
+      "risk": {
+        "title": "Řízení rizik",
+        "safe": "Bezpečný",
+        "warning": "Pozor",
+        "blacklist": "ZABLOKOVÁN",
+        "trusted": "VIP",
+        "verified": "Ověřen",
+        "highRisk": "Vysoké riziko",
+        "markSafe": "Označit jako bezpečný",
+        "markWarning": "Přidat varování",
+        "markBlacklist": "ZABLOKOVAT ZÁKAZNÍKA",
+        "notesLabel": "Důvod rizika (interní)"
+      },
+      "table": {
+        "image": "Obrázek",
+        "name": "Název",
+        "category": "Kategorie",
+        "price": "Cena/den",
+        "quantity": "Množství",
+        "status": "Stav",
+        "actions": "Akce"
+      },
+      "mobileCard": {
+        "price": "Cena:",
+        "pricePerDay": "{{value}} Kč/den",
+        "availability": "Dostupnost:",
+        "availabilityValue": "{{available}}/{{total}} ks",
+        "sku": "SKU:",
+        "edit": "Upravit",
+        "delete": "Smazat"
+      },
+      "statusLabels": {
+        "available": "dostupné",
+        "reserved": "rezervováno",
+        "maintenance": "servis",
+        "retired": "vyřazeno"
+      },
+      "filterResults": {
+        "title": "Žádné položky nenalezeny",
+        "searchHint": "Zkus jiný vyhledávací výraz nebo uprav filtry",
+        "hint": "Zkus změnit filtry",
+        "button": "Vymazat všechny filtry"
+      },
+      "dialog": {
+        "title": "Smazat položku?",
+        "question": "Opravdu chcete smazat \"{{name}}\"?",
+        "warning": "Tato akce je nevratná. Položka bude trvale odstraněna z inventáře.",
+        "highValue": "⚠️ Upozornění: Položka má vysokou hodnotu ({{price}} Kč/den)",
+        "cancel": "Zrušit",
+        "confirm": "Smazat položku"
+      },
       "fallbacks": {
         "unknown": "Neznámé",
         "uncategorized": "Nezařazeno"
@@ -862,6 +841,21 @@
         "addAsset": "Přidat položku"
       },
       "toasts": {
+        "noProviderTitle": "Chyba: Nenalezen profil poskytovatele",
+        "noProviderDescription": "Zkus se odhlásit a znovu přihlásit.",
+        "accessError": "Chyba přístupu",
+        "accessDescription": "Nemáš oprávnění zobrazit tento inventář.",
+        "networkError": "Chyba připojení",
+        "networkDescription": "Zkontroluj internetové připojení a zkus to znovu.",
+        "fetchDescription": "Obnov stránku a zkus to znovu.",
+        "unexpectedError": "Neočekávaná chyba",
+        "unexpectedDescription": "Obnov stránku nebo kontaktuj podporu.",
+        "deleteAccessError": "Chyba přístupu",
+        "deleteForeignKey": "Nelze smazat položku",
+        "deleteForeignKeyDescription": "Položka je použita v aktivních rezervacích.",
+        "deleteError": "Nepodařilo se smazat položku",
+        "deleteSuccess": "Položka smazána",
+        "deleteSuccessDescription": "Inventář byl úspěšně aktualizován.",
         "fetchError": "Nepodařilo se načíst inventář",
         "archiveSuccess": "Archivováno {{count}} položek (soft delete)",
         "archiveError": "Mazání se nezdařilo",
