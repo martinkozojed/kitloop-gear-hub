@@ -13,11 +13,27 @@ interface ScanDialogProps {
     onOpenChange: (open: boolean) => void;
 }
 
+interface AssetResult {
+    asset: {
+        id: string;
+        asset_tag: string;
+        status: string;
+        variant?: {
+            name: string;
+            product?: { name: string };
+        };
+    };
+    activeAssignment?: {
+        reservation_id: string;
+        reservations?: { customer_name: string; status: string };
+    } | null;
+}
+
 export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
     const { t } = useTranslation();
     const [tag, setTag] = useState('');
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<AssetResult | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Auto-focus input when opened

@@ -20,7 +20,9 @@ test.describe('Reservation smoke', () => {
     const seed = await callHarness('seed', runId, { provider_email: email, provider_status: 'approved' });
 
     // Debug: Print browser logs to stdout
+    // eslint-disable-next-line no-console
     page.on('console', msg => console.log(`[Browser] ${msg.type()}: ${msg.text()}`));
+    // eslint-disable-next-line no-console
     page.on('pageerror', err => console.log(`[Browser] Error: ${err}`));
 
     const customerName = `E2E Customer ${Date.now()}`;

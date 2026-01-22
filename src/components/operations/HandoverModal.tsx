@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,9 +29,19 @@ type Assignment = {
     returned_at: string | null;
 };
 
+type ReservationState = {
+    status: string;
+    user_id: string;
+    product_variants: {
+        id: string;
+        name: string;
+        product: { name: string };
+    } | null;
+};
+
 export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: HandoverModalProps) {
     const [loading, setLoading] = useState(false);
-    const [reservation, setReservation] = useState<any>(null);
+    const [reservation, setReservation] = useState<ReservationState | null>(null);
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [scannerOpen, setScannerOpen] = useState(false);
     const [manualInput, setManualInput] = useState('');

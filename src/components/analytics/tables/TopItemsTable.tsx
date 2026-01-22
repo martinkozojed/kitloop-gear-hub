@@ -117,7 +117,7 @@ export const TopItemsTable = memo(function TopItemsTable({
                   const badge = getPerformanceBadge(item);
                   const days = item.lastRentedAt
                     ? Math.floor(
-                      (Date.now() - new Date(item.lastRentedAt).getTime()) /
+                      (now - new Date(item.lastRentedAt).getTime()) /
                       (1000 * 60 * 60 * 24)
                     )
                     : null;

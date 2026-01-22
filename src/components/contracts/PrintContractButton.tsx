@@ -14,10 +14,23 @@ interface PrintContractButtonProps {
     label?: string;
 }
 
+interface PrintItem {
+    name: string;
+    price_cents: number;
+    quantity: number;
+}
+
+interface PrintDataState {
+    reservation: Record<string, unknown>;
+    provider: Record<string, unknown>;
+    customer: Record<string, unknown>;
+    items: PrintItem[];
+}
+
 export function PrintContractButton({ reservationId, variant = "outline", size = "sm", className, label = "Tisk smlouvy" }: PrintContractButtonProps) {
     const componentRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
-    const [printData, setPrintData] = useState<any>(null);
+    const [printData, setPrintData] = useState<PrintDataState | null>(null);
 
     const fetchPrintData = async () => {
         setLoading(true);
@@ -41,7 +54,12 @@ export function PrintContractButton({ reservationId, variant = "outline", size =
             if (resError) throw resError;
 
             // 2. Format Data
-            const items = res.lines?.map((line: any) => ({
+            interface ReservationLine {
+                quantity: number;
+                price_per_item_cents: number;
+                product_variant: { name: string } | null;
+            }
+            const items = (res.lines as ReservationLine[] | undefined)?.map((line) => ({
                 name: line.product_variant?.name || 'Item',
                 price_cents: line.price_per_item_cents,
                 quantity: line.quantity
@@ -55,7 +73,7 @@ export function PrintContractButton({ reservationId, variant = "outline", size =
             });
 
             return true;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
             toast.error("Failed to load contract data");
             return false;
