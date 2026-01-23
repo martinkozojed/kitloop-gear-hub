@@ -540,7 +540,8 @@ const ProviderSettings = () => {
                     {t('provider.settings.actions.cancel')}
                   </Button>
                   <Button
-                    className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
+                    variant="primary"
+                    className="w-full md:w-auto"
                     onClick={handleSave}
                     disabled={isSubmitting}
                   >

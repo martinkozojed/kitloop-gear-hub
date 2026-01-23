@@ -14,6 +14,9 @@ import { ProductForm } from '@/components/operations/ProductForm';
 import { AssetForm } from '@/components/operations/AssetForm';
 import { ScannerModal } from '@/components/operations/ScannerModal';
 import { CsvImportModal } from '@/components/operations/CsvImportModal';
+import { QuickAddAsset } from '@/components/onboarding/QuickAddAsset';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { useSearchParams } from 'react-router-dom';
 
 import { generateDemoData } from '@/lib/demo-data';
 
@@ -23,6 +26,7 @@ const ProviderInventory = () => {
   const { provider } = useAuth();
   const { canDeleteAssets } = usePermissions();
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState<InventoryAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
@@ -31,7 +35,22 @@ const ProviderInventory = () => {
   const [showAssetForm, setShowAssetForm] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === 'true';
+
+  // Handle onboarding URL params
+  useEffect(() => {
+    if (searchParams.get('addAsset') === 'true') {
+      setShowQuickAddModal(true);
+      searchParams.delete('addAsset');
+      setSearchParams(searchParams, { replace: true });
+    }
+    if (searchParams.get('import') === 'true') {
+      setShowImportModal(true);
+      searchParams.delete('import');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const fetchInventory = useCallback(async () => {
     if (!provider?.id) return;
@@ -202,7 +221,7 @@ const ProviderInventory = () => {
           description={t('provider.inventory.subtitle')}
           actions={
             <>
-              <Button onClick={() => setShowScanner(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+              <Button variant="secondary" onClick={() => setShowScanner(true)}>
                 <QrCode className="w-4 h-4 mr-2" />
                 {t('provider.inventory.actions.scan')}
               </Button>
@@ -220,7 +239,7 @@ const ProviderInventory = () => {
                 <Package className="w-4 h-4 mr-2" />
                 {t('provider.inventory.actions.product')}
               </Button>
-              <Button onClick={() => setShowAssetForm(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+              <Button variant="primary" onClick={() => setShowAssetForm(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 {t('provider.inventory.actions.addAsset')}
               </Button>
@@ -280,6 +299,23 @@ const ProviderInventory = () => {
           onOpenChange={setShowImportModal}
           onSuccess={fetchInventory}
         />
+
+        {/* Quick Add Modal for Onboarding */}
+        <Dialog open={showQuickAddModal} onOpenChange={setShowQuickAddModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogTitle className="sr-only">Rychlé přidání položky</DialogTitle>
+            {provider?.id && (
+              <QuickAddAsset
+                providerId={provider.id}
+                onSuccess={() => {
+                  setShowQuickAddModal(false);
+                  fetchInventory();
+                }}
+                onCancel={() => setShowQuickAddModal(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </ProviderLayout>
   );

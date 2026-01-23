@@ -6,20 +6,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
 } from "@/components/ui/accordion";
 
 const Index = () => {
     const { t } = useTranslation();
     const [announcementOpen, setAnnouncementOpen] = useState(false);
-    
+
     return (
         <div className="bg-background min-h-screen relative selection:bg-primary/20">
             {/* Background Grid Pattern - Pulse Animation */}
-            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
+            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,hsl(var(--border)/0.4)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.4)_1px,transparent_1px)] bg-[size:6rem_4rem]">
             </div>
 
             {/* Animated Green Glow */}
@@ -67,11 +67,11 @@ const Index = () => {
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="flex flex-col sm:flex-row gap-4 min-w-[200px] pt-2"
                         >
-                            <Button variant="default" size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:scale-105" asChild>
-                                <Link to="/about">{t('hero.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                            <Button variant="cta" size="lg" className="h-14 px-8 text-lg rounded-full" asChild>
+                                <Link to="/demo/dashboard">{t('hero.secondaryCta')} <ArrowRight className="ml-2 h-5 w-5" /></Link>
                             </Button>
-                            <Button size="lg" variant="ghost" className="h-14 px-8 text-lg rounded-full text-foreground hover:bg-muted" asChild>
-                                <a href="#demo">{t('hero.secondaryCta')}</a>
+                            <Button size="lg" variant="secondary" className="h-14 px-8 text-lg rounded-full" asChild>
+                                <Link to="/about">{t('hero.primaryCta')}</Link>
                             </Button>
                         </motion.div>
 
@@ -90,29 +90,29 @@ const Index = () => {
 
             {/* Product Section - How it works with Screenshots */}
             <section id="product" className="py-20 md:py-32 bg-white relative scroll-mt-20">
-                
+
                 <div className="container px-4 md:px-6 mx-auto relative">
 
                     {/* Workflow with Screenshots - Enhanced Visual Design */}
                     <div className="max-w-7xl mx-auto mb-28 relative">
                         {/* Animated Background Decoration */}
-                        <motion.div 
-                            animate={{ 
+                        <motion.div
+                            animate={{
                                 scale: [1, 1.1, 1],
                                 opacity: [0.05, 0.08, 0.05]
                             }}
                             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                             className="absolute top-1/4 right-0 w-96 h-96 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full blur-3xl pointer-events-none"
                         />
-                        <motion.div 
-                            animate={{ 
+                        <motion.div
+                            animate={{
                                 scale: [1, 1.15, 1],
                                 opacity: [0.05, 0.1, 0.05]
                             }}
                             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                             className="absolute bottom-1/4 left-0 w-96 h-96 bg-gradient-to-tr from-emerald-500 to-green-500 rounded-full blur-3xl pointer-events-none"
                         />
-                        
+
                         {/* Connecting Flow Line (Desktop) */}
                         <div className="hidden md:block absolute left-16 top-48 bottom-48 w-0.5 bg-gradient-to-b from-transparent via-emerald-500/30 to-transparent">
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/50 to-transparent blur-sm"></div>
@@ -123,9 +123,9 @@ const Index = () => {
                                 className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/50"
                             />
                         </div>
-                        
+
                         <div className="relative">
-                            <motion.h2 
+                            <motion.h2
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -144,259 +144,259 @@ const Index = () => {
                             </motion.p>
 
                             <div className="space-y-32 md:space-y-40">
-                            {/* Step 1 - Reservation (Image Left) */}
-                            <motion.div
-                                initial={{ opacity: 0, x: -30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.7, ease: "easeOut" }}
-                                className="relative grid md:grid-cols-2 gap-8 md:gap-16 items-center"
-                            >
-                                {/* Screenshot with Floating Badge */}
-                                <div className="relative group">
-                                    {/* Floating Number Badge */}
-                                    <motion.div
-                                        initial={{ scale: 0, rotate: -180 }}
-                                        whileInView={{ scale: 1, rotate: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                                        className="absolute -top-6 -left-6 z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-2xl shadow-2xl shadow-emerald-500/40 border-4 border-white"
-                                    >
-                                        1
-                                    </motion.div>
-                                    
-                                    {/* Screenshot Container with 3D Effect */}
-                                    <div className="relative rounded-2xl overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] group-hover:-rotate-1">
-                                        {/* Inner Glow Border */}
-                                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-transparent to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-                                        
-                                        <div className="relative border-2 border-gray-200/60 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15),0_8px_25px_rgba(16,185,129,0.1)] rounded-2xl overflow-hidden">
-                                            <img 
-                                                src="/hero-dashboard.png" 
-                                                alt="Reservation Dashboard"
-                                                className="w-full h-auto"
-                                            />
-                                            {/* Gradient Overlay */}
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent pointer-events-none"></div>
-                                            
-                                            {/* Feature Highlights - Floating Pills */}
-                                            <motion.div
-                                                initial={{ opacity: 0, x: -20 }}
-                                                whileInView={{ opacity: 1, x: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: 0.6 }}
-                                                className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
-                                            >
-                                                <span className="relative flex h-2 w-2">
-                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                                </span>
-                                                Real-time status
-                                            </motion.div>
-                                            
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 20 }}
-                                                whileInView={{ opacity: 1, y: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: 0.7 }}
-                                                className="absolute bottom-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
-                                            >
-                                                <Calendar className="h-3 w-3" />
-                                                Date picker
-                                            </motion.div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Decorative Element */}
-                                    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
-                                </div>
-                                
-                                {/* Content with Icon */}
-                                <div className="space-y-6 md:pl-8">
-                                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-200/50 rounded-full text-sm font-semibold text-emerald-700 mb-4">
-                                        <Calendar className="h-4 w-4" />
-                                        Step 1
-                                    </div>
-                                    <h3 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                                        {t('product.workflow.step1Title')}
-                                    </h3>
-                                    <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                                        {t('product.workflow.step1Desc')}
-                                    </p>
-                                </div>
-                                
-                                {/* Connecting Arrow (Hidden on Mobile) */}
+                                {/* Step 1 - Reservation (Image Left) */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
+                                    initial={{ opacity: 0, x: -30 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ delay: 0.5 }}
-                                    className="hidden md:block absolute -bottom-20 left-1/2 -translate-x-1/2"
+                                    transition={{ duration: 0.7, ease: "easeOut" }}
+                                    className="relative grid md:grid-cols-2 gap-8 md:gap-16 items-center"
                                 >
-                                    <ArrowRight className="h-8 w-8 text-emerald-500/40 rotate-90" />
-                                </motion.div>
-                            </motion.div>
+                                    {/* Screenshot with Floating Badge */}
+                                    <div className="relative group">
+                                        {/* Floating Number Badge */}
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            whileInView={{ scale: 1, rotate: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                                            className="absolute -top-6 -left-6 z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-2xl shadow-2xl shadow-emerald-500/40 border-4 border-white"
+                                        >
+                                            1
+                                        </motion.div>
 
-                            {/* Step 2 - Check-in/out (Image Right) */}
-                            <motion.div
-                                initial={{ opacity: 0, x: 30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.7, ease: "easeOut" }}
-                                className="relative grid md:grid-cols-2 gap-8 md:gap-16 items-center"
-                            >
-                                {/* Content (on left on desktop) */}
-                                <div className="space-y-6 md:order-1 md:pr-8 md:text-right">
-                                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-200/50 rounded-full text-sm font-semibold text-emerald-700 mb-4">
-                                        <ClipboardCheck className="h-4 w-4" />
-                                        Step 2
-                                    </div>
-                                    <h3 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                                        {t('product.workflow.step2Title')}
-                                    </h3>
-                                    <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                                        {t('product.workflow.step2Desc')}
-                                    </p>
-                                </div>
-                                
-                                {/* Screenshot (on right on desktop) */}
-                                <div className="relative group md:order-2">
-                                    {/* Floating Number Badge */}
-                                    <motion.div
-                                        initial={{ scale: 0, rotate: 180 }}
-                                        whileInView={{ scale: 1, rotate: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                                        className="absolute -top-6 -right-6 z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-2xl shadow-2xl shadow-emerald-500/40 border-4 border-white"
-                                    >
-                                        2
-                                    </motion.div>
-                                    
-                                    {/* Screenshot Container */}
-                                    <div className="relative rounded-2xl overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
-                                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-bl from-emerald-500/20 via-transparent to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-                                        
-                                        <div className="relative border-2 border-gray-200/60 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15),0_8px_25px_rgba(16,185,129,0.1)] rounded-2xl overflow-hidden">
-                                            <img 
-                                                src="/hero-dashboard.png" 
-                                                alt="Check-in/out Interface"
-                                                className="w-full h-auto"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-tl from-emerald-500/5 via-transparent to-transparent pointer-events-none"></div>
-                                            
-                                            {/* Feature Highlights */}
-                                            <motion.div
-                                                initial={{ opacity: 0, x: 20 }}
-                                                whileInView={{ opacity: 1, x: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: 0.6 }}
-                                                className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
-                                            >
-                                                <ClipboardCheck className="h-3 w-3" />
-                                                Photo capture
-                                            </motion.div>
-                                            
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 20 }}
-                                                whileInView={{ opacity: 1, y: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: 0.7 }}
-                                                className="absolute bottom-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
-                                            >
-                                                <Shield className="h-3 w-3" />
-                                                Digital signature
-                                            </motion.div>
+                                        {/* Screenshot Container with 3D Effect */}
+                                        <div className="relative rounded-2xl overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] group-hover:-rotate-1">
+                                            {/* Inner Glow Border */}
+                                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-transparent to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+
+                                            <div className="relative border-2 border-border/60 bg-white shadow-hero rounded-2xl overflow-hidden">
+                                                <img
+                                                    src="/hero-dashboard.png"
+                                                    alt="Reservation Dashboard"
+                                                    className="w-full h-auto"
+                                                />
+                                                {/* Gradient Overlay */}
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent pointer-events-none"></div>
+
+                                                {/* Feature Highlights - Floating Pills */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    whileInView={{ opacity: 1, x: 0 }}
+                                                    viewport={{ once: true }}
+                                                    transition={{ delay: 0.6 }}
+                                                    className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
+                                                >
+                                                    <span className="relative flex h-2 w-2">
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                                    </span>
+                                                    Real-time status
+                                                </motion.div>
+
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    viewport={{ once: true }}
+                                                    transition={{ delay: 0.7 }}
+                                                    className="absolute bottom-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
+                                                >
+                                                    <Calendar className="h-3 w-3" />
+                                                    Date picker
+                                                </motion.div>
+                                            </div>
                                         </div>
+
+                                        {/* Decorative Element */}
+                                        <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
                                     </div>
-                                    
-                                    <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-tl from-emerald-400/20 to-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
-                                </div>
-                                
-                                {/* Connecting Arrow */}
+
+                                    {/* Content with Icon */}
+                                    <div className="space-y-6 md:pl-8">
+                                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-200/50 rounded-full text-sm font-semibold text-emerald-700 mb-4">
+                                            <Calendar className="h-4 w-4" />
+                                            Step 1
+                                        </div>
+                                        <h3 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+                                            {t('product.workflow.step1Title')}
+                                        </h3>
+                                        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                                            {t('product.workflow.step1Desc')}
+                                        </p>
+                                    </div>
+
+                                    {/* Connecting Arrow (Hidden on Mobile) */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: 0.5 }}
+                                        className="hidden md:block absolute -bottom-20 left-1/2 -translate-x-1/2"
+                                    >
+                                        <ArrowRight className="h-8 w-8 text-emerald-500/40 rotate-90" />
+                                    </motion.div>
+                                </motion.div>
+
+                                {/* Step 2 - Check-in/out (Image Right) */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
+                                    initial={{ opacity: 0, x: 30 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ delay: 0.5 }}
-                                    className="hidden md:block absolute -bottom-20 left-1/2 -translate-x-1/2"
+                                    transition={{ duration: 0.7, ease: "easeOut" }}
+                                    className="relative grid md:grid-cols-2 gap-8 md:gap-16 items-center"
                                 >
-                                    <ArrowRight className="h-8 w-8 text-emerald-500/40 rotate-90" />
-                                </motion.div>
-                            </motion.div>
-
-                            {/* Step 3 - Return (Image Left) */}
-                            <motion.div
-                                initial={{ opacity: 0, x: -30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.7, ease: "easeOut" }}
-                                className="relative grid md:grid-cols-2 gap-8 md:gap-16 items-center"
-                            >
-                                {/* Screenshot */}
-                                <div className="relative group">
-                                    <motion.div
-                                        initial={{ scale: 0, rotate: -180 }}
-                                        whileInView={{ scale: 1, rotate: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                                        className="absolute -top-6 -left-6 z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-2xl shadow-2xl shadow-emerald-500/40 border-4 border-white"
-                                    >
-                                        3
-                                    </motion.div>
-                                    
-                                    <div className="relative rounded-2xl overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] group-hover:-rotate-1">
-                                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-transparent to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-                                        
-                                        <div className="relative border-2 border-gray-200/60 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15),0_8px_25px_rgba(16,185,129,0.1)] rounded-2xl overflow-hidden">
-                                            <img 
-                                                src="/hero-dashboard.png" 
-                                                alt="Return & Damage Tracking"
-                                                className="w-full h-auto"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent pointer-events-none"></div>
-                                            
-                                            {/* Feature Highlights */}
-                                            <motion.div
-                                                initial={{ opacity: 0, x: -20 }}
-                                                whileInView={{ opacity: 1, x: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: 0.6 }}
-                                                className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
-                                            >
-                                                <AlertCircle className="h-3 w-3" />
-                                                Damage log
-                                            </motion.div>
-                                            
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 20 }}
-                                                whileInView={{ opacity: 1, y: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: 0.7 }}
-                                                className="absolute bottom-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
-                                            >
-                                                <Package className="h-3 w-3" />
-                                                Inventory sync
-                                            </motion.div>
+                                    {/* Content (on left on desktop) */}
+                                    <div className="space-y-6 md:order-1 md:pr-8 md:text-right">
+                                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-200/50 rounded-full text-sm font-semibold text-emerald-700 mb-4">
+                                            <ClipboardCheck className="h-4 w-4" />
+                                            Step 2
                                         </div>
+                                        <h3 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+                                            {t('product.workflow.step2Title')}
+                                        </h3>
+                                        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                                            {t('product.workflow.step2Desc')}
+                                        </p>
                                     </div>
-                                    
-                                    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
-                                </div>
-                                
-                                {/* Content */}
-                                <div className="space-y-6 md:pl-8">
-                                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-200/50 rounded-full text-sm font-semibold text-emerald-700 mb-4">
-                                        <Package className="h-4 w-4" />
-                                        Step 3
+
+                                    {/* Screenshot (on right on desktop) */}
+                                    <div className="relative group md:order-2">
+                                        {/* Floating Number Badge */}
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: 180 }}
+                                            whileInView={{ scale: 1, rotate: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                                            className="absolute -top-6 -right-6 z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-2xl shadow-2xl shadow-emerald-500/40 border-4 border-white"
+                                        >
+                                            2
+                                        </motion.div>
+
+                                        {/* Screenshot Container */}
+                                        <div className="relative rounded-2xl overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
+                                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-bl from-emerald-500/20 via-transparent to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+
+                                            <div className="relative border-2 border-gray-200/60 bg-white shadow-hero rounded-2xl overflow-hidden">
+                                                <img
+                                                    src="/hero-dashboard.png"
+                                                    alt="Check-in/out Interface"
+                                                    className="w-full h-auto"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-tl from-emerald-500/5 via-transparent to-transparent pointer-events-none"></div>
+
+                                                {/* Feature Highlights */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, x: 20 }}
+                                                    whileInView={{ opacity: 1, x: 0 }}
+                                                    viewport={{ once: true }}
+                                                    transition={{ delay: 0.6 }}
+                                                    className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
+                                                >
+                                                    <ClipboardCheck className="h-3 w-3" />
+                                                    Photo capture
+                                                </motion.div>
+
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    viewport={{ once: true }}
+                                                    transition={{ delay: 0.7 }}
+                                                    className="absolute bottom-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
+                                                >
+                                                    <Shield className="h-3 w-3" />
+                                                    Digital signature
+                                                </motion.div>
+                                            </div>
+                                        </div>
+
+                                        <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-tl from-emerald-400/20 to-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
                                     </div>
-                                    <h3 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                                        {t('product.workflow.step3Title')}
-                                    </h3>
-                                    <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                                        {t('product.workflow.step3Desc')}
-                                    </p>
-                                </div>
-                            </motion.div>
+
+                                    {/* Connecting Arrow */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: 0.5 }}
+                                        className="hidden md:block absolute -bottom-20 left-1/2 -translate-x-1/2"
+                                    >
+                                        <ArrowRight className="h-8 w-8 text-emerald-500/40 rotate-90" />
+                                    </motion.div>
+                                </motion.div>
+
+                                {/* Step 3 - Return (Image Left) */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: -30 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.7, ease: "easeOut" }}
+                                    className="relative grid md:grid-cols-2 gap-8 md:gap-16 items-center"
+                                >
+                                    {/* Screenshot */}
+                                    <div className="relative group">
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            whileInView={{ scale: 1, rotate: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                                            className="absolute -top-6 -left-6 z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-2xl shadow-2xl shadow-emerald-500/40 border-4 border-white"
+                                        >
+                                            3
+                                        </motion.div>
+
+                                        <div className="relative rounded-2xl overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] group-hover:-rotate-1">
+                                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-transparent to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+
+                                            <div className="relative border-2 border-gray-200/60 bg-white shadow-hero rounded-2xl overflow-hidden">
+                                                <img
+                                                    src="/hero-dashboard.png"
+                                                    alt="Return & Damage Tracking"
+                                                    className="w-full h-auto"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent pointer-events-none"></div>
+
+                                                {/* Feature Highlights */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    whileInView={{ opacity: 1, x: 0 }}
+                                                    viewport={{ once: true }}
+                                                    transition={{ delay: 0.6 }}
+                                                    className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
+                                                >
+                                                    <AlertCircle className="h-3 w-3" />
+                                                    Damage log
+                                                </motion.div>
+
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    viewport={{ once: true }}
+                                                    transition={{ delay: 0.7 }}
+                                                    className="absolute bottom-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700"
+                                                >
+                                                    <Package className="h-3 w-3" />
+                                                    Inventory sync
+                                                </motion.div>
+                                            </div>
+                                        </div>
+
+                                        <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="space-y-6 md:pl-8">
+                                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-200/50 rounded-full text-sm font-semibold text-emerald-700 mb-4">
+                                            <Package className="h-4 w-4" />
+                                            Step 3
+                                        </div>
+                                        <h3 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+                                            {t('product.workflow.step3Title')}
+                                        </h3>
+                                        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                                            {t('product.workflow.step3Desc')}
+                                        </p>
+                                    </div>
+                                </motion.div>
                             </div>
                         </div>
                     </div>
@@ -404,16 +404,16 @@ const Index = () => {
                     {/* Capability Cards - Enhanced Bento Grid */}
                     <div className="max-w-6xl mx-auto mb-28 relative">
                         {/* Animated Background Accent */}
-                        <motion.div 
-                            animate={{ 
+                        <motion.div
+                            animate={{
                                 rotate: [0, 360],
                                 scale: [1, 1.1, 1]
                             }}
                             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-emerald-500/5 via-transparent to-green-500/5 rounded-full blur-3xl pointer-events-none"
                         />
-                        
-                        <motion.h2 
+
+                        <motion.h2
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -430,9 +430,9 @@ const Index = () => {
                                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                                 viewport={{ once: true, margin: "-50px" }}
                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.15)] transition-all duration-300 hover:-translate-y-2"
+                                className="group relative p-8 bg-white rounded-2xl border border-border/60 hover:border-primary/30 shadow-sm hover:shadow-hero-hover transition-all duration-300 hover:-translate-y-2"
                             >
-                                
+
                                 <div className="relative flex flex-col gap-4">
                                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-110 transition-all">
                                         <Calendar className="h-7 w-7 text-white" />
@@ -450,7 +450,7 @@ const Index = () => {
                                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                                 viewport={{ once: true, margin: "-50px" }}
                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.15)] transition-all duration-300 hover:-translate-y-2"
+                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-card hover:shadow-hero-hover transition-all duration-300 hover:-translate-y-2"
                             >
                                 <div className="relative flex flex-col gap-4">
                                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-110 transition-all">
@@ -469,7 +469,7 @@ const Index = () => {
                                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                                 viewport={{ once: true, margin: "-50px" }}
                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.15)] transition-all duration-300 hover:-translate-y-2"
+                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-card hover:shadow-hero-hover transition-all duration-300 hover:-translate-y-2"
                             >
                                 <div className="relative flex flex-col gap-4">
                                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-110 transition-all">
@@ -488,7 +488,7 @@ const Index = () => {
                                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                                 viewport={{ once: true, margin: "-50px" }}
                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
-                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.15)] transition-all duration-300 hover:-translate-y-2"
+                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-card hover:shadow-hero-hover transition-all duration-300 hover:-translate-y-2"
                             >
                                 <div className="relative flex flex-col gap-4">
                                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-110 transition-all">
@@ -507,7 +507,7 @@ const Index = () => {
                                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                                 viewport={{ once: true, margin: "-50px" }}
                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.15)] transition-all duration-300 hover:-translate-y-2"
+                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/60 hover:border-emerald-300/50 shadow-card hover:shadow-hero-hover transition-all duration-300 hover:-translate-y-2"
                             >
                                 <div className="relative flex flex-col gap-4">
                                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-110 transition-all">
@@ -526,7 +526,7 @@ const Index = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.3 }}
-                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/80 hover:border-emerald-300/80 shadow-[0_2px_8px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(16,185,129,0.15),0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 overflow-hidden"
+                                className="group relative p-8 bg-white rounded-2xl border border-gray-200/80 hover:border-emerald-300/80 shadow-card hover:shadow-hero-hover transition-all duration-300 hover:-translate-y-2 overflow-hidden"
                             >
                                 {/* Subtle hover effects */}
                                 <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-transparent group-hover:ring-emerald-500/10 transition-all duration-500 pointer-events-none"></div>
@@ -557,36 +557,37 @@ const Index = () => {
                         <div className="relative bg-white rounded-2xl p-12 md:p-16 border border-gray-200 shadow-lg transition-shadow hover:shadow-xl">
                             {/* Subtle top accent */}
                             <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
-                            
+
                             <div className="text-center space-y-6">
                                 {/* Heading */}
                                 <h3 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
                                     {t('product.cta.heading')}
                                 </h3>
-                                
+
                                 {/* Subtext */}
                                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                                     {t('product.cta.microcopy')}
                                 </p>
-                                
+
                                 {/* CTA Buttons */}
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                                    <Button 
-                                        size="lg" 
-                                        className="h-14 px-10 text-lg font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all" 
+                                    <Button
+                                        variant="cta"
+                                        size="lg"
+                                        className="h-14 px-10 text-lg font-semibold"
                                         asChild
                                     >
                                         <Link to="/about">
                                             {t('product.cta.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" />
                                         </Link>
                                     </Button>
-                                    <Button 
-                                        variant="outline" 
-                                        size="lg" 
-                                        className="h-14 px-10 text-lg font-semibold border-2 border-gray-300 text-gray-700 hover:border-emerald-500 hover:text-emerald-700 transition-all" 
+                                    <Button
+                                        variant="outline"
+                                        size="lg"
+                                        className="h-14 px-10 text-lg font-semibold border-2 border-gray-300 text-gray-700 hover:border-emerald-500 hover:text-emerald-700 transition-all"
                                         asChild
                                     >
-                                        <a href="#demo">{t('product.cta.secondaryCta')}</a>
+                                        <Link to="/demo/dashboard">{t('product.cta.secondaryCta')}</Link>
                                     </Button>
                                 </div>
                             </div>
@@ -774,7 +775,7 @@ const Index = () => {
                             </div>
                         </div>
                     </DialogHeader>
-                    
+
                     <div className="space-y-6 pt-4">
                         {/* Key Highlights */}
                         <div className="space-y-3">

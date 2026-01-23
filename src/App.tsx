@@ -87,7 +87,7 @@ const AppRoutes = () => {
         className={cn(
           "min-h-screen",
           !isDemoRoute && "pt-16",
-          isProviderRoute && "bg-[#F6FAF4]"
+          isProviderRoute && "bg-muted/50"
         )}
       >
         <Suspense fallback={<PageLoader />}>
@@ -95,7 +95,7 @@ const AppRoutes = () => {
             <Route path="/" element={<Index />} />
             <Route
               path="/demo/dashboard"
-              element={demoEnabled ? <DemoDashboard /> : <Navigate to="/" replace />}
+              element={<DemoDashboard />}
             />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/browse" element={<BrowseGear />} />

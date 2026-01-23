@@ -47,6 +47,15 @@ export type TelemetryEventName =
     // Returns domain (PLANNED - UI not implemented)
     | 'returns.flow_started'
     | 'returns.completed'
+    // Onboarding domain (INSTRUMENTED)
+    | 'onboarding.started'
+    | 'onboarding.workspace_completed'
+    | 'onboarding.location_completed'
+    | 'onboarding.inventory_completed'
+    | 'onboarding.first_reservation'
+    | 'onboarding.checklist_dismissed'
+    | 'onboarding.completed'
+    | 'onboarding.demo_deleted'
     // Errors domain (INSTRUMENTED)
     | 'error.shown';
 

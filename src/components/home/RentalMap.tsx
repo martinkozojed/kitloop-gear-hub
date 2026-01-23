@@ -35,14 +35,14 @@ const RentalMap = () => {
         border: none;
       }
       .leaflet-control-zoom-in, .leaflet-control-zoom-out {
-        background: #16a34a;
+        background: hsl(142 76% 36%);
         color: white;
         border: none;
         width: 1.75rem;
         height: 1.75rem;
         line-height: 1.75rem;
         border-radius: 0.375rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        box-shadow: var(--shadow-sm);
         font-size: 1rem;
       }
     `;

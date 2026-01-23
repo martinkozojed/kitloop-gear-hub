@@ -24,21 +24,41 @@
     --input: 220 13% 91%;
     --ring: 142 76% 36%;
 
+    /* --- RADIUS SCALE (Design Tokens) --- */
     --radius: 0.75rem;
-    /* 12px for modern feel */
+    /* Legacy shadcn default */
+    --radius-sm: 6px;
+    /* Badges, chips, small inputs */
+    --radius-md: 10px;
+    /* Buttons, inputs, table cells */
+    --radius-lg: 16px;
+    /* Cards, modals, containers */
+    --radius-xl: 24px;
+    /* MARKETING ONLY: hero, feature cards */
+
+    /* --- SHADOW SCALE (Design Tokens) --- */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+    --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-hero: 0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 25px hsl(142 76% 36% / 0.1);
+    --shadow-hero-hover: 0 12px 32px hsl(142 76% 36% / 0.15);
+
+    /* MARKETING GRADIENTS */
+    --hero-glow: radial-gradient(circle at top, hsl(199 89% 60% / 0.18), transparent 60%), radial-gradient(circle at bottom, hsl(142 76% 36% / 0.2), transparent 55%);
 
     /* Brand Colors - Outdoor Emerald (UNIFIED) */
     --primary: 142 76% 36%;
     /* Emerald 600 - Main brand color */
     --primary-foreground: 0 0% 100%;
     /* Pure White */
-    
+
     /* Emerald Color Scale (Consistent across app) */
     --emerald-50: 142 76% 97%;
     --emerald-100: 142 76% 94%;
     --emerald-200: 142 69% 86%;
     --emerald-500: 142 76% 48%;
-    --emerald-600: 142 76% 36%;  /* Same as --primary */
+    --emerald-600: 142 76% 36%;
+    /* Same as --primary */
     --emerald-700: 142 76% 29%;
     --emerald-800: 142 76% 24%;
     --emerald-900: 142 76% 19%;
@@ -49,17 +69,26 @@
     /* --- STATUS COLORS (Design Tokens) --- */
     /* Consistent status colors for operational clarity */
     /* HSL format to match codebase (H S% L%) */
-    --status-pending: 24 95% 53%;       /* Orange-500 - Waiting for action */
-    --status-confirmed: 217 91% 60%;    /* Blue-500 - Confirmed/Active (info) */
-    --status-active: 160 84% 39%;       /* Emerald-500 - Ready for pickup (success) */
-    --status-overdue: 0 84% 60%;        /* Red-500 - Requires urgent attention */
-    --status-completed: 220 9% 46%;     /* Gray-500 - Finished/archived/cancelled */
-    
+    --status-pending: 24 95% 53%;
+    /* Orange-500 - Waiting for action */
+    --status-confirmed: 217 91% 60%;
+    /* Blue-500 - Confirmed/Active (info) */
+    --status-active: 160 84% 39%;
+    /* Emerald-500 - Ready for pickup (success) */
+    --status-overdue: 0 84% 60%;
+    /* Red-500 - Requires urgent attention */
+    --status-completed: 220 9% 46%;
+    /* Gray-500 - Finished/archived/cancelled */
+
     /* --- ACTION COLORS (For buttons, alerts) --- */
-    --action-success: 16 185 129;      /* Emerald-500 */
-    --action-warning: 249 115 22;      /* Orange-500 */
-    --action-danger: 239 68 68;        /* Red-500 */
-    --action-info: 59 130 246;         /* Blue-500 */
+    --action-success: 16 185 129;
+    /* Emerald-500 */
+    --action-warning: 249 115 22;
+    /* Orange-500 */
+    --action-danger: 239 68 68;
+    /* Red-500 */
+    --action-info: 59 130 246;
+    /* Blue-500 */
   }
 
   body {
@@ -86,22 +115,14 @@
   }
 
   /* --- BENTO CARD UTILITIES --- */
+  /* --- BENTO CARD UTILITIES --- */
+  /* Aliased to Card default variant styles for consistency */
   .bento-card {
-    background-color: hsl(var(--surface));
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.02),
-      0 4px 8px rgba(0, 0, 0, 0.02);
-    @apply transition-all duration-200;
+    @apply rounded-token-lg border border-border/50 bg-card text-card-foreground shadow-card transition-all duration-200;
   }
 
   .bento-card:hover {
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.05),
-      0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    transform: translateY(-1px);
-    border-color: hsl(var(--primary) / 0.2);
+    @apply shadow-card hover:translate-y-[-2px] border-primary/20;
   }
 
   /* --- MAPPINGS FOR COMPATIBILITY --- */
@@ -126,10 +147,18 @@
   *:focus-visible {
     @apply outline-2 outline-offset-2 outline-primary;
   }
-  
+
   button:focus-visible,
   a:focus-visible {
     @apply ring-2 ring-primary ring-offset-2;
+  }
+}
+
+@layer utilities {
+
+  /* --- MARKETING-ONLY GRADIENT (Single approved variant) --- */
+  .gradient-cta {
+    background: linear-gradient(to right, hsl(142 70% 55%), hsl(142 76% 42%), hsl(142 76% 32%));
   }
 }
 

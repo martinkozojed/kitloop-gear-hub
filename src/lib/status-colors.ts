@@ -18,48 +18,45 @@ export type ReservationStatus =
   | 'unpaid'
   | 'conflict';
 
-export type SemanticVariant = 'warning' | 'info' | 'success' | 'neutral' | 'danger';
+// Matches Badge variants
+export type SemanticVariant = 'warning' | 'info' | 'success' | 'destructive' | 'secondary' | 'default';
 
 /**
- * Central mapping of status to semantic variant
- * 
- * Design rationale:
- * - danger: ONLY for urgent problems (overdue, conflict) - avoid alarm fatigue
- * - warning: Needs attention (hold, pending, unpaid)
- * - info: Active/in-progress states (confirmed, active)
- * - success: Ready for action (ready for pickup)
- * - neutral: Closed states (completed, cancelled) - no action needed
+ * Returns the matching Badge variant for a reservation status.
+ * Use this with <Badge variant={getBadgeVariant(status)}>
  */
-export function getSemanticVariant(status: ReservationStatus): SemanticVariant {
+export function getBadgeVariant(status: ReservationStatus): SemanticVariant {
   switch (status) {
-    // Warning: Needs attention but not urgent
     case 'hold':
     case 'pending':
     case 'unpaid':
       return 'warning';
 
-    // Info: In progress, active states
     case 'confirmed':
     case 'active':
-      return 'info';
+      return 'info'; // Blue
 
-    // Success: Ready for pickup (positive action state)
     case 'ready':
       return 'success';
 
-    // Danger: URGENT problems only (overdue, conflict)
     case 'overdue':
     case 'conflict':
-      return 'danger';
+      return 'destructive'; // Red
 
-    // Neutral: Closed states (no action needed)
     case 'completed':
     case 'cancelled':
-      return 'neutral';
+      return 'secondary'; // Gray/Muted
 
     default:
-      return 'neutral';
+      return 'secondary';
   }
+}
+
+/**
+ * Central mapping of status to semantic intent (Internal logic)
+ */
+export function getSemanticVariant(status: ReservationStatus): SemanticVariant {
+  return getBadgeVariant(status);
 }
 
 /**
@@ -72,26 +69,26 @@ export function getStatusColorClasses(status: ReservationStatus): string {
     case 'hold':
     case 'pending':
     case 'unpaid':
-      return 'bg-[hsl(var(--status-pending)/0.1)] text-[hsl(var(--status-pending))] border-[hsl(var(--status-pending)/0.2)]';
+      return 'bg-status-warning/10 text-status-warning border-status-warning/20';
 
     // Info: Blue (confirmed, active)
     case 'confirmed':
     case 'active':
-      return 'bg-[hsl(var(--status-confirmed)/0.1)] text-[hsl(var(--status-confirmed))] border-[hsl(var(--status-confirmed)/0.2)]';
+      return 'bg-status-info/10 text-status-info border-status-info/20';
 
     // Success: Green (ready for pickup)
     case 'ready':
-      return 'bg-[hsl(var(--status-active)/0.1)] text-[hsl(var(--status-active))] border-[hsl(var(--status-active)/0.2)]';
+      return 'bg-status-success/10 text-status-success border-status-success/20';
 
     // Danger: Red (URGENT only)
     case 'overdue':
     case 'conflict':
-      return 'bg-[hsl(var(--status-overdue)/0.1)] text-[hsl(var(--status-overdue))] border-[hsl(var(--status-overdue)/0.2)]';
+      return 'bg-status-danger/10 text-status-danger border-status-danger/20';
 
     // Neutral: Gray (closed states)
     case 'completed':
     case 'cancelled':
-      return 'bg-[hsl(var(--status-completed)/0.1)] text-[hsl(var(--status-completed))] border-[hsl(var(--status-completed)/0.2)]';
+      return 'bg-status-neutral/10 text-status-neutral border-status-neutral/20';
 
     default:
       return 'bg-muted text-muted-foreground border-border';
@@ -134,22 +131,22 @@ export function getStatusSolidClass(status: ReservationStatus): string {
     case 'hold':
     case 'pending':
     case 'unpaid':
-      return 'bg-[hsl(var(--status-pending))] text-white';
+      return 'bg-status-warning text-white';
 
     case 'confirmed':
     case 'active':
-      return 'bg-[hsl(var(--status-confirmed))] text-white';
+      return 'bg-status-info text-white';
 
     case 'ready':
-      return 'bg-[hsl(var(--status-active))] text-white';
+      return 'bg-status-success text-white';
 
     case 'overdue':
     case 'conflict':
-      return 'bg-[hsl(var(--status-overdue))] text-white';
+      return 'bg-status-danger text-white';
 
     case 'completed':
     case 'cancelled':
-      return 'bg-[hsl(var(--status-completed))] text-white';
+      return 'bg-status-neutral text-white';
 
     default:
       return 'bg-muted text-muted-foreground';

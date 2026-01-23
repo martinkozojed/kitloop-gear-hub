@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 interface PrintContractButtonProps {
     reservationId: string;
-    variant?: "primary" | "primarySolid" | "outline" | "ghost" | "destructive" | "secondary";
+    variant?: "primary" | "secondary" | "outline" | "ghost" | "destructive" | "cta" | "success" | "warning";
     size?: "default" | "sm" | "lg" | "icon";
     className?: string;
     label?: string;

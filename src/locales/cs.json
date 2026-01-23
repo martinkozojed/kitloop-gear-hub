@@ -1342,5 +1342,67 @@
     "errors": {
       "cameraNotAvailable": "Kamera není dostupná nebo bylo odepřeno povolení"
     }
+  },
+  "onboarding": {
+    "wizard": {
+      "step1Title": "Vítejte v Kitloopu!",
+      "step1Desc": "Nastavte základní údaje o vaší půjčovně.",
+      "step2Title": "Kde vás zákazníci najdou?",
+      "step2Desc": "Nastavte výdejní místo a otevírací dobu.",
+      "step3Title": "Přidejte první vybavení",
+      "step3Desc": "Import nebo ruční přidání - stačí 1 položka.",
+      "labels": {
+        "rentalName": "Název půjčovny",
+        "contactPhone": "Kontaktní telefon",
+        "contactEmail": "Kontaktní email",
+        "currency": "Měna",
+        "timezone": "Časové pásmo",
+        "city": "Město",
+        "address": "Adresa",
+        "businessHours": "Otevírací doba",
+        "pickupInstructions": "Pokyny k vyzvednutí"
+      },
+      "placeholders": {
+        "rentalName": "např. Horská Výbava s.r.o.",
+        "phone": "+420 777 123 456",
+        "email": "info@pujcovna.cz",
+        "city": "Praha",
+        "address": "Ulice 123",
+        "businessHours": "Po-Pá 9-17 nebo 'Po domluvě'",
+        "pickupInstructions": "Volitelné pokyny pro zákazníky..."
+      },
+      "inventoryOptions": {
+        "csvImport": "Importovat z CSV",
+        "manual": "Přidat ručně",
+        "demo": "Načíst demo data"
+      },
+      "buttons": {
+        "back": "Zpět",
+        "continue": "Pokračovat",
+        "finish": "Dokončit nastavení",
+        "letsGo": "Jdeme na to!"
+      },
+      "validation": {
+        "nameRequired": "Název je povinný",
+        "nameMin": "Název musí mít alespoň 3 znaky",
+        "phoneInvalid": "Neplatné telefonní číslo",
+        "emailInvalid": "Neplatný email",
+        "cityRequired": "Město je povinné"
+      }
+    },
+    "checklist": {
+      "title": "Dokončete nastavení",
+      "progress": "{{completed}} z {{total}} kroků",
+      "dismiss": "Skrýt checklist",
+      "items": {
+        "workspace": "Pracovní prostor nastaven",
+        "location": "Lokace nastavena",
+        "inventory": "První položka přidána",
+        "reservation": "Vytvoř první rezervaci",
+        "terms": "Nastav podmínky půjčování",
+        "team": "Pozvi člena týmu"
+      },
+      "allDone": "🎉 Skvělá práce! Vše je připraveno."
+    }
   }
 }

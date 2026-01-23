@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, Package, Calendar, MoreHorizontal, QrCode } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ScanDialog } from '@/components/warehouse/ScanDialog';
+import { Icon as UiIcon } from "@/components/ui/icon";
 
 const ProviderBottomNav = () => {
   const location = useLocation();
@@ -23,8 +24,6 @@ const ProviderBottomNav = () => {
       <nav className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-xl border-t border-border z-50 pb-safe">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto relative">
           {navItems.map((item) => {
-            const Icon = item.icon;
-
             // Special case for Scan FAB
             if (item.path === 'SCAN') {
               return (
@@ -34,9 +33,9 @@ const ProviderBottomNav = () => {
                   className="flex flex-col items-center justify-center -mt-6 group"
                 >
                   <div className="p-3.5 bg-primary rounded-full shadow-lg shadow-primary/30 text-primary-foreground transform group-active:scale-95 transition-all group-hover:bg-primary/90">
-                    <QrCode className="w-6 h-6" />
+                    <UiIcon icon={QrCode} size="lg" />
                   </div>
-                  <span className="text-[10px] font-medium mt-1 tracking-tight text-foreground/80">{t(item.label, 'Scan')}</span>
+                  <span className="text-xs font-medium mt-1 tracking-tight text-foreground/80">{t(item.label, 'Scan')}</span>
                 </button>
               );
             }
@@ -53,12 +52,12 @@ const ProviderBottomNav = () => {
                   }`}
               >
                 <div className={`relative p-1.5 rounded-xl transition-all ${isActive ? 'bg-primary/10' : 'bg-transparent'}`}>
-                  <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+                  <UiIcon icon={item.icon} size="md" className={isActive ? 'stroke-[2.5px]' : 'stroke-2'} />
                   {isActive && (
                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                   )}
                 </div>
-                <span className="text-[10px] font-medium mt-0.5 tracking-tight">{t(item.label)}</span>
+                <span className="text-xs font-medium mt-0.5 tracking-tight">{t(item.label)}</span>
               </Link>
             );
           })}

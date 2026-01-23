@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DENSITY } from '@/components/ui/density';
+import { Icon as UiIcon } from "@/components/ui/icon";
 
 interface ProviderSidebarProps {
   onToggleCollapse?: () => void;
@@ -88,7 +89,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
               <Search className="w-4 h-4 opacity-50 group-hover:opacity-100" />
               <span>Search...</span>
             </span>
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-xs font-medium opacity-100">
               <span className="text-xs">⌘</span>K
             </kbd>
           </button>
@@ -143,12 +144,13 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
           </p>
         </div>
         <Button
-          className="w-full gap-2 shadow-md hover:shadow-lg transition-all"
+          variant="secondary"
+          className="w-full gap-2"
           style={{ height: d.buttonHeight }}
           asChild
         >
           <Link to="/provider/reservations/new">
-            <Plus className="w-4 h-4" />
+            <UiIcon icon={Plus} />
             <span>{t('provider.sidebar.newReservation')}</span>
           </Link>
         </Button>

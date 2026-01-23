@@ -1353,5 +1353,67 @@
     "errors": {
       "cameraNotAvailable": "Camera not available or permission denied"
     }
+  },
+  "onboarding": {
+    "wizard": {
+      "step1Title": "Welcome to Kitloop!",
+      "step1Desc": "Set up the basic info about your rental shop.",
+      "step2Title": "Where can customers find you?",
+      "step2Desc": "Set up your pickup location and business hours.",
+      "step3Title": "Add your first gear",
+      "step3Desc": "Import or add manually - just 1 item to start.",
+      "labels": {
+        "rentalName": "Rental shop name",
+        "contactPhone": "Contact phone",
+        "contactEmail": "Contact email",
+        "currency": "Currency",
+        "timezone": "Timezone",
+        "city": "City",
+        "address": "Address",
+        "businessHours": "Business hours",
+        "pickupInstructions": "Pickup instructions"
+      },
+      "placeholders": {
+        "rentalName": "e.g. Mountain Gear Rentals",
+        "phone": "+1 555 123 4567",
+        "email": "info@myrental.com",
+        "city": "Denver",
+        "address": "123 Main Street",
+        "businessHours": "Mon-Fri 9-5 or 'By appointment'",
+        "pickupInstructions": "Optional instructions for customers..."
+      },
+      "inventoryOptions": {
+        "csvImport": "Import from CSV",
+        "manual": "Add manually",
+        "demo": "Load demo data"
+      },
+      "buttons": {
+        "back": "Back",
+        "continue": "Continue",
+        "finish": "Complete setup",
+        "letsGo": "Let's go!"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "nameMin": "Name must be at least 3 characters",
+        "phoneInvalid": "Invalid phone number",
+        "emailInvalid": "Invalid email",
+        "cityRequired": "City is required"
+      }
+    },
+    "checklist": {
+      "title": "Complete your setup",
+      "progress": "{{completed}} of {{total}} steps",
+      "dismiss": "Hide checklist",
+      "items": {
+        "workspace": "Workspace configured",
+        "location": "Location set up",
+        "inventory": "First item added",
+        "reservation": "Create first reservation",
+        "terms": "Set rental terms",
+        "team": "Invite team member"
+      },
+      "allDone": "🎉 Great job! Everything is ready."
+    }
   }
 }

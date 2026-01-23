@@ -266,13 +266,11 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                     </div>
 
                     <Button
+                        variant={overrideMode ? "warning" : "success"}
                         onClick={handleConfirm}
                         disabled={(!isAllowed && !overrideMode) || loading || fetchingItems || autoAssigning}
-                        className={cn(
-                            "min-w-[120px] transition-all",
-                            overrideMode ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"
-                        )}
-                        autoFocus // Key for speed!
+                        className="min-w-[120px]"
+                        autoFocus
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                             <span className="flex items-center gap-2">Confirm <ArrowRight className="w-4 h-4" /></span>
