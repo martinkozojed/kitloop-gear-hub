@@ -34,6 +34,8 @@ export default function ReservationDetail() {
     const fetchData = React.useCallback(async () => {
         setLoading(true);
         try {
+            if (!id) return;
+
             // 1. Fetch Reservation
             const { data: res, error: resError } = await supabase
                 .from('reservations')
@@ -49,13 +51,29 @@ export default function ReservationDetail() {
             setReservation(res);
 
             // 2. Fetch Logs
-            const { data: logData } = await supabase
-                .from('notification_logs')
-                .select('*')
-                .eq('reservation_id', id)
-                .order('sent_at', { ascending: false });
+            // 2. Fetch Logs (Graceful)
+            try {
+                const { data: logData, error: logError } = await supabase
+                    .from('notification_logs')
+                    .select('*')
+                    .eq('reservation_id', id)
+                    .order('sent_at', { ascending: false });
 
-            setLogs(logData || []);
+                if (logError) {
+                    // Check for 403/401 aka "Security says no"
+                    if (logError.code === '42501' || logError.message?.includes('dummy')) throw logError;
+                    // For now, treat any log error as "no logs viewable" to avoid blocking page
+                    // Ideally check code '42501' (PGRST301) for Forbidden
+                    console.warn('[ReservationDetail] Logs fetch failed (likely RLS), ignoring:', logError.message);
+                    setLogs([]);
+                } else {
+                    setLogs(logData || []);
+                }
+            } catch (e) {
+                // Ignore log errors completely so page loads
+                console.warn('[ReservationDetail] Logs access denied or failed:', e);
+                setLogs([]);
+            }
 
             // 3. Fetch Assignments (Assets)
             const { data: assignData } = await supabase
@@ -93,6 +111,8 @@ export default function ReservationDetail() {
             toast.info('Notifications are not enabled in this environment');
             return;
         }
+
+        if (!id) return;
 
         try {
             const { error } = await supabase.rpc('mock_send_notification', {
@@ -153,12 +173,12 @@ export default function ReservationDetail() {
                                 <TabsTrigger value="messages" className="flex items-center gap-2">
                                     <Mail className="w-4 h-4" />
                                     {t('reservationDetail.tabs.messages')}
-                                    <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-[10px]">{logs.length}</Badge>
+                                    <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-xs">{logs.length}</Badge>
                                 </TabsTrigger>
                                 <TabsTrigger value="assets" className="flex items-center gap-2">
                                     <CheckCircle2 className="w-4 h-4" />
                                     Vybavení
-                                    <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-[10px]">{assignments.length}</Badge>
+                                    <Badge variant="secondary" className="ml-1 px-1 py-0 h-5 text-xs">{assignments.length}</Badge>
                                 </TabsTrigger>
                             </TabsList>
 
@@ -292,12 +312,12 @@ export default function ReservationDetail() {
                             <CardHeader><CardTitle>{t('reservationDetail.cards.actions')}</CardTitle></CardHeader>
                             <CardContent className="space-y-3">
                                 {canIssue && (
-                                    <Button className="w-full text-lg h-12" onClick={() => setIssueOpen(true)}>
+                                    <Button className="w-full text-lg h-12" onClick={() => setIssueOpen(true)} data-testid="reservation-issue-btn">
                                         <LogOut className="w-5 h-5 mr-2" /> Vydat Zákazníkovi
                                     </Button>
                                 )}
                                 {canReturn && (
-                                    <Button className="w-full text-lg h-12" onClick={() => setReturnOpen(true)} variant="outline">
+                                    <Button className="w-full text-lg h-12" onClick={() => setReturnOpen(true)} variant="outline" data-testid="reservation-return-btn">
                                         <LogIn className="w-5 h-5 mr-2" /> Přijmout Vrácení
                                     </Button>
                                 )}

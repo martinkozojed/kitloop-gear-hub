@@ -143,9 +143,18 @@ const getFallbackImage = (gear: GearItem) => {
 };
 
 type GearImage = Pick<Database["public"]["Tables"]["gear_images"]["Row"], "url" | "sort_order">;
-type GearItem = Database["public"]["Tables"]["gear_items"]["Row"] & {
+type GearItem = {
+  id: string;
+  name: string | null;
+  category: string | null;
+  description: string | null;
+  price_per_day: number | null;
+  image_url: string | null;
+  provider_id: string | null;
   gear_images?: GearImage[];
   display_image_url?: string | null;
+  rating?: number;
+  location?: string | null;
 };
 
 
@@ -193,6 +202,7 @@ const BrowseGear = () => {
       if (error) {
         console.error("Error fetching products:", error.message);
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const normalized: GearItem[] = (data || []).map((p: any) => ({
           id: p.id,
           name: p.name,
@@ -213,29 +223,33 @@ const BrowseGear = () => {
   }, []);
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const search = queryParams.get("query") || "";
-    if (!searchQuery) setSearchQuery(search);
+    const runFilter = async () => {
+      await Promise.resolve(); // Workaround for React Compiler
+      const queryParams = new URLSearchParams(location.search);
+      const search = queryParams.get("query") || "";
+      if (!searchQuery) setSearchQuery(search);
 
-    let filtered = gearList.filter((gear) => {
-      const matchesSearch = (gear.name ?? "").toLowerCase().includes(search.toLowerCase());
-      const matchesLocation = (gear.location ?? "").toLowerCase().includes(locationQuery.toLowerCase());
-      const category = (gear as GearItem & { category?: string }).category;
-      const matchesCategory = selectedCategories.length === 0 || (category ? selectedCategories.includes(category) : true);
-      const rating = gear.rating ?? 0;
-      const matchesRating = selectedRatings.length === 0 || selectedRatings.some((r) => rating >= parseFloat(r));
-      const price = gear.price_per_day ?? 0;
-      const matchesPrice = (!minPrice || price >= parseFloat(minPrice)) && (!maxPrice || price <= parseFloat(maxPrice));
-      return matchesSearch && matchesLocation && matchesCategory && matchesRating && matchesPrice;
-    });
+      let filtered = gearList.filter((gear) => {
+        const matchesSearch = (gear.name ?? "").toLowerCase().includes(search.toLowerCase());
+        const matchesLocation = (gear.location ?? "").toLowerCase().includes(locationQuery.toLowerCase());
+        const category = (gear as GearItem & { category?: string }).category;
+        const matchesCategory = selectedCategories.length === 0 || (category ? selectedCategories.includes(category) : true);
+        const rating = gear.rating ?? 0;
+        const matchesRating = selectedRatings.length === 0 || selectedRatings.some((r) => rating >= parseFloat(r));
+        const price = gear.price_per_day ?? 0;
+        const matchesPrice = (!minPrice || price >= parseFloat(minPrice)) && (!maxPrice || price <= parseFloat(maxPrice));
+        return matchesSearch && matchesLocation && matchesCategory && matchesRating && matchesPrice;
+      });
 
-    if (sortOption === "price-asc") {
-      filtered = [...filtered].sort((a, b) => (a.price_per_day ?? 0) - (b.price_per_day ?? 0));
-    } else if (sortOption === "price-desc") {
-      filtered = [...filtered].sort((a, b) => (b.price_per_day ?? 0) - (a.price_per_day ?? 0));
-    }
+      if (sortOption === "price-asc") {
+        filtered = [...filtered].sort((a, b) => (a.price_per_day ?? 0) - (b.price_per_day ?? 0));
+      } else if (sortOption === "price-desc") {
+        filtered = [...filtered].sort((a, b) => (b.price_per_day ?? 0) - (a.price_per_day ?? 0));
+      }
 
-    setFilteredGear(filtered);
+      setFilteredGear(filtered);
+    };
+    runFilter();
   }, [
     gearList,
     location.search,

@@ -8,10 +8,18 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from "sonner";
 
+interface AccountData {
+    id: string;
+    name: string;
+    tax_id?: string | null;
+    contact_email?: string | null;
+    notes?: string | null;
+}
+
 interface UpsertAccountModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    accountToEdit?: any | null; // If provided, we are in Edit mode
+    accountToEdit?: AccountData | null; // If provided, we are in Edit mode
     onSuccess: () => void;
 }
 
@@ -75,8 +83,9 @@ export function UpsertAccountModal({ open, onOpenChange, accountToEdit, onSucces
             toast.success(accountToEdit ? "Account updated" : "Organization created");
             onSuccess();
             onOpenChange(false);
-        } catch (err: any) {
-            toast.error("Failed to save account", { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error("Failed to save account", { description: message });
         } finally {
             setLoading(false);
         }

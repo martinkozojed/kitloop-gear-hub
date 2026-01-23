@@ -17,6 +17,7 @@ import { Loader2, Upload, AlertCircle, CheckCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useTranslation } from 'react-i18next';
+import { track, trackError } from '@/lib/telemetry';
 
 interface CsvImportModalProps {
     open: boolean;
@@ -119,6 +120,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             skipEmptyLines: true,
             complete: (results) => {
                 if (results.data && results.data.length > 0) {
+                    track('import.csv_started', { row_count: results.data.length }, 'CsvImportModal');
                     analyzeData(results.data);
                 } else {
                     toast.error(t('provider.inventory.importModal.emptyFile'));
@@ -165,11 +167,13 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             const { error } = await supabase.from('assets').insert(payload);
             if (error) throw error;
 
+            track('import.csv_completed', { count: validRows.length }, 'CsvImportModal');
             toast.success(t('provider.inventory.importModal.importSuccess', { count: validRows.length }));
             onSuccess();
             onOpenChange(false);
             setPreviewData([]);
         } catch (err: unknown) {
+            trackError('csv_import', err);
             const message = err instanceof Error ? err.message : 'Unknown error';
             toast.error(t('provider.inventory.importModal.importFailed'), { description: message });
         } finally {
@@ -180,7 +184,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
     const matchedCount = previewData.filter(r => r.importStatus === 'matched').length;
     const errorCount = previewData.filter(r => r.importStatus === 'error').length;
 
-        return (
+    return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[800px] h-[80vh] flex flex-col">
                 <DialogHeader>
@@ -220,17 +224,17 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
 
                     {previewData.length > 0 && (
                         <div className="flex-1 flex flex-col border rounded-md overflow-hidden">
-                                <div className="bg-muted px-4 py-2 text-xs font-medium flex justify-between items-center">
-                                    <span>{t('provider.inventory.importModal.preview', { count: previewData.length })}</span>
-                                    <div className="flex gap-3">
-                                        <span className="text-green-600 flex items-center gap-1">
-                                            <CheckCircle className="w-3 h-3" /> {t('provider.inventory.importModal.valid', { count: matchedCount })}
-                                        </span>
-                                        <span className="text-destructive flex items-center gap-1">
-                                            <AlertCircle className="w-3 h-3" /> {t('provider.inventory.importModal.errors', { count: errorCount })}
-                                        </span>
-                                    </div>
+                            <div className="bg-muted px-4 py-2 text-xs font-medium flex justify-between items-center">
+                                <span>{t('provider.inventory.importModal.preview', { count: previewData.length })}</span>
+                                <div className="flex gap-3">
+                                    <span className="text-green-600 flex items-center gap-1">
+                                        <CheckCircle className="w-3 h-3" /> {t('provider.inventory.importModal.valid', { count: matchedCount })}
+                                    </span>
+                                    <span className="text-destructive flex items-center gap-1">
+                                        <AlertCircle className="w-3 h-3" /> {t('provider.inventory.importModal.errors', { count: errorCount })}
+                                    </span>
                                 </div>
+                            </div>
 
                             <ScrollArea className="flex-1">
                                 <Table>

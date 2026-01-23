@@ -123,13 +123,13 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                     <SheetFooter className="flex-col sm:flex-col gap-2 sm:space-x-0">
                         {/* Primary Operational Actions */}
                         {reservation.status === 'confirmed' && (
-                            <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setIsIssueOpen(true)}>
+                            <Button variant="secondary" className="w-full" onClick={() => setIsIssueOpen(true)}>
                                 <Package className="w-4 h-4 mr-2" /> Vydat (Issue)
                             </Button>
                         )}
 
                         {reservation.status === 'active' && (
-                            <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setIsReturnOpen(true)}>
+                            <Button variant="success" className="w-full" onClick={() => setIsReturnOpen(true)}>
                                 <PackageCheck className="w-4 h-4 mr-2" /> Vrátit (Return)
                             </Button>
                         )}

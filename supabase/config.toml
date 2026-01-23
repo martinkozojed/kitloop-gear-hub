@@ -2,3 +2,9 @@ project_id = "bkyokcjpelqwtndienos"
 
 [db]
 major_version = 15
+
+[functions.e2e_harness]
+verify_jwt = false
+
+[functions.reserve_gear]
+verify_jwt = false

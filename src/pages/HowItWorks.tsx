@@ -148,7 +148,7 @@ const HowItWorks = () => {
       <JsonLd data={jsonLd} />
 
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.2),_transparent_60%),radial-gradient(circle_at_bottom,_rgba(34,197,94,0.25),_transparent_55%)]" />
+        <div className="absolute inset-0 opacity-30 bg-[image:var(--hero-glow)]" />
         <div className="relative container mx-auto px-6 py-20">
           <div className="mx-auto max-w-4xl space-y-10">
             <div className="space-y-6">
@@ -160,7 +160,7 @@ const HowItWorks = () => {
               </h1>
               <p className="text-lg text-emerald-100/90">{t("howItWorks.hero.subtitle")}</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button asChild variant="primarySolid" size="cta">
+                <Button asChild variant="cta" size="cta">
                   <Link
                     to="/browse"
                     aria-label="Browse gear"
@@ -170,8 +170,8 @@ const HowItWorks = () => {
                   </Link>
                 </Button>
                 <Button
+                  variant="secondary"
                   size="lg"
-                  className="bg-emerald-700 text-white hover:bg-emerald-600"
                   onClick={scrollToSteps}
                   type="button"
                 >
@@ -339,13 +339,13 @@ const HowItWorks = () => {
               <h3 className="text-2xl font-semibold text-foreground">{t("howItWorks.pilot.ctaTitle")}</h3>
               <p className="mt-3 text-muted-foreground">{t("howItWorks.pilot.ctaSubtitle")}</p>
               <div className="mt-8 space-y-3">
-                <Button asChild className="w-full bg-emerald-600 text-white hover:bg-emerald-700">
+                <Button asChild variant="cta" className="w-full">
                   <Link to="/provider/setup">{t("howItWorks.pilot.primaryCta")}</Link>
                 </Button>
                 <Button
                   asChild
-                  variant="outline"
-                  className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                  variant="secondary"
+                  className="w-full"
                 >
                   <a href="mailto:hello@kitloop.cz">{t("howItWorks.pilot.secondaryCta")}</a>
                 </Button>
@@ -378,7 +378,7 @@ const StickyCta: React.FC<{ scrollToSteps: () => void }> = ({ scrollToSteps }) =
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm font-medium text-emerald-50">{t("howItWorks.stickyCta.message")}</p>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button asChild variant="primarySolid" size="cta">
+            <Button asChild variant="cta" size="cta">
               <Link
                 to="/browse"
                 aria-label="Browse gear"

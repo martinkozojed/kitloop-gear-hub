@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
+import { Icon } from "@/components/ui/icon";
 
 import { ExceptionItem } from "@/types/dashboard";
 
@@ -36,9 +37,9 @@ export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
                     >
                         <div className="flex items-start gap-3">
                             {ex.type === 'overdue' ? (
-                                <Clock className="w-4 h-4 text-red-600 mt-0.5" />
+                                <Icon icon={Clock} className="text-red-600 mt-0.5" />
                             ) : (
-                                <CreditCard className="w-4 h-4 text-orange-600 mt-0.5" />
+                                <Icon icon={CreditCard} className="text-orange-600 mt-0.5" />
                             )}
                             <div className="flex-1">
                                 <p className={`font-medium ${ex.priority === 'high' ? 'text-red-900' : 'text-orange-900'}`}>

@@ -42,7 +42,7 @@ const About = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission - in production, this would send to your backend
     setTimeout(() => {
       toast.success("Děkujeme! Zprávu jsme přijali a ozveme se, jakmile to bude možné.");
@@ -54,7 +54,7 @@ const About = () => {
   return (
     <div className="bg-background pb-36">
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_60%),radial-gradient(circle_at_bottom,_rgba(34,197,94,0.2),_transparent_55%)]" />
+        <div className="absolute inset-0 opacity-30 bg-[image:var(--hero-glow)]" />
         <div className="relative container mx-auto px-6 py-20">
           <div className="mx-auto max-w-3xl text-center space-y-6">
             <span className="inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2 text-sm uppercase tracking-[0.35em] text-emerald-100">
@@ -134,7 +134,7 @@ const About = () => {
 
             <Button
               type="submit"
-              variant="default"
+              variant="cta"
               className="w-full"
               disabled={isSubmitting}
             >

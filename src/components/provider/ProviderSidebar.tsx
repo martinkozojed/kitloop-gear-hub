@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DENSITY } from '@/components/ui/density';
+import { Icon as UiIcon } from "@/components/ui/icon";
 
 interface ProviderSidebarProps {
   onToggleCollapse?: () => void;
@@ -50,9 +51,9 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       items: [
         { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: List },
         { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
-        { path: '/provider/maintenance', label: 'Servis', icon: Wrench },
-        { path: '/provider/customers', label: 'Zákazníci (CRM)', icon: Users },
-        { path: '/provider/accounts', label: 'Organizace (B2B)', icon: Building2 },
+        { path: '/provider/maintenance', label: 'provider.sidebar.nav.maintenance', icon: Wrench },
+        { path: '/provider/customers', label: 'provider.sidebar.nav.crm', icon: Users },
+        { path: '/provider/accounts', label: 'provider.sidebar.nav.accounts', icon: Building2 },
       ]
     },
     {
@@ -68,8 +69,8 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
     navGroups.push({
       title: 'Admin',
       items: [
-        { path: '/admin/providers', label: 'Approvals', icon: ShieldAlert },
-        { path: '/admin/audit', label: 'Audit log', icon: List }
+        { path: '/admin/providers', label: 'provider.sidebar.nav.approvals', icon: ShieldAlert },
+        { path: '/admin/audit', label: 'provider.sidebar.nav.auditLog', icon: List }
       ]
     });
   }
@@ -88,7 +89,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
               <Search className="w-4 h-4 opacity-50 group-hover:opacity-100" />
               <span>Search...</span>
             </span>
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-xs font-medium opacity-100">
               <span className="text-xs">⌘</span>K
             </kbd>
           </button>
@@ -139,16 +140,17 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       <div className="px-4 pb-6 pt-2 border-t border-border mt-auto">
         <div className="mb-4 px-2">
           <p className="text-xs text-muted-foreground truncate">
-            Logged in as <span className="font-medium text-foreground">Provider Admin</span>
+            {t('provider.sidebar.loggedIn')} <span className="font-medium text-foreground">Provider Admin</span>
           </p>
         </div>
         <Button
-          className="w-full gap-2 shadow-md hover:shadow-lg transition-all"
+          variant="secondary"
+          className="w-full gap-2"
           style={{ height: d.buttonHeight }}
           asChild
         >
           <Link to="/provider/reservations/new">
-            <Plus className="w-4 h-4" />
+            <UiIcon icon={Plus} />
             <span>{t('provider.sidebar.newReservation')}</span>
           </Link>
         </Button>

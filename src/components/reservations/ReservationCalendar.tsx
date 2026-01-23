@@ -223,7 +223,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                     className={`border-r p-2 flex flex-col items-center justify-center text-sm ${isSameDay(day, new Date()) ? 'bg-blue-50/80 border-blue-100' : 'bg-background'}`}
                                     style={{ width: CELL_WIDTH, height: HEADER_HEIGHT }}
                                 >
-                                    <span className="text-muted-foreground text-[10px] uppercase">{format(day, 'EEE', { locale: currentLocale })}</span>
+                                    <span className="text-muted-foreground text-xs uppercase">{format(day, 'EEE', { locale: currentLocale })}</span>
                                     <span className={`font-bold ${isSameDay(day, new Date()) ? 'text-blue-600' : ''}`}>{format(day, 'd')}</span>
                                 </div>
                             ))}
@@ -263,11 +263,11 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                 <div key={variant.id} className="group bg-white">
                                     {/* Variant Header / Summary Row */}
                                     <div className="flex bg-slate-100/50 hover:bg-slate-100 transition-colors">
-                                        <div className="sticky left-0 z-10 bg-slate-50 group-hover:bg-slate-100 border-r p-2 px-3 font-medium flex flex-col justify-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
+                                        <div className="sticky left-0 z-10 bg-slate-50 group-hover:bg-slate-100 border-r p-2 px-3 font-medium flex flex-col justify-center shadow-sm" style={{ width: SIDEBAR_WIDTH }}>
                                             <div className="truncate text-sm font-semibold text-slate-800">{variant.product.name}</div>
                                             <div className="flex justify-between items-center">
                                                 <div className="truncate text-xs text-slate-500">{variant.name}</div>
-                                                <Badge variant="secondary" className="text-[10px] h-4 px-1">{variant.assets.length}ks</Badge>
+                                                <Badge variant="secondary" className="text-xs h-4 px-1">{variant.assets.length}ks</Badge>
                                             </div>
                                         </div>
                                         <div className="flex relative items-center border-b border-l-0" style={{ height: 40 }}>
@@ -300,7 +300,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                     {/* Asset Rows */}
                                     {assetRows.map(({ asset, reservations: localRes }) => (
                                         <div key={asset.id} className="flex hover:bg-slate-50 transition-colors relative h-12 border-b border-slate-50">
-                                            <div className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 border-r p-2 pl-6 flex items-center text-sm shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" style={{ width: SIDEBAR_WIDTH }}>
+                                            <div className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 border-r p-2 pl-6 flex items-center text-sm shadow-sm" style={{ width: SIDEBAR_WIDTH }}>
                                                 <span className="truncate text-slate-600 flex gap-2 items-center text-xs font-mono">
                                                     <span className={`w-1.5 h-1.5 rounded-full ${asset.status === 'active' ? 'bg-emerald-400' : 'bg-slate-300'}`}></span>
                                                     {asset.asset_tag}
@@ -322,7 +322,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                                             {/* Reservation Bar */}
                                                             <div
                                                                 onClick={() => handleReservationClick(res)}
-                                                                className={`absolute top-2 bottom-2 rounded-sm text-[10px] font-medium text-white px-2 flex items-center overflow-hidden whitespace-nowrap z-10 shadow-sm cursor-pointer hover:brightness-110 transition-all ${statusColors[res.status] || 'bg-blue-500'}`}
+                                                                className={`absolute top-2 bottom-2 rounded-sm text-xs font-medium text-white px-2 flex items-center overflow-hidden whitespace-nowrap z-10 shadow-sm cursor-pointer hover:brightness-110 transition-all ${statusColors[res.status] || 'bg-blue-500'}`}
                                                                 style={style}
                                                                 title={`${res.customer_name} - ${res.status}`}
                                                             >
@@ -349,13 +349,13 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                     {/* Unassigned Row (Critical for Planning) */}
                                     {unassignedReservations.length > 0 && (
                                         <div className="flex bg-red-50/30 hover:bg-red-50/50 transition-colors relative border-b border-red-100 h-14">
-                                            <div className="sticky left-0 z-10 bg-white/80 border-r p-2 pl-6 flex items-center text-sm shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" style={{ width: SIDEBAR_WIDTH }}>
+                                            <div className="sticky left-0 z-10 bg-white/80 border-r p-2 pl-6 flex items-center text-sm shadow-sm" style={{ width: SIDEBAR_WIDTH }}>
                                                 <div className="flex flex-col">
                                                     <span className="truncate text-red-600 font-semibold text-xs flex items-center gap-1">
                                                         <AlertCircle className="w-3 h-3" />
                                                         Nepřiřazeno
                                                     </span>
-                                                    <span className="text-[10px] text-red-400">{unassignedReservations.length} rezervací čeká na přiřazení</span>
+                                                    <span className="text-xs text-red-400">{unassignedReservations.length} rezervací čeká na přiřazení</span>
                                                 </div>
                                             </div>
                                             <div className="relative h-full w-full">
@@ -369,7 +369,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                                         <div
                                                             key={res.id}
                                                             onClick={() => handleReservationClick(res)}
-                                                            className={`absolute rounded-sm text-[10px] border border-red-200 bg-red-100 text-red-800 px-2 flex items-center overflow-hidden whitespace-nowrap hover:z-20 hover:scale-105 transition-all shadow-sm cursor-pointer`}
+                                                            className={`absolute rounded-sm text-xs border border-red-200 bg-red-100 text-red-800 px-2 flex items-center overflow-hidden whitespace-nowrap hover:z-20 hover:scale-105 transition-all shadow-sm cursor-pointer`}
                                                             style={{ ...style, top: (idx * 16) + 4, height: 20, zIndex: 10 - idx }}
                                                             title={`Nepřiřazeno: ${res.customer_name}`}
                                                         >

@@ -1,66 +1,70 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, CheckCircle2, Building2, MapPin, Settings2 } from "lucide-react";
+import { Loader2, MapPin, Package, Store, ArrowRight, Upload, PlusCircle, Sparkles, Check } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
-import { motion, AnimatePresence } from "framer-motion";
+import { track } from '@/lib/telemetry';
+import { workspaceSchema, locationSchema, type WorkspaceFormData, type LocationFormData } from '@/lib/schemas/onboarding';
 
-interface ProviderSetupForm {
-  rental_name: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  company_id: string;
-  address: string;
-  location: string;
-  country: string;
-  category: string;
-  time_zone: string;
-  currency: string;
-  website: string;
-  seasonal_mode: boolean;
-  categories: string[];
+type InventoryPath = 'csv_import' | 'manual' | 'demo';
+
+interface FormData extends WorkspaceFormData, LocationFormData {
+  inventoryPath?: InventoryPath;
 }
 
 const ProviderSetup = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
+  const [maxStep, setMaxStep] = useState(1); // Track furthest step reached
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState<ProviderSetupForm>({
+  const [formData, setFormData] = useState<FormData>({
     rental_name: '',
-    contact_name: '',
-    email: user?.email || '',
-    phone: '',
-    company_id: '',
-    address: '',
-    location: '',
-    country: 'CZ',
-    category: 'outdoor-gear',
-    time_zone: 'Europe/Prague',
+    contact_phone: '',
+    contact_email: user?.email || '',
     currency: 'CZK',
-    website: '',
-    seasonal_mode: false,
-    categories: [],
+    time_zone: 'Europe/Prague',
+    location: '',
+    address: '',
+    business_hours_display: '',
+    pickup_instructions: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const updateField = <K extends keyof ProviderSetupForm>(
-    field: K,
-    value: ProviderSetupForm[K]
-  ) => {
+  useEffect(() => {
+    track('onboarding.started', { step: 1 });
+
+    // Auto-detect timezone from browser
+    try {
+      const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const supportedTimezones = ['Europe/Prague', 'Europe/Berlin', 'Europe/London', 'America/New_York'];
+      if (supportedTimezones.includes(browserTimezone)) {
+        setFormData(prev => ({ ...prev, time_zone: browserTimezone }));
+      }
+    } catch (e) {
+      // Fallback to default
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.email && !formData.contact_email) {
+      setFormData(prev => ({ ...prev, contact_email: user.email || '' }));
+    }
+  }, [user?.email, formData.contact_email]);
+
+  const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field as string]) {
       setErrors(prev => {
@@ -71,425 +75,438 @@ const ProviderSetup = () => {
     }
   };
 
-  const validateStep1 = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.rental_name || formData.rental_name.length < 3) newErrors.rental_name = 'Company name must be at least 3 characters';
-    if (!formData.contact_name) newErrors.contact_name = 'Contact person is required';
-    if (!formData.company_id || !/^\d{8}$/.test(formData.company_id)) newErrors.company_id = 'IČO must be 8 digits';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validateStep1 = (): boolean => {
+    const result = workspaceSchema.safeParse({
+      rental_name: formData.rental_name,
+      contact_phone: formData.contact_phone,
+      contact_email: formData.contact_email,
+      currency: formData.currency,
+      time_zone: formData.time_zone,
+    });
+
+    if (!result.success) {
+      const newErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        newErrors[err.path[0] as string] = err.message;
+      });
+      setErrors(newErrors);
+      return false;
+    }
+    return true;
   };
 
-  const validateStep2 = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.address) newErrors.address = 'Address is required';
-    if (!formData.location) newErrors.location = 'City is required';
-    if (!formData.phone || !/^\+?\d{7,15}$/.test(formData.phone.replace(/\s/g, ''))) newErrors.phone = 'Phone number is invalid';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validateStep2 = (): boolean => {
+    const result = locationSchema.safeParse({
+      location: formData.location,
+      address: formData.address,
+      business_hours_display: formData.business_hours_display,
+      pickup_instructions: formData.pickup_instructions,
+    });
+
+    if (!result.success) {
+      const newErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        newErrors[err.path[0] as string] = err.message;
+      });
+      setErrors(newErrors);
+      return false;
+    }
+    return true;
   };
 
   const handleNext = () => {
-    if (step === 1 && !validateStep1()) {
-      toast.error('Please fix the errors to continue');
-      return;
+    if (step === 1) {
+      if (!validateStep1()) {
+        toast.error(t('onboarding.wizard.validation.nameRequired'));
+        return;
+      }
+      track('onboarding.workspace_completed', {
+        currency: formData.currency,
+        timezone: formData.time_zone
+      });
     }
-    if (step === 2 && !validateStep2()) {
-      toast.error('Please fix the errors to continue');
-      return;
+
+    if (step === 2) {
+      if (!validateStep2()) {
+        toast.error(t('onboarding.wizard.validation.cityRequired'));
+        return;
+      }
+      track('onboarding.location_completed', {
+        has_hours: !!formData.business_hours_display,
+        has_instructions: !!formData.pickup_instructions
+      });
     }
-    setStep(prev => prev + 1);
+
+    setStep(prev => {
+      const newStep = prev + 1;
+      setMaxStep(current => Math.max(current, newStep));
+      return newStep;
+    });
   };
 
-  const handleBack = () => setStep(prev => prev - 1);
+  // Navigate to step (can go back freely, forward only up to maxStep)
+  const goToStep = (targetStep: number) => {
+    if (targetStep <= maxStep) {
+      setStep(targetStep);
+    }
+  };
 
-  const handleComplete = async () => {
+  const handleInventoryChoice = async (path: InventoryPath) => {
+    // If not logged in, redirect to auth with return URL
     if (!user?.id) {
-      toast.error('No user session found. Please log in again.');
+      toast.error('Pro dokončení se musíte přihlásit nebo zaregistrovat.');
+      navigate('/auth?returnTo=/provider/setup');
       return;
     }
 
     setIsSubmitting(true);
+
     try {
       const providerData = {
         user_id: user.id,
-        rental_name: formData.rental_name, // explicitly set rental_name
-        name: formData.rental_name, // map to name column
-        contact_name: formData.contact_name,
-        email: formData.email,
-        phone: formData.phone,
-        company_id: formData.company_id,
-        address: formData.address,
+        rental_name: formData.rental_name,
+        name: formData.rental_name,
+        contact_name: formData.rental_name,
+        email: formData.contact_email,
+        phone: formData.contact_phone,
         location: formData.location,
-        country: formData.country,
-        category: formData.categories.join(', ') || formData.category,
-        time_zone: formData.time_zone,
+        address: formData.address || null,
         currency: formData.currency,
-        website: formData.website || null,
-        seasonal_mode: formData.seasonal_mode,
+        time_zone: formData.time_zone,
+        business_hours_display: formData.business_hours_display || null,
+        pickup_instructions: formData.pickup_instructions || null,
         onboarding_completed: true,
-        onboarding_step: 4,
+        onboarding_step: 3,
         verified: false,
         status: 'pending',
-        current_season: 'all-year',
+        country: 'CZ',
+        category: 'outdoor-gear',
       };
 
-      const { data: insertedProvider, error: insertError } = await supabase
+      const { data: provider, error: insertError } = await supabase
         .from('providers')
         .insert(providerData)
         .select()
         .single();
 
-      if (insertError) {
-        throw insertError;
+      if (insertError) throw insertError;
+
+      if (provider) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any).from('onboarding_progress').insert({
+          provider_id: provider.id,
+          step_workspace_completed_at: new Date().toISOString(),
+          step_location_completed_at: new Date().toISOString(),
+        });
       }
 
-      toast.success('Setup complete! Redirecting to dashboard...');
+      track('onboarding.inventory_completed', { path });
       await refreshProfile();
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Creating a small delay for the success animation
-      navigate('/provider/dashboard');
+
+      if (path === 'csv_import') {
+        toast.success('Nastavení dokončeno! Přesměrovávám na import...');
+        navigate('/provider/inventory?import=true');
+      } else if (path === 'manual') {
+        toast.success('Nastavení dokončeno! Přidejte první položku...');
+        navigate('/provider/inventory?addAsset=true');
+      } else {
+        toast.success('Nastavení dokončeno! Načítám demo data...');
+        navigate('/provider/dashboard');
+      }
     } catch (error) {
-      console.error('💥 Unexpected error during setup:', error);
-      toast.error(getErrorMessage(error) || 'An unexpected error occurred.');
+      console.error('Error during setup:', error);
+      toast.error(getErrorMessage(error) || 'Nastala neočekávaná chyba.');
       setIsSubmitting(false);
     }
   };
 
-  const toggleCategory = (category: string) => {
-    setFormData(prev => ({
-      ...prev,
-      categories: prev.categories.includes(category)
-        ? prev.categories.filter(c => c !== category)
-        : [...prev.categories, category]
-    }));
-  };
-
-  const progress = (step / 4) * 100;
-
   const steps = [
-    { title: "Company", icon: Building2 },
-    { title: "Location", icon: MapPin },
-    { title: "Details", icon: Settings2 },
-    { title: "Complete", icon: CheckCircle2 },
+    { num: 1, icon: Store, label: 'Workspace' },
+    { num: 2, icon: MapPin, label: 'Lokace' },
+    { num: 3, icon: Package, label: 'Inventář' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4 flex items-center justify-center">
-      <div className="max-w-2xl w-full">
-        {/* Progress Steps */}
-        <div className="mb-8 flex justify-between items-center px-4 relative">
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -z-10 transform -translate-y-1/2" />
-          <div className="absolute top-1/2 left-0 h-0.5 bg-primary transition-all duration-500 -z-10 transform -translate-y-1/2" style={{ width: `${((step - 1) / 3) * 100}%` }} />
-
-          {steps.map((s, index) => {
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4 flex items-center justify-center">
+      <div className="max-w-lg w-full">
+        {/* Step Indicators */}
+        <div className="flex justify-center items-center gap-2 mb-8">
+          {steps.map((s, idx) => {
             const StepIcon = s.icon;
-            const isActive = step >= index + 1;
-            const isCurrent = step === index + 1;
+            const isCompleted = step > s.num;
+            const isCurrent = step === s.num;
+            const isAccessible = s.num <= maxStep;
             return (
-              <div key={index} className="flex flex-col items-center gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-xl">
-                <div className={`
-                    w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm
-                    ${isActive ? 'bg-primary text-primary-foreground scale-110 shadow-md' : 'bg-gray-100 text-gray-400'}
-                    ${isCurrent ? 'ring-4 ring-primary/20' : ''}
-                  `}>
-                  <StepIcon className="w-5 h-5" />
-                </div>
-                <span className={`text-xs font-medium transition-colors ${isActive ? 'text-primary' : 'text-gray-400'}`}>
-                  {s.title}
-                </span>
-              </div>
+              <React.Fragment key={s.num}>
+                <button
+                  type="button"
+                  onClick={() => goToStep(s.num)}
+                  disabled={!isAccessible}
+                  className={`
+                    w-14 h-10 rounded-xl flex items-center justify-center transition-all duration-200 font-medium text-sm
+                    ${isCompleted ? 'bg-primary text-primary-foreground shadow-sm cursor-pointer hover:shadow-md hover:brightness-105' : ''}
+                    ${isCurrent ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30 ring-offset-2' : ''}
+                    ${!isCompleted && !isCurrent && isAccessible ? 'bg-primary/20 text-primary cursor-pointer hover:bg-primary/30' : ''}
+                    ${!isAccessible ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''}
+                  `}
+                  aria-label={`Krok ${s.num}: ${s.label}`}
+                >
+                  {isCompleted ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <StepIcon className="w-5 h-5" />
+                  )}
+                </button>
+                {idx < steps.length - 1 && (
+                  <div className={`
+                    w-8 h-0.5 rounded-full transition-colors
+                    ${step > s.num ? 'bg-primary' : 'bg-muted'}
+                  `} />
+                )}
+              </React.Fragment>
             );
           })}
         </div>
 
-        <Card className="border-none shadow-xl bg-white/80 backdrop-blur-xl overflow-hidden">
-          <CardHeader className="text-center pb-2">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 mb-2">
-                  {step === 1 && "Welcome to Kitloop!"}
-                  {step === 2 && "Where are you located?"}
-                  {step === 3 && "Business Details"}
-                  {step === 4 && "You're All Set!"}
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  {step === 1 && "Let's get your rental business set up for success."}
-                  {step === 2 && "Help customers find your store easily."}
-                  {step === 3 && "Customize how your business operates."}
-                  {step === 4 && "Your rental shop is ready to launch."}
-                </CardDescription>
-              </motion.div>
-            </AnimatePresence>
+        <Card className="shadow-lg border bg-white overflow-hidden">
+          {/* Subtle header */}
+          <CardHeader className="text-center pb-4 border-b border-border">
+            <CardTitle className="text-xl font-bold mb-1 text-foreground">
+              {step === 1 && t('onboarding.wizard.step1Title')}
+              {step === 2 && t('onboarding.wizard.step2Title')}
+              {step === 3 && t('onboarding.wizard.step3Title')}
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              {step === 1 && t('onboarding.wizard.step1Desc')}
+              {step === 2 && t('onboarding.wizard.step2Desc')}
+              {step === 3 && t('onboarding.wizard.step3Desc')}
+            </CardDescription>
           </CardHeader>
 
-          <CardContent className="p-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="min-h-[300px]"
-              >
-                {/* Step 1: Company Info */}
-                {step === 1 && (
-                  <div className="space-y-6">
-                    <div className="grid gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="rental_name">Company Name</Label>
-                        <Input
-                          id="rental_name"
-                          placeholder="e.g. Horská Výbava s.r.o."
-                          value={formData.rental_name}
-                          onChange={(e) => updateField('rental_name', e.target.value)}
-                          className={`h-12 text-lg transition-all ${errors.rental_name ? 'border-red-500 ring-red-500/20' : 'focus:ring-primary/20'}`}
-                        />
-                        {errors.rental_name && <p className="text-sm text-red-500 flex items-center gap-1">⚠️ {errors.rental_name}</p>}
-                      </div>
+          <CardContent className="p-6 min-h-[340px]">
+            {/* Step 1: Workspace - always rendered, visibility controlled */}
+            <div className={step === 1 ? 'block' : 'hidden'}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="rental_name">
+                    {t('onboarding.wizard.labels.rentalName')} *
+                  </Label>
+                  <Input
+                    id="rental_name"
+                    placeholder={t('onboarding.wizard.placeholders.rentalName')}
+                    value={formData.rental_name}
+                    onChange={(e) => updateField('rental_name', e.target.value)}
+                    className={`h-11 ${errors.rental_name ? 'border-destructive focus:ring-destructive' : 'focus:ring-primary'}`}
+                  />
+                  {errors.rental_name && <p className="text-sm text-destructive">{errors.rental_name}</p>}
+                </div>
 
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="contact_name">Contact Person</Label>
-                          <Input
-                            id="contact_name"
-                            placeholder="Your Full Name"
-                            value={formData.contact_name}
-                            onChange={(e) => updateField('contact_name', e.target.value)}
-                            className={`h-12 ${errors.contact_name ? 'border-red-500' : ''}`}
-                          />
-                          {errors.contact_name && <p className="text-sm text-red-500">⚠️ {errors.contact_name}</p>}
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="company_id">IČO (Company ID)</Label>
-                          <Input
-                            id="company_id"
-                            placeholder="12345678"
-                            value={formData.company_id}
-                            onChange={(e) => updateField('company_id', e.target.value)}
-                            maxLength={8}
-                            className={`h-12 font-mono ${errors.company_id ? 'border-red-500' : ''}`}
-                          />
-                          {errors.company_id && <p className="text-sm text-red-500">⚠️ {errors.company_id}</p>}
-                        </div>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="contact_phone">
+                      {t('onboarding.wizard.labels.contactPhone')} *
+                    </Label>
+                    <Input
+                      id="contact_phone"
+                      placeholder={t('onboarding.wizard.placeholders.phone')}
+                      value={formData.contact_phone}
+                      onChange={(e) => updateField('contact_phone', e.target.value)}
+                      className={`h-11 ${errors.contact_phone ? 'border-destructive' : ''}`}
+                    />
+                    {errors.contact_phone && <p className="text-xs text-destructive">{errors.contact_phone}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact_email">
+                      {t('onboarding.wizard.labels.contactEmail')} *
+                    </Label>
+                    <Input
+                      id="contact_email"
+                      type="email"
+                      placeholder={t('onboarding.wizard.placeholders.email')}
+                      value={formData.contact_email}
+                      onChange={(e) => updateField('contact_email', e.target.value)}
+                      className={`h-11 ${errors.contact_email ? 'border-destructive' : ''}`}
+                    />
+                    {errors.contact_email && <p className="text-xs text-destructive">{errors.contact_email}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="currency">{t('onboarding.wizard.labels.currency')}</Label>
+                    <Select value={formData.currency} onValueChange={(v) => updateField('currency', v as 'CZK' | 'EUR' | 'USD')}>
+                      <SelectTrigger className="h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="CZK">🇨🇿 CZK</SelectItem>
+                        <SelectItem value="EUR">🇪🇺 EUR</SelectItem>
+                        <SelectItem value="USD">🇺🇸 USD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="time_zone">{t('onboarding.wizard.labels.timezone')}</Label>
+                    <Select value={formData.time_zone} onValueChange={(v) => updateField('time_zone', v)}>
+                      <SelectTrigger className="h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Europe/Prague">Europe/Prague</SelectItem>
+                        <SelectItem value="Europe/Berlin">Europe/Berlin</SelectItem>
+                        <SelectItem value="Europe/London">Europe/London</SelectItem>
+                        <SelectItem value="America/New_York">America/New_York</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2: Location */}
+            <div className={step === 2 ? 'block' : 'hidden'}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">{t('onboarding.wizard.labels.city')} *</Label>
+                    <Input
+                      id="location"
+                      placeholder={t('onboarding.wizard.placeholders.city')}
+                      value={formData.location}
+                      onChange={(e) => updateField('location', e.target.value)}
+                      className={`h-11 ${errors.location ? 'border-destructive' : ''}`}
+                    />
+                    {errors.location && <p className="text-xs text-destructive">{errors.location}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">{t('onboarding.wizard.labels.address')}</Label>
+                    <Input
+                      id="address"
+                      placeholder={t('onboarding.wizard.placeholders.address')}
+                      value={formData.address}
+                      onChange={(e) => updateField('address', e.target.value)}
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="business_hours">{t('onboarding.wizard.labels.businessHours')}</Label>
+                  <Input
+                    id="business_hours"
+                    placeholder={t('onboarding.wizard.placeholders.businessHours')}
+                    value={formData.business_hours_display}
+                    onChange={(e) => updateField('business_hours_display', e.target.value)}
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="pickup_instructions">{t('onboarding.wizard.labels.pickupInstructions')}</Label>
+                  <Textarea
+                    id="pickup_instructions"
+                    placeholder={t('onboarding.wizard.placeholders.pickupInstructions')}
+                    value={formData.pickup_instructions}
+                    onChange={(e) => updateField('pickup_instructions', e.target.value)}
+                    className="min-h-[80px] resize-none"
+                    maxLength={500}
+                  />
+                  <p className="text-xs text-muted-foreground text-right">
+                    {formData.pickup_instructions?.length || 0}/500
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3: Inventory Choice */}
+            <div className={step === 3 ? 'block' : 'hidden'}>
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => handleInventoryChoice('csv_import')}
+                  disabled={isSubmitting}
+                  className="w-full flex items-center gap-4 p-4 bg-muted/30 border-2 border-transparent rounded-xl hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all shadow-sm">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">{t('onboarding.wizard.inventoryOptions.csvImport')}</p>
+                    <p className="text-sm text-muted-foreground">Otevřeme import a dáme vám šablonu</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleInventoryChoice('manual')}
+                  disabled={isSubmitting}
+                  className="w-full flex items-center gap-4 p-4 bg-muted/30 border-2 border-transparent rounded-xl hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all shadow-sm">
+                    <PlusCircle className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">{t('onboarding.wizard.inventoryOptions.manual')}</p>
+                    <p className="text-sm text-muted-foreground">Hned přidáte první kus (30 sekund)</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleInventoryChoice('demo')}
+                  disabled={isSubmitting}
+                  className="w-full flex items-center gap-4 p-4 bg-muted/20 border-2 border-dashed border-muted rounded-xl hover:border-muted-foreground/50 hover:bg-muted/30 transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-muted group-hover:bg-muted-foreground/20 flex items-center justify-center transition-all">
+                    <Sparkles className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">{t('onboarding.wizard.inventoryOptions.demo')}</p>
+                    <p className="text-sm text-muted-foreground">Ukázková data, jedním klikem je smažete</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                </button>
+
+                {isSubmitting && (
+                  <div className="flex items-center justify-center gap-2 text-primary mt-4">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Vytvářím váš účet...</span>
                   </div>
                 )}
-
-                {/* Step 2: Location & Contact */}
-                {step === 2 && (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Street Address</Label>
-                      <Input
-                        id="address"
-                        placeholder="Street, Number"
-                        value={formData.address}
-                        onChange={(e) => updateField('address', e.target.value)}
-                        className={`h-12 ${errors.address ? 'border-red-500' : ''}`}
-                      />
-                      {errors.address && <p className="text-sm text-red-500">⚠️ {errors.address}</p>}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="location">City</Label>
-                        <Input
-                          id="location"
-                          placeholder="City"
-                          value={formData.location}
-                          onChange={(e) => updateField('location', e.target.value)}
-                          className={`h-12 ${errors.location ? 'border-red-500' : ''}`}
-                        />
-                        {errors.location && <p className="text-sm text-red-500">⚠️ {errors.location}</p>}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="country">Country</Label>
-                        <Select value={formData.country} onValueChange={(value) => updateField('country', value)}>
-                          <SelectTrigger className="h-12">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="CZ">🇨🇿 Czech Republic</SelectItem>
-                            <SelectItem value="SK">🇸🇰 Slovakia</SelectItem>
-                            <SelectItem value="AT">🇦🇹 Austria</SelectItem>
-                            <SelectItem value="PL">🇵🇱 Poland</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        placeholder="+420 777 123 456"
-                        value={formData.phone}
-                        onChange={(e) => updateField('phone', e.target.value)}
-                        className={`h-12 font-mono ${errors.phone ? 'border-red-500' : ''}`}
-                      />
-                      {errors.phone && <p className="text-sm text-red-500">⚠️ {errors.phone}</p>}
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 3: Business Details */}
-                {step === 3 && (
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <Label className="text-lg font-medium">What do you rent?</Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        {[
-                          'Ferraty & Via Ferrata', 'Climbing & Mountaineering',
-                          'Winter Sports', 'Water Sports',
-                          'Camping & Hiking', 'Other'
-                        ].map((category) => (
-                          <div
-                            key={category}
-                            onClick={() => toggleCategory(category)}
-                            className={`
-                                cursor-pointer border rounded-lg p-3 flex items-center space-x-3 transition-all duration-200
-                                ${formData.categories.includes(category)
-                                ? 'bg-primary/5 border-primary shadow-sm text-primary'
-                                : 'hover:bg-gray-50 border-gray-200'}
-                            `}
-                          >
-                            <Checkbox
-                              checked={formData.categories.includes(category)}
-                              onCheckedChange={() => toggleCategory(category)}
-                              className="data-[state=checked]:bg-primary"
-                            />
-                            <span className="text-sm font-medium">{category}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <Label className="text-base">Operational Mode</Label>
-                      <RadioGroup
-                        value={formData.seasonal_mode ? 'seasonal' : 'year-round'}
-                        onValueChange={(value) => updateField('seasonal_mode', value === 'seasonal')}
-                        className="grid grid-cols-2 gap-4"
-                      >
-                        <div className={`
-                            flex items-center space-x-2 border rounded-lg p-4 cursor-pointer transition-all
-                            ${!formData.seasonal_mode ? 'bg-white border-primary shadow-sm' : 'border-transparent hover:bg-white'}
-                        `}>
-                          <RadioGroupItem value="year-round" id="year-round" />
-                          <Label htmlFor="year-round" className="cursor-pointer font-medium">Year-round</Label>
-                        </div>
-                        <div className={`
-                            flex items-center space-x-2 border rounded-lg p-4 cursor-pointer transition-all
-                            ${formData.seasonal_mode ? 'bg-white border-primary shadow-sm' : 'border-transparent hover:bg-white'}
-                        `}>
-                          <RadioGroupItem value="seasonal" id="seasonal" />
-                          <Label htmlFor="seasonal" className="cursor-pointer font-medium">Seasonal</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 4: Success */}
-                {step === 4 && (
-                  <div className="text-center py-8 space-y-6">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                    >
-                      <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 className="w-12 h-12" />
-                      </div>
-                    </motion.div>
-
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-gray-900">Successfully Configured!</h3>
-                      <p className="text-gray-500">
-                        {formData.rental_name} is now ready for business.
-                      </p>
-                    </div>
-
-                    <div className="grid gap-3 max-w-sm mx-auto text-left">
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <span className="bg-white p-2 rounded-md shadow-sm text-lg">📦</span>
-                        <span className="font-medium text-gray-700">Add Inventory</span>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <span className="bg-white p-2 rounded-md shadow-sm text-lg">📅</span>
-                        <span className="font-medium text-gray-700">Manage Reservations</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
+              </div>
+            </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between pt-8 mt-4 border-t border-gray-100">
-              {step > 1 && step < 4 && (
+            {step < 3 && (
+              <div className="flex justify-end pt-6 mt-6 border-t border-border">
                 <Button
-                  variant="ghost"
-                  onClick={handleBack}
-                  disabled={isSubmitting}
-                  className="pl-0 hover:pl-2 transition-all"
-                >
-                  ← Back
-                </Button>
-              )}
-
-              {/* Spacer for Step 1 where there is no back button */}
-              {step === 1 && <div />}
-
-              {step < 3 && (
-                <Button
-                  size="lg"
+                  type="button"
                   onClick={handleNext}
-                  className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 rounded-full px-8 transition-all hover:scale-105"
-                >
-                  Continue →
-                </Button>
-              )}
-
-              {step === 3 && (
-                <Button
                   size="lg"
-                  onClick={handleNext} // Just moves to success step locally, actual submit happens there usually or we submit here
-                  className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 rounded-full px-8 transition-all hover:scale-105"
+                  className="gap-2 shadow-md hover:shadow-lg transition-shadow"
                 >
-                  Finish Setup →
+                  {t('onboarding.wizard.buttons.continue')}
+                  <ArrowRight className="w-4 h-4" />
                 </Button>
-              )}
-
-              {step === 4 && (
-                <Button
-                  size="lg"
-                  onClick={handleComplete}
-                  disabled={isSubmitting}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/25 rounded-full text-lg h-14 transition-all hover:scale-105"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Launching Dashboard...
-                    </>
-                  ) : (
-                    'Go to Dashboard →'
-                  )}
-                </Button>
-              )}
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Footer hint + skip link */}
+        <div className="text-center mt-4 space-y-2">
+          <p className="text-xs text-muted-foreground">
+            Všechna data můžete později upravit v nastavení.
+          </p>
+          <Link
+            to="/provider/dashboard"
+            className="text-xs text-muted-foreground hover:text-primary underline"
+          >
+            Přeskočit a nastavit později
+          </Link>
+        </div>
       </div>
     </div>
   );

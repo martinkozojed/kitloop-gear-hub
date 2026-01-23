@@ -9,7 +9,8 @@ import { Wrench, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/ui/page-header';
 
 interface MaintenanceItem {
     id: string;
@@ -29,6 +30,7 @@ interface MaintenanceItem {
 
 const ProviderMaintenance = () => {
     const { provider } = useAuth();
+    const { t } = useTranslation();
     const [items, setItems] = useState<MaintenanceItem[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -81,11 +83,11 @@ const ProviderMaintenance = () => {
             setItems(transformed);
         } catch (err: unknown) {
             console.error(err);
-            toast.error('Failed to load maintenance items');
+            toast.error(t('operations.maintenance.toasts.loadError'));
         } finally {
             setLoading(false);
         }
-    }, [provider?.id]);
+    }, [provider?.id, t]);
 
     useEffect(() => {
         fetchMaintenanceItems();
@@ -93,7 +95,7 @@ const ProviderMaintenance = () => {
 
     const handleResolve = async (id: string) => {
         if (!provider) {
-            toast.error('You must be logged in');
+            toast.error(t('operations.maintenance.toasts.error'));
             return;
         }
 
@@ -116,68 +118,80 @@ const ProviderMaintenance = () => {
                 cost_cents: 0
             });
 
-            toast.success('Asset returned to inventory');
+            toast.success(t('operations.maintenance.toasts.resolved'));
             fetchMaintenanceItems();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Unknown error';
-            toast.error('Failed to resolve', { description: message });
+            toast.error(t('operations.maintenance.toasts.error'), { description: message });
         }
     };
 
     return (
         <ProviderLayout>
             <div className="space-y-6">
-                <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <Wrench className="w-6 h-6 text-orange-600" />
-                        Maintenance & Service
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Track and manage equipment currently out of service.
-                    </p>
-                </div>
+                <PageHeader
+                    title={
+                        <span className="flex items-center gap-2">
+                            <Wrench className="w-6 h-6 text-orange-600" />
+                            {t('operations.maintenance.title')}
+                        </span>
+                    }
+                    description={t('operations.maintenance.subtitle')}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">In Service</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                {t('operations.maintenance.stats.inService')}
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{items.length}</div>
-                            <p className="text-xs text-muted-foreground">Assets currently unavailable</p>
+                            <p className="text-xs text-muted-foreground">
+                                {t('operations.maintenance.stats.inServiceDesc')}
+                            </p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Repair Time</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                {t('operations.maintenance.stats.avgRepairTime')}
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">2.4 Days</div>
-                            <p className="text-xs text-muted-foreground">Last 30 days</p>
+                            <div className="text-2xl font-bold">{t('operations.maintenance.stats.noData')}</div>
+                            <p className="text-xs text-muted-foreground">
+                                {t('operations.maintenance.stats.avgRepairTimeDesc')}
+                            </p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Service Costs</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                {t('operations.maintenance.stats.serviceCosts')}
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">0 CZK</div>
-                            <p className="text-xs text-muted-foreground">This month</p>
+                            <div className="text-2xl font-bold">{t('operations.maintenance.stats.noData')}</div>
+                            <p className="text-xs text-muted-foreground">
+                                {t('operations.maintenance.stats.serviceCostsDesc')}
+                            </p>
                         </CardContent>
                     </Card>
                 </div>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Service Queue</CardTitle>
+                        <CardTitle>{t('operations.maintenance.queue.title')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {loading ? (
-                            <div className="text-center py-8">Loading...</div>
+                            <div className="text-center py-8">{t('operations.maintenance.queue.loading')}</div>
                         ) : items.length === 0 ? (
                             <div className="text-center py-12 text-muted-foreground bg-gray-50 rounded-lg border border-dashed">
                                 <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-500 opacity-50" />
-                                <p>All clear! No items in maintenance.</p>
+                                <p>{t('operations.maintenance.queue.empty')}</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -197,21 +211,21 @@ const ProviderMaintenance = () => {
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <AlertTriangle className="w-3 h-3 text-orange-500" />
-                                                    Health: {item.condition_score}%
+                                                    {t('operations.maintenance.queue.health', { score: item.condition_score })}
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <Clock className="w-3 h-3" />
-                                                    Since: {format(new Date(item.updated_at), 'MMM d, p')}
+                                                    {t('operations.maintenance.queue.since', { date: format(new Date(item.updated_at), 'MMM d, p') })}
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                                             <Button size="sm" onClick={() => handleResolve(item.id)} className="w-full sm:w-auto bg-green-600 hover:bg-green-700">
                                                 <CheckCircle className="w-4 h-4 mr-2" />
-                                                Finish
+                                                {t('operations.maintenance.actions.finish')}
                                             </Button>
                                             <Button size="sm" variant="outline" className="w-full sm:w-auto">
-                                                Log Work
+                                                {t('operations.maintenance.actions.logWork')}
                                             </Button>
                                         </div>
                                     </div>
@@ -226,3 +240,4 @@ const ProviderMaintenance = () => {
 };
 
 export default ProviderMaintenance;
+

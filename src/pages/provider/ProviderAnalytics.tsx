@@ -359,13 +359,13 @@ const ProviderAnalytics = () => {
                 type="single"
                 value={period}
                 onValueChange={handlePeriodChange}
-                className="flex rounded-full border border-emerald-100 bg-white p-1 shadow-[0_10px_25px_-18px_rgba(16,185,129,0.45)]"
+                className="flex rounded-full border border-emerald-100 bg-white p-1 shadow-sm"
               >
                 {periodOptions.map((option) => (
                   <ToggleGroupItem
                     key={option.value}
                     value={option.value}
-                    className="rounded-full px-3 py-1 text-xs font-medium data-[state=on]:bg-gradient-to-r data-[state=on]:from-[#4FCB84] data-[state=on]:via-[#43B273] data-[state=on]:to-[#2F8C55] data-[state=on]:text-white data-[state=on]:shadow-[0_14px_35px_-20px_rgba(41,120,72,0.65)] data-[state=on]:hover:from-[#47BC79] data-[state=on]:hover:via-[#3FA467] data-[state=on]:hover:to-[#297A4B]"
+                    className="rounded-full px-3 py-1 text-xs font-medium data-[state=on]:bg-gradient-to-r data-[state=on]:from-[#4FCB84] data-[state=on]:via-[#43B273] data-[state=on]:to-[#2F8C55] data-[state=on]:text-white data-[state=on]:shadow-sm data-[state=on]:hover:from-[#47BC79] data-[state=on]:hover:via-[#3FA467] data-[state=on]:hover:to-[#297A4B]"
                   >
                     {option.label}
                   </ToggleGroupItem>

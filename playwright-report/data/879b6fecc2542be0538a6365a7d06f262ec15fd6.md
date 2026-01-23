@@ -1,0 +1,201 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic:
+    - list
+    - region "Notifications alt+T":
+      - list:
+        - status:
+          - generic:
+            - img
+          - generic:
+            - generic: Rezervace úspěšně vydána
+    - banner:
+      - generic:
+        - generic:
+          - link:
+            - /url: /
+            - generic: Kit
+            - generic: loop
+        - generic:
+          - generic:
+            - button:
+              - img
+              - generic: Search...
+              - generic:
+                - generic: ⌘
+                - text: K
+        - generic:
+          - button: 🇺🇸 EN
+          - button:
+            - img
+            - generic: e2e_provider_issue_1769210612686@example.com
+    - main:
+      - generic:
+        - link:
+          - /url: "#main-content"
+          - text: Skip to main content
+        - complementary:
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - generic:
+                    - img
+                    - generic: Search...
+                  - generic:
+                    - generic: ⌘
+                    - text: K
+                - button:
+                  - img
+            - navigation:
+              - generic:
+                - heading [level=4]: Overview
+                - link:
+                  - /url: /provider/dashboard
+                  - img
+                  - text: Dashboard
+                - link:
+                  - /url: /provider/analytics
+                  - img
+                  - text: Analytics
+              - generic:
+                - heading [level=4]: Operations
+                - link:
+                  - /url: /provider/reservations
+                  - img
+                  - text: Reservations
+                - link:
+                  - /url: /provider/inventory
+                  - img
+                  - text: Inventory
+                - link:
+                  - /url: /provider/maintenance
+                  - img
+                  - text: Maintenance
+                - link:
+                  - /url: /provider/customers
+                  - img
+                  - text: Customers
+                - link:
+                  - /url: /provider/accounts
+                  - img
+                  - text: Organizations
+              - generic:
+                - heading [level=4]: System
+                - link:
+                  - /url: /provider/settings
+                  - img
+                  - text: Settings
+            - generic:
+              - generic:
+                - paragraph: Logged in as Provider Admin
+              - link:
+                - /url: /provider/reservations/new
+                - img
+                - generic: New Reservation
+        - button:
+          - img
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - heading [level=1]:
+                    - text: "reservationDetail.header.reservation #c29de354"
+                    - generic: Active
+                  - paragraph: reservationDetail.header.manage
+              - generic:
+                - generic:
+                  - generic:
+                    - tablist:
+                      - tab [selected]: reservationDetail.tabs.details
+                      - tab:
+                        - img
+                        - text: reservationDetail.tabs.messages
+                        - generic: "0"
+                      - tab:
+                        - img
+                        - text: Vybavení
+                        - generic: "1"
+                    - tabpanel:
+                      - generic:
+                        - generic:
+                          - heading [level=3]:
+                            - img
+                            - text: reservationDetail.cards.rentalInfo
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: reservationDetail.labels.item
+                              - generic: e2e_issue_1769210612686_preflight_e2e_provider_issue_1769210612686_example_product - e2e_issue_1769210612686_preflight_e2e_provider_issue_1769210612686_example_variant
+                            - generic:
+                              - text: reservationDetail.labels.totalPrice
+                              - generic: 1 500 Kč
+                            - generic:
+                              - text: reservationDetail.labels.start
+                              - generic:
+                                - img
+                                - text: 24.01.2026 01:00
+                            - generic:
+                              - text: reservationDetail.labels.end
+                              - generic:
+                                - img
+                                - text: 25.01.2026 01:00
+                      - generic:
+                        - generic:
+                          - heading [level=3]:
+                            - img
+                            - text: reservationDetail.cards.customer
+                        - generic:
+                          - generic:
+                            - generic: Preflight Customer e2e_issue_1769210612686
+                            - generic: customer@example.com
+                            - generic: "+420777000333"
+                - generic:
+                  - generic:
+                    - generic:
+                      - heading [level=3]: reservationDetail.cards.actions
+                    - generic:
+                      - button:
+                        - img
+                        - text: Přijmout Vrácení
+                      - button [disabled]:
+                        - img
+                        - text: reservationDetail.actions.resend
+                      - paragraph: Notifications are disabled in this environment.
+    - generic:
+      - generic:
+        - generic: Build
+        - generic: dev
+        - generic: •
+        - generic: dev
+  - dialog "Vrátit Vybavení" [ref=e2]:
+    - heading "Vrátit Vybavení" [level=2] [ref=e4]
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - heading "Seznam vybavení" [level=4] [ref=e7]
+        - list [ref=e8]:
+          - listitem [ref=e9]:
+            - generic [ref=e10]:
+              - text: e2e_issue_1769210612686_preflight_e2e_provider_issue_1769210612686_example_asset_1
+              - generic [ref=e11]: (e2e_issue_1769210612686_preflight_e2e_provider_issue_1769210612686_example_variant)
+            - generic [ref=e12]:
+              - generic [ref=e13]: OK
+              - checkbox "OK" [active] [ref=e14] [cursor=pointer]
+      - generic [ref=e15]:
+        - text: Poznámka / Závady
+        - textbox "Popište stav při vrácení..." [ref=e16]
+      - generic [ref=e17]:
+        - text: Fotodokumentace
+        - button "Choose File" [ref=e18]
+    - generic [ref=e19]:
+      - button "Zrušit" [ref=e20] [cursor=pointer]
+      - button "Potvrdit Vrácení" [ref=e21] [cursor=pointer]
+    - button "Close" [ref=e22] [cursor=pointer]:
+      - img [ref=e23]
+      - generic [ref=e26]: Close
+```

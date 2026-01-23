@@ -20,7 +20,7 @@ const Hero = () => {
         alt={t('hero.image_alt')}
         className="absolute inset-0 w-full h-full object-cover"
       />
-      <div className="absolute inset-0 bg-green-600/60 sm:bg-green-600/40" />
+      <div className="absolute inset-0 bg-primary/60 sm:bg-primary/40" />
 
       <div className="container relative z-10 flex flex-col items-center text-center px-6 max-w-3xl">
         <h1 className="text-4xl md:text-6xl font-heading font-bold text-white mb-4">

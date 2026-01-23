@@ -57,10 +57,10 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">{t('login.email')}</label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder={t('login.email_placeholder')} 
+              <Input
+                id="email"
+                type="email"
+                placeholder={t('login.email_placeholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -74,19 +74,19 @@ const Login = () => {
                   {t('login.forgot_password')}
                 </Link>
               </div>
-              <Input 
-                id="password" 
-                type="password" 
+              <Input
+                id="password"
+                type="password"
                 placeholder={t('login.password_placeholder')}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)} 
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 data-testid="login-password"
               />
             </div>
             <Button
               type="submit"
-              variant="primary"
+              variant="cta"
               className="w-full"
               disabled={isLoggingIn}
               data-testid="login-submit"

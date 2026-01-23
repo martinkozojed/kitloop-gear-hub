@@ -29,6 +29,26 @@ jobs:
           echo "Linting against base: $BASE_REF"
           bash ./scripts/lint_changed.sh "$BASE_REF"
 
+  drift_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: UI Drift Scan
+        id: drift
+        # continue-on-error: true means valid exit 0 even if violations found,
+        # but we also want the script to potentially exit 0 or handling it.
+        # The user requested WARNING (continue-on-error).
+        continue-on-error: true
+        run: |
+          chmod +x scripts/ui-drift-scan.sh
+          bash scripts/ui-drift-scan.sh
+      - name: Upload Drift Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-drift-report
+          path: docs/ui_drift_raw.txt
+
+
   typecheck:
     runs-on: ubuntu-latest
     needs: lint

@@ -32,7 +32,7 @@ export async function generateDemoData(providerId: string) {
         provider_id: providerId,
         variant_id: variant.id,
         asset_tag: `TAG-${2000 + i}`,
-        status: ['available', 'maintenance', 'active'][i % 3] as any,
+        status: (['available', 'maintenance', 'active'] as const)[i % 3],
         condition_score: Math.floor(Math.random() * 30) + 70, // 70-100
         location: 'Warehouse A'
     }));

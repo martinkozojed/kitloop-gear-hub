@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,19 +32,7 @@ export function UpsertCustomerModal({ open, onOpenChange, onSuccess }: UpsertCus
     const [status, setStatus] = useState('active');
     const [accounts, setAccounts] = useState<AccountOption[]>([]);
 
-    useEffect(() => {
-        if (open) {
-            setFullName('');
-            setEmail('');
-            setPhone('');
-            setAccountId(null);
-            setNotes('');
-            setStatus('active');
-            fetchAccounts();
-        }
-    }, [open]);
-
-    const fetchAccounts = async () => {
+    const fetchAccounts = useCallback(async () => {
         if (!provider?.id) return;
         const { data, error } = await supabase
             .from('accounts')
@@ -57,7 +45,19 @@ export function UpsertCustomerModal({ open, onOpenChange, onSuccess }: UpsertCus
             return;
         }
         setAccounts(data || []);
-    };
+    }, [provider?.id]);
+
+    useEffect(() => {
+        if (open) {
+            setFullName('');
+            setEmail('');
+            setPhone('');
+            setAccountId(null);
+            setNotes('');
+            setStatus('active');
+            fetchAccounts();
+        }
+    }, [open, fetchAccounts]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -86,9 +86,10 @@ export function UpsertCustomerModal({ open, onOpenChange, onSuccess }: UpsertCus
             toast.success("Customer created");
             onSuccess();
             onOpenChange(false);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
             logger.error('Failed to save customer', err);
-            toast.error("Failed to save customer", { description: err.message });
+            toast.error("Failed to save customer", { description: message });
         } finally {
             setLoading(false);
         }
