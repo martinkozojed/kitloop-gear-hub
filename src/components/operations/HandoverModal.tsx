@@ -46,13 +46,8 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
     const [scannerOpen, setScannerOpen] = useState(false);
     const [manualInput, setManualInput] = useState('');
 
-    useEffect(() => {
-        if (open && reservationId) {
-            fetchData();
-        }
-    }, [open, reservationId]);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
+        if (!reservationId) return;
         setLoading(true);
         try {
             // 1. Fetch Reservation Details
@@ -122,9 +117,16 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
         } finally {
             setLoading(false);
         }
-    };
+    }, [reservationId]);
+
+    useEffect(() => {
+        if (open && reservationId) {
+            fetchData();
+        }
+    }, [open, reservationId, fetchData]);
 
     const handleScan = async (code: string) => {
+        if (!reservationId) return;
         // Determine Mode
         const mode = reservation?.status === 'active' ? 'check-in' : 'check-out';
 
@@ -197,6 +199,7 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
     };
 
     const handleComplete = async () => {
+        if (!reservationId) return;
         // Transition Reservation Status
         const mode = reservation?.status === 'active' ? 'check-in' : 'check-out';
         try {

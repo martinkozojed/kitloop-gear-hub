@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { test, expect } from '@playwright/test';
 import { loginAs } from './utils/auth';
 import { getProviderCreds } from './utils/env';
