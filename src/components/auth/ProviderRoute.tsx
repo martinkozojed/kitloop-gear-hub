@@ -91,8 +91,8 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     const isOnAllowedPath = allowedPendingPaths.some(p => location.pathname.startsWith(p));
 
     if (!isOnAllowedPath) {
-      logger.debug('ProviderRoute: Pending provider attempted to access blocked route, redirecting to dashboard');
-      return <Navigate to="/provider/dashboard" replace />;
+      logger.debug('ProviderRoute: Pending provider attempted to access blocked route, redirecting to pending page');
+      return <Navigate to="/provider/pending" replace />;
     }
 
     // If on /provider/pending, show the page without overlay

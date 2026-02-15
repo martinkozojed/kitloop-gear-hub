@@ -201,11 +201,16 @@
 4. Ensure the following patterns are added:
 
 ```
+http://localhost:8080/**
 http://localhost:5173/**
+http://127.0.0.1:8080/**
 http://127.0.0.1:5173/**
 https://kitloop.cz/**
-https://*.netlify.app/**
+https://**--kitloop-gear-hub.netlify.app/**
 ```
+
+> **Note**: Port 8080 is primary (current dev server). Port 5173 optional (standard Vite default).  
+> **Netlify pattern**: Use `**--kitloop-gear-hub.netlify.app/**` for deploy previews (safer than `*.netlify.app`).
 
 1. Click "Save" if any changes made
 2. Wait ~1 minute for config to propagate
@@ -358,14 +363,19 @@ additional_redirect_urls = [
 
 **Required redirect URL patterns for production**:
 
-```
-http://localhost:5173/**
+```text
 http://localhost:8080/**
-http://127.0.0.1:5173/**
+http://localhost:5173/**
 http://127.0.0.1:8080/**
+http://127.0.0.1:5173/**
 https://kitloop.cz/**
-https://*.netlify.app/**
+https://**--kitloop-gear-hub.netlify.app/**
 ```
+
+> **Netlify Deploy Previews**: Use site-specific pattern `**--kitloop-gear-hub.netlify.app/**`  
+> instead of broad wildcard `*.netlify.app` for better security.  
+> **Port Priority**: 8080 is current dev server (primary). 5173 is standard Vite (optional compatibility).
+
 
 **Configuration steps**:
 
