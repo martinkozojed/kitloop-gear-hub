@@ -205,13 +205,15 @@ export function track(
     };
 
     // Console log with styling (debug only)
-    // eslint-disable-next-line no-console
-    console.log(
-        `%c[Telemetry] %c${name}`,
-        'color: #888; font-weight: normal',
-        'color: #10b981; font-weight: bold',
-        event.props || ''
-    );
+    if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.log(
+            `%c[Telemetry] %c${name}`,
+            'color: #888; font-weight: normal',
+            'color: #10b981; font-weight: bold',
+            event.props || ''
+        );
+    }
 
     // Save to localStorage ring buffer
     saveToBuffer(event);
@@ -302,12 +304,14 @@ export function logEventSummary(): void {
         return acc;
     }, {} as Record<string, number>);
 
-    // eslint-disable-next-line no-console
-    console.table(counts);
-    // eslint-disable-next-line no-console
-    console.log(`Total events: ${events.length} (max: ${MAX_EVENTS})`);
-    // eslint-disable-next-line no-console
-    console.log(`Session ID: ${getSessionId()}`);
-    // eslint-disable-next-line no-console
-    console.log(`Telemetry enabled: ${isEnabled()}`);
+    if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.table(counts);
+        // eslint-disable-next-line no-console
+        console.log(`Total events: ${events.length} (max: ${MAX_EVENTS})`);
+        // eslint-disable-next-line no-console
+        console.log(`Session ID: ${getSessionId()}`);
+        // eslint-disable-next-line no-console
+        console.log(`Telemetry enabled: ${isEnabled()}`);
+    }
 }

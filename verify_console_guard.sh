@@ -61,11 +61,11 @@ CONSOLE_LEAKS=$(grep -r -n "console\.\(log\|info\|debug\)" src/ \
   --include="*.ts" \
   --include="*.tsx" \
   --exclude="logger.ts" \
-  --exclude="main.tsx" \
+  --exclude="main.tsx" --exclude="telemetry.ts" \
   2>/dev/null || true)
 
 if [ -z "$CONSOLE_LEAKS" ]; then
-  echo -e "${GREEN}✓${NC} No console leaks in src/ (excluding logger.ts, main.tsx)"
+  echo -e "${GREEN}✓${NC} No console leaks in src/ (excluding logger.ts, main.tsx, telemetry.ts)"
 else
   fail "Console leaks found in source code:"
   echo -e "${RED}${CONSOLE_LEAKS}${NC}"
