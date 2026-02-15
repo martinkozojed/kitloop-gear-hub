@@ -1,7 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { KpiStrip } from "@/components/dashboard/KpiStrip";
+import { Card } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 import { ExceptionsQueue } from "@/components/dashboard/ExceptionsQueue";
 import { AgendaRow } from "@/components/dashboard/AgendaRow";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { DemoBanner } from "@/components/dashboard/DemoBanner";
 import { AgendaItemProps } from "@/types/dashboard";
 import { IssueFlow } from "@/components/operations/IssueFlow";
 import { ReturnFlow } from "@/components/operations/ReturnFlow";
@@ -24,6 +28,7 @@ import ProviderLayout from "@/components/provider/ProviderLayout";
 import { toast } from "sonner";
 import { PageLoadingSkeleton } from "@/components/ui/loading-state";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/context/AuthContext";
 import { enUS } from "date-fns/locale";
 
 const numberFormatter = new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: 0 });
@@ -37,6 +42,7 @@ const DashboardOverview = () => {
   const navigate = useNavigate();
   const { canViewFinancials } = usePermissions();
   const { t, i18n } = useTranslation();
+  const { provider } = useAuth();
 
   // Use Custom Hook for Data & Mutations
   const {
@@ -114,7 +120,7 @@ const DashboardOverview = () => {
     // Note: Hook already handles errors with optimistic rollback and error toast
     // We only add success feedback here
     await issueReservation({ id, isOverride });
-    
+
     toast.success('Item issued successfully', {
       description: 'Reservation is now active'
     });
@@ -125,7 +131,7 @@ const DashboardOverview = () => {
     // Note: Hook already handles errors with optimistic rollback and error toast
     // We only add success feedback here
     await returnReservation({ id, damage });
-    
+
     toast.success('Item returned successfully', {
       description: damage ? 'Damage report recorded' : 'All items in good condition'
     });
@@ -144,6 +150,13 @@ const DashboardOverview = () => {
     <ProviderLayout>
       <TooltipProvider>
         <div className="space-y-3 pt-0">
+          {/* Demo Data Banner (if using demo) */}
+          {provider?.id && (
+            <DemoBanner
+              providerId={provider.id}
+              onDemoDeleted={() => window.location.reload()}
+            />
+          )}
 
           {/* 1. Header & Controls */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 animate-fade-in -mt-3 sm:-mt-4">
@@ -170,7 +183,7 @@ const DashboardOverview = () => {
                   <ToggleGroupItem value="overview" aria-label="Overview Mode">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <LayoutDashboard className="h-4 w-4" />
+                        <Icon icon={LayoutDashboard} />
                       </TooltipTrigger>
                       <TooltipContent>{t('dashboard.view.overview')}</TooltipContent>
                     </Tooltip>
@@ -178,7 +191,7 @@ const DashboardOverview = () => {
                   <ToggleGroupItem value="operations" aria-label="Operations Mode">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <ListTodo className="h-4 w-4" />
+                        <Icon icon={ListTodo} />
                       </TooltipTrigger>
                       <TooltipContent>{t('dashboard.view.operations')}</TooltipContent>
                     </Tooltip>
@@ -190,7 +203,7 @@ const DashboardOverview = () => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" onClick={() => refresh()} disabled={isLoading}>
-                    <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                    <Icon icon={RefreshCw} className={isLoading ? 'animate-spin' : ''} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{t('dashboard.cta.refresh')}</TooltipContent>
@@ -204,7 +217,7 @@ const DashboardOverview = () => {
                 <TooltipTrigger asChild>
                   <Button asChild>
                     <Link to="/provider/reservations/new">
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Icon icon={Plus} className="mr-2" />
                       {t('dashboard.cta.newReservation')}
                     </Link>
                   </Button>
@@ -223,7 +236,7 @@ const DashboardOverview = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
             {/* Main Column: Agenda (Taking 8 cols) */}
-            <div className="lg:col-span-8 xl:col-span-9 bento-card p-6 min-h-[600px] flex flex-col">
+            <Card className="lg:col-span-8 xl:col-span-9 min-h-[600px] flex flex-col" padding="default">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="font-semibold text-xl flex items-center gap-2 text-foreground">
@@ -234,25 +247,25 @@ const DashboardOverview = () => {
 
                 {/* Visual Tab Switcher (Functional) */}
                 <div className="flex bg-muted p-1 rounded-lg">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className={`h-8 text-xs font-semibold ${agendaTab === 'all' ? 'shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('all')}
                   >
                     {t('dashboard.agenda.tabs.all')} <span className="ml-1 opacity-50">({agendaItems.length})</span>
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className={`h-8 text-xs ${agendaTab === 'pickups' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('pickups')}
                   >
                     {t('dashboard.agenda.tabs.pickups')} <span className="ml-1 opacity-50">({pickupsCount})</span>
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className={`h-8 text-xs ${agendaTab === 'returns' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('returns')}
                   >
@@ -294,78 +307,85 @@ const DashboardOverview = () => {
                   />
                 )}
               </div>
-            </div>
+            </Card>
+          </div>
 
-            {/* Right Column: Exceptions & Notes (Taking 4 cols) */}
-            <div className="lg:col-span-4 xl:col-span-3 space-y-6" id="exceptions-panel">
-              <ExceptionsQueue exceptions={exceptions} />
+          {/* Right Column: Exceptions & Notes (Taking 4 cols) */}
+          <div className="lg:col-span-4 xl:col-span-3 space-y-6" id="exceptions-panel">
+            {/* Onboarding Checklist - shows until dismissed */}
+            {provider?.id && (
+              <OnboardingChecklist
+                providerId={provider.id}
+                hasInventory={(kpiData.activeRentals ?? 0) > 0}
+                hasReservation={agendaItems.length > 0}
+              />
+            )}
 
-              <div className="bento-card p-4 space-y-4">
-                <h4 className="font-semibold text-sm flex items-center gap-2">
-                  <LayoutDashboard className="w-4 h-4 text-muted-foreground" /> {t('dashboard.quickStats.title')}
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-                    <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.revenue')}</div>
-                    <div className="text-lg font-bold text-emerald-700">
-                      {currencyFormatter.format(kpiData.dailyRevenue || 0)}
-                    </div>
+            <ExceptionsQueue exceptions={exceptions} />
+
+            <Card padding="compact" className="space-y-4">
+              <h4 className="font-semibold text-sm flex items-center gap-2">
+                <Icon icon={LayoutDashboard} className="text-muted-foreground" /> {t('dashboard.quickStats.title')}
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                  <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.revenue')}</div>
+                  <div className="text-lg font-bold text-emerald-700">
+                    {currencyFormatter.format(kpiData.dailyRevenue || 0)}
                   </div>
-                  <div className="p-3 bg-emerald-100 rounded-lg border border-emerald-200">
-                    <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.active')}</div>
-                    <div className="text-lg font-bold text-emerald-800">
-                      {numberFormatter.format(kpiData.activeRentals || 0)}
-                    </div>
+                </div>
+                <div className="p-3 bg-emerald-100 rounded-lg border border-emerald-200">
+                  <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.active')}</div>
+                  <div className="text-lg font-bold text-emerald-800">
+                    {numberFormatter.format(kpiData.activeRentals || 0)}
                   </div>
                 </div>
               </div>
-
-              {viewMode === 'overview' && (
-                <div className="p-4 rounded-lg border bg-amber-50/50 border-amber-200/50 border-dashed text-center text-sm text-amber-900/60">
-                  {t('dashboard.notesPlaceholder')}
-                </div>
-              )}
-            </div>
-
+            </Card>
           </div>
 
-          {/* MODALS */}
-          {activeReservation && (
-            <>
-              <IssueFlow
-                open={issueOpen}
-                onOpenChange={setIssueOpen}
-                reservation={{
-                  id: activeReservation.reservationId,
-                  customerName: activeReservation.customerName,
-                  itemName: `${activeReservation.itemCount} Items`
-                }}
-                onConfirm={executeIssue}
-              />
-
-              <ReturnFlow
-                open={returnOpen}
-                onOpenChange={setReturnOpen}
-                reservation={{
-                  id: activeReservation.reservationId,
-                  customerName: activeReservation.customerName,
-                  itemName: `${activeReservation.itemCount} Items`
-                }}
-                onConfirm={executeReturn}
-              />
-            </>
+          {viewMode === 'overview' && (
+            <div className="p-4 rounded-lg border bg-amber-50/50 border-amber-200/50 border-dashed text-center text-sm text-amber-900/60">
+              {t('dashboard.notesPlaceholder')}
+            </div>
           )}
-
-          <CustomerDetailSheet
-            customerId={selectedCrmId}
-            open={crmSheetOpen}
-            onOpenChange={setCrmSheetOpen}
-            onUpdate={() => refresh()}
-          />
-
         </div>
-      </TooltipProvider>
 
+        {/* MODALS */}
+        {activeReservation && (
+          <>
+            <IssueFlow
+              open={issueOpen}
+              onOpenChange={setIssueOpen}
+              reservation={{
+                id: activeReservation.reservationId,
+                customerName: activeReservation.customerName,
+                itemName: `${activeReservation.itemCount} Items`
+              }}
+              onConfirm={executeIssue}
+            />
+
+            <ReturnFlow
+              open={returnOpen}
+              onOpenChange={setReturnOpen}
+              reservation={{
+                id: activeReservation.reservationId,
+                customerName: activeReservation.customerName,
+                itemName: `${activeReservation.itemCount} Items`
+              }}
+              onConfirm={executeReturn}
+            />
+          </>
+        )}
+
+        <CustomerDetailSheet
+          customerId={selectedCrmId}
+          open={crmSheetOpen}
+          onOpenChange={setCrmSheetOpen}
+          onUpdate={() => refresh()}
+        />
+
+      </TooltipProvider>
     </ProviderLayout>
   );
 };

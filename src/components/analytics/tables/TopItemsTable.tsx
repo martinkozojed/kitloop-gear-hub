@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { TopItemPerformance } from "@/lib/analytics/types";
 import { formatCurrencyCZ, formatInteger } from "@/lib/analytics/formatters";
 import { Button } from "@/components/ui/button";
-import { useMemo, memo } from "react";
+import { useMemo, memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface TopItemsTableProps {
@@ -58,6 +58,9 @@ export const TopItemsTable = memo(function TopItemsTable({
 }: TopItemsTableProps) {
   const { t } = useTranslation();
   const rankedData = useMemo(() => data, [data]);
+  // Stable timestamp for rendering
+  const [now] = useState(() => new Date().getTime());
+
 
   const badgeLabel: Record<PerformanceBadge, string> = useMemo(
     () => ({
@@ -114,9 +117,9 @@ export const TopItemsTable = memo(function TopItemsTable({
                   const badge = getPerformanceBadge(item);
                   const days = item.lastRentedAt
                     ? Math.floor(
-                        (Date.now() - new Date(item.lastRentedAt).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      )
+                      (now - new Date(item.lastRentedAt).getTime()) /
+                      (1000 * 60 * 60 * 24)
+                    )
                     : null;
 
                   return (
@@ -144,8 +147,8 @@ export const TopItemsTable = memo(function TopItemsTable({
                         {days === null
                           ? t("provider.analytics.tables.topItems.lastRented.never")
                           : days === 0
-                          ? t("provider.analytics.tables.topItems.lastRented.today")
-                          : t("provider.analytics.tables.topItems.lastRented.daysAgo", { days })}
+                            ? t("provider.analytics.tables.topItems.lastRented.today")
+                            : t("provider.analytics.tables.topItems.lastRented.daysAgo", { days })}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

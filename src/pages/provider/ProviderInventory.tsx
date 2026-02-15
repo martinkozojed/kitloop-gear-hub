@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import ProviderLayout from '@/components/provider/ProviderLayout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -13,6 +14,9 @@ import { ProductForm } from '@/components/operations/ProductForm';
 import { AssetForm } from '@/components/operations/AssetForm';
 import { ScannerModal } from '@/components/operations/ScannerModal';
 import { CsvImportModal } from '@/components/operations/CsvImportModal';
+import { QuickAddAsset } from '@/components/onboarding/QuickAddAsset';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { useSearchParams } from 'react-router-dom';
 
 import { generateDemoData } from '@/lib/demo-data';
 
@@ -22,6 +26,7 @@ const ProviderInventory = () => {
   const { provider } = useAuth();
   const { canDeleteAssets } = usePermissions();
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState<InventoryAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
@@ -30,7 +35,22 @@ const ProviderInventory = () => {
   const [showAssetForm, setShowAssetForm] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === 'true';
+
+  // Handle onboarding URL params
+  useEffect(() => {
+    if (searchParams.get('addAsset') === 'true') {
+      setShowQuickAddModal(true);
+      searchParams.delete('addAsset');
+      setSearchParams(searchParams, { replace: true });
+    }
+    if (searchParams.get('import') === 'true') {
+      setShowImportModal(true);
+      searchParams.delete('import');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const fetchInventory = useCallback(async () => {
     if (!provider?.id) return;
@@ -154,7 +174,7 @@ const ProviderInventory = () => {
         .from('assets')
         .select('id')
         .eq('asset_tag', code)
-        .eq('provider_id', provider?.id)
+        .eq('provider_id', provider?.id || '')
         .single();
 
       if (asset) {
@@ -196,38 +216,36 @@ const ProviderInventory = () => {
   return (
     <ProviderLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-heading font-bold">{t('provider.inventory.title')}</h1>
-            <p className="text-muted-foreground">
-              {t('provider.inventory.subtitle')}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setShowScanner(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-              <QrCode className="w-4 h-4 mr-2" />
-              {t('provider.inventory.actions.scan')}
-            </Button>
-
-            {demoEnabled && (
-              <Button variant="outline" onClick={handleGenerateDemo} className="hidden sm:flex">
-                ⚡ {t('provider.inventory.actions.demo')}
+        <PageHeader
+          title={t('provider.inventory.title')}
+          description={t('provider.inventory.subtitle')}
+          actions={
+            <>
+              <Button variant="secondary" onClick={() => setShowScanner(true)}>
+                <QrCode className="w-4 h-4 mr-2" />
+                {t('provider.inventory.actions.scan')}
               </Button>
-            )}
-            <Button variant="outline" onClick={() => setShowImportModal(true)} className="hidden sm:flex">
-              <Upload className="w-4 h-4 mr-2" />
-              {t('provider.inventory.actions.import')}
-            </Button>
-            <Button variant="secondary" onClick={() => setShowProductForm(true)} className="hidden sm:flex">
-              <Package className="w-4 h-4 mr-2" />
-              {t('provider.inventory.actions.product')}
-            </Button>
-            <Button onClick={() => setShowAssetForm(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-              <Plus className="w-4 h-4 mr-2" />
-              {t('provider.inventory.actions.addAsset')}
-            </Button>
-          </div>
-        </div>
+
+              {demoEnabled && (
+                <Button variant="outline" onClick={handleGenerateDemo} className="hidden sm:flex">
+                  ⚡ {t('provider.inventory.actions.demo')}
+                </Button>
+              )}
+              <Button variant="outline" onClick={() => setShowImportModal(true)} className="hidden sm:flex">
+                <Upload className="w-4 h-4 mr-2" />
+                {t('provider.inventory.actions.import')}
+              </Button>
+              <Button variant="secondary" onClick={() => setShowProductForm(true)} className="hidden sm:flex">
+                <Package className="w-4 h-4 mr-2" />
+                {t('provider.inventory.actions.product')}
+              </Button>
+              <Button variant="primary" onClick={() => setShowAssetForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                {t('provider.inventory.actions.addAsset')}
+              </Button>
+            </>
+          }
+        />
 
         <Card className="p-1 min-h-[500px]">
           <InventoryGrid
@@ -281,6 +299,23 @@ const ProviderInventory = () => {
           onOpenChange={setShowImportModal}
           onSuccess={fetchInventory}
         />
+
+        {/* Quick Add Modal for Onboarding */}
+        <Dialog open={showQuickAddModal} onOpenChange={setShowQuickAddModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogTitle className="sr-only">Rychlé přidání položky</DialogTitle>
+            {provider?.id && (
+              <QuickAddAsset
+                providerId={provider.id}
+                onSuccess={() => {
+                  setShowQuickAddModal(false);
+                  fetchInventory();
+                }}
+                onCancel={() => setShowQuickAddModal(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </ProviderLayout>
   );

@@ -8,8 +8,10 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/lib/error-utils";
+import { logger } from "@/lib/logger";
 
 const Login = () => {
+  // Debug: Pre-fill with known working credentials
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -27,8 +29,12 @@ const Login = () => {
 
     setIsLoggingIn(true);
 
+    // Debug logging with JSON stringify to ensure visibility
+    // Debug logging with JSON stringify to ensure visibility
+    // logger.warn(`Login attempt payload: ${JSON.stringify(credentials)}`);
+
     try {
-      await login(email, password);
+      await login(email.trim(), password);
       toast.success(t('login.success'));
       navigate('/');
     } catch (error) {
@@ -57,10 +63,10 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">{t('login.email')}</label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder={t('login.email_placeholder')} 
+              <Input
+                id="email"
+                type="email"
+                placeholder={t('login.email_placeholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -74,19 +80,19 @@ const Login = () => {
                   {t('login.forgot_password')}
                 </Link>
               </div>
-              <Input 
-                id="password" 
-                type="password" 
+              <Input
+                id="password"
+                type="password"
                 placeholder={t('login.password_placeholder')}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)} 
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 data-testid="login-password"
               />
             </div>
             <Button
               type="submit"
-              variant="primary"
+              variant="cta"
               className="w-full"
               disabled={isLoggingIn}
               data-testid="login-submit"

@@ -47,12 +47,6 @@ const ProviderSettings = () => {
     { key: 'time_zone', label: t('provider.settings.fields.timezone') },
   ]), [t]);
 
-  useEffect(() => {
-    if (provider) {
-      hydrateFromProvider(provider);
-    }
-  }, [provider]);
-
   const hydrateFromProvider = useCallback((p: typeof provider) => {
     setFormData({
       rental_name: p?.rental_name || '',
@@ -83,6 +77,12 @@ const ProviderSettings = () => {
       terms_text: p?.terms_text || '',
     });
   }, []);
+
+  useEffect(() => {
+    if (provider) {
+      hydrateFromProvider(provider);
+    }
+  }, [provider, hydrateFromProvider]);
 
   const handleSave = async () => {
     if (!provider?.id) {
@@ -186,20 +186,20 @@ const ProviderSettings = () => {
     return () => window.removeEventListener('beforeunload', handler);
   }, [isDirty]);
 
-  const normalizePhone = (value: string) => {
+  const normalizePhone = useCallback((value: string) => {
     if (!value) return '';
     const cleaned = value.replace(/[\s-]/g, '');
     if (!cleaned.startsWith('+')) return cleaned;
     return cleaned;
-  };
+  }, []);
 
-  const validatePhone = (value: string) => {
+  const validatePhone = useCallback((value: string) => {
     const normalized = normalizePhone(value);
     if (!normalized.startsWith('+')) return false;
     const digits = normalized.replace(/[^\d]/g, '');
     const length = digits.length;
     return length >= 8 && length <= 15;
-  };
+  }, [normalizePhone]);
 
   const normalizeWebsite = (value: string) => {
     if (!value) return '';
@@ -256,7 +256,7 @@ const ProviderSettings = () => {
 
     setErrors(nextErrors);
     return nextErrors;
-  }, [formData, requiredFields, t]);
+  }, [formData, requiredFields, t, validatePhone]);
 
   return (
     <ProviderLayout>
@@ -540,7 +540,8 @@ const ProviderSettings = () => {
                     {t('provider.settings.actions.cancel')}
                   </Button>
                   <Button
-                    className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
+                    variant="primary"
+                    className="w-full md:w-auto"
                     onClick={handleSave}
                     disabled={isSubmitting}
                   >

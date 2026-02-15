@@ -12,6 +12,8 @@ interface KpiMetric {
 }
 
 import { KpiData } from "@/types/dashboard";
+import { Card } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 
 export function KpiStrip({ data }: { data?: KpiData }) {
     const { t } = useTranslation();
@@ -55,16 +57,17 @@ export function KpiStrip({ data }: { data?: KpiData }) {
     return (
         <div className="grid gap-4 md:grid-cols-3 mb-6">
             {metrics.map((metric, i) => (
-                <div 
-                    key={i} 
-                    className="bento-card p-6 flex flex-col justify-between group relative overflow-hidden h-[150px] transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                <Card
+                    key={i}
+                    padding="default"
+                    className="flex flex-col justify-between group relative overflow-hidden h-[150px] transition-all duration-200 hover:-translate-y-1 hover:shadow-elevated"
                 >
                     <div className="flex justify-between items-start">
-                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
                             {metric.label}
                         </span>
                         <div className={`p-2 rounded-lg bg-zinc-50 border border-zinc-100 group-hover:bg-white transition-all duration-200`}>
-                            <metric.icon className={`h-5 w-5 ${metric.color}`} />
+                            <Icon icon={metric.icon} size="md" className={metric.color} />
                         </div>
                     </div>
 
@@ -80,8 +83,9 @@ export function KpiStrip({ data }: { data?: KpiData }) {
                             {metric.trend}
                         </div>
                     </div>
-                </div>
-            ))}
-        </div>
+                </Card>
+            ))
+            }
+        </div >
     );
 }

@@ -93,7 +93,7 @@ export function ProductForm({ open, onOpenChange, onSuccess, productId }: Produc
             setVariants([{ id: '1', name: 'Standard', sku: '' }]);
             setVariants([{ id: '1', name: 'Standard', sku: '' }]);
         }
-    }, [open, productId, onOpenChange]);
+    }, [open, productId, onOpenChange, t]);
 
     const addVariant = () => {
         setVariants([...variants, { id: Math.random().toString(), name: '', sku: '' }]);

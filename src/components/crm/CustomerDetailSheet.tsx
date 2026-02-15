@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -31,13 +31,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
     const [notes, setNotes] = useState('');
     const [savingNotes, setSavingNotes] = useState(false);
 
-    useEffect(() => {
-        if (customerId && open) {
-            fetchCustomer360(customerId);
-        }
-    }, [customerId, open]);
-
-    const fetchCustomer360 = async (id: string) => {
+    const fetchCustomer360 = useCallback(async (id: string) => {
         setLoading(true);
         try {
             const { data, error } = await supabase.rpc('get_customer_360', { p_customer_id: id });
@@ -50,7 +44,13 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
         } finally {
             setLoading(false);
         }
-    };
+    }, [t]);
+
+    useEffect(() => {
+        if (customerId && open) {
+            fetchCustomer360(customerId);
+        }
+    }, [customerId, open, fetchCustomer360]);
 
     const handleSaveNotes = async () => {
         if (!customerId) return;

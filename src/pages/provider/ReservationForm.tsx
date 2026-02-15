@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import { cs, enUS } from 'date-fns/locale';
+import { track, trackError } from '@/lib/telemetry';
 
 interface Variant {
   id: string;
@@ -287,6 +288,7 @@ const ReservationForm = () => {
     if (!provider?.id) return;
 
     setSubmitting(true);
+    track('reservations.create_started', { variant_id: formData.variant_id }, 'ReservationForm');
     try {
       const startLocal = new Date(formData.start_date);
       const endLocal = new Date(formData.end_date);
@@ -329,10 +331,12 @@ const ReservationForm = () => {
         customerUserId: null,
       });
 
+      track('reservations.created', { reservation_id: reservationResult.reservation_id, status: reservationResult.status }, 'ReservationForm');
       toast.success(t('provider.reservationForm.toasts.created', { status: reservationResult.status }));
       navigate('/provider/reservations');
 
     } catch (error: unknown) {
+      trackError('reservation_create', error);
 
       logger.error('Reservation creation failed', error);
       toast.error(getErrorMessage(error) || t('provider.reservationForm.toasts.createError'));

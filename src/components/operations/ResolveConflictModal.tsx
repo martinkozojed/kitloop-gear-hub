@@ -176,9 +176,9 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
                                         <div className="flex flex-col">
                                             <span className="font-mono font-bold text-sm">{asset.asset_tag}</span>
                                             <div className="flex gap-2 mt-1">
-                                                <Badge variant="outline" className="text-[10px] h-5">{asset.status}</Badge>
+                                                <Badge variant="outline" className="text-xs h-5">{asset.status}</Badge>
                                                 {asset.condition_score !== null && (
-                                                    <span className={`text-[10px] flex items-center ${asset.condition_score < 70 ? 'text-amber-600' : 'text-green-600'}`}>
+                                                    <span className={`text-xs flex items-center ${asset.condition_score < 70 ? 'text-amber-600' : 'text-green-600'}`}>
                                                         Condition: {asset.condition_score}%
                                                     </span>
                                                 )}

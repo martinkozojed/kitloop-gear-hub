@@ -5,10 +5,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 3 * * *"
+  push:
+    branches:
+      - main
 
 jobs:
   security_regression:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'pull_request' && secrets.SECURITY_DB_URL != '') }}
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'pull_request' && secrets.SECURITY_DB_URL != '')
     runs-on: ubuntu-latest
     env:
       DB_URL: ${{ secrets.SECURITY_DB_URL }}
@@ -23,8 +26,8 @@ jobs:
         if: env.DB_URL != ''
         env:
           SUPABASE_DB_URL: ${{ env.DB_URL }}
-        run: ./scripts/test_security_regression.sh
+        run: chmod +x scripts/check_backend_security.sh && ./scripts/check_backend_security.sh
 
       - name: Skip (no secret)
         if: env.DB_URL == ''
-        run: echo "Skipping security_regression: missing SECURITY_DB_URL secret"
+        run: echo "Skipping security_regression - missing SECURITY_DB_URL secret (likely fork PR)"

@@ -258,7 +258,7 @@ async function handle(
       60_000,
     );
     // optionally surface remaining in logs
-    console.log(JSON.stringify({
+    console.warn(JSON.stringify({
       event: "stripe_webhook.rate_limit",
       event_id: eventId,
       remaining: info.remaining,
@@ -298,7 +298,7 @@ async function handle(
       });
       await client.queryObject`COMMIT`;
       inTxn = false;
-      console.log(JSON.stringify({ ...decision.log, event_id: eventId }));
+      console.warn(JSON.stringify({ ...decision.log, event_id: eventId }));
       return respond(decision.message, decision.httpStatus);
     }
 
@@ -370,7 +370,7 @@ async function handle(
     if (!decision.shouldUpdate) {
       await client.queryObject`COMMIT`;
       inTxn = false;
-      console.log(JSON.stringify({ ...decision.log, event_id: eventId }));
+      console.warn(JSON.stringify({ ...decision.log, event_id: eventId }));
       return respond(decision.message, decision.httpStatus);
     }
 
@@ -395,7 +395,7 @@ async function handle(
 
     await client.queryObject`COMMIT`;
     inTxn = false;
-    console.log(JSON.stringify({ ...decision.log, event_id: eventId }));
+    console.warn(JSON.stringify({ ...decision.log, event_id: eventId }));
     return respond(decision.message, decision.httpStatus);
   } finally {
     if (inTxn) {

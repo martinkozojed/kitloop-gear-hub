@@ -180,7 +180,7 @@ const SignUp = () => {
 
               <Button
                 type="submit"
-                variant="primary"
+                variant="cta"
                 className="w-full h-10 mt-2"
                 disabled={isRegistering}
               >

@@ -16,7 +16,8 @@
     "test:ui": "vitest --ui",
     "test:functions": "deno test supabase/functions/reserve_gear --allow-env --allow-read",
     "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "lint:colors": "bash scripts/lint-hardcoded-colors.sh"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -58,6 +59,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/leaflet": "^1.9.21",
     "@types/papaparse": "^5.5.2",
+    "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -85,14 +87,15 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "vaul": "^0.9.3",
+    "vaul": "^1.1.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@playwright/test": "^1.58.0",
     "@tailwindcss/typography": "^0.5.19",
-    "@types/node": "^22.5.5",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^25.1.0",
     "@types/pg": "^8.16.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
@@ -114,5 +117,9 @@
     "typescript-eslint": "^8.53.1",
     "vite": "^5.4.1",
     "vitest": "^4.0.16"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.57.1",
+    "@swc/core-linux-x64-gnu": "^1.7.39"
   }
 }

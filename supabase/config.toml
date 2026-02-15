@@ -1,4 +1,14 @@
 project_id = "bkyokcjpelqwtndienos"
 
+[auth]
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["http://localhost:5173", "http://127.0.0.1:8080", "http://127.0.0.1:5173"]
+
 [db]
 major_version = 15
+
+[functions.e2e_harness]
+verify_jwt = false
+
+[functions.reserve_gear]
+verify_jwt = false

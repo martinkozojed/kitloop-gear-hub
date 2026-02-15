@@ -3,8 +3,9 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Search, ScanLine } from 'lucide-react';
-import { toast } from 'sonner';
+import { Search, ScanLine, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { track } from '@/lib/telemetry';
 
 interface ScannerModalProps {
     open: boolean;
@@ -13,11 +14,17 @@ interface ScannerModalProps {
 }
 
 export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) {
+    const { t } = useTranslation();
     const scannerRef = useRef<Html5QrcodeScanner | null>(null);
     const [manualCode, setManualCode] = useState('');
+    const [scannerError, setScannerError] = useState<string | null>(null);
 
     useEffect(() => {
         if (open) {
+            // Track modal opened
+            track('inventory.scan_opened', undefined, 'ScannerModal');
+            setTimeout(() => setScannerError(null), 0);
+
             // Small timeout to allow Dialog transition to finish roughly
             const timer = setTimeout(() => {
                 const element = document.getElementById('reader');
@@ -42,10 +49,16 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
 
                 scanner.render((decodedText) => {
                     scanner.clear();
+                    track('inventory.scan_success', { method: 'camera' }, 'ScannerModal');
                     onScan(decodedText);
                     onOpenChange(false);
                 }, (errorMessage) => {
-                    // parse error, ignore
+                    // Camera permission denied or not available
+                    if (errorMessage.includes('NotAllowedError') || errorMessage.includes('NotFoundError')) {
+                        setScannerError(t('scanner.errors.cameraNotAvailable'));
+                        track('inventory.scan_failed', { reason: 'camera_denied' }, 'ScannerModal');
+                    }
+                    // Other scan errors are normal (no QR in frame) - ignore
                 });
 
                 scannerRef.current = scanner;
@@ -59,12 +72,13 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
                 }
             };
         }
-    }, [open]);
+    }, [open, t, onOpenChange, onScan]);
 
     const handleManualSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!manualCode.trim()) return;
 
+        track('inventory.scan_success', { method: 'manual' }, 'ScannerModal');
         onScan(manualCode.trim());
         onOpenChange(false);
         setManualCode('');
@@ -76,17 +90,27 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <ScanLine className="w-5 h-5" />
-                        Scan Asset Tag
+                        {t('scanner.title')}
                     </DialogTitle>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-6">
                     {/* Scanner Viewport */}
                     <div className="relative rounded-lg overflow-hidden bg-black/5 aspect-square flex flex-col items-center justify-center border-2 border-dashed border-gray-200">
-                        <div id="reader" className="w-full h-full"></div>
-                        <p className="absolute bottom-4 text-xs text-muted-foreground bg-white/80 px-2 py-1 rounded-full pointer-events-none">
-                            Point camera at QR Code
-                        </p>
+                        {scannerError ? (
+                            <div className="flex flex-col items-center gap-2 p-4 text-center">
+                                <AlertCircle className="w-8 h-8 text-amber-500" />
+                                <p className="text-sm text-muted-foreground">{scannerError}</p>
+                                <p className="text-xs text-muted-foreground">{t('scanner.useManualEntry')}</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div id="reader" className="w-full h-full"></div>
+                                <p className="absolute bottom-4 text-xs text-muted-foreground bg-white/80 px-2 py-1 rounded-full pointer-events-none">
+                                    {t('scanner.pointCamera')}
+                                </p>
+                            </>
+                        )}
                     </div>
 
                     {/* Manual Entry Divider */}
@@ -95,7 +119,7 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
                             <span className="w-full border-t" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-2 text-muted-foreground">Or enter manually</span>
+                            <span className="bg-background px-2 text-muted-foreground">{t('scanner.orEnterManually')}</span>
                         </div>
                     </div>
 
@@ -105,14 +129,15 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="text"
-                                placeholder="e.g. FER-001"
+                                placeholder={t('scanner.placeholder')}
+                                aria-label={t('scanner.manualEntryLabel')}
                                 value={manualCode}
                                 onChange={(e) => setManualCode(e.target.value)}
                                 className="pl-9"
                             />
                         </div>
                         <Button type="submit" disabled={!manualCode.trim()}>
-                            Check
+                            {t('scanner.check')}
                         </Button>
                     </form>
                 </div>

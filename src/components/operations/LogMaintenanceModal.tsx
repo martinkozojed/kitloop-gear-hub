@@ -64,8 +64,9 @@ export function LogMaintenanceModal({ open, onOpenChange, assetIds, onSuccess }:
             // Reset form
             setNotes('');
             setType('inspection');
-        } catch (err: any) {
-            toast.error('Failed to log maintenance', { description: err.message });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            toast.error('Failed to log maintenance', { description: message });
         } finally {
             setLoading(false);
         }

@@ -3,10 +3,15 @@ import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
 import { formatPrice } from '@/lib/availability';
 
+// Contract data comes from various sources with flexible schemas
 interface ContractTemplateProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reservation: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     provider: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     customer: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items?: any[];
 }
 

@@ -77,6 +77,14 @@ export default {
 						text: 'hsl(var(--semantic-danger-text))',
 					}
 				},
+				// PR7.1 Status Tokens
+				status: {
+					warning: 'hsl(var(--status-pending) / <alpha-value>)',
+					info: 'hsl(var(--status-confirmed) / <alpha-value>)',
+					success: 'hsl(var(--status-active) / <alpha-value>)',
+					danger: 'hsl(var(--status-overdue) / <alpha-value>)',
+					neutral: 'hsl(var(--status-completed) / <alpha-value>)',
+				},
 				kitloop: {
 					accent: '#2E7D32',
 					'accent-hover': '#27632A',
@@ -85,9 +93,24 @@ export default {
 				}
 			},
 			borderRadius: {
+				// Token-based radius (use these!)
+				'token-sm': 'var(--radius-sm)',  // 6px - badges, chips
+				'token-md': 'var(--radius-md)',  // 10px - buttons, inputs
+				'token-lg': 'var(--radius-lg)',  // 16px - cards, modals
+				'token-xl': 'var(--radius-xl)',  // 24px - MARKETING ONLY
+				// Legacy shadcn (keep for compatibility)
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				// Token-based shadows (use these!)
+				'xs': 'var(--shadow-xs)',
+				'card': 'var(--shadow-card)',
+				'elevated': 'var(--shadow-elevated)',
+				'brand': 'var(--shadow-brand)',  // MARKETING CTA ONLY
+				'hero': 'var(--shadow-hero)',
+				'hero-hover': 'var(--shadow-hero-hover)',
 			},
 			keyframes: {
 				'accordion-down': {

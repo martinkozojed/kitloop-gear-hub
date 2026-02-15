@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'react-i18next';
 import type { TranslationSchema } from '../locales/resources';
 

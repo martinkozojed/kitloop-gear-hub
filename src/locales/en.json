@@ -254,9 +254,15 @@
         "analytics": "Analytics",
         "inventory": "Inventory",
         "reservations": "Reservations",
+        "maintenance": "Maintenance",
+        "crm": "Customers",
+        "accounts": "Organizations",
         "reports": "Reports",
-        "settings": "Settings"
+        "settings": "Settings",
+        "approvals": "Approvals",
+        "auditLog": "Audit Log"
       },
+      "loggedIn": "Logged in as",
       "newReservation": "New Reservation"
     },
     "bottomNav": {
@@ -274,7 +280,11 @@
         "confirmed": "Confirmed",
         "active": "Active",
         "completed": "Completed",
-        "cancelled": "Cancelled"
+        "cancelled": "Cancelled",
+        "overdue": "Overdue",
+        "ready": "Ready",
+        "unpaid": "Unpaid",
+        "conflict": "Conflict"
       },
       "empty": {
         "welcome": "👋 Welcome, {{name}}!",
@@ -453,87 +463,6 @@
         }
       }
     },
-    "inventory": {
-      "title": "Inventory",
-      "totalAll": "{{count}} items total",
-      "totalFiltered": "Showing {{filtered}} of {{total}} items",
-      "buttons": {
-        "import": "Import CSV",
-        "add": "Add Item",
-        "addFirst": "Add First Item"
-      },
-      "searchPlaceholder": "Search by name, SKU or description...",
-      "filters": {
-        "categories": "All categories",
-        "status": "All statuses",
-        "condition": "All conditions",
-        "clear": "Clear all filters",
-        "badge": "Search: \"{{value}}\"",
-        "categoryBadge": "Category: {{value}}",
-        "statusBadge": "Status: {{value}}",
-        "conditionBadge": "Condition: {{value}}"
-      },
-      "empty": {
-        "title": "No inventory yet",
-        "description": "Start by adding your first gear item to begin renting."
-      },
-      "table": {
-        "image": "Image",
-        "name": "Name",
-        "category": "Category",
-        "price": "Price/Day",
-        "quantity": "Quantity",
-        "status": "Status",
-        "actions": "Actions"
-      },
-      "mobileCard": {
-        "price": "Price:",
-        "pricePerDay": "{{value}} CZK/day",
-        "availability": "Availability:",
-        "availabilityValue": "{{available}}/{{total}} pcs",
-        "sku": "SKU:",
-        "edit": "Edit",
-        "delete": "Delete"
-      },
-      "statusLabels": {
-        "available": "available",
-        "reserved": "reserved",
-        "maintenance": "maintenance",
-        "retired": "retired"
-      },
-      "filterResults": {
-        "title": "No items match your filters",
-        "searchHint": "Try a different search query or adjust filters",
-        "hint": "Try adjusting the filters",
-        "button": "Clear all filters"
-      },
-      "toasts": {
-        "noProviderTitle": "Provider profile not found",
-        "noProviderDescription": "Try signing out and back in.",
-        "accessError": "Access denied",
-        "accessDescription": "You don't have permission to view this inventory.",
-        "networkError": "Network error",
-        "networkDescription": "Check your internet connection and try again.",
-        "fetchError": "Failed to load inventory",
-        "fetchDescription": "Please refresh the page.",
-        "unexpectedError": "Unexpected error",
-        "unexpectedDescription": "Try refreshing the page or contact support.",
-        "deleteAccessError": "Access denied",
-        "deleteForeignKey": "Cannot delete item",
-        "deleteForeignKeyDescription": "The item is linked to active reservations.",
-        "deleteError": "Failed to delete item",
-        "deleteSuccess": "Item deleted",
-        "deleteSuccessDescription": "Inventory has been updated."
-      },
-      "dialog": {
-        "title": "Delete item?",
-        "question": "Are you sure you want to delete \"{{name}}\"?",
-        "warning": "This action cannot be undone. The item will be permanently removed from your inventory.",
-        "highValue": "⚠️ Warning: This item has a high value ({{price}} CZK/day)",
-        "cancel": "Cancel",
-        "confirm": "Delete item"
-      }
-    },
     "reservations": {
       "title": "Reservations",
       "subtitle": "Manage reservations for your gear",
@@ -565,6 +494,8 @@
         "detail": "Detail"
       },
       "empty": "No reservations to display.",
+      "emptyDesc": "Create your first reservation and start tracking your rentals.",
+      "expandRow": "Expand reservation for {{customer}}",
       "toasts": {
         "fetchError": "Failed to load reservations",
         "actionError": "Action failed",
@@ -711,6 +642,66 @@
     "inventory": {
       "title": "Inventory",
       "subtitle": "Manage your physical assets, track status, and organize warehouse.",
+      "totalAll": "{{count}} items total",
+      "totalFiltered": "Showing {{filtered}} of {{total}} items",
+      "buttons": {
+        "import": "Import CSV",
+        "add": "Add Item",
+        "addFirst": "Add First Item"
+      },
+      "searchPlaceholder": "Search by name, SKU or description...",
+      "filters": {
+        "categories": "All categories",
+        "status": "All statuses",
+        "condition": "All conditions",
+        "clear": "Clear all filters",
+        "badge": "Search: \"{{value}}\"",
+        "categoryBadge": "Category: {{value}}",
+        "statusBadge": "Status: {{value}}",
+        "conditionBadge": "Condition: {{value}}"
+      },
+      "empty": {
+        "title": "No inventory yet",
+        "description": "Start by adding your first gear item to begin renting."
+      },
+      "table": {
+        "image": "Image",
+        "name": "Name",
+        "category": "Category",
+        "price": "Price/Day",
+        "quantity": "Quantity",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "mobileCard": {
+        "price": "Price:",
+        "pricePerDay": "{{value}} CZK/day",
+        "availability": "Availability:",
+        "availabilityValue": "{{available}}/{{total}} pcs",
+        "sku": "SKU:",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "statusLabels": {
+        "available": "available",
+        "reserved": "reserved",
+        "maintenance": "maintenance",
+        "retired": "retired"
+      },
+      "filterResults": {
+        "title": "No items match your filters",
+        "searchHint": "Try a different search query or adjust filters",
+        "hint": "Try adjusting the filters",
+        "button": "Clear all filters"
+      },
+      "dialog": {
+        "title": "Delete item?",
+        "question": "Are you sure you want to delete \"{{name}}\"?",
+        "warning": "This action cannot be undone. The item will be permanently removed from your inventory.",
+        "highValue": "⚠️ Warning: This item has a high value ({{price}} CZK/day)",
+        "cancel": "Cancel",
+        "confirm": "Delete item"
+      },
       "fallbacks": {
         "unknown": "Unknown",
         "uncategorized": "Uncategorized"
@@ -723,6 +714,21 @@
         "addAsset": "Add asset"
       },
       "toasts": {
+        "noProviderTitle": "Provider profile not found",
+        "noProviderDescription": "Try signing out and back in.",
+        "accessError": "Access denied",
+        "accessDescription": "You don't have permission to view this inventory.",
+        "networkError": "Network error",
+        "networkDescription": "Check your internet connection and try again.",
+        "fetchDescription": "Please refresh the page.",
+        "unexpectedError": "Unexpected error",
+        "unexpectedDescription": "Try refreshing the page or contact support.",
+        "deleteAccessError": "Access denied",
+        "deleteForeignKey": "Cannot delete item",
+        "deleteForeignKeyDescription": "The item is linked to active reservations.",
+        "deleteError": "Failed to delete item",
+        "deleteSuccess": "Item deleted",
+        "deleteSuccessDescription": "Inventory has been updated.",
         "fetchError": "Failed to load inventory",
         "archiveSuccess": "Archived {{count}} items (soft delete)",
         "archiveError": "Deletion failed",
@@ -1255,6 +1261,159 @@
         "uploadFailed": "Photo upload failed",
         "saveFailed": "Failed to process return"
       }
+    },
+    "maintenance": {
+      "title": "Maintenance & Service",
+      "subtitle": "Track and manage equipment currently out of service.",
+      "stats": {
+        "inService": "In Service",
+        "inServiceDesc": "Assets currently unavailable",
+        "avgRepairTime": "Avg. Repair Time",
+        "avgRepairTimeDesc": "Last 30 days",
+        "serviceCosts": "Service Costs",
+        "serviceCostsDesc": "This month",
+        "noData": "–"
+      },
+      "queue": {
+        "title": "Service Queue",
+        "empty": "All clear! No items in maintenance.",
+        "loading": "Loading...",
+        "health": "Health: {{score}}%",
+        "since": "Since: {{date}}"
+      },
+      "actions": {
+        "finish": "Finish",
+        "logWork": "Log Work"
+      },
+      "toasts": {
+        "resolved": "Asset returned to inventory",
+        "error": "Failed to resolve",
+        "loadError": "Failed to load maintenance items"
+      }
+    },
+    "crm": {
+      "title": "Customers",
+      "subtitle": "Manage operational contacts and organizations.",
+      "cta": {
+        "add": "Add Customer"
+      },
+      "search": "Search names, emails, or companies...",
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "organization": "Organization",
+        "lastActive": "Last Active",
+        "actions": "Actions"
+      },
+      "empty": "No customers yet.",
+      "emptyDesc": "Add your first customer or create a reservation – customers are created automatically.",
+      "view": "View",
+      "openCustomerDetail": "Open customer details for {{name}}"
+    },
+    "accounts": {
+      "title": "Organizations (B2B)",
+      "subtitle": "Manage schools, clubs, and corporate partners.",
+      "cta": {
+        "new": "New Organization"
+      },
+      "search": "Search organizations...",
+      "table": {
+        "name": "Name",
+        "taxId": "Tax ID",
+        "contact": "Contact",
+        "updated": "Updated",
+        "actions": "Actions"
+      },
+      "empty": "No organizations yet.",
+      "emptyDesc": "Add schools, clubs, or corporate partners for B2B orders.",
+      "menu": {
+        "edit": "Edit Details",
+        "delete": "Delete"
+      },
+      "confirm": {
+        "title": "Delete Organization?",
+        "delete": "Are you sure? This will unlink all customers from this organization.",
+        "cancel": "Cancel",
+        "confirmDelete": "Delete"
+      },
+      "toasts": {
+        "deleted": "Organization deleted",
+        "deleteError": "Failed to delete"
+      }
+    }
+  },
+  "scanner": {
+    "title": "Scan Asset Tag",
+    "pointCamera": "Point camera at QR Code",
+    "orEnterManually": "Or enter manually",
+    "placeholder": "e.g. FER-001",
+    "manualEntryLabel": "Enter asset tag manually",
+    "check": "Check",
+    "useManualEntry": "Use manual entry below",
+    "errors": {
+      "cameraNotAvailable": "Camera not available or permission denied"
+    }
+  },
+  "onboarding": {
+    "wizard": {
+      "step1Title": "Welcome to Kitloop!",
+      "step1Desc": "Set up the basic info about your rental shop.",
+      "step2Title": "Where can customers find you?",
+      "step2Desc": "Set up your pickup location and business hours.",
+      "step3Title": "Add your first gear",
+      "step3Desc": "Import or add manually - just 1 item to start.",
+      "labels": {
+        "rentalName": "Rental shop name",
+        "contactPhone": "Contact phone",
+        "contactEmail": "Contact email",
+        "currency": "Currency",
+        "timezone": "Timezone",
+        "city": "City",
+        "address": "Address",
+        "businessHours": "Business hours",
+        "pickupInstructions": "Pickup instructions"
+      },
+      "placeholders": {
+        "rentalName": "e.g. Mountain Gear Rentals",
+        "phone": "+1 555 123 4567",
+        "email": "info@myrental.com",
+        "city": "Denver",
+        "address": "123 Main Street",
+        "businessHours": "Mon-Fri 9-5 or 'By appointment'",
+        "pickupInstructions": "Optional instructions for customers..."
+      },
+      "inventoryOptions": {
+        "csvImport": "Import from CSV",
+        "manual": "Add manually",
+        "demo": "Load demo data"
+      },
+      "buttons": {
+        "back": "Back",
+        "continue": "Continue",
+        "finish": "Complete setup",
+        "letsGo": "Let's go!"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "nameMin": "Name must be at least 3 characters",
+        "phoneInvalid": "Invalid phone number",
+        "emailInvalid": "Invalid email",
+        "cityRequired": "City is required"
+      }
+    },
+    "checklist": {
+      "title": "Complete your setup",
+      "progress": "{{completed}} of {{total}} steps",
+      "dismiss": "Hide checklist",
+      "items": {
+        "workspace": "Workspace configured",
+        "location": "Location set up",
+        "inventory": "First item added",
+        "reservation": "Create first reservation",
+        "terms": "Set rental terms",
+        "team": "Invite team member"
+      },
+      "allDone": "🎉 Great job! Everything is ready."
     }
   }
 }
