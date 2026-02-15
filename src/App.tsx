@@ -97,7 +97,11 @@ const AppRoutes = () => {
             <Route path="/" element={<Index />} />
             <Route
               path="/demo/dashboard"
-              element={<DemoDashboard />}
+              element={
+                import.meta.env.VITE_ENABLE_DEMO === 'true'
+                  ? <DemoDashboard />
+                  : <Navigate to="/" replace />
+              }
             />
             <Route path="/how-it-works" element={<HowItWorks />} />
             {/* Marketplace - gated by VITE_ENABLE_MARKETPLACE */}

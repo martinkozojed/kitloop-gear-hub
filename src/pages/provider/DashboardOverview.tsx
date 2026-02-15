@@ -151,7 +151,7 @@ const DashboardOverview = () => {
       <TooltipProvider>
         <div className="space-y-3 pt-0">
           {/* Demo Data Banner (if using demo) */}
-          {provider?.id && (
+          {provider?.id && import.meta.env.VITE_ENABLE_DEMO === 'true' && (
             <DemoBanner
               providerId={provider.id}
               onDemoDeleted={() => window.location.reload()}
