@@ -2,6 +2,9 @@
   command = "export VITE_COMMIT_SHA=${COMMIT_SHA:-${COMMIT_REF:-unknown}} && export VITE_BUILD_TIME=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") && npm run build"
   publish = "dist"
 
+[context.production]
+  command = "export VITE_COMMIT_SHA=${COMMIT_SHA:-${COMMIT_REF:-unknown}} && export VITE_BUILD_TIME=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") && npm run build"
+
 [context.production.environment]
   VITE_ENABLE_DEMO = "false"
   # MVP Feature Flags (all false by default)
@@ -13,10 +16,7 @@
   VITE_ENABLE_MARKETPLACE = "false"
 
 [build.environment]
-  NODE_VERSION = "18"
-
-[context.production]
-  command = "export VITE_COMMIT_SHA=${COMMIT_SHA:-${COMMIT_REF:-unknown}} && export VITE_BUILD_TIME=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") && npm run build"
+  NODE_VERSION = "20"
 
 
 
