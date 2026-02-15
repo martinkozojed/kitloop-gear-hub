@@ -4,6 +4,13 @@
 
 [context.production.environment]
   VITE_ENABLE_DEMO = "false"
+  # MVP Feature Flags (all false by default)
+  VITE_ENABLE_ANALYTICS = "false"
+  VITE_ENABLE_CRM = "false"
+  VITE_ENABLE_ACCOUNTS = "false"
+  VITE_ENABLE_MAINTENANCE = "false"
+  VITE_ENABLE_CALENDAR = "false"
+  VITE_ENABLE_MARKETPLACE = "false"
 
 [build.environment]
   NODE_VERSION = "18"
