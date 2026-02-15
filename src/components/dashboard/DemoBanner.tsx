@@ -24,7 +24,12 @@ export const DemoBanner: React.FC<DemoBannerProps> = ({
     const [isDeleting, setIsDeleting] = useState(false);
     const [isDismissed, setIsDismissed] = useState(false);
 
+    // Internal fail-safe: verification of environment
+    const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === 'true';
+
     const handleDeleteDemo = async () => {
+        if (!demoEnabled) return;
+
         if (!confirm('Opravdu chcete smazat všechna demo data? Tato akce je nevratná.')) {
             return;
         }
@@ -60,7 +65,7 @@ export const DemoBanner: React.FC<DemoBannerProps> = ({
         }
     };
 
-    if (isDismissed) return null;
+    if (isDismissed || !demoEnabled) return null;
 
     return (
         <Alert className="bg-amber-50 border-amber-200 mb-4">
