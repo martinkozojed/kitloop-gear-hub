@@ -100,8 +100,23 @@ const AppRoutes = () => {
               element={<DemoDashboard />}
             />
             <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/browse" element={<BrowseGear />} />
-            <Route path="/add-rental" element={<AddRental />} />
+            {/* Marketplace - gated by VITE_ENABLE_MARKETPLACE */}
+            <Route
+              path="/browse"
+              element={
+                import.meta.env.VITE_ENABLE_MARKETPLACE === 'true'
+                  ? <BrowseGear />
+                  : <Navigate to="/" replace />
+              }
+            />
+            <Route
+              path="/add-rental"
+              element={
+                import.meta.env.VITE_ENABLE_MARKETPLACE === 'true'
+                  ? <AddRental />
+                  : <Navigate to="/" replace />
+              }
+            />
             <Route path="/my-reservations" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
@@ -197,19 +212,25 @@ const AppRoutes = () => {
                 </ProviderRoute>
               }
             />
+            {/* Analytics - gated by VITE_ENABLE_ANALYTICS */}
             <Route
               path="/provider/analytics"
               element={
                 <ProviderRoute>
-                  <ProviderAnalytics />
+                  {import.meta.env.VITE_ENABLE_ANALYTICS === 'true'
+                    ? <ProviderAnalytics />
+                    : <Navigate to="/provider/dashboard" replace />}
                 </ProviderRoute>
               }
             />
+            {/* Maintenance - gated by VITE_ENABLE_MAINTENANCE */}
             <Route
               path="/provider/maintenance"
               element={
                 <ProviderRoute>
-                  <ProviderMaintenance />
+                  {import.meta.env.VITE_ENABLE_MAINTENANCE === 'true'
+                    ? <ProviderMaintenance />
+                    : <Navigate to="/provider/dashboard" replace />}
                 </ProviderRoute>
               }
             />
@@ -245,19 +266,25 @@ const AppRoutes = () => {
                 </ProviderRoute>
               }
             />
+            {/* CRM (Customers) - gated by VITE_ENABLE_CRM */}
             <Route
               path="/provider/customers"
               element={
                 <ProviderRoute>
-                  <ProviderCustomers />
+                  {import.meta.env.VITE_ENABLE_CRM === 'true'
+                    ? <ProviderCustomers />
+                    : <Navigate to="/provider/dashboard" replace />}
                 </ProviderRoute>
               }
             />
+            {/* Accounts - gated by VITE_ENABLE_ACCOUNTS */}
             <Route
               path="/provider/accounts"
               element={
                 <ProviderRoute>
-                  <ProviderAccounts />
+                  {import.meta.env.VITE_ENABLE_ACCOUNTS === 'true'
+                    ? <ProviderAccounts />
+                    : <Navigate to="/provider/dashboard" replace />}
                 </ProviderRoute>
               }
             />

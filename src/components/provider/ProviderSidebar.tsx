@@ -42,8 +42,10 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       title: 'Overview',
       items: [
         { path: '/provider/dashboard', label: 'provider.sidebar.nav.dashboard', icon: Home },
-        // Only show Analytics if permitted
-        ...(canViewFinancials ? [{ path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 }] : []),
+        // Only show Analytics if permitted AND feature enabled
+        ...(canViewFinancials && import.meta.env.VITE_ENABLE_ANALYTICS === 'true'
+          ? [{ path: '/provider/analytics', label: 'provider.sidebar.nav.analytics', icon: BarChart3 }]
+          : []),
       ]
     },
     {
@@ -51,9 +53,18 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       items: [
         { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: List },
         { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
-        { path: '/provider/maintenance', label: 'provider.sidebar.nav.maintenance', icon: Wrench },
-        { path: '/provider/customers', label: 'provider.sidebar.nav.crm', icon: Users },
-        { path: '/provider/accounts', label: 'provider.sidebar.nav.accounts', icon: Building2 },
+        // Only show Maintenance if feature enabled
+        ...(import.meta.env.VITE_ENABLE_MAINTENANCE === 'true'
+          ? [{ path: '/provider/maintenance', label: 'provider.sidebar.nav.maintenance', icon: Wrench }]
+          : []),
+        // Only show Customers (CRM) if feature enabled
+        ...(import.meta.env.VITE_ENABLE_CRM === 'true'
+          ? [{ path: '/provider/customers', label: 'provider.sidebar.nav.crm', icon: Users }]
+          : []),
+        // Only show Accounts if feature enabled
+        ...(import.meta.env.VITE_ENABLE_ACCOUNTS === 'true'
+          ? [{ path: '/provider/accounts', label: 'provider.sidebar.nav.accounts', icon: Building2 }]
+          : []),
       ]
     },
     {
@@ -64,6 +75,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       ]
     }
   ];
+
 
   if (isAdmin) {
     navGroups.push({
