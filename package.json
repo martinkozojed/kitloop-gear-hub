@@ -119,6 +119,7 @@
     "vitest": "^4.0.16"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.57.1"
+    "@rollup/rollup-linux-x64-gnu": "^4.57.1",
+    "@swc/core-linux-x64-gnu": "^1.7.39"
   }
 }
