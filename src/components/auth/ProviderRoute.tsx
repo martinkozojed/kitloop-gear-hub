@@ -84,12 +84,25 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     return <Navigate to="/provider/setup" replace />;
   }
 
-  // If pending, force landing on dashboard and lock interactions with overlay
+  // If pending, block ALL provider routes except dashboard/pending/setup
+  // This prevents deep-link bypassing (e.g., typing /provider/inventory in URL)
   if (!isAdmin && provider && provider.status !== 'approved') {
-    if (!location.pathname.startsWith('/provider/dashboard')) {
+    const allowedPendingPaths = ['/provider/dashboard', '/provider/pending', '/provider/setup'];
+    const isOnAllowedPath = allowedPendingPaths.some(p => location.pathname.startsWith(p));
+
+    if (!isOnAllowedPath) {
+      logger.debug('ProviderRoute: Pending provider attempted to access blocked route, redirecting to dashboard');
       return <Navigate to="/provider/dashboard" replace />;
     }
-    logger.debug('ProviderRoute: Provider pending approval, showing overlay');
+
+    // If on /provider/pending, show the page without overlay
+    if (location.pathname.startsWith('/provider/pending')) {
+      logger.debug('ProviderRoute: Showing pending page');
+      return <>{children}</>;
+    }
+
+    // If on dashboard, show with blocking overlay
+    logger.debug('ProviderRoute: Provider pending approval, showing overlay on dashboard');
     return (
       <>
         {children}

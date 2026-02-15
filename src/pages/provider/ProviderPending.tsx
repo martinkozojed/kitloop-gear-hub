@@ -17,21 +17,25 @@ const ProviderPending = () => {
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">Waiting for approval</h1>
+            <h1 className="text-3xl font-bold text-foreground">Čekáme na schválení</h1>
             <p className="text-muted-foreground text-lg">
-              Your provider account is pending review. You can explore the workspace, but all actions stay locked until an admin approves your application.
+              Váš účet poskytovatele čeká na schválení administrátorem.
+              Přístup k funkcím bude odemčen obvykle do 24 hodin.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Očekávaná doba: do 24 hodin
             </p>
           </div>
           <div className="flex justify-center gap-3">
             <Button variant="outline" onClick={() => navigate("/")}>
-              Go to homepage
+              Přejít na domovskou stránku
             </Button>
             <Button
               variant="secondary"
-              onClick={() => (window.location.href = "mailto:support@kitloop.cz?subject=Provider%20approval")}
+              onClick={() => (window.location.href = "mailto:support@kitloop.cz?subject=Schválení%20účtu&body=Dobrý%20den,%0A%0AČekám%20na%20schválení%20mého%20účtu%20poskytovatele.%0A%0ADěkuji")}
             >
               <Mail className="h-4 w-4 mr-2" />
-              Contact support
+              Kontaktovat podporu
             </Button>
           </div>
         </div>
