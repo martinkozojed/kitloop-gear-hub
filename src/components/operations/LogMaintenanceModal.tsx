@@ -43,7 +43,7 @@ export function LogMaintenanceModal({ open, onOpenChange, assetIds, onSuccess }:
 
             const { error: logError } = await supabase
                 .from('maintenance_log')
-                .insert(logs as any);  // Type assertion needed due to Supabase generated types being overly strict
+                .insert(logs as never);  // Type assertion needed due to Supabase generated types being overly strict
 
             if (logError) throw logError;
 

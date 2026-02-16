@@ -44,7 +44,7 @@ export default function Observability() {
         queryFn: async () => {
             // RPC might fail if RLS not set up for current user context (requires admin)
             // But we handle error gracefully in UI (empty list or error state)
-            const { data, error } = await (supabase.rpc as any)("get_cron_health");
+            const { data, error } = await supabase.rpc("get_cron_health" as never);
             if (error) throw error;
             return data as unknown as CronHealth[];
         }
