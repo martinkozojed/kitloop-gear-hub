@@ -330,7 +330,7 @@ const InventoryForm = () => {
 
         const { error } = await supabase
           .from('gear_items')
-          .update(itemData as any)  // Type assertion for legacy table
+          .update(itemData as unknown as never)  // Explicit typecast for legacy table with strict types
           .eq('id', id);
 
         if (error) {
