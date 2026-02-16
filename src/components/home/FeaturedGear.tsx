@@ -86,7 +86,7 @@ const FeaturedGear = () => {
   const [loading, setLoading] = useState(true);
   const [selectedGear, setSelectedGear] = useState<{
     id: string;
-    name: string;
+    name: string;  // Must be non-null for ReservationModal
     price_per_day: number | null;
     provider_id: string;
     image_url?: string | null;
@@ -129,10 +129,10 @@ const FeaturedGear = () => {
       }
 
       setSelectedGear({
-        id: data.id,
-        name: data.name ?? item.name ?? 'Unknown Item',  // Handle both data.name and item.name being null
+        id: data.id as string,  // Type assertion - primary key is guaranteed non-null
+        name: (data.name ?? item.name ?? 'Unnamed Item') as string,  // Type assertion - triple fallback ensures non-null
         price_per_day: data.price_per_day,
-        provider_id: data.provider_id ?? '',  // Ensure provider_id is never null
+        provider_id: (data.provider_id ?? '') as string,  // Type assertion - fallback ensures non-null
         image_url: data.image_url || item.image_url
       });
 
