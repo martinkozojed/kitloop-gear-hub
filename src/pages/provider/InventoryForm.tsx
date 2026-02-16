@@ -13,16 +13,12 @@ import { GEAR_CATEGORIES, CONDITIONS } from '@/lib/categories';
 import { ArrowLeft, Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
-  getErrorCode,
   getErrorMessage,
   isFetchError,
-  isSupabaseConstraintError,
 } from '@/lib/error-utils';
 import { logger } from '@/lib/logger';
 import { validateImageFiles } from '@/lib/file-validation';
-import { requestUploadTicket, uploadWithTicket, publicUrlForTicket, UploadTicketError } from '@/lib/upload/client';
-import { rulesForUseCase } from '@/lib/upload/validation';
-import { updateGearItem, insertGearItem, insertGearImages } from '@/lib/supabaseLegacy';
+import { updateGearItem, insertGearItem, insertGearImages, deleteGearImages } from '@/lib/supabaseLegacy';
 
 interface FormData {
   name: string;
@@ -41,6 +37,12 @@ interface ValidationErrors {
   category?: string;
   price_per_day?: string;
   quantity_total?: string;
+}
+
+interface GearImage {
+  id: string;
+  url: string;
+  sort_order: number;
 }
 
 const InventoryForm = () => {
@@ -63,8 +65,11 @@ const InventoryForm = () => {
     notes: '',
   });
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-  const [images, setImages] = useState<File[]>([]);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+
+  // State for images
+  const [existingImages, setExistingImages] = useState<GearImage[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]);
   const [currentQuantityAvailable, setCurrentQuantityAvailable] = useState<number | null>(null);
 
   useEffect(() => {
@@ -123,7 +128,14 @@ const InventoryForm = () => {
     try {
       const { data, error } = await supabase
         .from('gear_items')
-        .select('*')
+        .select(`
+          *,
+          gear_images (
+            id,
+            url,
+            sort_order
+          )
+        `)
         .eq('id', itemId)
         .single();
 
@@ -142,7 +154,12 @@ const InventoryForm = () => {
           location: data.location || '',
           notes: data.notes || '',
         });
-        setExistingImageUrl(data.image_url);
+
+        // Handle images
+        const images = (data.gear_images as unknown as GearImage[]) || [];
+        // Sort by sort_order
+        setExistingImages(images.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)));
+
         setCurrentQuantityAvailable(
           typeof data.quantity_available === 'number' ? data.quantity_available : null
         );
@@ -155,11 +172,12 @@ const InventoryForm = () => {
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    const totalCurrentImages = existingImages.length - deletedImageIds.length + newImages.length;
 
     // Validate file count
-    if (images.length + files.length > 5) {
+    if (totalCurrentImages + files.length > 5) {
       toast.error('Maximálně 5 obrázků', {
-        description: `Můžete nahrát ještě ${5 - images.length} obrázků.`
+        description: `Můžete nahrát ještě ${5 - totalCurrentImages} obrázků.`
       });
       return;
     }
@@ -182,20 +200,25 @@ const InventoryForm = () => {
       // If some files are valid, add only those
       if (validationResult.valid.length > 0) {
         logger.debug(`Added ${validationResult.valid.length} valid files, rejected ${validationResult.invalid.length}`);
-        setImages([...images, ...validationResult.valid]);
+        setNewImages([...newImages, ...validationResult.valid]);
       }
       return;
     }
 
     logger.debug('All files validated successfully:', validationResult.valid.length);
-    setImages([...images, ...validationResult.valid]);
+    setNewImages([...newImages, ...validationResult.valid]);
   };
 
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+  const removeNewImage = (index: number) => {
+    setNewImages(newImages.filter((_, i) => i !== index));
   };
 
-  const uploadImages = async (files: File[]): Promise<string[]> => {
+  const removeExistingImage = (id: string) => {
+    setDeletedImageIds([...deletedImageIds, id]);
+    setExistingImages(existingImages.filter(img => img.id !== id));
+  };
+
+  const uploadImages = async (files: File[], targetItemId: string): Promise<string[]> => {
     if (files.length === 0) return [];
     if (!provider?.id) {
       toast.error('Chybí kontext poskytovatele', {
@@ -203,8 +226,6 @@ const InventoryForm = () => {
       });
       return [];
     }
-
-    const rule = rulesForUseCase("gear_image");
 
     logger.debug('Uploading images:', files.length);
     setUploadingImages(true);
@@ -214,50 +235,28 @@ const InventoryForm = () => {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       try {
-        if (rule && file.size > rule.maxBytes) {
-          failedUploads.push(file.name);
-          toast.error(`Soubor ${file.name} je příliš velký`, {
-            description: `Maximální velikost je ${Math.round(rule.maxBytes / (1024 * 1024))} MB.`
-          });
-          continue;
-        }
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const filePath = `providers/${provider.id}/${targetItemId}/${fileName}`;
 
-        logger.debug(`Requesting upload ticket for file ${i + 1}/${files.length}`);
+        const { error: uploadError } = await supabase.storage
+          .from('gear-images')
+          .upload(filePath, file);
 
-        const ticket = await requestUploadTicket({
-          useCase: "gear_image",
-          fileName: file.name,
-          mimeType: file.type || "application/octet-stream",
-          sizeBytes: file.size,
-          providerId: provider.id,
-        });
+        if (uploadError) throw uploadError;
 
-        await uploadWithTicket(ticket, file);
-        const publicUrl = publicUrlForTicket(ticket);
+        const { data: { publicUrl } } = supabase.storage
+          .from('gear-images')
+          .getPublicUrl(filePath);
 
         urls.push(publicUrl);
-        logger.debug(`Image ${i + 1}/${files.length} uploaded successfully via ticket`);
+        logger.debug(`Image ${i + 1}/${files.length} uploaded successfully to ${filePath}`);
       } catch (error) {
         logger.error('Error uploading image', error);
         failedUploads.push(file.name);
-
-        if (error instanceof UploadTicketError) {
-          let description = error.message || 'Neplatný upload request';
-          if (error.reasonCode === 'mime_not_allowed') {
-            description = 'Formát souboru není povolen.';
-          } else if (error.reasonCode === 'file_too_large') {
-            description = 'Soubor je příliš velký pro tento upload.';
-          }
-          toast.error(`Nahrání ${file.name} selhalo`, { description });
-        } else if (isFetchError(error)) {
-          toast.error('Chyba připojení', {
-            description: 'Zkontrolujte internetové připojení.'
-          });
-        } else {
-          toast.error('Nepodařilo se nahrát obrázek', {
-            description: getErrorMessage(error) || 'Zkuste to znovu.'
-          });
-        }
+        toast.error(`Nepodařilo se nahrát ${file.name}`, {
+          description: getErrorMessage(error)
+        });
       }
     }
 
@@ -272,7 +271,6 @@ const InventoryForm = () => {
       toast.success(`Nahráno ${urls.length} obrázků`);
     }
 
-    logger.debug(`Upload complete: ${urls.length} successful, ${failedUploads.length} failed`);
     return urls;
   };
 
@@ -292,9 +290,17 @@ const InventoryForm = () => {
     try {
       logger.debug('Saving item...');
 
-      // Upload new images
-      const uploadedUrls = await uploadImages(images);
-      const primaryImageUrl = uploadedUrls[0] || existingImageUrl || null;
+      // Determine targetItemId for storage path
+      const targetItemId = id || crypto.randomUUID();
+
+      // 1. Upload new images
+      const uploadedUrls = await uploadImages(newImages, targetItemId);
+
+      // Determine primary image
+      // If we have existing images, the first one is primary (unless all deleted, which we filtered out of state already)
+      // If no existing, the first new uploaded image is primary
+      const allActiveImages = [...existingImages.map(img => img.url), ...uploadedUrls];
+      const primaryImageUrl = allActiveImages.length > 0 ? allActiveImages[0] : null;
 
       const quantityTotal = parseInt(formData.quantity_total, 10);
       let quantityAvailable = quantityTotal;
@@ -307,6 +313,7 @@ const InventoryForm = () => {
       }
 
       const itemData = {
+        id: targetItemId, // Explicitly set ID for new items
         provider_id: provider?.id,
         name: formData.name.trim(),
         category: formData.category,
@@ -323,113 +330,82 @@ const InventoryForm = () => {
         image_url: primaryImageUrl,
       };
 
-      logger.debug('Item data prepared');
-
       if (id) {
-        // Update existing
+        // Update existing item
         logger.debug('Updating item:', id);
-
-        const { error } = await updateGearItem(supabase, id, itemData);
+        // Exclude ID from update payload to avoid primary key update errors logic if any
+        const { id: _, ...updateData } = itemData;
+        const { error } = await updateGearItem(supabase, id, updateData);
 
         if (error) {
-          logger.error('Update error', error);
-
-          if (error.code === 'PGRST301') {
-            toast.error('Chyba přístupu', {
-              description: 'Nemáte oprávnění upravit tuto položku.'
-            });
-          } else if (error.message.includes('unique constraint')) {
-            toast.error('Duplikátní SKU', {
-              description: 'Toto SKU již existuje. Použijte jiné.'
-            });
-          } else {
-            toast.error('Nepodařilo se uložit', {
-              description: error.message || 'Zkuste to znovu.'
-            });
-          }
+          handleSupabaseError(error, 'Nepodařilo se aktualizovat položku');
           throw error;
         }
 
-        toast.success('Položka aktualizována', {
-          description: 'Změny byly úspěšně uloženy.'
-        });
-        logger.debug('Item updated successfully');
+        // Delete removed images
+        if (deletedImageIds.length > 0) {
+          const { error: deleteError } = await deleteGearImages(supabase, deletedImageIds);
+          if (deleteError) {
+            logger.error('Error deleting images', deleteError);
+            toast.warning('Položka uložena', { description: 'Nepodařilo se smazat některé staré obrázky.' });
+          }
+        }
       } else {
-        // Create new
-        logger.debug('Creating new item');
-
-        const { data, error } = await insertGearItem(supabase, itemData)
-          .select()
-          .single();
+        // Create new item
+        logger.debug('Creating new item with ID:', targetItemId);
+        const { error } = await insertGearItem(supabase, itemData);
 
         if (error) {
-          logger.error('Insert error', error);
-
-          if (error.code === 'PGRST301') {
-            toast.error('Chyba přístupu', {
-              description: 'Nemáte oprávnění vytvořit položku.'
-            });
-          } else if (error.message.includes('unique constraint')) {
-            toast.error('Duplikátní SKU', {
-              description: 'Toto SKU již existuje. Použijte jiné.'
-            });
-          } else {
-            toast.error('Nepodařilo se vytvořit položku', {
-              description: error.message || 'Zkuste to znovu.'
-            });
-          }
+          handleSupabaseError(error, 'Nepodařilo se vytvořit položku');
           throw error;
         }
-
-        // Insert additional images into gear_images table
-        if (uploadedUrls.length > 1) {
-          try {
-            const imageRecords = uploadedUrls.slice(1).map((url, index) => ({
-              gear_id: data.id,
-              url,
-              sort_order: index + 1,
-            }));
-
-            const { error: imgError } = await insertGearImages(supabase, imageRecords);
-
-            if (imgError) {
-              logger.error('Failed to save additional images', imgError);
-              toast.warning('Položka vytvořena', {
-                description: 'Některé dodatečné obrázky se nepodařilo uložit.'
-              });
-            }
-          } catch (imgError) {
-            logger.error('Image insert error', imgError);
-          }
-        }
-
-        toast.success('Položka přidána', {
-          description: 'Nová položka byla vytvořena v inventáři.'
-        });
-        logger.debug('Item created:', data.id);
       }
 
+      // Insert new additional images into gear_images table
+      // We need to calculate sort_order based on existing count
+      if (uploadedUrls.length > 0) {
+        const startSortOrder = existingImages.length;
+        const imageRecords = uploadedUrls.map((url, index) => ({
+          gear_id: targetItemId,
+          provider_id: provider?.id, // Added provider_id
+          url,
+          sort_order: startSortOrder + index,
+        }));
+
+        const { error: imgError } = await insertGearImages(supabase, imageRecords);
+
+        if (imgError) {
+          logger.error('Failed to save additional images', imgError);
+          toast.warning('Položka uložena', {
+            description: 'Některé obrázky se nepodařilo uložit do galerie.'
+          });
+        }
+      }
+
+      toast.success(id ? 'Položka aktualizována' : 'Položka vytvořena');
       navigate('/provider/inventory');
+
     } catch (error) {
-      logger.error('Error saving item', error);
-
-      const errorCode = getErrorCode(error);
-
-      if (!errorCode && !isSupabaseConstraintError(error)) {
-        if (isFetchError(error)) {
-          toast.error('Chyba sítě', {
-            description: 'Zkontrolujte připojení k internetu.'
-          });
-        } else {
-          toast.error('Neočekávaná chyba', {
-            description: 'Zkuste to znovu nebo kontaktujte podporu.'
-          });
-        }
-      }
+      // Error handled in steps or below catch-all
+      if (!loading) return; // if we already stopped loading (e.g. upload fail)
+      logger.error('Unexpected error in submit', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleSupabaseError = (error: { code?: string; message: string; details?: string; hint?: string }, defaultMsg: string) => {
+    logger.error('Supabase error', error);
+    if (error.code === '42501' || error.code === 'PGRST301') {
+      toast.error('Chyba přístupu', { description: 'Nemáte oprávnění (Pravděpodobně nejste schválený poskytovatel).' });
+    } else if (error.message?.includes('unique constraint')) {
+      toast.error('Duplikát', { description: 'Položka s tímto SKU již existuje.' });
+    } else {
+      toast.error(defaultMsg, { description: error.message || 'Zkuste to znovu.' });
+    }
+  };
+
+  const currentTotalImages = existingImages.length + newImages.length;
 
   return (
     <ProviderLayout>
@@ -602,41 +578,64 @@ const InventoryForm = () => {
           {/* Images */}
           <Card>
             <CardHeader>
-              <CardTitle>Images (Max 5)</CardTitle>
+              <CardTitle>Images</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                {existingImageUrl && images.length === 0 && (
-                  <div className="relative aspect-square">
-                    <img src={existingImageUrl} alt="Current" className="w-full h-full object-cover rounded-lg" />
-                  </div>
-                )}
-
-                {images.map((file, index) => (
-                  <div key={index} className="relative aspect-square">
+                {/* Existing Images */}
+                {existingImages.map((img, index) => (
+                  <div key={img.id} className="relative aspect-square group">
                     <img
-                      src={URL.createObjectURL(file)}
-                      alt={`Preview ${index + 1}`}
-                      data-testid="inventory-image-preview"
-                      className="w-full h-full object-cover rounded-lg"
+                      src={img.url}
+                      alt={`Item ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg border"
                     />
                     <button
                       type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                      onClick={() => removeExistingImage(img.id)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                      aria-label="Remove image"
                     >
                       <X className="w-4 h-4" />
                     </button>
+                    {index === 0 && deletedImageIds.length === 0 && (
+                      <div className="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
+                        Main
+                      </div>
+                    )}
                   </div>
                 ))}
 
-                {images.length < 5 && (
+                {/* New Images */}
+                {newImages.map((file, index) => (
+                  <div key={`new-${index}`} className="relative aspect-square group">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`New ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg border border-dashed border-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeNewImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                      aria-label="Remove new image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="absolute bottom-1 right-1 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                      New
+                    </div>
+                  </div>
+                ))}
+
+                {currentTotalImages < 5 && (
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center hover:border-green-500 transition-colors"
+                    className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:border-green-500 hover:bg-green-50/50 transition-colors"
                   >
-                    <Upload className="w-8 h-8 text-gray-400" />
+                    <Upload className="w-8 h-8 text-muted-foreground mb-1" />
+                    <span className="text-xs text-muted-foreground">Add</span>
                   </button>
                 )}
               </div>
@@ -644,12 +643,14 @@ const InventoryForm = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 multiple
                 onChange={handleImageSelect}
-                data-testid="inventory-image-input"
                 className="hidden"
               />
+              <p className="text-xs text-muted-foreground mt-4">
+                Supported formats: JPG, PNG, WebP. Max 5MB per file.
+              </p>
             </CardContent>
           </Card>
 
@@ -731,5 +732,6 @@ const InventoryForm = () => {
     </ProviderLayout>
   );
 };
+
 
 export default InventoryForm;
