@@ -7,6 +7,9 @@ export async function generateDemoData(providerId: string) {
         throw new Error("Demo data generation is disabled");
     }
 
+    // DELIBERATE TYPE ERROR: Testing branch protection - will fail typecheck
+    const testError: number = "this is a string, not a number";
+
     if (!providerId) throw new Error("Provider ID is required");
 
     // 1. Create Product
