@@ -16,6 +16,7 @@ import {
   isFetchError,
   isSupabaseConstraintError,
 } from '@/lib/error-utils';
+import { insertGearItems } from '@/lib/supabaseLegacy';
 
 interface CsvRow {
   name?: string;
@@ -272,9 +273,7 @@ const InventoryImport = () => {
       for (let i = 0; i < batches.length; i++) {
         const batch = batches[i];
 
-        const { data, error } = await supabase
-          .from('gear_items')
-          .insert(batch as any)  // Type assertion for legacy table
+        const { data, error } = await insertGearItems(supabase, batch)
           .select();
 
         if (error) {

@@ -22,6 +22,7 @@ import { logger } from '@/lib/logger';
 import { validateImageFiles } from '@/lib/file-validation';
 import { requestUploadTicket, uploadWithTicket, publicUrlForTicket, UploadTicketError } from '@/lib/upload/client';
 import { rulesForUseCase } from '@/lib/upload/validation';
+import { updateGearItem, insertGearItem, insertGearImages } from '@/lib/supabaseLegacy';
 
 interface FormData {
   name: string;
@@ -328,10 +329,7 @@ const InventoryForm = () => {
         // Update existing
         logger.debug('Updating item:', id);
 
-        const { error } = await supabase
-          .from('gear_items')
-          .update(itemData as unknown as never)  // Explicit typecast for legacy table with strict types
-          .eq('id', id);
+        const { error } = await updateGearItem(supabase, id, itemData);
 
         if (error) {
           logger.error('Update error', error);
@@ -360,9 +358,7 @@ const InventoryForm = () => {
         // Create new
         logger.debug('Creating new item');
 
-        const { data, error } = await supabase
-          .from('gear_items')
-          .insert(itemData as any)  // Type assertion for legacy table
+        const { data, error } = await insertGearItem(supabase, itemData)
           .select()
           .single();
 
@@ -394,9 +390,7 @@ const InventoryForm = () => {
               sort_order: index + 1,
             }));
 
-            const { error: imgError } = await supabase
-              .from('gear_images')
-              .insert(imageRecords as any);  // Type assertion for legacy table
+            const { error: imgError } = await insertGearImages(supabase, imageRecords);
 
             if (imgError) {
               logger.error('Failed to save additional images', imgError);
