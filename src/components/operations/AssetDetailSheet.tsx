@@ -33,7 +33,7 @@ interface MaintenanceRecord {
 interface EventRecord {
     id: string;
     event_type: string;
-    created_at: string;
+    created_at: string | null;  // Can be null in database
     old_status: string | null;
     new_status: string | null;
 }

@@ -274,7 +274,7 @@ const InventoryImport = () => {
 
         const { data, error } = await supabase
           .from('gear_items')
-          .insert(batch)
+          .insert(batch as any)  // Type assertion for legacy table
           .select();
 
         if (error) {
