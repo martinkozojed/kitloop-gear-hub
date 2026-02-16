@@ -6,12 +6,16 @@
 // console.warn and console.error are preserved for incident debugging.
 // =============================================================================
 if (import.meta.env.PROD) {
-  console.log = () => {}; // eslint-disable-line no-console
-  console.info = () => {}; // eslint-disable-line no-console
-  console.debug = () => {}; // eslint-disable-line no-console
+  console.log = () => { }; // eslint-disable-line no-console
+  console.info = () => { }; // eslint-disable-line no-console
+  console.debug = () => { }; // eslint-disable-line no-console
   // console.warn and console.error remain functional for production debugging
 }
 
+import React from "react";
+import ReactDOM from "react-dom/client";
+// DELIBERATE TYPE ERROR FOR CI TESTING
+const __ci_fail_test: number = "force typecheck to fail";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "@/components/theme-provider";
 import App from "./App.tsx";
