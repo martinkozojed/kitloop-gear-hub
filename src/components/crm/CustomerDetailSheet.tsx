@@ -36,11 +36,10 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
         try {
             const { data, error } = await supabase.rpc('get_customer_360', { p_customer_id: id });
             if (error) throw error;
-            setData(data);
-            setNotes(data.profile.notes || '');
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            toast.error(t('error'), { description: err.message });
+            setData(data);  // RPC returns Json which is compatible with state
+            setNotes(((data as Record<string, never>)?.profile as Record<string, never>)?.notes as string || '');
+        } catch (err: unknown) {
+            toast.error(t('error'), { description: (err as Error).message });
         } finally {
             setLoading(false);
         }

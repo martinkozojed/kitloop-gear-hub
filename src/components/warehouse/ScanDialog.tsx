@@ -78,7 +78,7 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                 .maybeSingle();
 
             setResult({
-                asset,
+                asset: { ...asset, status: asset.status ?? 'active' },  // Ensure status is never null
                 activeAssignment
             });
 

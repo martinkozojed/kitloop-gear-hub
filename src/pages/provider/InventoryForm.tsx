@@ -22,6 +22,7 @@ import { logger } from '@/lib/logger';
 import { validateImageFiles } from '@/lib/file-validation';
 import { requestUploadTicket, uploadWithTicket, publicUrlForTicket, UploadTicketError } from '@/lib/upload/client';
 import { rulesForUseCase } from '@/lib/upload/validation';
+import { updateGearItem, insertGearItem, insertGearImages } from '@/lib/supabaseLegacy';
 
 interface FormData {
   name: string;
@@ -165,7 +166,7 @@ const InventoryForm = () => {
 
     // Validate files using magic bytes (prevents spoofed file types)
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    
+
     logger.debug('Validating files with magic bytes check...');
     const validationResult = await validateImageFiles(files, validTypes);
 
@@ -173,7 +174,7 @@ const InventoryForm = () => {
       const errorMessages = validationResult.invalid
         .map(({ file, error }) => `${file.name}: ${error}`)
         .join('\n');
-      
+
       toast.error('Neplatné soubory', {
         description: errorMessages || 'Některé soubory nejsou validní obrázky.'
       });
@@ -328,10 +329,7 @@ const InventoryForm = () => {
         // Update existing
         logger.debug('Updating item:', id);
 
-        const { error } = await supabase
-          .from('gear_items')
-          .update(itemData)
-          .eq('id', id);
+        const { error } = await updateGearItem(supabase, id, itemData);
 
         if (error) {
           logger.error('Update error', error);
@@ -360,9 +358,7 @@ const InventoryForm = () => {
         // Create new
         logger.debug('Creating new item');
 
-        const { data, error } = await supabase
-          .from('gear_items')
-          .insert(itemData)
+        const { data, error } = await insertGearItem(supabase, itemData)
           .select()
           .single();
 
@@ -394,9 +390,7 @@ const InventoryForm = () => {
               sort_order: index + 1,
             }));
 
-            const { error: imgError } = await supabase
-              .from('gear_images')
-              .insert(imageRecords);
+            const { error: imgError } = await insertGearImages(supabase, imageRecords);
 
             if (imgError) {
               logger.error('Failed to save additional images', imgError);
@@ -523,9 +517,8 @@ const InventoryForm = () => {
                   maxLength={2000}
                 />
                 {formData.description.length > 1600 && (
-                  <p className={`text-sm mt-1 ${
-                    formData.description.length > 1900 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
-                  }`}>
+                  <p className={`text-sm mt-1 ${formData.description.length > 1900 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                    }`}>
                     {formData.description.length}/2000 znaků
                   </p>
                 )}
@@ -698,9 +691,8 @@ const InventoryForm = () => {
                   maxLength={1000}
                 />
                 {formData.notes.length > 800 && (
-                  <p className={`text-sm mt-1 ${
-                    formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
-                  }`}>
+                  <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                    }`}>
                     {formData.notes.length}/1000 znaků
                   </p>
                 )}

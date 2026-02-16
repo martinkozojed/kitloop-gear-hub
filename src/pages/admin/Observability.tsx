@@ -44,7 +44,7 @@ export default function Observability() {
         queryFn: async () => {
             // RPC might fail if RLS not set up for current user context (requires admin)
             // But we handle error gracefully in UI (empty list or error state)
-            const { data, error } = await supabase.rpc("get_cron_health");
+            const { data, error } = await supabase.rpc("get_cron_health" as never);
             if (error) throw error;
             return data as unknown as CronHealth[];
         }
@@ -52,8 +52,8 @@ export default function Observability() {
 
     // Compute stats for alert banner
     const cronStats = {
-        stale: cronHealth?.filter(j => j.stale).length ?? 0,
-        failed: cronHealth?.filter(j => j.last_status === 'failed').length ?? 0
+        stale: cronHealth?.filter((j: CronHealth) => j.stale).length ?? 0,
+        failed: cronHealth?.filter((j: CronHealth) => j.last_status === 'failed').length ?? 0
     };
 
     const scrollToCronSection = (filter: CronFilter) => {
@@ -139,7 +139,7 @@ export default function Observability() {
                     <CardContent>
                         <div className="text-2xl font-bold">
                             {logs?.length
-                                ? Math.round(logs.reduce((acc, log) => acc + (log.duration_ms || 0), 0) / logs.length)
+                                ? Math.round(logs.reduce((acc: number, log: RpcLog) => acc + (log.duration_ms || 0), 0) / logs.length)
                                 : 0} ms
                         </div>
                     </CardContent>
@@ -151,7 +151,7 @@ export default function Observability() {
                     <CardContent>
                         <div className="text-2xl font-bold text-red-500">
                             {logs?.length
-                                ? Math.round((logs.filter(l => !l.success).length / logs.length) * 100)
+                                ? Math.round((logs.filter((l: RpcLog) => !l.success).length / logs.length) * 100)
                                 : 0}%
                         </div>
                     </CardContent>
@@ -180,7 +180,7 @@ export default function Observability() {
                                         <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                                     </TableCell>
                                 </TableRow>
-                            ) : logs?.map((log) => (
+                            ) : logs?.map((log: RpcLog) => (
                                 <TableRow key={log.id}>
                                     <TableCell>{format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")}</TableCell>
                                     <TableCell className="font-mono">{log.rpc_name}</TableCell>

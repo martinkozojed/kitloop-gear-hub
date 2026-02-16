@@ -51,7 +51,7 @@ export default function AuditLog() {
 
   const query = useInfiniteQuery({
     queryKey: ["admin_audit_logs", { timePreset, action, actor, providerId, targetType }],
-    queryFn: async ({ pageParam = 0 }) => {
+    queryFn: async ({ pageParam }: { pageParam: number }) => {
       let req = supabase
         .from("admin_audit_logs")
         .select("id, created_at, admin_id, action, target_id, target_type, reason, metadata")
@@ -69,14 +69,15 @@ export default function AuditLog() {
       if (error) throw error;
       return {
         data: (data as AdminAuditLog[]) ?? [],
-        nextPage: (pageParam as number) + PAGE_SIZE,
+        nextPage: pageParam + PAGE_SIZE,
         hasMore: !!data && (data as AdminAuditLog[]).length === PAGE_SIZE,
       };
     },
-    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage: { hasMore: boolean; nextPage: number }) => (lastPage.hasMore ? lastPage.nextPage : undefined),
   });
 
-  const logs = query.data?.pages.flatMap((p) => p.data) ?? [];
+  const logs = query.data?.pages.flatMap((p: { data: AdminAuditLog[] }) => p.data) ?? [];
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -177,7 +178,7 @@ export default function AuditLog() {
                   </TableCell>
                 </TableRow>
               ) : (
-                logs.map((log) => (
+                logs.map((log: AdminAuditLog) => (
                   <LogRow key={log.id} log={log} />
                 ))
               )}

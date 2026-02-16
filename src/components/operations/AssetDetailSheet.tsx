@@ -25,15 +25,15 @@ interface AssetDetailSheetProps {
 interface MaintenanceRecord {
     id: string;
     type: string;
-    status: string;
+    status: string | null;  // Can be null in database
     notes: string | null;
-    created_at: string;
+    created_at: string | null;  // Can be null in database
 }
 
 interface EventRecord {
     id: string;
     event_type: string;
-    created_at: string;
+    created_at: string | null;  // Can be null in database
     old_status: string | null;
     new_status: string | null;
 }
@@ -284,7 +284,7 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                                                         <div className="font-medium capitalize">{m.type} - {m.status}</div>
                                                         <div className="text-sm text-muted-foreground">{m.notes}</div>
                                                         <div className="text-xs text-muted-foreground mt-1">
-                                                            {format(new Date(m.created_at), 'PPP')}
+                                                            {m.created_at ? format(new Date(m.created_at), 'PPP') : 'N/A'}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -309,9 +309,11 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                                                     <div className="text-xs text-muted-foreground">
                                                         {h.old_status} → {h.new_status}
                                                     </div>
-                                                    <div className="text-xs text-muted-foreground mt-1">
-                                                        {format(new Date(h.created_at), 'PPP p')}
-                                                    </div>
+                                                    {h.created_at && (
+                                                        <div className="text-xs text-muted-foreground mt-1">
+                                                            {format(new Date(h.created_at), 'PPP p')}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>

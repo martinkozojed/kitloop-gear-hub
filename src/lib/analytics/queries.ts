@@ -457,9 +457,9 @@ export async function fetchActivityFeed(
   }
 
   return (data ?? []).map((row) => ({
-    reservationId: row.reservation_id,
+    reservationId: row.reservation_id ?? '',  // Ensure never null
     gearName: row.gear_name,
-    customerName: row.customer_name,
+    customerName: row.customer_name ?? '',  // Ensure never null
     status: row.status,
     eventTime: row.updated_at ?? row.created_at,
     startDate: row.start_date,
