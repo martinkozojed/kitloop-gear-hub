@@ -20,8 +20,8 @@ export function LogMaintenanceModal({ open, onOpenChange, assetIds, onSuccess }:
     const { provider, user } = useAuth();
     const [loading, setLoading] = useState(false);
 
-    const [type, setType] = useState<string>('inspection');
-    const [priority, setPriority] = useState<string>('normal');
+    const [type, setType] = useState<'inspection' | 'cleaning' | 'repair' | 'quality_hold'>('inspection');
+    const [priority, setPriority] = useState<'low' | 'normal' | 'high' | 'critical' | 'cosmetic'>('normal');
     const [notes, setNotes] = useState('');
     const [markMaintenance, setMarkMaintenance] = useState(true);
 
@@ -43,7 +43,7 @@ export function LogMaintenanceModal({ open, onOpenChange, assetIds, onSuccess }:
 
             const { error: logError } = await supabase
                 .from('maintenance_log')
-                .insert(logs);
+                .insert(logs as any);  // Type assertion needed due to Supabase generated types being overly strict
 
             if (logError) throw logError;
 
@@ -86,7 +86,7 @@ export function LogMaintenanceModal({ open, onOpenChange, assetIds, onSuccess }:
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Type</Label>
-                            <Select value={type} onValueChange={setType}>
+                            <Select value={type} onValueChange={(v) => setType(v as typeof type)}>
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>
@@ -100,7 +100,7 @@ export function LogMaintenanceModal({ open, onOpenChange, assetIds, onSuccess }:
                         </div>
                         <div className="space-y-2">
                             <Label>Priority</Label>
-                            <Select value={priority} onValueChange={setPriority}>
+                            <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>

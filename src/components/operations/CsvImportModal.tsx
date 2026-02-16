@@ -164,7 +164,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 };
             });
 
-            const { error } = await supabase.from('assets').insert(payload);
+            const { error } = await supabase.from('assets').insert(payload as any);  // Type assertion due to strict enum types
             if (error) throw error;
 
             track('import.csv_completed', { count: validRows.length }, 'CsvImportModal');

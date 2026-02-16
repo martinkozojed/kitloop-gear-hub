@@ -25,9 +25,9 @@ interface AssetDetailSheetProps {
 interface MaintenanceRecord {
     id: string;
     type: string;
-    status: string;
+    status: string | null;  // Can be null in database
     notes: string | null;
-    created_at: string;
+    created_at: string | null;  // Can be null in database
 }
 
 interface EventRecord {
@@ -284,7 +284,7 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                                                         <div className="font-medium capitalize">{m.type} - {m.status}</div>
                                                         <div className="text-sm text-muted-foreground">{m.notes}</div>
                                                         <div className="text-xs text-muted-foreground mt-1">
-                                                            {format(new Date(m.created_at), 'PPP')}
+                                                            {m.created_at ? format(new Date(m.created_at), 'PPP') : 'N/A'}
                                                         </div>
                                                     </div>
                                                 </div>
