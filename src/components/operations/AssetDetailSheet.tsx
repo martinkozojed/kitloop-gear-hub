@@ -309,9 +309,11 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                                                     <div className="text-xs text-muted-foreground">
                                                         {h.old_status} → {h.new_status}
                                                     </div>
-                                                    <div className="text-xs text-muted-foreground mt-1">
-                                                        {format(new Date(h.created_at), 'PPP p')}
-                                                    </div>
+                                                    {h.created_at && (
+                                                        <div className="text-xs text-muted-foreground mt-1">
+                                                            {format(new Date(h.created_at), 'PPP p')}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>

@@ -121,9 +121,9 @@ export interface DeadInventoryStat {
 }
 
 export interface ActivityEvent {
-  reservationId: string;
+  reservationId: string;  // Now guaranteed non-null
   gearName: string | null;
-  customerName: string;
+  customerName: string;  // Now guaranteed non-null
   status: string | null;
   eventTime: string | null;
   startDate: string | null;

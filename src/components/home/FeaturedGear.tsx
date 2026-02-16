@@ -130,9 +130,9 @@ const FeaturedGear = () => {
 
       setSelectedGear({
         id: data.id,
-        name: data.name || item.name,
+        name: data.name ?? item.name ?? 'Unknown Item',  // Handle both data.name and item.name being null
         price_per_day: data.price_per_day,
-        provider_id: data.provider_id,
+        provider_id: data.provider_id ?? '',  // Ensure provider_id is never null
         image_url: data.image_url || item.image_url
       });
 

@@ -36,8 +36,8 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
         try {
             const { data, error } = await supabase.rpc('get_customer_360', { p_customer_id: id });
             if (error) throw error;
-            setData(data);
-            setNotes(data.profile.notes || '');
+            setData(data as any);  // Type assertion for RPC return which is Json type
+            setNotes((data as any)?.profile?.notes || '');  // Safely access nested properties
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             toast.error(t('error'), { description: err.message });
