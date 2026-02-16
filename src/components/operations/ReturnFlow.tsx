@@ -127,7 +127,6 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                 }));
 
                 // 2. Create Report (Phase 1 - Transactional)
-                // @ts-expect-error - RPC types update pending
                 const { data: reportData, error: reportError } = await supabase.rpc('create_return_report', {
                     p_reservation_id: reservation.id,
                     p_provider_id: provider.id,
@@ -138,7 +137,6 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
                 if (reportError) {
                     // Idempotence Check
-                    // @ts-expect-error - Error code typing
                     if (reportError.code === 'P0003') {
                         toast.info(t('operations.returnFlow.alreadyReturned', 'Reservation already returned'));
                         await onConfirm(reservation.id, assets.some(a => a.isDamaged));
@@ -201,7 +199,6 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
             // 4. Attach Evidence to Report (Phase 2b)
             if (evidence.length > 0 && reportId) {
-                // @ts-expect-error - RPC update pending
                 const { error: attachError } = await supabase.rpc('attach_return_photos', {
                     p_report_id: reportId,
                     p_photo_evidence: evidence
