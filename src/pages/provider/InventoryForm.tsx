@@ -18,7 +18,9 @@ import {
 } from '@/lib/error-utils';
 import { logger } from '@/lib/logger';
 import { validateImageFiles } from '@/lib/file-validation';
-import { updateGearItem, insertGearItem, insertGearImages, deleteGearImages } from '@/lib/supabaseLegacy';
+// RPC Wrapper
+import { createInventoryItem, updateInventoryItem } from '@/lib/inventory';
+import { deleteGearImages } from '@/lib/supabaseLegacy'; // Legacy images still needed for cleanup
 
 interface FormData {
   name: string;
@@ -126,6 +128,9 @@ const InventoryForm = () => {
     logger.debug('Fetching item for edit:', itemId);
 
     try {
+      // Fetch from VIEW (Read-Only)
+      // Note: We intentionally perform a direct select on the view.
+      // The RPCs update the underlying tables, and the view reflects those changes.
       const { data, error } = await supabase
         .from('gear_items')
         .select(`
@@ -156,8 +161,32 @@ const InventoryForm = () => {
         });
 
         // Handle images
-        const images = (data.gear_images as unknown as GearImage[]) || [];
-        // Sort by sort_order
+        // For RPC items (Products), gear_images join will be empty (no FK).
+        // Standardize: If data.image_url exists, show it as primary.
+        // If legacy gear_images exist, show them too.
+
+        const images: GearImage[] = [];
+
+        // 1. Legacy images (if any)
+        if (Array.isArray(data.gear_images)) {
+          images.push(...(data.gear_images as unknown as GearImage[]));
+        }
+
+        // 2. Product Main Image (if not already in legacy list)
+        // The View returns p.image_url. This is "main image".
+        // We should display it. If we edit it, we update p.image_url.
+        if (data.image_url) {
+          // Check if this URL is already in images (unlikely but possible if legacy constraint used same URL)
+          const exists = images.some(img => img.url === data.image_url);
+          if (!exists) {
+            images.unshift({
+              id: 'main-product-image', // Virtual ID
+              url: data.image_url,
+              sort_order: -1
+            });
+          }
+        }
+
         setExistingImages(images.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)));
 
         setCurrentQuantityAvailable(
@@ -172,9 +201,15 @@ const InventoryForm = () => {
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+
+    // MVP Restriction: Single Image Support for RPC items
+    // We warn the user if they try to upload multiple, as only the primary is saved to products table.
+    if (newImages.length + files.length > 1) {
+      toast.warning('Beta verze', { description: 'Prozatím je podporován pouze 1 hlavní obrázek.' });
+    }
+
     const totalCurrentImages = existingImages.length - deletedImageIds.length + newImages.length;
 
-    // Validate file count
     if (totalCurrentImages + files.length > 5) {
       toast.error('Maximálně 5 obrázků', {
         description: `Můžete nahrát ještě ${5 - totalCurrentImages} obrázků.`
@@ -182,9 +217,7 @@ const InventoryForm = () => {
       return;
     }
 
-    // Validate files using magic bytes (prevents spoofed file types)
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-
     logger.debug('Validating files with magic bytes check...');
     const validationResult = await validateImageFiles(files, validTypes);
 
@@ -192,20 +225,15 @@ const InventoryForm = () => {
       const errorMessages = validationResult.invalid
         .map(({ file, error }) => `${file.name}: ${error}`)
         .join('\n');
-
       toast.error('Neplatné soubory', {
         description: errorMessages || 'Některé soubory nejsou validní obrázky.'
       });
-
-      // If some files are valid, add only those
       if (validationResult.valid.length > 0) {
-        logger.debug(`Added ${validationResult.valid.length} valid files, rejected ${validationResult.invalid.length}`);
         setNewImages([...newImages, ...validationResult.valid]);
       }
       return;
     }
 
-    logger.debug('All files validated successfully:', validationResult.valid.length);
     setNewImages([...newImages, ...validationResult.valid]);
   };
 
@@ -237,6 +265,7 @@ const InventoryForm = () => {
       try {
         const fileExt = file.name.split('.').pop();
         const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        // Path matches Storage Policy: providers/<provider_id>/<item_UUID>/<filename>
         const filePath = `providers/${provider.id}/${targetItemId}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -262,7 +291,6 @@ const InventoryForm = () => {
 
     setUploadingImages(false);
 
-    // Summary notification
     if (failedUploads.length > 0) {
       toast.warning(`Nahráno ${urls.length}/${files.length} obrázků`, {
         description: `Selhalo: ${failedUploads.join(', ')}`
@@ -277,7 +305,6 @@ const InventoryForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form
     if (!validateForm()) {
       toast.error('Opravte chyby ve formuláři', {
         description: 'Zkontrolujte označená pole.'
@@ -285,109 +312,94 @@ const InventoryForm = () => {
       return;
     }
 
+    if (!provider?.id) return;
+
     setLoading(true);
 
     try {
-      logger.debug('Saving item...');
+      logger.debug('Submitting form (RPC Mode)...');
 
-      // Determine targetItemId for storage path
-      const targetItemId = id || crypto.randomUUID();
+      // Target Item ID: 
+      // For Create: Generate a UUID for storage path usage (even though RPC creates actual IDs)
+      // Wait, RPC returns the ID. But we need ID for storage path *before* RPC?
+      // Or we use a temporary ID for storage and accept the mismatch?
+      // Storage Policy: providers/${provider.id}/...
+      // The policy doesn't enforce that the 3rd segment MUST be the item ID, just that it's within provider's folder.
+      // So generating a random UUID for the folder is fine!
+
+      const storageFolderId = id || crypto.randomUUID();
 
       // 1. Upload new images
-      const uploadedUrls = await uploadImages(newImages, targetItemId);
+      const uploadedUrls = await uploadImages(newImages, storageFolderId);
 
       // Determine primary image
-      // If we have existing images, the first one is primary (unless all deleted, which we filtered out of state already)
-      // If no existing, the first new uploaded image is primary
-      const allActiveImages = [...existingImages.map(img => img.url), ...uploadedUrls];
+      // Merge existing (excluding deleted) and new
+      const currentActive = existingImages
+        .filter(img => !deletedImageIds.includes(img.id))
+        .map(img => img.url);
+
+      const allActiveImages = [...currentActive, ...uploadedUrls];
       const primaryImageUrl = allActiveImages.length > 0 ? allActiveImages[0] : null;
 
       const quantityTotal = parseInt(formData.quantity_total, 10);
-      let quantityAvailable = quantityTotal;
 
+      // RPC Call
       if (id) {
-        const existingAvailable = currentQuantityAvailable ?? quantityTotal;
-        // Preserve current availability unless the new total would drop below it
-        quantityAvailable =
-          existingAvailable > quantityTotal ? quantityTotal : existingAvailable;
-      }
-
-      const itemData = {
-        id: targetItemId, // Explicitly set ID for new items
-        provider_id: provider?.id,
-        name: formData.name.trim(),
-        category: formData.category,
-        description: formData.description?.trim() || null,
-        price_per_day: parseFloat(formData.price_per_day),
-        quantity_total: quantityTotal,
-        quantity_available: quantityAvailable,
-        condition: formData.condition,
-        sku: formData.sku?.trim() || null,
-        location: formData.location?.trim() || provider?.location || null,
-        notes: formData.notes?.trim() || null,
-        active: true,
-        item_state: 'available',
-        image_url: primaryImageUrl,
-      };
-
-      if (id) {
-        // Update existing item
-        logger.debug('Updating item:', id);
-        // Exclude ID from update payload to avoid primary key update errors logic if any
-        const { id: _, ...updateData } = itemData;
-        const { error } = await updateGearItem(supabase, id, updateData);
+        // Update
+        const { error } = await updateInventoryItem(id, {
+          name: formData.name.trim(),
+          category: formData.category,
+          description: formData.description?.trim() || '',
+          price_per_day: parseFloat(formData.price_per_day),
+          condition: formData.condition,
+          quantity_total: quantityTotal,
+          image_url: primaryImageUrl,
+          sku: formData.sku?.trim() || null
+        });
 
         if (error) {
           handleSupabaseError(error, 'Nepodařilo se aktualizovat položku');
           throw error;
         }
 
-        // Delete removed images
-        if (deletedImageIds.length > 0) {
-          const { error: deleteError } = await deleteGearImages(supabase, deletedImageIds);
-          if (deleteError) {
-            logger.error('Error deleting images', deleteError);
-            toast.warning('Položka uložena', { description: 'Nepodařilo se smazat některé staré obrázky.' });
-          }
+        // Clean up legacy images if deleted
+        // Note: We only call deleteGearImages if they are real legacy images (with UUIDs in gear_images)
+        // Virtual images (main-product-image) have IDs that won't match UUID format, so supabase will ignore or error?
+        // Let's filter for valid UUIDs.
+        const validUUIDsToDelete = deletedImageIds.filter(did =>
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(did)
+        );
+
+        if (validUUIDsToDelete.length > 0) {
+          await deleteGearImages(supabase, validUUIDsToDelete);
         }
+
       } else {
-        // Create new item
-        logger.debug('Creating new item with ID:', targetItemId);
-        const { error } = await insertGearItem(supabase, itemData);
+        // Create
+        const { data: newId, error } = await createInventoryItem({
+          provider_id: provider.id,
+          name: formData.name.trim(),
+          category: formData.category,
+          description: formData.description?.trim() || '',
+          price_per_day: parseFloat(formData.price_per_day),
+          condition: formData.condition,
+          quantity_total: quantityTotal,
+          image_url: primaryImageUrl,
+          sku: formData.sku?.trim() || null
+        });
 
         if (error) {
           handleSupabaseError(error, 'Nepodařilo se vytvořit položku');
           throw error;
         }
-      }
-
-      // Insert new additional images into gear_images table
-      // We need to calculate sort_order based on existing count
-      if (uploadedUrls.length > 0) {
-        const startSortOrder = existingImages.length;
-        const imageRecords = uploadedUrls.map((url, index) => ({
-          gear_id: targetItemId,
-          provider_id: provider?.id, // Added provider_id
-          url,
-          sort_order: startSortOrder + index,
-        }));
-
-        const { error: imgError } = await insertGearImages(supabase, imageRecords);
-
-        if (imgError) {
-          logger.error('Failed to save additional images', imgError);
-          toast.warning('Položka uložena', {
-            description: 'Některé obrázky se nepodařilo uložit do galerie.'
-          });
-        }
+        logger.debug('RPC Created Item ID:', newId);
       }
 
       toast.success(id ? 'Položka aktualizována' : 'Položka vytvořena');
       navigate('/provider/inventory');
 
     } catch (error) {
-      // Error handled in steps or below catch-all
-      if (!loading) return; // if we already stopped loading (e.g. upload fail)
+      if (!loading) return;
       logger.error('Unexpected error in submit', error);
     } finally {
       setLoading(false);
@@ -405,7 +417,7 @@ const InventoryForm = () => {
     }
   };
 
-  const currentTotalImages = existingImages.length + newImages.length;
+  const currentTotalImages = existingImages.length - deletedImageIds.length + newImages.length;
 
   return (
     <ProviderLayout>

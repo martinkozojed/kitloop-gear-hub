@@ -9,6 +9,7 @@ import { Plus, Package, QrCode, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { InventoryGrid, InventoryAsset } from '@/components/operations/InventoryGrid';
+import { softDeleteGearItems, updateGearItemStatus } from '@/lib/supabaseLegacy';
 import { AssetDetailSheet } from '@/components/operations/AssetDetailSheet';
 import { ProductForm } from '@/components/operations/ProductForm';
 import { AssetForm } from '@/components/operations/AssetForm';
@@ -139,10 +140,7 @@ const ProviderInventory = () => {
 
   const handleDelete = async (ids: string[]) => {
     try {
-      const { error } = await supabase
-        .from('assets')
-        .update({ deleted_at: new Date().toISOString() })
-        .in('id', ids);
+      const { error } = await softDeleteGearItems(supabase, ids);
 
       if (error) throw error;
       toast.success(t('provider.inventory.toasts.archiveSuccess', { count: ids.length }));
@@ -155,10 +153,7 @@ const ProviderInventory = () => {
 
   const handleStatusChange = async (ids: string[], status: string) => {
     try {
-      const { error } = await supabase
-        .from('assets')
-        .update({ status: status as InventoryAsset['status'] })
-        .in('id', ids);
+      const { error } = await updateGearItemStatus(supabase, ids, status);
       if (error) throw error;
       toast.success(t('provider.inventory.toasts.statusSuccess', { count: ids.length }));
       fetchInventory();
