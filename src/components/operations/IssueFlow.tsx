@@ -183,7 +183,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                 p_provider_id: reservationRecord.provider_id,
                 p_user_id: userId,
                 p_override: overrideMode,
-                p_override_reason: overrideMode ? 'Manual override by provider' : null
+                p_override_reason: overrideMode ? 'Manual override by provider' : undefined
             });
 
             if (error) throw error;

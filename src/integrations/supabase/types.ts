@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       accounts: {
@@ -190,6 +165,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "asset_events_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "asset_events_p_id_fkey"
             columns: ["p_id"]
             isOneToOne: false
@@ -262,13 +244,6 @@ export type Database = {
             foreignKeyName: "assets_variant_id_fkey"
             columns: ["variant_id"]
             isOneToOne: false
-            referencedRelation: "gear_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "assets_variant_id_fkey"
-            columns: ["variant_id"]
-            isOneToOne: false
             referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
@@ -312,6 +287,33 @@ export type Database = {
           },
         ]
       }
+      cron_job_config: {
+        Row: {
+          created_at: string | null
+          cron_identifier_mapping: string | null
+          expected_interval_minutes: number | null
+          jobname: string
+          stale_after_minutes: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          cron_identifier_mapping?: string | null
+          expected_interval_minutes?: number | null
+          jobname: string
+          stale_after_minutes?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          cron_identifier_mapping?: string | null
+          expected_interval_minutes?: number | null
+          jobname?: string
+          stale_after_minutes?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cron_runs: {
         Row: {
           cron_name: string
@@ -331,7 +333,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           started_at?: string
-          status?: string
+          status: string
         }
         Update: {
           cron_name?: string
@@ -561,22 +563,28 @@ export type Database = {
       gear_images: {
         Row: {
           created_at: string
+          deleted_at: string | null
           gear_id: string
           id: string
+          provider_id: string | null
           sort_order: number
           url: string
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           gear_id: string
           id?: string
+          provider_id?: string | null
           sort_order?: number
           url: string
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           gear_id?: string
           id?: string
+          provider_id?: string | null
           sort_order?: number
           url?: string
         }
@@ -593,6 +601,13 @@ export type Database = {
             columns: ["gear_id"]
             isOneToOne: false
             referencedRelation: "gear_items_legacy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gear_images_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
         ]
@@ -721,6 +736,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "maintenance_log_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "maintenance_log_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
@@ -728,6 +750,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      membership_resets: {
+        Row: {
+          provider_id: string
+          reason: string | null
+          revoked_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          provider_id: string
+          reason?: string | null
+          revoked_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          provider_id?: string
+          reason?: string | null
+          revoked_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       notification_logs: {
         Row: {
@@ -789,6 +835,62 @@ export type Database = {
             columns: ["reservation_id"]
             isOneToOne: false
             referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_progress: {
+        Row: {
+          checklist_dismissed_at: string | null
+          checklist_payments_connected: boolean | null
+          checklist_team_invited: boolean | null
+          checklist_terms_configured: boolean | null
+          created_at: string | null
+          first_asset_created_at: string | null
+          first_reservation_at: string | null
+          id: string
+          provider_id: string
+          step_inventory_completed_at: string | null
+          step_location_completed_at: string | null
+          step_workspace_completed_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          checklist_dismissed_at?: string | null
+          checklist_payments_connected?: boolean | null
+          checklist_team_invited?: boolean | null
+          checklist_terms_configured?: boolean | null
+          created_at?: string | null
+          first_asset_created_at?: string | null
+          first_reservation_at?: string | null
+          id?: string
+          provider_id: string
+          step_inventory_completed_at?: string | null
+          step_location_completed_at?: string | null
+          step_workspace_completed_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          checklist_dismissed_at?: string | null
+          checklist_payments_connected?: boolean | null
+          checklist_team_invited?: boolean | null
+          checklist_terms_configured?: boolean | null
+          created_at?: string | null
+          first_asset_created_at?: string | null
+          first_reservation_at?: string | null
+          id?: string
+          provider_id?: string
+          step_inventory_completed_at?: string | null
+          step_location_completed_at?: string | null
+          step_workspace_completed_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_progress_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
         ]
@@ -1028,6 +1130,7 @@ export type Database = {
           approved_at: string | null
           availability_notes: string | null
           business_hours: Json | null
+          business_hours_display: string | null
           category: string | null
           company_id: string | null
           contact_name: string
@@ -1037,8 +1140,8 @@ export type Database = {
           currency: string | null
           current_season: string | null
           deleted_at: string | null
-          external_key: string | null
           email: string
+          external_key: string | null
           id: string
           location: string | null
           logo_url: string | null
@@ -1046,6 +1149,7 @@ export type Database = {
           onboarding_completed: boolean | null
           onboarding_step: number | null
           phone: string
+          pickup_instructions: string | null
           rental_name: string
           seasonal_mode: boolean | null
           status: string | null
@@ -1062,6 +1166,7 @@ export type Database = {
           approved_at?: string | null
           availability_notes?: string | null
           business_hours?: Json | null
+          business_hours_display?: string | null
           category?: string | null
           company_id?: string | null
           contact_name: string
@@ -1071,8 +1176,8 @@ export type Database = {
           currency?: string | null
           current_season?: string | null
           deleted_at?: string | null
-          external_key?: string | null
           email: string
+          external_key?: string | null
           id?: string
           location?: string | null
           logo_url?: string | null
@@ -1080,6 +1185,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone: string
+          pickup_instructions?: string | null
           rental_name: string
           seasonal_mode?: boolean | null
           status?: string | null
@@ -1096,6 +1202,7 @@ export type Database = {
           approved_at?: string | null
           availability_notes?: string | null
           business_hours?: Json | null
+          business_hours_display?: string | null
           category?: string | null
           company_id?: string | null
           contact_name?: string
@@ -1105,8 +1212,8 @@ export type Database = {
           currency?: string | null
           current_season?: string | null
           deleted_at?: string | null
-          external_key?: string | null
           email?: string
+          external_key?: string | null
           id?: string
           location?: string | null
           logo_url?: string | null
@@ -1114,6 +1221,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone?: string
+          pickup_instructions?: string | null
           rental_name?: string
           seasonal_mode?: boolean | null
           status?: string | null
@@ -1179,6 +1287,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reservation_assignments_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reservation_assignments_reservation_id_fkey"
             columns: ["reservation_id"]
             isOneToOne: false
@@ -1224,13 +1339,6 @@ export type Database = {
             foreignKeyName: "reservation_lines_product_variant_id_fkey"
             columns: ["product_variant_id"]
             isOneToOne: false
-            referencedRelation: "gear_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservation_lines_product_variant_id_fkey"
-            columns: ["product_variant_id"]
-            isOneToOne: false
             referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
@@ -1269,11 +1377,12 @@ export type Database = {
           deposit_paid: boolean | null
           documents_status: Json | null
           end_date: string
+          expired_at: string | null
           expires_at: string | null
+          external_key: string | null
           gear_id: string | null
           id: string
           idempotency_key: string | null
-          external_key: string | null
           notes: string | null
           paid_at: string | null
           payment_intent_id: string | null
@@ -1309,11 +1418,12 @@ export type Database = {
           deposit_paid?: boolean | null
           documents_status?: Json | null
           end_date: string
+          expired_at?: string | null
           expires_at?: string | null
+          external_key?: string | null
           gear_id?: string | null
           id?: string
           idempotency_key?: string | null
-          external_key?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_intent_id?: string | null
@@ -1349,11 +1459,12 @@ export type Database = {
           deposit_paid?: boolean | null
           documents_status?: Json | null
           end_date?: string
+          expired_at?: string | null
           expires_at?: string | null
+          external_key?: string | null
           gear_id?: string | null
           id?: string
           idempotency_key?: string | null
-          external_key?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_intent_id?: string | null
@@ -1398,13 +1509,6 @@ export type Database = {
             columns: ["gear_id"]
             isOneToOne: false
             referencedRelation: "gear_items_legacy"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservations_product_variant_id_fkey"
-            columns: ["product_variant_id"]
-            isOneToOne: false
-            referencedRelation: "gear_items"
             referencedColumns: ["id"]
           },
           {
@@ -1508,6 +1612,30 @@ export type Database = {
           params?: Json | null
           rpc_name?: string
           success?: boolean | null
+        }
+        Relationships: []
+      }
+      security_profile_resets: {
+        Row: {
+          old_is_admin: boolean | null
+          old_is_verified: boolean | null
+          old_role: string | null
+          reset_at: string | null
+          user_id: string
+        }
+        Insert: {
+          old_is_admin?: boolean | null
+          old_is_verified?: boolean | null
+          old_role?: string | null
+          reset_at?: string | null
+          user_id: string
+        }
+        Update: {
+          old_is_admin?: boolean | null
+          old_is_verified?: boolean | null
+          old_role?: string | null
+          reset_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1824,6 +1952,10 @@ export type Database = {
         Returns: unknown
       }
       _st_within: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+      add_provider_member: {
+        Args: { p_provider_id: string; p_role: string; p_user_id: string }
+        Returns: undefined
+      }
       addauth: { Args: { "": string }; Returns: boolean }
       addgeometrycolumn:
         | {
@@ -1879,6 +2011,10 @@ export type Database = {
         }[]
       }
       approve_provider: { Args: { target_user_id: string }; Returns: undefined }
+      assert_provider_role: {
+        Args: { p_provider_id: string; p_roles?: string[] }
+        Returns: undefined
+      }
       attach_return_photos: {
         Args: { p_photo_evidence: Json; p_report_id: string }
         Returns: Json
@@ -1904,6 +2040,39 @@ export type Database = {
         Returns: boolean
       }
       cleanup_old_rate_limits: { Args: never; Returns: number }
+      cleanup_reservation_holds_sql: { Args: never; Returns: Json }
+      create_inventory_item: {
+        Args: {
+          p_category: string
+          p_condition: string
+          p_description: string
+          p_image_url: string
+          p_name: string
+          p_price_cents: number
+          p_provider_id: string
+          p_quantity_total: number
+          p_sku?: string
+          p_variant_name?: string
+        }
+        Returns: string
+      }
+      create_reservation: {
+        Args: {
+          p_customer_email: string
+          p_customer_name: string
+          p_customer_phone: string
+          p_end_date: string
+          p_idempotency_key: string
+          p_notes?: string
+          p_provider_id: string
+          p_quantity: number
+          p_start_date: string
+          p_total_price_cents: number
+          p_user_id: string
+          p_variant_id: string
+        }
+        Returns: Json
+      }
       create_return_report: {
         Args: {
           p_damage_reports?: Json
@@ -2048,8 +2217,24 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_cron_health: {
+        Args: never
+        Returns: {
+          active: boolean
+          command: string
+          config_stale_limit: number
+          jobname: string
+          last_error: string
+          last_rows_affected: number
+          last_run_at: string
+          last_status: string
+          schedule: string
+          stale: boolean
+        }[]
+      }
       get_customer_360: { Args: { p_customer_id: string }; Returns: Json }
       get_my_role: { Args: { limit_provider_id: string }; Returns: string }
+      get_onboarding_status: { Args: { p_provider_id: string }; Returns: Json }
       gettransactionid: { Args: never; Returns: unknown }
       has_role: {
         Args: {
@@ -2059,6 +2244,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_admin_trusted: { Args: never; Returns: boolean }
       is_available:
         | {
             Args: { end_time: string; gear_id: string; start_time: string }
@@ -2074,27 +2260,30 @@ export type Database = {
             Returns: boolean
           }
       is_provider_member: { Args: { pid: string }; Returns: boolean }
-      issue_reservation:
-        | {
-            Args: {
-              p_override?: boolean
-              p_provider_id: string
-              p_reservation_id: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_override?: boolean
-              p_override_reason?: string
-              p_provider_id: string
-              p_reservation_id: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
+      issue_reservation: {
+        Args: {
+          p_override?: boolean
+          p_override_reason?: string
+          p_provider_id: string
+          p_reservation_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       longtransactionsenabled: { Args: never; Returns: boolean }
+      manage_product: {
+        Args: {
+          p_category: string
+          p_description: string
+          p_image_url: string
+          p_name: string
+          p_price_cents: number
+          p_product_id: string
+          p_provider_id: string
+          p_variants: Json
+        }
+        Returns: string
+      }
       mock_send_notification: {
         Args: {
           p_reservation_id: string
@@ -2155,6 +2344,15 @@ export type Database = {
         | {
             Args: {
               p_damage_reports?: Json
+              p_provider_id: string
+              p_reservation_id: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_damage_reports?: Json
               p_general_notes?: string
               p_photo_paths?: string[]
               p_provider_id: string
@@ -2189,7 +2387,9 @@ export type Database = {
           deposit_paid: boolean | null
           documents_status: Json | null
           end_date: string
+          expired_at: string | null
           expires_at: string | null
+          external_key: string | null
           gear_id: string | null
           id: string
           idempotency_key: string | null
@@ -2219,6 +2419,10 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      soft_delete_inventory_item: {
+        Args: { p_item_id: string }
+        Returns: undefined
+      }
       st_3dclosestpoint: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
@@ -2801,6 +3005,20 @@ export type Database = {
         Returns: unknown
       }
       unlockrows: { Args: { "": string }; Returns: number }
+      update_inventory_item: {
+        Args: {
+          p_category: string
+          p_condition: string
+          p_description: string
+          p_image_url: string
+          p_item_id: string
+          p_name: string
+          p_price_cents: number
+          p_quantity_total: number
+          p_sku: string
+        }
+        Returns: undefined
+      }
       updategeometrysrid: {
         Args: {
           catalogn_name: string
@@ -2987,9 +3205,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "provider", "customer"],
@@ -3029,3 +3244,4 @@ export const Constants = {
     },
   },
 } as const
+
