@@ -59,6 +59,8 @@ const copy = {
   },
 } as const;
 
+const CONTAINER = "max-w-6xl mx-auto px-4 sm:px-6";
+
 export default function Privacy() {
   const [lang, setLang] = useLang();
   const t = copy[lang];
@@ -66,31 +68,27 @@ export default function Privacy() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Lang toggle */}
-      <div className="fixed top-4 right-4 z-50 flex gap-1">
-        <button
-          onClick={() => setLang("cs")}
-          className={`px-3 py-1 text-sm rounded-token-sm border transition-colors ${
-            lang === "cs"
-              ? "bg-foreground text-background border-foreground"
-              : "bg-transparent text-muted-foreground border-border hover:border-foreground"
-          }`}
-        >
-          CZ
-        </button>
-        <button
-          onClick={() => setLang("en")}
-          className={`px-3 py-1 text-sm rounded-token-sm border transition-colors ${
-            lang === "en"
-              ? "bg-foreground text-background border-foreground"
-              : "bg-transparent text-muted-foreground border-border hover:border-foreground"
-          }`}
-        >
-          EN
-        </button>
+
+      {/* Lang toggle — inline, right-aligned, below Navbar */}
+      <div className={`${CONTAINER} pt-4 flex justify-end`}>
+        <div className="flex gap-1">
+          {(["cs", "en"] as const).map((l) => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`px-2.5 py-1 text-xs font-medium rounded border transition-colors ${
+                lang === l
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+              }`}
+            >
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-6 py-20">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
         <Link
           to={onboardingHref}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 inline-block"
@@ -98,12 +96,12 @@ export default function Privacy() {
           {t.backLink}
         </Link>
 
-        <h1 className="font-heading text-3xl font-bold mb-10">{t.title}</h1>
+        <h1 className="font-heading text-3xl font-semibold tracking-tight mb-8">{t.title}</h1>
 
         <div className="space-y-8">
           {t.blocks.map((block, i) => (
             <div key={block.heading}>
-              <h2 className="font-semibold text-base mb-2">{block.heading}</h2>
+              <h2 className="text-base font-semibold mb-1.5">{block.heading}</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">{block.text}</p>
               {i < t.blocks.length - 1 && <Separator className="mt-8" />}
             </div>
