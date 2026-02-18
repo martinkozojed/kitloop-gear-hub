@@ -118,59 +118,38 @@ export function ProductForm({ open, onOpenChange, onSuccess, productId }: Produc
 
         setLoading(true);
         try {
-            let prodId = productId;
+            // Prepare payload
+            const variantsPayload = variants.map(v => ({
+                id: v.id, // Start with client ID (UUID or temp)
+                name: v.name || 'Standard',
+                sku: v.sku || ''
+            }));
 
-            if (productId) {
-                // UPDATE
-                const { error: pErr } = await supabase.from('products').update({
-                    name,
-                    category,
-                    description,
-                    image_url: imageUrl || null,
-                    base_price_cents: Math.round(parseFloat(basePrice) * 100)
-                }).eq('id', productId);
-                if (pErr) throw pErr;
-                toast.success(t('provider.inventory.productForm.updateSuccess'));
-            } else {
-                // CREATE
-                const { data: prod, error: pErr } = await supabase.from('products').insert({
-                    provider_id: provider.id,
-                    name,
-                    category,
-                    description,
-                    image_url: imageUrl || null,
-                    base_price_cents: Math.round(parseFloat(basePrice) * 100)
-                }).select().single();
-                if (pErr) throw pErr;
-                prodId = prod.id;
-            }
-
-            if (!prodId) throw new Error("No Product ID");
-
-            // Handle Variants (Upsert)
-            // Strategy: We upsert. If variants have UUID-like ID, they update. If random ID, we treat as new (remove ID for insert).
-
-            const variantsToUpsert = variants.map(v => {
-                const isRealId = v.id.length > 10; // Simple UUID check
-                return {
-                    id: isRealId ? v.id : undefined, // Let DB generate ID if new
-                    product_id: prodId,
-                    name: v.name || 'Standard',
-                    sku: v.sku || null
-                };
+            // Call RPC
+            const { data: newProductId, error } = await supabase.rpc('manage_product', {
+                p_provider_id: provider.id,
+                p_product_id: (productId || null) as unknown as string,
+                p_name: name,
+                p_description: description || '',
+                p_category: category,
+                p_price_cents: Math.round(parseFloat(basePrice) * 100),
+                p_image_url: imageUrl || '',
+                p_variants: variantsPayload
             });
 
-            // Note: Supabase upsert needs to know conflict column. 'id' is primary key.
-            const { error: vErr } = await supabase.from('product_variants').upsert(variantsToUpsert);
-            if (vErr) throw vErr;
+            if (error) throw error;
 
+            // Success
             if (!productId) toast.success(t('provider.inventory.productForm.createSuccess'));
+            else toast.success(t('provider.inventory.productForm.updateSuccess'));
+
             onSuccess();
             onOpenChange(false);
 
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Unknown error';
             toast.error(t('provider.inventory.productForm.saveError'), { description: message });
+            console.error('Product save error:', err);
         } finally {
             setLoading(false);
         }

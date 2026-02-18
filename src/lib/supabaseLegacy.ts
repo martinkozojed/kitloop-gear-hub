@@ -79,3 +79,56 @@ export function insertGearImages(
         .from('gear_images')
         .insert(images as unknown as never);
 }
+
+/**
+ * Delete gear images by ID
+ * 
+ * @param supabase - Supabase client instance
+ * @param ids - Array of image IDs to delete
+ * @returns Supabase query builder
+ */
+export function deleteGearImages(
+    supabase: SupabaseClientType,
+    ids: string[]
+) {
+    return supabase
+        .from('gear_images')
+        .delete()
+        .in('id', ids);
+}
+
+/**
+ * Soft delete multiple gear items by ID
+ * 
+ * @param supabase - Supabase client instance
+ * @param ids - Array of gear item IDs to soft delete
+ * @returns Supabase query builder
+ */
+export function softDeleteGearItems(
+    supabase: SupabaseClientType,
+    ids: string[]
+) {
+    return supabase
+        .from('gear_items')
+        .update({ deleted_at: new Date().toISOString() } as unknown as never)
+        .in('id', ids);
+}
+
+/**
+ * Update status for multiple gear items
+ * 
+ * @param supabase - Supabase client instance
+ * @param ids - Array of gear item IDs
+ * @param status - New status string
+ * @returns Supabase query builder
+ */
+export function updateGearItemStatus(
+    supabase: SupabaseClientType,
+    ids: string[],
+    status: string
+) {
+    return supabase
+        .from('gear_items')
+        .update({ status: status } as unknown as never)
+        .in('id', ids);
+}

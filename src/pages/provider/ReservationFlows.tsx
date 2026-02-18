@@ -38,7 +38,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, reservati
                 p_provider_id: providerId,
                 p_user_id: user.id,
                 p_override: overrideMode,
-                p_override_reason: overrideMode ? overrideReason : null
+                p_override_reason: overrideMode ? overrideReason : undefined
             });
 
             if (error) throw error;
