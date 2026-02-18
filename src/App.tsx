@@ -44,6 +44,7 @@ const InventoryForm = lazy(() => import("./pages/provider/InventoryForm"));
 const InventoryImport = lazy(() => import("./pages/provider/InventoryImport"));
 const ProviderReservations = lazy(() => import("./pages/provider/ProviderReservations"));
 const ReservationDetail = lazy(() => import("./pages/provider/ReservationDetail"));
+const ReservationHandoverPrint = lazy(() => import("./pages/provider/ReservationHandoverPrint"));
 const ProviderMaintenance = lazy(() => import("./pages/provider/ProviderMaintenance"));
 const ReservationForm = lazy(() => import("./pages/provider/ReservationForm"));
 const ProviderVerify = lazy(() => import("./pages/provider/ProviderVerify"));
@@ -213,6 +214,14 @@ const AppRoutes = () => {
               element={
                 <ProviderRoute>
                   <ReservationDetail />
+                </ProviderRoute>
+              }
+            />
+            <Route
+              path="/provider/reservations/:id/print"
+              element={
+                <ProviderRoute>
+                  <ReservationHandoverPrint />
                 </ProviderRoute>
               }
             />
