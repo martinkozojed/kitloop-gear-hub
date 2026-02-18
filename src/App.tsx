@@ -30,6 +30,7 @@ const AddRental = lazy(() => import("./pages/AddRental"));
 const About = lazy(() => import("./pages/About"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 const DemoDashboard = lazy(() => import("./pages/DemoDashboard"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -129,6 +130,7 @@ const AppRoutes = () => {
             <Route path="/about" element={<About />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route
               path="/admin/observability"
               element={
