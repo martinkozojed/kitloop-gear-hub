@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/ui/page-header';
 import ProviderLayout from '@/components/provider/ProviderLayout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { Plus, Package, QrCode, Upload } from 'lucide-react';
+import { Plus, Package, QrCode, Upload, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { InventoryGrid, InventoryAsset } from '@/components/operations/InventoryGrid';
@@ -18,6 +18,7 @@ import { CsvImportModal } from '@/components/operations/CsvImportModal';
 import { QuickAddAsset } from '@/components/onboarding/QuickAddAsset';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useSearchParams } from 'react-router-dom';
+import { exportInventoryCsv } from '@/lib/csv-export';
 
 import { generateDemoData } from '@/lib/demo-data';
 
@@ -208,6 +209,24 @@ const ProviderInventory = () => {
     setShowProductForm(true);
   };
 
+  const handleExportCsv = () => {
+    if (data.length === 0) {
+      toast.info(t('provider.inventory.toasts.exportEmpty', { defaultValue: 'Žádná data k exportu.' }));
+      return;
+    }
+    exportInventoryCsv(
+      data.map((a) => ({
+        id: a.id,
+        asset_tag: a.asset_tag,
+        product_name: a.product.name,
+        variant_name: a.variant.name,
+        sku: a.variant.sku ?? null,
+        status: a.status,
+        created_at: '',
+      }))
+    );
+  };
+
   return (
     <ProviderLayout>
       <div className="space-y-6">
@@ -216,6 +235,10 @@ const ProviderInventory = () => {
           description={t('provider.inventory.subtitle')}
           actions={
             <>
+              <Button variant="outline" onClick={handleExportCsv} className="hidden sm:flex">
+                <Download className="w-4 h-4 mr-2" />
+                {t('provider.inventory.actions.exportCsv', { defaultValue: 'Export CSV' })}
+              </Button>
               <Button variant="secondary" onClick={() => setShowScanner(true)}>
                 <QrCode className="w-4 h-4 mr-2" />
                 {t('provider.inventory.actions.scan')}
