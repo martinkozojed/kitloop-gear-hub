@@ -10,10 +10,11 @@ const corsHeaders = {
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const databaseUrl =
   Deno.env.get("SUPABASE_DB_URL") ?? Deno.env.get("DATABASE_URL") ?? "";
 
-if (!supabaseUrl || !supabaseAnonKey) {
+if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
   throw new Error("Missing required Supabase environment variables");
 }
 
@@ -70,10 +71,11 @@ Deno.serve(async (req) => {
     const parseResult = reservationRequestSchema.safeParse(rawPayload);
 
     if (!parseResult.success) {
+      const fields = parseResult.error.issues.map((i) => i.path.join(".")).filter(Boolean);
       return jsonResponse(
         {
           error: "Validation failed",
-          details: parseResult.error.format(),
+          invalid_fields: fields.length ? fields : undefined,
         },
         400,
       );
@@ -117,10 +119,8 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (providerError) {
-      return jsonResponse(
-        { error: "Failed to verify provider", details: providerError.message },
-        400,
-      );
+      console.error("Provider lookup error:", providerError.message);
+      return jsonResponse({ error: "Failed to verify provider" }, 400);
     }
 
     const { data: isMember, error: memberError } = await supabaseClient.rpc(
@@ -129,10 +129,8 @@ Deno.serve(async (req) => {
     );
 
     if (memberError) {
-      return jsonResponse(
-        { error: "Failed to resolve membership", details: memberError.message },
-        400,
-      );
+      console.error("Membership check error:", memberError.message);
+      return jsonResponse({ error: "Failed to resolve membership" }, 400);
     }
 
     let isAdmin = false;
@@ -141,10 +139,8 @@ Deno.serve(async (req) => {
         "is_admin",
       );
       if (adminError) {
-        return jsonResponse(
-          { error: "Failed to resolve admin role", details: adminError.message },
-          400,
-        );
+        console.error("Admin check error:", adminError.message);
+        return jsonResponse({ error: "Failed to resolve admin role" }, 400);
       }
       isAdmin = adminFlag === true;
     }
@@ -153,11 +149,13 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Forbidden: provider membership required" }, 403);
     }
 
-    // Use RPC for atomic reservation creation (Inventory 2.0)
-    // We map gear_id -> p_variant_id since legacy UI sends variant ID as gear_id
-    const { data: reservation, error: rpcError } = await supabaseClient.rpc("create_reservation", {
+    // RPC via service_role client — SECURITY DEFINER function needs elevated caller.
+    // The anon/user client is only used for auth + membership checks above.
+    const serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    const { data: reservation, error: rpcError } = await serviceClient.rpc("create_reservation", {
       p_provider_id: providerId,
-      p_user_id: customerUserId || user.id, // Use explicit user_id if provided (admin/provider flow), else token user
+      p_user_id: customerUserId || user.id,
       p_variant_id: gearId,
       p_quantity: requestedQuantity || 1,
       p_start_date: startDateISO,
@@ -165,40 +163,33 @@ Deno.serve(async (req) => {
       p_customer_name: customer?.name || "Unnamed customer",
       p_customer_email: customer?.email || null,
       p_customer_phone: customer?.phone || null,
-      p_total_price_cents: Math.round((totalPrice || 0) * 100), // Ensure cents
+      p_total_price_cents: Math.round((totalPrice || 0) * 100),
       p_idempotency_key: idempotencyKey,
-      p_notes: notes || null
+      p_notes: notes || null,
     });
 
     if (rpcError) {
-      console.error("create_reservation RPC error:", rpcError);
+      console.error("create_reservation RPC error:", rpcError.code, rpcError.message);
 
-      // Handle known errors
+      if (rpcError.code === "P0002" || rpcError.message?.includes("not found or deleted")) {
+        return jsonResponse({ error: "variant_not_found" }, 404);
+      }
       if (rpcError.code === "P0001" || rpcError.message?.includes("Insufficient availability")) {
-        return jsonResponse(
-          {
-            error: "insufficient_quantity",
-            message: rpcError.message
-          },
-          409
-        );
+        return jsonResponse({ error: "insufficient_availability" }, 409);
+      }
+      if (rpcError.message?.includes("Unauthorized") || rpcError.code === "42501") {
+        return jsonResponse({ error: "Unauthorized" }, 401);
       }
 
-      if (rpcError.message?.includes("Variant does not belong")) {
-        return jsonResponse({ error: "Invalid variant/provider combination" }, 400);
-      }
-
-      return jsonResponse({ error: "Reservation failed", details: rpcError.message }, 500);
+      return jsonResponse({ error: "Reservation failed" }, 500);
     }
 
     return jsonResponse(
       {
         reservation_id: reservation.reservation_id,
         status: reservation.status,
-        expires_at: reservation.expires_at,
-        idempotent: reservation.idempotent || false,
       },
-      201 // Created
+      201,
     );
 
   } catch (error) {
