@@ -15,11 +15,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { exportReservationsCsv } from '@/lib/csv-export';
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { formatDateRange, formatPrice } from "@/lib/availability";
-import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle, ArrowRightLeft, LayoutGrid, List } from "lucide-react";
+import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle, ArrowRightLeft, LayoutGrid, List, Download } from "lucide-react";
 import ReservationCalendar from "@/components/reservations/ReservationCalendar";
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
@@ -233,6 +234,26 @@ const ProviderReservations = () => {
     return 'pending';
   };
 
+  const handleExportCsv = () => {
+    if (reservations.length === 0) {
+      toast.info(t('provider.reservations.toasts.exportEmpty', { defaultValue: 'Žádná data k exportu.' }));
+      return;
+    }
+    exportReservationsCsv(
+      reservations.map((r) => ({
+        id: r.id,
+        status: r.status,
+        start_date: r.start_date,
+        end_date: r.end_date,
+        customer_name: r.customer_name,
+        customer_email: r.customer_email,
+        customer_phone: r.customer_phone,
+        total_lines: 1,
+        created_at: r.created_at,
+      }))
+    );
+  };
+
   if (loading) {
     return (
       <ProviderLayout>
@@ -250,12 +271,18 @@ const ProviderReservations = () => {
           title={t('provider.reservations.title')}
           description={t('provider.reservations.subtitle')}
           actions={
-            <Button asChild className="w-full sm:w-auto">
-              <Link to="/provider/reservations/new">
-                <Plus className="w-4 h-4 mr-2" />
-                {t('provider.reservations.cta.new')}
-              </Link>
-            </Button>
+            <>
+              <Button variant="outline" className="hidden sm:flex" onClick={handleExportCsv}>
+                <Download className="w-4 h-4 mr-2" />
+                {t('provider.reservations.cta.exportCsv', { defaultValue: 'Export CSV' })}
+              </Button>
+              <Button asChild className="w-full sm:w-auto">
+                <Link to="/provider/reservations/new">
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t('provider.reservations.cta.new')}
+                </Link>
+              </Button>
+            </>
           }
         />
 
