@@ -155,7 +155,7 @@ const ProviderSetup = () => {
     // If not logged in, redirect to auth with return URL
     if (!user?.id) {
       toast.error('Pro dokončení se musíte přihlásit nebo zaregistrovat.');
-      navigate('/auth?returnTo=/provider/setup');
+      navigate('/login?returnTo=/provider/setup');
       return;
     }
 

@@ -86,11 +86,6 @@ const Footer = () => {
                   {t('footer.privacy')}
                 </Link>
               </li>
-              <li>
-                <Link to="/cookies" className="text-muted-foreground hover:text-green-600 transition-colors">
-                  {t('footer.cookies')}
-                </Link>
-              </li>
             </ul>
             <div className="mt-4">
               <LanguageSwitcher />

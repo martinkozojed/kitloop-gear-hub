@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useTranslation } from 'react-i18next';
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface ScanDialogProps {
     open: boolean;
@@ -31,6 +32,7 @@ interface AssetResult {
 
 export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [tag, setTag] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<AssetResult | null>(null);
@@ -148,7 +150,14 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                                 <p className="text-sm text-blue-700 mb-3">
                                     Customer: <strong>{result.activeAssignment.reservations?.customer_name}</strong>
                                 </p>
-                                <Button className="w-full gap-2" variant="primary">
+                                <Button
+                                    className="w-full gap-2"
+                                    variant="primary"
+                                    onClick={() => {
+                                        onOpenChange(false);
+                                        navigate(`/provider/reservations/${result.activeAssignment!.reservation_id}?action=return`);
+                                    }}
+                                >
                                     <ArrowLeft className="w-4 h-4" />
                                     Return Item
                                 </Button>
@@ -156,17 +165,37 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                         ) : result.asset.status === 'maintenance' ? (
                             <div className="p-4 border rounded-lg bg-amber-50 border-amber-100">
                                 <h5 className="font-medium text-amber-900 mb-1">In Maintenance</h5>
-                                <Button className="w-full mt-2" variant="outline">
+                                <Button
+                                    className="w-full mt-2"
+                                    variant="outline"
+                                    onClick={() => {
+                                        onOpenChange(false);
+                                        navigate('/provider/maintenance');
+                                    }}
+                                >
                                     View Work Order
                                 </Button>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-2">
-                                <Button variant="outline" className="gap-2">
+                                <Button
+                                    variant="outline"
+                                    className="gap-2"
+                                    onClick={() => {
+                                        onOpenChange(false);
+                                        navigate('/provider/inventory');
+                                    }}
+                                >
                                     <Package className="w-4 h-4" />
                                     View Detail
                                 </Button>
-                                <Button className="gap-2">
+                                <Button
+                                    className="gap-2"
+                                    onClick={() => {
+                                        onOpenChange(false);
+                                        navigate('/provider/reservations');
+                                    }}
+                                >
                                     <ArrowRight className="w-4 h-4" />
                                     Issue Item
                                 </Button>

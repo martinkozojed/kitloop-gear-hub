@@ -28,21 +28,19 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 import { useCommand } from "@/context/CommandContext"
 
+const marketplaceEnabled = import.meta.env.VITE_ENABLE_MARKETPLACE === 'true';
+const crmEnabled = import.meta.env.VITE_ENABLE_CRM === 'true';
+const analyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
+
 export function CommandMenu() {
     const { open, setOpen } = useCommand()
     const navigate = useNavigate()
     const { logout } = useAuth()
 
-    // Keyboard listener moved to context
-
-
     const runCommand = React.useCallback((command: () => unknown) => {
         setOpen(false)
         command()
     }, [setOpen])
-
-    // If user is not logged in, maybe show limited menu or nothing?
-    // For now showing limited menu for guests is fine, but mostly this is for providers.
 
     return (
         <CommandDialog open={open} onOpenChange={setOpen}>
@@ -60,10 +58,12 @@ export function CommandMenu() {
                         <span>New Reservation</span>
                         <CommandShortcut>⌘N</CommandShortcut>
                     </CommandItem>
-                    <CommandItem onSelect={() => runCommand(() => navigate("/browse"))}>
-                        <Search className="mr-2 h-4 w-4" />
-                        <span>Browse Gear</span>
-                    </CommandItem>
+                    {marketplaceEnabled && (
+                        <CommandItem onSelect={() => runCommand(() => navigate("/browse"))}>
+                            <Search className="mr-2 h-4 w-4" />
+                            <span>Browse Gear</span>
+                        </CommandItem>
+                    )}
                 </CommandGroup>
 
                 <CommandSeparator />
@@ -81,10 +81,12 @@ export function CommandMenu() {
                         <Calendar className="mr-2 h-4 w-4" />
                         <span>Calendar</span>
                     </CommandItem>
-                    <CommandItem onSelect={() => runCommand(() => navigate("/provider/customers"))}>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Customers</span>
-                    </CommandItem>
+                    {crmEnabled && (
+                        <CommandItem onSelect={() => runCommand(() => navigate("/provider/customers"))}>
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Customers</span>
+                        </CommandItem>
+                    )}
                     <CommandItem onSelect={() => runCommand(() => navigate("/provider/dashboard/verify"))}>
                         <QrCode className="mr-2 h-4 w-4" />
                         <span>Scan / Verify</span>
@@ -98,10 +100,12 @@ export function CommandMenu() {
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
                     </CommandItem>
-                    <CommandItem onSelect={() => runCommand(() => navigate("/provider/analytics"))}>
-                        <Calculator className="mr-2 h-4 w-4" />
-                        <span>Analytics</span>
-                    </CommandItem>
+                    {analyticsEnabled && (
+                        <CommandItem onSelect={() => runCommand(() => navigate("/provider/analytics"))}>
+                            <Calculator className="mr-2 h-4 w-4" />
+                            <span>Analytics</span>
+                        </CommandItem>
+                    )}
                     <CommandItem onSelect={() => runCommand(() => logout())}>
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>

@@ -12,7 +12,8 @@ import { Loader2, ArrowLeft, Mail, Calendar, User, ShoppingBag, Clock, CheckCirc
 import { format } from "date-fns";
 import { formatPrice } from "@/lib/availability";
 import { useTranslation } from 'react-i18next';
-import { IssueModal, ReturnModal } from './ReservationFlows';
+import { IssueFlow } from "@/components/operations/IssueFlow";
+import { ReturnFlow } from "@/components/operations/ReturnFlow";
 
 export default function ReservationDetail() {
     const { id } = useParams<{ id: string }>();
@@ -353,22 +354,27 @@ export default function ReservationDetail() {
                     </div>
                 </div>
 
-                {id && provider?.id && (
+                {id && reservation && (
                     <>
-                        <IssueModal
+                        <IssueFlow
                             open={issueOpen}
-                            onClose={() => setIssueOpen(false)}
-                            reservationId={id}
-                            providerId={provider.id}
-                            onSuccess={fetchData}
+                            onOpenChange={setIssueOpen}
+                            reservation={{
+                                id,
+                                customerName: reservation.customer_name || '',
+                                itemName,
+                            }}
+                            onConfirm={async () => { await fetchData(); }}
                         />
-                        <ReturnModal
+                        <ReturnFlow
                             open={returnOpen}
-                            onClose={() => setReturnOpen(false)}
-                            reservationId={id}
-                            providerId={provider.id}
-                            assets={assignments}
-                            onSuccess={fetchData}
+                            onOpenChange={setReturnOpen}
+                            reservation={{
+                                id,
+                                customerName: reservation.customer_name || '',
+                                itemName,
+                            }}
+                            onConfirm={async () => { await fetchData(); }}
                         />
                     </>
                 )}
