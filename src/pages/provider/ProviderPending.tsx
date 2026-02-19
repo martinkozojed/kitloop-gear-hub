@@ -1,10 +1,15 @@
 import { Button } from "@/components/ui/button";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { AlertTriangle, Mail } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const ProviderPending = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
 
   return (
     <ProviderLayout>
@@ -19,11 +24,7 @@ const ProviderPending = () => {
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-foreground">Čekáme na schválení</h1>
             <p className="text-muted-foreground text-lg">
-              Váš účet poskytovatele čeká na schválení administrátorem.
-              Přístup k funkcím bude odemčen obvykle do 24 hodin.
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Očekávaná doba: do 24 hodin
+              Žádost procházíme ručně. Ozveme se e-mailem.
             </p>
           </div>
           <div className="flex justify-center gap-3">

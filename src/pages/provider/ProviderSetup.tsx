@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ interface FormData extends WorkspaceFormData, LocationFormData {
 const ProviderSetup = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, refreshProfile } = useAuth();
+  const { user, loading, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [maxStep, setMaxStep] = useState(1); // Track furthest step reached
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -225,6 +225,9 @@ const ProviderSetup = () => {
     { num: 2, icon: MapPin, label: 'Lokace' },
     { num: 3, icon: Package, label: 'Inventář' },
   ];
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4 flex items-center justify-center">
