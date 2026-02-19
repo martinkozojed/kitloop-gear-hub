@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
+const maintenanceEnabled = import.meta.env.VITE_ENABLE_MAINTENANCE === 'true';
+
 interface ScanDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -165,16 +167,18 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                         ) : result.asset.status === 'maintenance' ? (
                             <div className="p-4 border rounded-lg bg-amber-50 border-amber-100">
                                 <h5 className="font-medium text-amber-900 mb-1">In Maintenance</h5>
-                                <Button
-                                    className="w-full mt-2"
-                                    variant="outline"
-                                    onClick={() => {
-                                        onOpenChange(false);
-                                        navigate('/provider/maintenance');
-                                    }}
-                                >
-                                    View Work Order
-                                </Button>
+                                {maintenanceEnabled && (
+                                    <Button
+                                        className="w-full mt-2"
+                                        variant="outline"
+                                        onClick={() => {
+                                            onOpenChange(false);
+                                            navigate('/provider/maintenance');
+                                        }}
+                                    >
+                                        View Work Order
+                                    </Button>
+                                )}
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-2">

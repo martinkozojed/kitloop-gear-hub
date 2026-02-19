@@ -284,7 +284,14 @@
         "overdue": "Po termínu",
         "ready": "Připraveno",
         "unpaid": "Nezaplaceno",
-        "conflict": "Konflikt"
+        "conflict": "Konflikt",
+        "checked_out": "Vydáno",
+        "returned": "Vráceno",
+        "inspected_closed": "Uzavřeno",
+        "no_show": "Nedostavil se",
+        "expired": "Vypršelo",
+        "maintenance": "Údržba",
+        "unknown": "Neznámý stav"
       },
       "empty": {
         "welcome": "👋 Vítej, {{name}}!",

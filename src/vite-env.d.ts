@@ -14,6 +14,7 @@ interface ImportMetaEnv {
     readonly VITE_ENABLE_MAINTENANCE?: string
     readonly VITE_ENABLE_CALENDAR?: string
     readonly VITE_ENABLE_MARKETPLACE?: string
+    readonly VITE_ENABLE_SCAN?: string
 }
 
 interface ImportMeta {

@@ -6,6 +6,22 @@
  * SINGLE SOURCE OF TRUTH for reservation status visualization
  */
 
+import { logger } from '@/lib/logger';
+
+// Per-load dedup: log each unknown status+route combo only once.
+const _warnedStatuses = new Set<string>();
+
+function routePattern(pathname: string): string {
+  // Trim to first 2 path segments and replace UUIDs/numeric IDs with ':id'
+  return pathname
+    .split('/')
+    .slice(0, 3)
+    .join('/')
+    .replace(/[0-9a-f]{8}-[0-9a-f-]{27}/gi, ':id')
+    .replace(/\/\d+/g, '/:id')
+    || '/';
+}
+
 export type ReservationStatus =
   | 'hold'
   | 'pending'
@@ -16,16 +32,23 @@ export type ReservationStatus =
   | 'overdue'
   | 'ready'
   | 'unpaid'
-  | 'conflict';
+  | 'conflict'
+  | 'checked_out'
+  | 'returned'
+  | 'inspected_closed'
+  | 'no_show'
+  | 'expired'
+  | 'maintenance';
 
 // Matches Badge variants
 export type SemanticVariant = 'warning' | 'info' | 'success' | 'destructive' | 'secondary' | 'default';
 
 /**
  * Returns the matching Badge variant for a reservation status.
+ * Accepts any string; unknown statuses return 'secondary'.
  * Use this with <Badge variant={getBadgeVariant(status)}>
  */
-export function getBadgeVariant(status: ReservationStatus): SemanticVariant {
+export function getBadgeVariant(status: ReservationStatus | string): SemanticVariant {
   switch (status) {
     case 'hold':
     case 'pending':
@@ -34,17 +57,23 @@ export function getBadgeVariant(status: ReservationStatus): SemanticVariant {
 
     case 'confirmed':
     case 'active':
+    case 'checked_out':
       return 'info'; // Blue
 
     case 'ready':
+    case 'returned':
+    case 'inspected_closed':
       return 'success';
 
     case 'overdue':
     case 'conflict':
+    case 'no_show':
       return 'destructive'; // Red
 
     case 'completed':
     case 'cancelled':
+    case 'expired':
+    case 'maintenance':
       return 'secondary'; // Gray/Muted
 
     default:
@@ -55,15 +84,16 @@ export function getBadgeVariant(status: ReservationStatus): SemanticVariant {
 /**
  * Central mapping of status to semantic intent (Internal logic)
  */
-export function getSemanticVariant(status: ReservationStatus): SemanticVariant {
+export function getSemanticVariant(status: ReservationStatus | string): SemanticVariant {
   return getBadgeVariant(status);
 }
 
 /**
- * Returns Tailwind classes for a given status
+ * Returns Tailwind classes for a given status.
+ * Accepts any string; unknown statuses return neutral muted classes.
  * Uses CSS custom properties (design tokens) for consistency
  */
-export function getStatusColorClasses(status: ReservationStatus): string {
+export function getStatusColorClasses(status: ReservationStatus | string): string {
   switch (status) {
     // Warning: Orange/Amber
     case 'hold':
@@ -71,23 +101,29 @@ export function getStatusColorClasses(status: ReservationStatus): string {
     case 'unpaid':
       return 'bg-status-warning/10 text-status-warning border-status-warning/20';
 
-    // Info: Blue (confirmed, active)
+    // Info: Blue (confirmed, active, checked_out)
     case 'confirmed':
     case 'active':
+    case 'checked_out':
       return 'bg-status-info/10 text-status-info border-status-info/20';
 
-    // Success: Green (ready for pickup)
+    // Success: Green (ready, returned, inspected_closed)
     case 'ready':
+    case 'returned':
+    case 'inspected_closed':
       return 'bg-status-success/10 text-status-success border-status-success/20';
 
     // Danger: Red (URGENT only)
     case 'overdue':
     case 'conflict':
+    case 'no_show':
       return 'bg-status-danger/10 text-status-danger border-status-danger/20';
 
     // Neutral: Gray (closed states)
     case 'completed':
     case 'cancelled':
+    case 'expired':
+    case 'maintenance':
       return 'bg-status-neutral/10 text-status-neutral border-status-neutral/20';
 
     default:
@@ -96,18 +132,34 @@ export function getStatusColorClasses(status: ReservationStatus): string {
 }
 
 /**
- * Returns i18n key for status label
+ * Returns i18n key for status label.
+ * For known statuses returns the namespaced key; for unknown statuses returns
+ * the fallback key so the UI never renders a raw DB value.
  * Usage: t(getStatusLabelKey(status))
  */
-export function getStatusLabelKey(status: ReservationStatus): string {
-  return `provider.dashboard.status.${status}`;
+export function getStatusLabelKey(status: string): string {
+  const known: ReservationStatus[] = [
+    'hold', 'pending', 'confirmed', 'active', 'completed', 'cancelled',
+    'overdue', 'ready', 'unpaid', 'conflict', 'checked_out', 'returned',
+    'inspected_closed', 'no_show', 'expired', 'maintenance',
+  ];
+  if ((known as string[]).includes(status)) {
+    return `provider.dashboard.status.${status}`;
+  }
+  const path = typeof window !== 'undefined' ? routePattern(window.location.pathname) : '';
+  const dedupKey = `${status}@${path}`;
+  if (!_warnedStatuses.has(dedupKey)) {
+    _warnedStatuses.add(dedupKey);
+    logger.warn('unknown_status_seen', { status, path });
+  }
+  return 'provider.dashboard.status.unknown';
 }
 
 /**
- * Fallback: Returns a user-friendly label for status (EN fallback)
- * @deprecated Use getStatusLabelKey with i18n t() function instead
+ * Fallback: Returns a user-friendly label for status (EN fallback).
+ * @deprecated Use getStatusLabelKey with i18n t() function instead.
  */
-export function getStatusLabel(status: ReservationStatus): string {
+export function getStatusLabel(status: string): string {
   switch (status) {
     case 'hold': return 'Hold';
     case 'pending': return 'Pending';
@@ -119,14 +171,21 @@ export function getStatusLabel(status: ReservationStatus): string {
     case 'ready': return 'Ready';
     case 'unpaid': return 'Unpaid';
     case 'conflict': return 'Conflict';
-    default: return status;
+    case 'checked_out': return 'Checked out';
+    case 'returned': return 'Returned';
+    case 'inspected_closed': return 'Closed';
+    case 'no_show': return 'No show';
+    case 'expired': return 'Expired';
+    case 'maintenance': return 'Maintenance';
+    default: return 'Unknown status';
   }
 }
 
 /**
- * Returns solid background color for buttons/highlights
+ * Returns solid background color for buttons/highlights.
+ * Accepts any string; unknown statuses return neutral muted classes.
  */
-export function getStatusSolidClass(status: ReservationStatus): string {
+export function getStatusSolidClass(status: ReservationStatus | string): string {
   switch (status) {
     case 'hold':
     case 'pending':
@@ -135,17 +194,23 @@ export function getStatusSolidClass(status: ReservationStatus): string {
 
     case 'confirmed':
     case 'active':
+    case 'checked_out':
       return 'bg-status-info text-white';
 
     case 'ready':
+    case 'returned':
+    case 'inspected_closed':
       return 'bg-status-success text-white';
 
     case 'overdue':
     case 'conflict':
+    case 'no_show':
       return 'bg-status-danger text-white';
 
     case 'completed':
     case 'cancelled':
+    case 'expired':
+    case 'maintenance':
       return 'bg-status-neutral text-white';
 
     default:
