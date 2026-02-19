@@ -63,3 +63,25 @@
 - **Data Export**: Poznamenat si ID rezervací vytvořených v systému.
 - **Fix**: Nahlásit dev týmu.
 - **Revert**: Pokud deploy rozbil FE, revert commit v Gitu a redeploy. Database migrace nerušit (DATA LOSS risk), raději fix dopředu.
+
+---
+
+## 6. Ready to Onboard Partner
+
+Run this before sending the invite link to a rental partner.
+
+- [ ] `npx tsc --noEmit` passes with zero errors.
+- [ ] `npm run lint` passes with zero critical errors.
+- [ ] `npm run build` succeeds and `dist/` is produced.
+- [ ] Netlify deploy is live at the production URL (app loads, no blank screen).
+- [ ] `VITE_SUPABASE_URL` in Netlify env points to the production Supabase project (not `127.0.0.1`).
+- [ ] `VITE_SUPABASE_ANON_KEY` is set; `SERVICE_ROLE_KEY` is NOT present in Netlify env or the built JS bundle.
+- [ ] Supabase Auth redirect URLs include the production origin (required for email confirmation and password reset).
+- [ ] Edge Functions deployed: `admin_action`, `reserve_gear`, `cleanup_reservation_holds`.
+- [ ] Admin user exists in `profiles` with `role = 'admin'` (required to approve providers via `admin_approve_provider` RPC — see `supabase/migrations/20260110120001_admin_action_hardening_fixed.sql` line 187).
+- [ ] `damage-photos` storage bucket exists and is private.
+- [ ] RLS policies are active: verify `assets`, `reservations`, `return_reports`, `providers` all have RLS enabled.
+- [ ] A test provider account can sign up, complete `/provider/setup`, and appear in **Admin → Provider Approvals**.
+- [ ] Admin can approve the test provider; provider lands on `/provider/dashboard` (not the pending screen).
+- [ ] Test provider can add a product + variant + asset, create a reservation, issue, and return it end-to-end.
+- [ ] Support email `support@kitloop.cz` is monitored and ready to receive partner questions.

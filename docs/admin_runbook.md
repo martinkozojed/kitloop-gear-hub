@@ -18,10 +18,14 @@ Internal 10-step checklist for approving and supporting a new rental partner dur
 
 ### 3. Approve the provider
 - In the app: **Admin** → **Provider Approvals** → click **Approve** next to the provider.
-- This calls the `admin_action` Edge Function → RPC `admin_approve_provider`.
-- What it sets: `providers.status = 'approved'`, `providers.verified = true`, `providers.approved_at = now()`.
-- An audit log entry is created atomically in `admin_audit_logs`.
-- Rate limit: 20 admin actions / 60 s (DB-enforced).
+- This calls the `admin_action` Edge Function (`supabase/functions/admin_action/index.ts`, line 218), which invokes the RPC `public.admin_approve_provider` defined in `supabase/migrations/20260110120001_admin_action_hardening_fixed.sql` (line 187).
+- What the RPC sets atomically (single transaction):
+  - `providers.status = 'approved'`
+  - `providers.verified = true`
+  - `providers.approved_at = now()`
+  - Inserts a row into `admin_audit_logs`.
+- Requires `profiles.role = 'admin'` for the acting user (enforced inside the RPC at line 202–208 of the migration).
+- Rate limit: 20 admin actions / 60 s (DB-enforced via `admin_rate_limits` table).
 
 ### 4. RLS sanity check
 - In Supabase SQL Editor, run as the provider's `user_id` (or use the anon key with their JWT):
