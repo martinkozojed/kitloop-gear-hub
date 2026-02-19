@@ -16,6 +16,7 @@ import { PrintContractButton } from '@/components/contracts/PrintContractButton'
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+import { logEvent } from '@/lib/app-events';
 
 interface IssueFlowProps {
     open: boolean;
@@ -188,6 +189,11 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
 
             if (error) throw error;
 
+            await logEvent('reservation_issue', {
+                providerId: reservationRecord.provider_id,
+                entity: { type: 'reservation', id: reservation.id },
+                metadata: { override: overrideMode },
+            });
             toast.success(t('operations.issueFlow.success', 'Reservation Issued'));
             await onConfirm(reservation.id, overrideMode); // Refresh parent
             onOpenChange(false);
