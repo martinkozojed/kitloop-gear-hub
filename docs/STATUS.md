@@ -1,5 +1,8 @@
 # M1 Status – Kitloop
 
+> **SSOT:** [`docs/ssot/MVP_SCOPE.md`](ssot/MVP_SCOPE.md) — any work must align with that document before it ships.  
+> Scope changes require a `SCOPE CHANGE:` PR + SSOT update (see §6).
+
 | Oblast | Stav | Poznámka |
 | --- | --- | --- |
 | Rezervace (hold → confirm → cleanup) | Hotovo | Edge flow drží hold, Stripe PI a cleanup cron (*/5) uklízí expirované blokace. |

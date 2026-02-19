@@ -130,6 +130,10 @@ npm run test:e2e:headed -- --project=chromium --debug
 - `/signup` - User registration
 - `/how-it-works` - Information about the platform
 
+## MVP / Onboarding
+
+**SSOT:** [`docs/ssot/MVP_SCOPE.md`](docs/ssot/MVP_SCOPE.md) — the canonical scope document. Any work must align with it before shipping.
+
 ## Next Steps
 
 - Integration with backend services

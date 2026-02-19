@@ -1,5 +1,13 @@
 # Pull Request Checklist
 
+## MVP Scope Alignment
+
+- [ ] Aligned with [docs/ssot/MVP_SCOPE.md](../docs/ssot/MVP_SCOPE.md) sections: _(list section numbers, e.g. §2 Reservations, §5 Guardrails)_
+- [ ] No scope expansion (or PR is titled `SCOPE CHANGE: ...` and SSOT updated)
+- [ ] If DB migration touches canonical tables/views, prod-parity check evidence included (per SSOT §5).
+- [ ] Verification steps included in PR description
+- [ ] typecheck / lint / build passed
+
 ## UI & Design System
 
 - [ ] **No arbitrary values**: I have checked for `text-[..px]`, `shadow-[...]`, `rounded-[..px]`.
