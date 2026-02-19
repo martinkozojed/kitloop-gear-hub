@@ -1,4 +1,5 @@
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -27,7 +28,7 @@ const copy = {
     cta1: "Zaregistrovat půjčovnu",
     cta2: "Přihlásit se",
     micro: "Každou žádost procházíme osobně, abychom znali své partnery. Dotazy: support@kitloop.cz.",
-    screenshotCaption: "Screenshot coming soon",
+    providerSetupLabel: "Přejít do nastavení půjčovny",
     isTitle: "Je",
     isntTitle: "Není",
     isBullets: [
@@ -87,7 +88,7 @@ const copy = {
     cta1: "Register your rental",
     cta2: "Log in",
     micro: "We review each application personally to know our partners. Questions: support@kitloop.cz.",
-    screenshotCaption: "Screenshot coming soon",
+    providerSetupLabel: "Go to provider setup",
     isTitle: "Is",
     isntTitle: "Isn't",
     isBullets: [
@@ -147,6 +148,8 @@ export default function Onboarding() {
   const [lang, setLang] = useLang();
   const t = copy[lang];
   const privacyHref = `/privacy?lang=${lang}`;
+  const { isAuthenticated, isProvider } = useAuth();
+  const providerSetupHref = `/provider/setup?lang=${lang}`;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -175,46 +178,28 @@ export default function Onboarding() {
       </div>
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 py-20 md:py-28">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Left: copy + CTAs */}
-          <div className="space-y-6">
-            <h1 className="font-heading text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              {t.h1}
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">{t.sub}</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild size="lg" className="font-semibold">
-                <Link to="/signup">{t.cta1}</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/login">{t.cta2}</Link>
+      <section className="max-w-3xl mx-auto px-6 py-20 md:py-28">
+        <div className="space-y-6">
+          <h1 className="font-heading text-4xl md:text-5xl font-bold leading-tight tracking-tight">
+            {t.h1}
+          </h1>
+          <p className="text-lg text-muted-foreground leading-relaxed">{t.sub}</p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button asChild size="lg" className="font-semibold">
+              <Link to="/signup">{t.cta1}</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/login">{t.cta2}</Link>
+            </Button>
+          </div>
+          {isAuthenticated && isProvider && (
+            <div className="pt-2">
+              <Button asChild variant="secondary" size="sm">
+                <Link to={providerSetupHref}>{t.providerSetupLabel}</Link>
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">{t.micro}</p>
-          </div>
-
-          {/* Right: screenshot placeholder */}
-          <div className="order-first md:order-last">
-            <Card className="rounded-2xl border shadow-sm overflow-hidden">
-              <div
-                className="bg-muted flex items-end justify-center p-4"
-                style={{ aspectRatio: "16/10" }}
-              >
-                <div
-                  className="w-full h-full rounded-lg"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px)",
-                    backgroundSize: "20px 20px",
-                  }}
-                />
-              </div>
-              <CardContent className="py-3 px-4">
-                <p className="text-xs text-muted-foreground text-center">{t.screenshotCaption}</p>
-              </CardContent>
-            </Card>
-          </div>
+          )}
+          <p className="text-sm text-muted-foreground">{t.micro}</p>
         </div>
       </section>
 

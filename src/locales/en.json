@@ -284,7 +284,14 @@
         "overdue": "Overdue",
         "ready": "Ready",
         "unpaid": "Unpaid",
-        "conflict": "Conflict"
+        "conflict": "Conflict",
+        "checked_out": "Checked out",
+        "returned": "Returned",
+        "inspected_closed": "Closed",
+        "no_show": "No show",
+        "expired": "Expired",
+        "maintenance": "Maintenance",
+        "unknown": "Unknown status"
       },
       "empty": {
         "welcome": "👋 Welcome, {{name}}!",

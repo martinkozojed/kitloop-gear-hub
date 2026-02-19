@@ -11,19 +11,20 @@ import { AgendaItemProps, ExceptionItem } from '@/types/dashboard';
 // ---- Status badge helpers ----
 
 const STATUS_LABELS: Record<string, string> = {
-  hold: 'Rezervováno',
+  hold: 'Blokováno',
   pending: 'Čeká',
   confirmed: 'Potvrzeno',
   active: 'Vydáno',
   checked_out: 'Vydáno',
   returned: 'Vráceno',
-  completed: 'Vráceno',
+  completed: 'Dokončeno',
   inspected_closed: 'Uzavřeno',
   cancelled: 'Zrušeno',
   no_show: 'Nedostavil se',
   expired: 'Vypršelo',
   ready: 'Připraveno',
   unpaid: 'Nezaplaceno',
+  maintenance: 'Údržba',
 };
 
 const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -39,8 +40,8 @@ const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | '
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const label = STATUS_LABELS[status] ?? status;
-  const variant = STATUS_VARIANT[status] ?? 'outline';
+  const label = STATUS_LABELS[status] ?? 'Neznámý stav';
+  const variant = STATUS_VARIANT[status] ?? 'secondary';
   return <Badge variant={variant} className="text-xs shrink-0">{label}</Badge>;
 }
 
