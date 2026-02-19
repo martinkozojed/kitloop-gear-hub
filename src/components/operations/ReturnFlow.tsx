@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { requestUploadTicket, uploadWithTicket, UploadTicketError } from "@/lib/upload/client";
 import { rulesForUseCase } from "@/lib/upload/validation";
+import { logEvent } from '@/lib/app-events';
 
 interface ReturnFlowProps {
     open: boolean;
@@ -219,6 +220,11 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                 toast.success(t('operations.returnFlow.success'));
             }
 
+            await logEvent('reservation_return', {
+                providerId: provider.id,
+                entity: { type: 'reservation', id: reservation.id },
+                metadata: { has_damage: assets.some(a => a.isDamaged) },
+            });
             await onConfirm(reservation.id, assets.some(a => a.isDamaged));
             onOpenChange(false);
             setSuccessfullyReturnedReportId(null); // Reset

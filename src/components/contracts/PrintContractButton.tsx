@@ -5,6 +5,7 @@ import { Printer, Loader2 } from "lucide-react";
 import { ContractTemplate } from './ContractTemplate';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
+import { logEvent } from '@/lib/app-events';
 
 interface PrintContractButtonProps {
     reservationId: string;
@@ -64,6 +65,13 @@ export function PrintContractButton({ reservationId, variant = "outline", size =
                 price_cents: line.price_per_item_cents,
                 quantity: line.quantity
             })) || [];
+
+            if (typeof res.provider_id === 'string') {
+                await logEvent('print_handover', {
+                    providerId: res.provider_id,
+                    entity: { type: 'reservation', id: reservationId },
+                });
+            }
 
             setPrintData({
                 reservation: res,

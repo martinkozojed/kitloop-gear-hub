@@ -19,6 +19,7 @@ import { QuickAddAsset } from '@/components/onboarding/QuickAddAsset';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useSearchParams } from 'react-router-dom';
 import { exportInventoryCsv } from '@/lib/csv-export';
+import { logEvent } from '@/lib/app-events';
 
 import { generateDemoData } from '@/lib/demo-data';
 
@@ -225,6 +226,12 @@ const ProviderInventory = () => {
         created_at: '',
       }))
     );
+    if (provider?.id) {
+      void logEvent('export_inventory', {
+        providerId: provider.id,
+        metadata: { rows: data.length },
+      });
+    }
   };
 
   return (
