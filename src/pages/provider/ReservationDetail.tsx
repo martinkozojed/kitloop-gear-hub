@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, ArrowLeft, Mail, Calendar, User, ShoppingBag, Clock, CheckCircle2, AlertCircle, LogOut, LogIn } from "lucide-react";
+import { Loader2, ArrowLeft, Mail, Calendar, User, ShoppingBag, Clock, CheckCircle2, AlertCircle, LogOut, LogIn, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { formatPrice } from "@/lib/availability";
 import { useTranslation } from 'react-i18next';
@@ -321,6 +321,16 @@ export default function ReservationDetail() {
                                         <LogIn className="w-5 h-5 mr-2" /> Přijmout Vrácení
                                     </Button>
                                 )}
+
+                                <Button
+                                    className="w-full"
+                                    variant="outline"
+                                    onClick={() => window.open(`/provider/reservations/${id}/print`, '_blank')}
+                                    data-testid="reservation-print-btn"
+                                >
+                                    <Printer className="w-4 h-4 mr-2" />
+                                    Tisk předávacího protokolu
+                                </Button>
 
                                 <div className="h-px bg-border my-2" />
 
