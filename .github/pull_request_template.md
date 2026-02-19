@@ -4,6 +4,8 @@
 
 - [ ] Aligned with [docs/ssot/MVP_SCOPE.md](../docs/ssot/MVP_SCOPE.md) sections: _(list section numbers, e.g. §2 Reservations, §5 Guardrails)_
 - [ ] No scope expansion (or PR is titled `SCOPE CHANGE: ...` and SSOT updated)
+- [ ] No new status strings introduced (see SSOT §2 Reservations — status table; requires `SCOPE CHANGE:` PR).
+- [ ] No app-layer DML on `gear_items` introduced (see SSOT §2 Inventory — app-layer rule).
 - [ ] If DB migration touches canonical tables/views, prod-parity check evidence included (per SSOT §5).
 - [ ] Verification steps included in PR description
 - [ ] typecheck / lint / build passed

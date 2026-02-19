@@ -36,13 +36,30 @@ Ship a production-stable **provider-only SaaS** that a real rental can use for:
 
 ### Inventory & data model
 - Providers manage inventory (products/variants/assets or equivalent canonical tables).
-- `gear_items` is READ-ONLY VIEW (production). Do not INSERT/ALTER it.
+- `gear_items` is a **TABLE** (not a view). Schema defined in `supabase/migrations/20250101000000_baseline_schema.sql` (search `CREATE TABLE.*gear_items`).
+  - **App-layer rule:** Application code must treat `gear_items` as read-only. No direct INSERT/UPDATE/DELETE from `src/` code. Use canonical flows and canonical tables only.
+  - RLS policies exist for owner/admin writes at the DB layer (used by internal RPCs), but no application code in `src/` should bypass this via direct DML.
+  - **Do not change this rule without a `SCOPE CHANGE:` PR.**
 
 ### Reservations (internal)
 - Staff can create/modify/cancel internal reservations.
-- **Canonical reservation statuses** (exact strings used in both DB column and UI filters):
-  `hold` | `confirmed` | `issued` | `returned` | `cancelled`
-  - No other status values are valid in MVP. UI filter chips and DB queries must use these exact strings.
+- **Canonical DB status strings** (actual values stored in the `reservations.status` column and enforced by `check_reservation_status` DB constraint):
+
+  | DB string | UI label shown to users | Notes |
+  |---|---|---|
+  | `hold` | Hold | Soft block; collision allowed with warning |
+  | `pending` | Pending | Pre-confirmation / pre-payment transitional state |
+  | `confirmed` | Confirmed | Confirmed, awaiting pickup |
+  | `active` | Issued / Vydáno | Picked up (semantic alias for "issued") |
+  | `completed` | Returned / Vráceno | Returned (semantic alias for "returned") |
+  | `cancelled` | Cancelled | Cancelled before pickup |
+
+  Additional UI-derived/computed statuses (never stored in DB): `overdue`, `ready`, `unpaid`, `conflict`.  
+  Additional TS-only statuses (not in DB constraint): `maintenance`, `expired`.
+
+  > **Note:** The SSOT previously listed `issued`/`returned` as the canonical DB strings. The actual DB constraint and codebase use `active`/`completed` for these states. The UI may display "Issued"/"Returned" labels mapped from `active`/`completed`. See audit: `docs/verification/ssot_alignment_audit_2026-02-19.md §A`.
+
+- **Rule: Do not introduce new status strings without a `SCOPE CHANGE:` PR.** Any new value must be added to the DB constraint, the TS type, the UI label mapping, and this table atomically.
 - **Collision/overbooking guard — two-tier rule:**
   - *Hold*: soft collision allowed — show a warning but do not block creation.
   - *Issue*: **hard gate** — cannot issue if the required assets are unavailable. The Issue action is blocked, not warned.
