@@ -3,6 +3,8 @@
 > **SSOT:** [`docs/ssot/MVP_SCOPE.md`](ssot/MVP_SCOPE.md) — any work must align with that document before it ships.  
 > Scope changes require a `SCOPE CHANGE:` PR + SSOT update (see §6).
 
+> **Latest SSOT alignment audit:** [`docs/verification/ssot_alignment_audit_2026-02-19.md`](verification/ssot_alignment_audit_2026-02-19.md)
+
 | Oblast | Stav | Poznámka |
 | --- | --- | --- |
 | Rezervace (hold → confirm → cleanup) | Hotovo | Edge flow drží hold, Stripe PI a cleanup cron (*/5) uklízí expirované blokace. |
