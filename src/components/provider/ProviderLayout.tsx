@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProviderSidebar from './ProviderSidebar';
 import ProviderBottomNav from './ProviderBottomNav';
+import { FeedbackModal } from './FeedbackModal';
 import { Button } from '@/components/ui/button';
 import { PanelLeftClose, PanelLeft } from 'lucide-react';
 
@@ -69,6 +70,8 @@ const ProviderLayout = ({ children }: ProviderLayoutProps) => {
       <div className="md:hidden">
         <ProviderBottomNav />
       </div>
+
+      <FeedbackModal />
     </div>
   );
 };

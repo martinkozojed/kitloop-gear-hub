@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { track } from '@/lib/telemetry';
+import { logEvent } from '@/lib/app-events';
 
 interface Reservation {
   id: string;
@@ -252,6 +253,12 @@ const ProviderReservations = () => {
         created_at: r.created_at,
       }))
     );
+    if (provider?.id) {
+      void logEvent('export_reservations', {
+        providerId: provider.id,
+        metadata: { rows: reservations.length },
+      });
+    }
   };
 
   if (loading) {
