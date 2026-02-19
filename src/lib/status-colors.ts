@@ -6,6 +6,8 @@
  * SINGLE SOURCE OF TRUTH for reservation status visualization
  */
 
+import { logger } from '@/lib/logger';
+
 export type ReservationStatus =
   | 'hold'
   | 'pending'
@@ -130,6 +132,7 @@ export function getStatusLabelKey(status: string): string {
   if ((known as string[]).includes(status)) {
     return `provider.dashboard.status.${status}`;
   }
+  logger.warn('unknown_status_seen', { status, path: window?.location?.pathname });
   return 'provider.dashboard.status.unknown';
 }
 
