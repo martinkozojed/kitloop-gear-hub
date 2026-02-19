@@ -8,6 +8,20 @@
 
 import { logger } from '@/lib/logger';
 
+// Per-load dedup: log each unknown status+route combo only once.
+const _warnedStatuses = new Set<string>();
+
+function routePattern(pathname: string): string {
+  // Trim to first 2 path segments and replace UUIDs/numeric IDs with ':id'
+  return pathname
+    .split('/')
+    .slice(0, 3)
+    .join('/')
+    .replace(/[0-9a-f]{8}-[0-9a-f-]{27}/gi, ':id')
+    .replace(/\/\d+/g, '/:id')
+    || '/';
+}
+
 export type ReservationStatus =
   | 'hold'
   | 'pending'
@@ -132,7 +146,12 @@ export function getStatusLabelKey(status: string): string {
   if ((known as string[]).includes(status)) {
     return `provider.dashboard.status.${status}`;
   }
-  logger.warn('unknown_status_seen', { status, path: window?.location?.pathname });
+  const path = typeof window !== 'undefined' ? routePattern(window.location.pathname) : '';
+  const dedupKey = `${status}@${path}`;
+  if (!_warnedStatuses.has(dedupKey)) {
+    _warnedStatuses.add(dedupKey);
+    logger.warn('unknown_status_seen', { status, path });
+  }
   return 'provider.dashboard.status.unknown';
 }
 
