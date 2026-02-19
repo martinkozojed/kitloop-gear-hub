@@ -3,46 +3,20 @@ import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { cs } from 'date-fns/locale';
 import { Plus, Package, ExternalLink, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getBadgeVariant, getStatusLabelKey } from '@/lib/status-colors';
 import { AgendaItemProps, ExceptionItem } from '@/types/dashboard';
 
-// ---- Status badge helpers ----
-
-const STATUS_LABELS: Record<string, string> = {
-  hold: 'Blokováno',
-  pending: 'Čeká',
-  confirmed: 'Potvrzeno',
-  active: 'Vydáno',
-  checked_out: 'Vydáno',
-  returned: 'Vráceno',
-  completed: 'Dokončeno',
-  inspected_closed: 'Uzavřeno',
-  cancelled: 'Zrušeno',
-  no_show: 'Nedostavil se',
-  expired: 'Vypršelo',
-  ready: 'Připraveno',
-  unpaid: 'Nezaplaceno',
-  maintenance: 'Údržba',
-};
-
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  confirmed: 'default',
-  ready: 'default',
-  active: 'secondary',
-  checked_out: 'secondary',
-  hold: 'outline',
-  pending: 'outline',
-  unpaid: 'destructive',
-  completed: 'secondary',
-  returned: 'secondary',
-};
-
 function StatusBadge({ status }: { status: string }) {
-  const label = STATUS_LABELS[status] ?? 'Neznámý stav';
-  const variant = STATUS_VARIANT[status] ?? 'secondary';
-  return <Badge variant={variant} className="text-xs shrink-0">{label}</Badge>;
+  const { t } = useTranslation();
+  return (
+    <Badge variant={getBadgeVariant(status)} className="text-xs shrink-0">
+      {t(getStatusLabelKey(status))}
+    </Badge>
+  );
 }
 
 function formatDateRange(start?: string, end?: string): string {

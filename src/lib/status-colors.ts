@@ -29,9 +29,10 @@ export type SemanticVariant = 'warning' | 'info' | 'success' | 'destructive' | '
 
 /**
  * Returns the matching Badge variant for a reservation status.
+ * Accepts any string; unknown statuses return 'secondary'.
  * Use this with <Badge variant={getBadgeVariant(status)}>
  */
-export function getBadgeVariant(status: ReservationStatus): SemanticVariant {
+export function getBadgeVariant(status: ReservationStatus | string): SemanticVariant {
   switch (status) {
     case 'hold':
     case 'pending':
@@ -67,15 +68,16 @@ export function getBadgeVariant(status: ReservationStatus): SemanticVariant {
 /**
  * Central mapping of status to semantic intent (Internal logic)
  */
-export function getSemanticVariant(status: ReservationStatus): SemanticVariant {
+export function getSemanticVariant(status: ReservationStatus | string): SemanticVariant {
   return getBadgeVariant(status);
 }
 
 /**
- * Returns Tailwind classes for a given status
+ * Returns Tailwind classes for a given status.
+ * Accepts any string; unknown statuses return neutral muted classes.
  * Uses CSS custom properties (design tokens) for consistency
  */
-export function getStatusColorClasses(status: ReservationStatus): string {
+export function getStatusColorClasses(status: ReservationStatus | string): string {
   switch (status) {
     // Warning: Orange/Amber
     case 'hold':
@@ -158,9 +160,10 @@ export function getStatusLabel(status: string): string {
 }
 
 /**
- * Returns solid background color for buttons/highlights
+ * Returns solid background color for buttons/highlights.
+ * Accepts any string; unknown statuses return neutral muted classes.
  */
-export function getStatusSolidClass(status: ReservationStatus): string {
+export function getStatusSolidClass(status: ReservationStatus | string): string {
   switch (status) {
     case 'hold':
     case 'pending':

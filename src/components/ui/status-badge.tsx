@@ -5,7 +5,8 @@ import { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface StatusBadgeProps {
-  status: ReservationStatus;
+  /** Accepts any string; unknown statuses render a neutral "Unknown status" label. */
+  status: ReservationStatus | string;
   icon?: LucideIcon;
   className?: string;
   size?: 'sm' | 'md' | 'lg';

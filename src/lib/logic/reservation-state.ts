@@ -62,16 +62,25 @@ export const isOverdue = (reservation: ReservationState): boolean => {
 };
 
 /**
- * Returns the correct strict semantic color for a status
+ * Returns the correct strict semantic color for a status.
+ * Accepts any string; unknown statuses return 'secondary' (never throws).
+ * Prefer getBadgeVariant from status-colors.ts for new call sites.
  */
-export const getStatusColor = (status: ReservationStatus): "default" | "success" | "warning" | "destructive" | "secondary" => {
+export const getStatusColor = (status: string): "default" | "success" | "warning" | "destructive" | "secondary" => {
     switch (status) {
-        case 'confirmed': return 'secondary'; // Neutral/Blue-ish
-        case 'active': return 'default'; // Primary Brand Color
-        case 'completed': return 'success'; // Green
-        case 'cancelled': return 'secondary';
-        case 'expired': return 'destructive';
-        case 'pending': return 'warning';
+        case 'confirmed': return 'secondary';
+        case 'active':
+        case 'checked_out': return 'default';
+        case 'completed':
+        case 'returned':
+        case 'inspected_closed': return 'success';
+        case 'cancelled':
+        case 'maintenance': return 'secondary';
+        case 'expired':
+        case 'no_show': return 'destructive';
+        case 'pending':
+        case 'hold':
+        case 'unpaid': return 'warning';
         default: return 'secondary';
     }
 };
