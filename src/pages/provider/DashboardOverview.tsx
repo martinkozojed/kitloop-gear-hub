@@ -6,6 +6,7 @@ import { ExceptionsQueue } from "@/components/dashboard/ExceptionsQueue";
 import { AgendaRow } from "@/components/dashboard/AgendaRow";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DemoBanner } from "@/components/dashboard/DemoBanner";
+import { ActionCenter } from "@/components/dashboard/ActionCenter";
 import { AgendaItemProps } from "@/types/dashboard";
 import { IssueFlow } from "@/components/operations/IssueFlow";
 import { ReturnFlow } from "@/components/operations/ReturnFlow";
@@ -227,7 +228,10 @@ const DashboardOverview = () => {
             </div>
           </div>
 
-          {/* 2. KPI Strip (Hidden in Operations Mode or Restricted) */}
+          {/* 2. Action Center */}
+          <ActionCenter agendaItems={agendaItems} exceptions={exceptions} />
+
+          {/* 3. KPI Strip (Hidden in Operations Mode or Restricted) */}
           {viewMode === 'overview' && canViewFinancials && (
             <KpiStrip data={kpiData} />
           )}
