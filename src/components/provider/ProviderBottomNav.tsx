@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { ScanDialog } from '@/components/warehouse/ScanDialog';
 import { Icon as UiIcon } from "@/components/ui/icon";
 
+const scanEnabled = import.meta.env.VITE_ENABLE_SCAN === 'true';
+
 const ProviderBottomNav = () => {
   const location = useLocation();
   const { t } = useTranslation();
@@ -13,8 +15,8 @@ const ProviderBottomNav = () => {
   const navItems = [
     { path: '/provider/dashboard', label: 'provider.bottomNav.dashboard', icon: Home },
     { path: '/provider/reservations', label: 'provider.bottomNav.reservations', icon: Calendar },
-    // Center is Scan
-    { path: 'SCAN', label: 'warehouse.scan.action', icon: QrCode },
+    // Center Scan FAB — only shown when VITE_ENABLE_SCAN=true
+    ...(scanEnabled ? [{ path: 'SCAN', label: 'warehouse.scan.action', icon: QrCode }] : []),
     { path: '/provider/inventory', label: 'provider.bottomNav.inventory', icon: Package },
     { path: '/provider/settings', label: 'provider.bottomNav.more', icon: MoreHorizontal },
   ];
@@ -64,7 +66,7 @@ const ProviderBottomNav = () => {
         </div>
       </nav>
 
-      <ScanDialog open={isScanOpen} onOpenChange={setIsScanOpen} />
+      {scanEnabled && <ScanDialog open={isScanOpen} onOpenChange={setIsScanOpen} />}
     </>
   );
 };
