@@ -178,7 +178,7 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                             <SheetTitle className="text-xl flex items-center gap-2">
                                 {asset?.product.name || 'Loading...'}
                                 {onEditProduct && (
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => asset?.variant.product_id && onEditProduct(asset.variant.product_id)}>
+                                    <Button data-testid="edit-product-btn" variant="ghost" size="icon" className="h-6 w-6" onClick={() => asset?.variant.product_id && onEditProduct(asset.variant.product_id)}>
                                         <Edit className="w-4 h-4 text-muted-foreground" />
                                     </Button>
                                 )}

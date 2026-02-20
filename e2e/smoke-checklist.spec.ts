@@ -257,13 +257,14 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     await page.getByRole('menuitem', { name: /edit details/i }).click();
     await page.waitForTimeout(500);
 
-    // In AssetDetailSheet, wait for sheet to fully animate in
+    // Wait for AssetDetailSheet to be visible, then click pencil via JS eval (sheet CSS-transform
+    // keeps the element "not stable" in Playwright's bounding-box check even after animation ends)
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 });
-    // Wait for "Edit Details" button (lower in sheet) to be stable — indicates animation complete
-    await expect(page.getByRole('button', { name: /edit details/i })).toBeVisible({ timeout: 10000 });
-    // Click pencil icon in product name heading (force to bypass sheet animation stability check)
-    const editProductBtn = page.getByRole('dialog').getByRole('heading', { level: 2 }).getByRole('button');
-    await editProductBtn.dispatchEvent('click');
+    await page.getByTestId('edit-product-btn').waitFor({ state: 'visible', timeout: 10000 });
+    await page.evaluate(() => {
+      const btn = document.querySelector('[data-testid="edit-product-btn"]') as HTMLElement | null;
+      btn?.click();
+    });
     await page.waitForTimeout(500);
 
     // Change product name
