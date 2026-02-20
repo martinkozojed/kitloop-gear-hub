@@ -180,11 +180,9 @@ test.describe('E2E Smoke', () => {
     if (hasInput) {
       await manualInputReturn.fill(`${seed.external_key_base}_asset_1`);
       console.log(`[TEST] Return Dialog: Filled manual input`);
-      await page.getByRole('button', { name: /Confirm/i }).click();
+      await page.getByRole('button', { name: /Confirm|Complete return/i }).click();
     } else {
-      // Simple logic for return if needed, but return usually has scanner/check
-      // Check for simple confirm button just in case
-      const confirmReturn = page.getByRole('button', { name: /Potvrdit|Confirm/i });
+      const confirmReturn = page.getByRole('button', { name: /Complete return|Potvrdit|Confirm/i });
       const hasConfirm = await confirmReturn.isVisible();
       console.log(`[TEST] Return Dialog: Confirm Button Visible = ${hasConfirm}`);
 
