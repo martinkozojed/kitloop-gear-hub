@@ -45,8 +45,12 @@ $$;
 COMMENT ON FUNCTION public.is_provider_approved(uuid) IS
 'Canonical approval predicate: returns true iff the provider is verified, has an approved_at timestamp, and is not soft-deleted. Use this everywhere instead of inline checks.';
 
-REVOKE ALL ON FUNCTION public.is_provider_approved(uuid) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.is_provider_approved(uuid) TO authenticated, service_role;
+-- anon must be able to call this function because public-facing SELECT policies
+-- (providers_public_select, gear_items_public_select, etc.) apply to the anon
+-- role. Without EXECUTE for anon those policies would throw "permission denied
+-- for function is_provider_approved" on every unauthenticated request.
+REVOKE ALL ON FUNCTION public.is_provider_approved(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_provider_approved(uuid) TO anon, authenticated, service_role;
 
 -- =============================================================================
 -- 2. FIX admin_approve_provider — set all three fields atomically
