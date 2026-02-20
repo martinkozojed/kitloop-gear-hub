@@ -4,8 +4,10 @@
  * Runs each step in order, stopping at the FIRST failing step.
  */
 import { test, expect, Page } from '@playwright/test';
+import { callHarness } from './utils/harness';
+import { loginAs } from './utils/auth';
 
-const BASE_URL = 'http://localhost:5174';
+const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5174';
 const SUPABASE_STUDIO_URL = 'http://127.0.0.1:54323';
 
 const formatDateTimeLocal = (date: Date) => {
@@ -66,27 +68,32 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
 
   test('A2: Reload page → still shows Pending approval', async ({ page }) => {
     console.log('[A2] Testing session persistence...');
-    
-    // Login first
-    await page.goto(`${BASE_URL}/login`);
-    await page.locator('input[type="email"]').fill(testEmail);
-    await page.locator('input[type="password"]').fill(testPassword);
-    await page.getByRole('button', { name: /sign in|log in|login/i }).click();
-    
-    await page.waitForTimeout(2000);
+    const runId = `a2_${Date.now()}`;
+    const uniqueEmail = `e2e_a2_${runId}@example.com`;
+
+    // Seed a pending provider (self-contained, no dependency on A1)
+    const seedPassword = 'password123';
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'pending',
+      asset_count: 1,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
     await page.goto(`${BASE_URL}/provider/pending`);
     await page.waitForTimeout(500);
 
     // Should be on pending screen
     await expect(page.getByText(/waiting for approval|Čekáme na schválení|pending approval|awaiting approval/i)).toBeVisible();
 
-    // Reload
+    // Reload — session must persist
     await page.reload();
     await page.waitForTimeout(1000);
 
     // Should still show pending
     await expect(page.getByText(/waiting for approval|Čekáme na schválení|pending approval|awaiting approval/i)).toBeVisible();
-    
+
     console.log('[A2] ✓ PASSED - Session persists, still pending');
   });
 
