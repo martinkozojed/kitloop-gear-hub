@@ -193,29 +193,13 @@ CREATE POLICY "Public can view approved providers"
   TO authenticated, anon
   USING (public.is_provider_approved(id));
 
--- 4c. gear_items_public_select (baseline_schema.sql)
--- Old: active = true AND EXISTS (... p.verified = true AND p.approved_at IS NOT NULL AND p.deleted_at IS NULL)
--- New: active = true AND is_provider_approved(provider_id)
+-- 4c. gear_items_public_select — SKIPPED: gear_items is a VIEW (not a table);
+-- RLS policies cannot be applied to views. Security is enforced by the underlying
+-- tables (products, product_variants) and the view's security_invoker=true setting.
 DROP POLICY IF EXISTS "gear_items_public_select" ON public.gear_items;
-CREATE POLICY "gear_items_public_select"
-  ON public.gear_items
-  FOR SELECT
-  USING (
-    active = true
-    AND public.is_provider_approved(provider_id)
-  );
 
--- 4d. gear_select_public (baseline_schema.sql) — weaker duplicate, replace with canonical
--- Old: active = true AND EXISTS (... p.verified = true)  (missing approved_at!)
--- New: is_provider_approved(provider_id)
+-- 4d. gear_select_public — SKIPPED: same reason as 4c (gear_items is a view).
 DROP POLICY IF EXISTS "gear_select_public" ON public.gear_items;
-CREATE POLICY "gear_select_public"
-  ON public.gear_items
-  FOR SELECT
-  USING (
-    active = true
-    AND public.is_provider_approved(provider_id)
-  );
 
 -- 4e. gear_images_public_select (baseline_schema.sql)
 -- Old: gi.active = true AND p.verified = true AND p.approved_at IS NOT NULL AND p.deleted_at IS NULL
