@@ -10,12 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ItemState } from "@/lib/logic/reservation-state";
-import { AlertTriangle, Lock, ShieldCheck, Check, ArrowRight, Loader2 } from "lucide-react";
+import { AlertTriangle, Check, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PrintContractButton } from '@/components/contracts/PrintContractButton';
 import { useTranslation } from 'react-i18next';
-import { cn } from "@/lib/utils";
-import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { logEvent } from '@/lib/app-events';
 
 interface IssueFlowProps {
@@ -164,9 +162,9 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     }, [fetchReservation]);
 
     const hasAssets = items.length > 0;
-    const paymentStatus = reservationRecord?.payment_status || 'unpaid';
-    const isPaidEnough = ['paid', 'deposit_paid'].includes(paymentStatus);
-    const isAllowed = !!reservationRecord && reservationRecord.status === 'confirmed' && isPaidEnough && hasAssets;
+    // Payments are out of scope for MVP (SSOT §4). The DB-level hard gate enforces asset
+    // availability; payment status must not block the issue action in the UI.
+    const isAllowed = !!reservationRecord && reservationRecord.status === 'confirmed' && hasAssets;
 
     const handleConfirm = async () => {
         if (!reservationRecord?.provider_id) return;
@@ -215,19 +213,6 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                     <p className="text-sm opacity-80 mt-1 max-w-[250px]">{t('operations.issueFlow.noAssets.desc')}</p>
                     {autoAssigning && <div className="mt-2 text-xs flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Finding asset...</div>}
                     {autoAssignError && <p className="mt-1 text-xs font-bold text-red-600">{autoAssignError}</p>}
-                </div>
-            );
-        }
-        if (!isAllowed && !overrideMode) {
-            return (
-                <div className="flex flex-col items-center justify-center p-6 text-center text-red-600 bg-red-50 rounded-xl border border-red-100 animate-in fade-in zoom-in duration-300">
-                    <Lock className="w-8 h-8 mb-2 opacity-80" />
-                    <h4 className="font-semibold">{t('operations.issueFlow.blocked.title')}</h4>
-                    <p className="text-sm opacity-80 mt-1">Payment Status: <strong>{paymentStatus}</strong></p>
-
-                    <Button variant="ghost" size="sm" onClick={() => setOverrideMode(true)} className="mt-4 hover:bg-red-100 hover:text-red-700 underline text-xs">
-                        {t('operations.issueFlow.blocked.override')}
-                    </Button>
                 </div>
             );
         }
