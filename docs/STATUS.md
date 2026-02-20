@@ -5,6 +5,8 @@
 
 > **Latest SSOT alignment audit:** [`docs/verification/ssot_alignment_audit_2026-02-19.md`](verification/ssot_alignment_audit_2026-02-19.md)
 
+**Pilot smoke checklist:** [`docs/verification/pilot_smoke.md`](verification/pilot_smoke.md) — run before every rental demo (Go/No-Go: approval gate + issue gate + print).
+
 | Oblast | Stav | Poznámka |
 | --- | --- | --- |
 | Rezervace (hold → confirm → cleanup) | Hotovo | Edge flow drží hold, Stripe PI a cleanup cron (*/5) uklízí expirované blokace. |
