@@ -230,6 +230,60 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[B1] ✓ PASSED - Product created successfully');
   });
 
-  // Continue with remaining tests B2-I1...
-  // Due to length, I'll create a comprehensive test structure
+  test('B2: Edit product name → reflected in inventory list', async ({ page }) => {
+    console.log('[B2] Editing product name...');
+    const runId = `b2_${Date.now()}`;
+    const uniqueEmail = `e2e_b2_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+
+    await page.goto('/provider/inventory');
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /inventory/i })).toBeVisible({ timeout: 15000 });
+
+    // Open row actions menu for the first asset
+    await page.getByRole('button', { name: /open menu/i }).first().click();
+    await page.waitForTimeout(300);
+
+    // Click "Edit details" to open AssetDetailSheet
+    await page.getByRole('menuitem', { name: /edit details/i }).click();
+    await page.waitForTimeout(500);
+
+    // Wait for AssetDetailSheet to be visible, then click pencil via JS eval (sheet CSS-transform
+    // keeps the element "not stable" in Playwright's bounding-box check even after animation ends)
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('edit-product-btn').waitFor({ state: 'visible', timeout: 10000 });
+    await page.evaluate(() => {
+      const btn = document.querySelector('[data-testid="edit-product-btn"]') as HTMLElement | null;
+      btn?.click();
+    });
+    await page.waitForTimeout(500);
+
+    // Change product name
+    const newName = `B2 Updated ${Date.now()}`;
+    const nameInput = page.getByPlaceholder(/Atomic Bent Chetler/i);
+    await nameInput.scrollIntoViewIfNeeded();
+    await nameInput.fill(newName);
+
+    // Save
+    await page.getByRole('button', { name: /update product/i }).click();
+
+    // Verify success: ProductForm closes (AssetDetailSheet stays), success toast, name in list
+    // Wait for the ProductForm to close (it has "Update product" button; sheet stays open)
+    await expect(page.getByRole('button', { name: /update product/i })).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText(/product updated/i).first()).toBeVisible({ timeout: 5000 });
+    // Verify updated name appears in inventory list
+    await expect(page.getByText(newName).first()).toBeVisible({ timeout: 5000 });
+
+    console.log('[B2] ✓ PASSED - Product name updated');
+  });
+
 });
