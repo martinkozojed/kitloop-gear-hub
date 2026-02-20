@@ -17,7 +17,7 @@ jobs:
       DB_URL: ${{ secrets.SECURITY_DB_URL }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install psql
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
