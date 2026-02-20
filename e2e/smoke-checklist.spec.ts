@@ -97,55 +97,26 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[A2] ✓ PASSED - Session persists, still pending');
   });
 
-  test('A3: Approve provider via Supabase → access granted', async ({ page, context }) => {
-    console.log('[A3] Approving provider in Supabase...');
-    
-    // Open Supabase Studio in new tab
-    const studioPage = await context.newPage();
-    await studioPage.goto(SUPABASE_STUDIO_URL);
-    
-    // Navigate to providers table
-    // This will depend on Supabase Studio UI - may need to click through
-    await studioPage.waitForTimeout(2000);
-    
-    // Look for Table Editor or similar
-    const tableEditorLink = studioPage.getByText(/table editor/i);
-    if (await tableEditorLink.isVisible()) {
-      await tableEditorLink.click();
-    }
-    
-    // Find providers table
-    await studioPage.waitForTimeout(1000);
-    const providersTable = studioPage.getByText(/providers/i).first();
-    if (await providersTable.isVisible()) {
-      await providersTable.click();
-    }
-    
-    // Search for our test email
-    const searchInput = studioPage.locator('input[placeholder*="Search"]').first();
-    if (await searchInput.isVisible()) {
-      await searchInput.fill(testEmail);
-      await studioPage.waitForTimeout(1000);
-    }
-    
-    // Find the row and update status to 'approved'
-    // This is tricky - may need to use SQL editor instead
-    console.log('[A3] Manual step required: Please update provider status to approved in Supabase Studio');
-    console.log(`[A3] Provider email: ${testEmail}`);
-    console.log('[A3] Waiting 10 seconds for manual approval...');
-    await page.waitForTimeout(10000);
-    
-    // Close studio tab
-    await studioPage.close();
-    
-    // Back to main app - reload or navigate
-    await page.reload();
-    await page.waitForTimeout(2000);
-    
-    // Should now see dashboard/operational features
-    const dashboardText = page.getByText(/dashboard|welcome/i);
-    await expect(dashboardText).toBeVisible({ timeout: 5000 });
-    
+  test('A3: Approve provider via Supabase → access granted', async ({ page }) => {
+    console.log('[A3] Approving provider via harness...');
+    const runId = `a3_${Date.now()}`;
+    const uniqueEmail = `e2e_a3_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    // Seed an approved provider — simulates out-of-band admin approval
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+
+    // Approved provider must land on dashboard (not pending screen)
+    await expect(page.getByText(/pending approval|Čekáme na schválení|waiting for approval/i)).not.toBeVisible({ timeout: 3000 });
+    await expect(page.getByRole('link', { name: /dashboard/i }).or(page.getByRole('heading', { name: /dashboard/i })).or(page.getByText(/dashboard/i).first())).toBeVisible({ timeout: 10000 });
+
     console.log('[A3] ✓ PASSED - Provider approved, access granted');
   });
 
