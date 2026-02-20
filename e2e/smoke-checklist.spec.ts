@@ -230,6 +230,59 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[B1] ✓ PASSED - Product created successfully');
   });
 
-  // Continue with remaining tests B2-I1...
-  // Due to length, I'll create a comprehensive test structure
+  test('B2: Edit product name → reflected in inventory list', async ({ page }) => {
+    console.log('[B2] Editing product name...');
+    const runId = `b2_${Date.now()}`;
+    const uniqueEmail = `e2e_b2_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+
+    await page.goto('/provider/inventory');
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /inventory/i })).toBeVisible({ timeout: 15000 });
+
+    // Open row actions menu for the first asset
+    await page.getByRole('button', { name: /open menu/i }).first().click();
+    await page.waitForTimeout(300);
+
+    // Click "Edit details" to open AssetDetailSheet
+    await page.getByRole('menuitem', { name: /edit details/i }).click();
+    await page.waitForTimeout(500);
+
+    // In AssetDetailSheet, wait for sheet to fully animate in
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 });
+    // Wait for "Edit Details" button (lower in sheet) to be stable — indicates animation complete
+    await expect(page.getByRole('button', { name: /edit details/i })).toBeVisible({ timeout: 10000 });
+    // Click pencil icon in product name heading (force to bypass sheet animation stability check)
+    const editProductBtn = page.getByRole('dialog').getByRole('heading', { level: 2 }).getByRole('button');
+    await editProductBtn.dispatchEvent('click');
+    await page.waitForTimeout(500);
+
+    // Change product name
+    const newName = `B2 Updated ${Date.now()}`;
+    const nameInput = page.getByPlaceholder(/Atomic Bent Chetler/i);
+    await nameInput.scrollIntoViewIfNeeded();
+    await nameInput.fill(newName);
+
+    // Save
+    await page.getByRole('button', { name: /update product/i }).click();
+
+    // Verify success: ProductForm closes (AssetDetailSheet stays), success toast, name in list
+    // Wait for the ProductForm to close (it has "Update product" button; sheet stays open)
+    await expect(page.getByRole('button', { name: /update product/i })).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText(/product updated/i).first()).toBeVisible({ timeout: 5000 });
+    // Verify updated name appears in inventory list
+    await expect(page.getByText(newName).first()).toBeVisible({ timeout: 5000 });
+
+    console.log('[B2] ✓ PASSED - Product name updated');
+  });
+
 });
