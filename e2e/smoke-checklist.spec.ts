@@ -181,52 +181,52 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
   // B - Inventory Basics
   test('B1: Create new product with variant and asset', async ({ page }) => {
     console.log('[B1] Creating product with variant and asset...');
-    
-    // Login first
-    await page.goto(`${BASE_URL}/login`);
-    await page.locator('input[type="email"]').fill(testEmail);
-    await page.locator('input[type="password"]').fill(testPassword);
-    await page.getByRole('button', { name: /sign in|log in|login/i }).click();
-    await page.waitForTimeout(2000);
-    
-    // Navigate to inventory
-    await page.goto(`${BASE_URL}/provider/inventory`);
-    await page.waitForTimeout(1000);
-    
-    // Click "Add Product" or similar
-    const addProductBtn = page.getByRole('button', { name: /add product|new product|create product/i });
-    await addProductBtn.click();
-    await page.waitForTimeout(1000);
-    
-    // Fill product form
-    const productName = `Test Product ${Date.now()}`;
-    await page.locator('input[name="name"]').fill(productName);
-    
-    // Add variant
-    const addVariantBtn = page.getByRole('button', { name: /add variant/i });
-    if (await addVariantBtn.isVisible()) {
-      await addVariantBtn.click();
-      await page.waitForTimeout(500);
-    }
-    
-    // Fill variant details
-    await page.locator('input[name*="variant"]').first().fill('Standard');
-    
-    // Add asset
-    const addAssetBtn = page.getByRole('button', { name: /add asset/i });
-    if (await addAssetBtn.isVisible()) {
-      await addAssetBtn.click();
-      await page.waitForTimeout(500);
-    }
-    
+    const runId = `b1_${Date.now()}`;
+    const uniqueEmail = `e2e_b1_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+
+    // Navigate to inventory and wait for provider context to load
+    await page.goto('/provider/inventory');
+    await page.waitForLoadState('networkidle');
+    // Wait for inventory page header to load
+    await expect(page.getByRole('heading', { name: /inventory/i })).toBeVisible({ timeout: 15000 });
+
+    // Click "Product" button in the inventory header (opens ProductForm modal)
+    // Scope to main content to avoid footer "Product" link
+    const main = page.getByRole('main');
+    await main.getByRole('button', { name: /^product$/i }).click();
+    await page.waitForTimeout(500);
+
+    // Fill product name (placeholder: "e.g. Atomic Bent Chetler")
+    const productName = `B1 Product ${Date.now()}`;
+    await page.getByPlaceholder(/Atomic Bent Chetler/i).fill(productName);
+
+    // Select category (required)
+    await page.getByRole('combobox').first().click();
+    await page.waitForTimeout(300);
+    await page.getByRole('option').first().click();
+
+    // Fill base price (required) - scroll into view first
+    const priceInput = page.getByPlaceholder('500');
+    await priceInput.scrollIntoViewIfNeeded();
+    await priceInput.fill('100');
+
     // Save
-    const saveBtn = page.getByRole('button', { name: /save|create/i });
-    await saveBtn.click();
-    await page.waitForTimeout(2000);
-    
-    // Verify success
-    await expect(page.getByText(productName)).toBeVisible();
-    
+    await page.getByRole('button', { name: /create product/i }).click();
+
+    // Verify success: dialog closes and success toast appears
+    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText(/product created successfully|ready to add assets/i).first()).toBeVisible({ timeout: 5000 });
+
     console.log('[B1] ✓ PASSED - Product created successfully');
   });
 
