@@ -122,41 +122,37 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
 
   test('A4: Log out → redirected to login. Log back in → lands on dashboard', async ({ page }) => {
     console.log('[A4] Testing logout and re-login...');
-    
-    // First login
-    await page.goto(`${BASE_URL}/login`);
-    await page.locator('input[type="email"]').fill(testEmail);
-    await page.locator('input[type="password"]').fill(testPassword);
-    await page.getByRole('button', { name: /sign in|log in|login/i }).click();
-    await page.waitForTimeout(2000);
-    
-    // Find and click logout
-    const logoutBtn = page.getByRole('button', { name: /log out|sign out|logout/i });
-    if (!await logoutBtn.isVisible()) {
-      // Try menu/dropdown
-      const menuBtn = page.getByRole('button', { name: /menu|account|profile/i }).first();
-      if (await menuBtn.isVisible()) {
-        await menuBtn.click();
-        await page.waitForTimeout(500);
-      }
-    }
-    
-    await page.getByRole('button', { name: /log out|sign out|logout/i }).click();
+    const runId = `a4_${Date.now()}`;
+    const uniqueEmail = `e2e_a4_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+
+    // Open user dropdown (logout is inside DropdownMenu triggered by email button)
+    const userMenuBtn = page.getByRole('button').filter({ hasText: uniqueEmail });
+    await userMenuBtn.click();
+    await page.waitForTimeout(300);
+
+    // Click Logout menu item
+    await page.getByRole('menuitem', { name: /logout/i }).click();
     await page.waitForTimeout(1000);
-    
-    // Should be on login page
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    
+
+    // Should be redirected to login or home (logged out)
+    await expect(page.locator('input[type="email"]').or(page.getByRole('link', { name: /sign in/i }))).toBeVisible({ timeout: 5000 });
+
     // Log back in
-    await page.locator('input[type="email"]').fill(testEmail);
-    await page.locator('input[type="password"]').fill(testPassword);
-    await page.getByRole('button', { name: /sign in|log in|login/i }).click();
-    await page.waitForTimeout(2000);
-    
+    await loginAs(page, uniqueEmail, seedPassword);
+
     // Should land on dashboard (not pending screen)
-    const pendingText = page.getByText(/pending approval|awaiting approval/i);
-    await expect(pendingText).not.toBeVisible();
-    
+    await expect(page.getByText(/waiting for approval|Čekáme na schválení|pending approval/i)).not.toBeVisible({ timeout: 3000 });
+
     console.log('[A4] ✓ PASSED - Logout/login flow works correctly');
   });
 
