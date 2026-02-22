@@ -531,6 +531,7 @@
       "cta": {
         "new": "Nová rezervace",
         "confirm": "Potvrdit",
+        "cancel": "Zrušit rezervaci",
         "detail": "Detail"
       },
       "empty": "Žádné rezervace k zobrazení.",

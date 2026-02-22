@@ -523,4 +523,38 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[C4] ✓ PASSED - Reservation end date updated');
   });
 
+  test('C5: Cancel hold reservation → status changes to cancelled', async ({ page }) => {
+    console.log('[C5] Cancelling hold reservation...');
+    const runId = `c5_${Date.now()}`;
+    const uniqueEmail = `e2e_c5_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    const seedResult = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      reservation_status: 'hold',
+      password: seedPassword,
+    });
+
+    const reservationId = seedResult?.reservation_id;
+    if (!reservationId) throw new Error('Harness did not return reservation_id');
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations`);
+    await page.waitForLoadState('networkidle');
+
+    // Expand the reservation row first (cancel button is inside expanded row)
+    const customerMarker = `Preflight Customer e2e_${runId}`;
+    await page.getByRole('button', { name: new RegExp(customerMarker) }).click();
+
+    // Click cancel button for this reservation
+    await page.getByTestId(`cancel-reservation-${reservationId}`).click();
+
+    // Assert status changes to cancelled
+    await expect(page.getByText(/cancelled|zrušen/i).first()).toBeVisible({ timeout: 10000 });
+
+    console.log('[C5] ✓ PASSED - Reservation cancelled');
+  });
+
 });

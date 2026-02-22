@@ -498,6 +498,7 @@
       "cta": {
         "new": "New reservation",
         "confirm": "Confirm",
+        "cancel": "Cancel reservation",
         "detail": "Detail"
       },
       "empty": "No reservations to display.",
