@@ -443,8 +443,8 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     await page.getByTestId('reservation-start').fill(fmt(t1));
     await page.getByTestId('reservation-end').fill(fmt(t2));
 
-    // Wait for availability check — should show conflict/unavailable warning
-    await expect(page.locator('.text-red-600, [class*="red"]').filter({ hasText: /obsazeno|unavailable|conflict|not available/i }))
+    // Wait for availability check — "Obsazeno (X rezervací)" or EN equivalent
+    await expect(page.getByText(/obsazeno|not available|unavailable|conflict/i).first())
       .toBeVisible({ timeout: 10000 });
 
     console.log('[C2] ✓ PASSED - Collision warning shown');
