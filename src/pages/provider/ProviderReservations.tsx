@@ -279,7 +279,7 @@ const ProviderReservations = () => {
           description={t('provider.reservations.subtitle')}
           actions={
             <>
-              <Button variant="outline" className="hidden sm:flex" onClick={handleExportCsv}>
+              <Button variant="outline" className="hidden sm:flex" data-testid="reservations-export-csv" onClick={handleExportCsv}>
                 <Download className="w-4 h-4 mr-2" />
                 {t('provider.reservations.cta.exportCsv', { defaultValue: 'Export CSV' })}
               </Button>

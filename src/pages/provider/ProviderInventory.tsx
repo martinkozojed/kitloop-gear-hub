@@ -242,7 +242,7 @@ const ProviderInventory = () => {
           description={t('provider.inventory.subtitle')}
           actions={
             <>
-              <Button variant="outline" onClick={handleExportCsv} className="hidden sm:flex">
+              <Button variant="outline" onClick={handleExportCsv} data-testid="inventory-export-csv" className="hidden sm:flex">
                 <Download className="w-4 h-4 mr-2" />
                 {t('provider.inventory.actions.exportCsv', { defaultValue: 'Export CSV' })}
               </Button>

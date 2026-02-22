@@ -109,6 +109,7 @@ export function PrintContractButton({ reservationId, variant = "outline", size =
     return (
         <>
             <Button
+                data-testid="print-contract-btn"
                 variant={variant}
                 size={size}
                 className={className}
@@ -120,7 +121,7 @@ export function PrintContractButton({ reservationId, variant = "outline", size =
             </Button>
 
             {/* Hidden Printable Area */}
-            <div style={{ display: 'none' }}>
+            <div data-testid="print-contract-template" style={{ display: 'none' }}>
                 {printData && (
                     <ContractTemplate
                         ref={componentRef}
