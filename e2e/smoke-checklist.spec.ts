@@ -350,4 +350,57 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[B4] ✓ PASSED - Asset count matches');
   });
 
+  test('C1: Create confirmed reservation for T+1 → T+3; save succeeds', async ({ page }) => {
+    console.log('[C1] Creating reservation...');
+    const runId = `c1_${Date.now()}`;
+    const uniqueEmail = `e2e_c1_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    // Seed with cancelled reservation so T+1→T+3 dates are available
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      reservation_status: 'cancelled',
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto('/provider/reservations/new');
+    await page.waitForLoadState('networkidle');
+
+    // Fill customer info
+    await page.locator('#customer_name').fill('C1 Test Customer');
+    await page.locator('#customer_phone').fill('+420123456789');
+
+    // Select product (first available)
+    await page.getByTestId('reservation-product-select').click();
+    await page.waitForTimeout(300);
+    await page.getByRole('option').first().click();
+    await page.waitForTimeout(300);
+
+    // Select variant (first available)
+    await page.getByTestId('reservation-variant-select').click();
+    await page.waitForTimeout(300);
+    await page.getByRole('option').first().click();
+    await page.waitForTimeout(500);
+
+    // Set dates T+1 → T+3
+    const t1 = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const t3 = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    const fmt = (d: Date) => d.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
+    await page.getByTestId('reservation-start').fill(fmt(t1));
+    await page.getByTestId('reservation-end').fill(fmt(t3));
+    // Wait for availability check to complete (button enabled)
+    await expect(page.getByTestId('reservation-submit')).toBeEnabled({ timeout: 10000 });
+
+    // Submit
+    await page.getByTestId('reservation-submit').click();
+
+    // Verify success: navigated to reservations list
+    await page.waitForURL(/\/provider\/reservations$/, { timeout: 15000 });
+
+    console.log('[C1] ✓ PASSED - Reservation created');
+  });
+
 });
