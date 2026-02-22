@@ -361,15 +361,6 @@ function MicroDemo({ t, lang }: { t: (typeof copy)["cs"]; lang: Lang }) {
     return () => { isMounted.current = false; };
   }, []);
 
-  // Guard for null→true transition (SSR hydration edge case).
-  useEffect(() => {
-    if (shouldReduce && phase !== "done") {
-      setPhase("done");
-      setCheck1(true);
-      setCheck2(true);
-    }
-  }, [shouldReduce, phase]);
-
   const playDemo = useCallback(async () => {
     if (phase !== "idle") return;
     setPhase("playing");
