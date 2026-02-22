@@ -344,8 +344,8 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     await page.getByPlaceholder(/search assets/i).fill(productName);
     await page.waitForTimeout(500);
 
-    // Verify the table shows exactly assetCount rows
-    await expect(page.getByText(`Showing ${assetCount} of ${assetCount} items`)).toBeVisible({ timeout: 10000 });
+    // Verify the table shows exactly assetCount rows (EN: "Showing 3 of 3 items" / CZ: "Zobrazeno 3 z 3 položek")
+    await expect(page.getByText(new RegExp(`(Showing|Zobrazeno)\\s+${assetCount}\\s+(of|z)\\s+${assetCount}`, 'i'))).toBeVisible({ timeout: 10000 });
 
     console.log('[B4] ✓ PASSED - Asset count matches');
   });
