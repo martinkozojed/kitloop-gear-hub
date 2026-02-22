@@ -483,4 +483,32 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[C3] ✓ PASSED - Reservation status shown correctly');
   });
 
+  test('C4: Edit reservation detail page loads without errors', async ({ page }) => {
+    console.log('[C4] Opening reservation detail/edit page...');
+    const runId = `c4_${Date.now()}`;
+    const uniqueEmail = `e2e_c4_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    const seedResult = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      reservation_status: 'confirmed',
+      password: seedPassword,
+    });
+
+    const reservationId = seedResult?.reservation_id;
+    if (!reservationId) throw new Error('Harness did not return reservation_id');
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`/provider/reservations/edit/${reservationId}`);
+    await page.waitForLoadState('networkidle');
+
+    // Verify detail page loaded: customer name visible
+    const customerMarker = `Preflight Customer e2e_${runId}`;
+    await expect(page.getByText(customerMarker)).toBeVisible({ timeout: 10000 });
+
+    console.log('[C4] ✓ PASSED - Reservation detail page loaded');
+  });
+
 });
