@@ -456,7 +456,7 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     const uniqueEmail = `e2e_c3_${runId}@example.com`;
     const seedPassword = 'password123';
 
-    // Seed a confirmed reservation
+    // Seed a confirmed reservation; harness sets customer_name = "Preflight Customer <runId>"
     await callHarness('seed_preflight', runId, {
       provider_email: uniqueEmail,
       provider_status: 'approved',
@@ -465,12 +465,20 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
       password: seedPassword,
     });
 
+    // Harness prepends "e2e_" to runId → prefix = "e2e_<runId>"
+    const customerMarker = `Preflight Customer e2e_${runId}`;
+
     await loginAs(page, uniqueEmail, seedPassword);
     await page.goto('/provider/reservations');
     await page.waitForLoadState('networkidle');
 
-    // Verify "Confirmed" status badge is visible in the list
-    await expect(page.getByText(/confirmed/i).first()).toBeVisible({ timeout: 10000 });
+    // Assert the seeded reservation row is visible by unique customer name
+    await expect(page.getByText(customerMarker)).toBeVisible({ timeout: 10000 });
+
+    // Assert status "Confirmed"/"Potvrzeno" appears near the customer marker
+    // Row is rendered as a button (expandable); locate by cell containing customer name
+    const rowBtn = page.getByRole('button', { name: new RegExp(customerMarker) });
+    await expect(rowBtn.getByText(/confirmed|potvrzeno/i)).toBeVisible({ timeout: 5000 });
 
     console.log('[C3] ✓ PASSED - Reservation status shown correctly');
   });
