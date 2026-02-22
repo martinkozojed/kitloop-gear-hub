@@ -1,10 +1,64 @@
+/**
+ * /onboarding — Kitloop pilot gateway
+ *
+ * Standalone page (no Navbar/Footer). Language via ?lang=cs|en.
+ * Pain context via ?pain=inventory|counter|exports (preserved alongside lang).
+ * Primary goal: qualified pilot access request, not self-serve signup.
+ *
+ * Analytics hook points — wire up to GA4 / Mixpanel / PostHog as needed:
+ *
+ *   window.addEventListener('kitloop:onboarding_cta_click', (e) => {
+ *     const { placement, lang, pain } = e.detail;
+ *     ga('event', 'onboarding_cta_click', { placement, lang, pain });
+ *   });
+ *
+ *   window.addEventListener('kitloop:onboarding_pain_select', (e) => {
+ *     const { pain, lang } = e.detail;
+ *     ga('event', 'onboarding_pain_select', { pain, lang });
+ *   });
+ *
+ *   window.addEventListener('kitloop:onboarding_demo_complete', (e) => {
+ *     const { lang } = e.detail;
+ *     ga('event', 'onboarding_demo_complete', { lang });
+ *   });
+ */
+
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Package,
+  CalendarCheck,
+  QrCode,
+  LayoutDashboard,
+  FileSpreadsheet,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  Play,
+  CheckSquare,
+  Square,
+  ClipboardList,
+  Users,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Lang = "cs" | "en";
+type Pain = "inventory" | "counter" | "exports";
+
+// ─── URL param hooks ──────────────────────────────────────────────────────────
+// Both hooks read from the same URLSearchParams and always preserve all params.
 
 function useLang(): [Lang, (l: Lang) => void] {
   const [params] = useSearchParams();
@@ -12,312 +66,893 @@ function useLang(): [Lang, (l: Lang) => void] {
   const raw = params.get("lang");
   const lang: Lang = raw === "en" ? "en" : "cs";
 
-  const setLang = (l: Lang) => {
-    const next = new URLSearchParams(params);
-    next.set("lang", l);
-    navigate({ search: next.toString() }, { replace: true });
-  };
+  const setLang = useCallback(
+    (l: Lang) => {
+      const next = new URLSearchParams(params); // preserves pain, from, etc.
+      next.set("lang", l);
+      navigate({ search: next.toString() }, { replace: true });
+    },
+    [params, navigate],
+  );
 
   return [lang, setLang];
 }
 
+function usePain(): [Pain | null, (p: Pain | null) => void] {
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const raw = params.get("pain");
+  const pain: Pain | null =
+    raw === "inventory" || raw === "counter" || raw === "exports" ? raw : null;
+
+  const setPain = useCallback(
+    (p: Pain | null) => {
+      const next = new URLSearchParams(params); // preserves lang, from, etc.
+      if (p) next.set("pain", p);
+      else next.delete("pain");
+      navigate({ search: next.toString() }, { replace: true });
+    },
+    [params, navigate],
+  );
+
+  return [pain, setPain];
+}
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
+function fireCtaEvent(placement: string, lang: Lang, pain: Pain | null) {
+  window.dispatchEvent(
+    new CustomEvent("kitloop:onboarding_cta_click", {
+      detail: { placement, lang, pain },
+    }),
+  );
+}
+
+function firePainEvent(pain: Pain, lang: Lang) {
+  window.dispatchEvent(
+    new CustomEvent("kitloop:onboarding_pain_select", {
+      detail: { pain, lang },
+    }),
+  );
+}
+
+function fireDemoComplete(lang: Lang) {
+  window.dispatchEvent(
+    new CustomEvent("kitloop:onboarding_demo_complete", { detail: { lang } }),
+  );
+}
+
+// ─── Copy ─────────────────────────────────────────────────────────────────────
+
 const copy = {
   cs: {
-    h1: "Inventář a rezervace pro půjčovny",
-    sub: "B2B aplikace pro správu vybavení, rezervací a předání/vrácení v půjčovně outdoor vybavení.",
-    cta1: "Zaregistrovat půjčovnu",
-    cta2: "Přihlásit se",
-    micro: "Každou žádost procházíme osobně, abychom znali své partnery. Dotazy: support@kitloop.cz.",
-    providerSetupLabel: "Přejít do nastavení půjčovny",
-    isTitle: "Je",
-    isntTitle: "Není",
+    heroBadge: "MVP • Pilot • Ruční schválení",
+    heroH1: "Provozní systém pro půjčovny.",
+    heroH2: "Inventář → interní rezervace → výdej/vratka → přehled → export/print.",
+    heroSub:
+      "Pilot pro vybrané půjčovny. Ruční schválení, osobní onboarding. Stavíme to s prvními provozy.",
+    heroCta1: "Požádat o pilotní přístup",
+    heroCta2: "Přihlásit se",
+    heroMicro:
+      "Zákazníci zatím sami nerezervují — rezervace zakládá staff. Platby/refundy nejsou součást core flow.",
+
+    demoPrompt: "Zákazník je na pultu: chce 2× e-bike na víkend.",
+    demoLabel: "Simulované demo",
+    demoPlayBtn: "Přehrát ukázku",
+    demoItem1: "E-bike Specialized Turbo (rám M)",
+    demoItem2: "E-bike Trek Rail 9.8 (rám L)",
+    demoIssuedBtn: "Vydáno",
+    demoResult: "Hotovo. Takhle rychlý může být výdej, když máte inventář pod kontrolou.",
+    demoResultAria: "Demo dokončeno: výdej úspěšný.",
+
+    painTitle: "Co vás pálí nejvíc?",
+    painSub: "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
+    painSkip: "Přeskočit na funkce",
+    pains: [
+      { key: "inventory" as Pain, label: "Ztrácím přehled\no vybavení", icon: Package },
+      { key: "counter" as Pain, label: "Na pultu je chaos\npři výdeji/vratce", icon: ClipboardList },
+      { key: "exports" as Pain, label: "Excel/CSV, exporty\na tisk mě ničí", icon: FileSpreadsheet },
+    ],
+
+    isTitle: "Je pro",
+    isntTitle: "Není pro (zatím)",
     isBullets: [
-      "pro firmy a OSVČ, které půjčují outdoor vybavení.",
-      "pro interní provoz (inventář, rezervace, výdej, vratky).",
+      "Půjčovny, kde rezervace vzniká interně (walk-in / telefon / email)",
+      "Provozy, co chtějí zrychlit issue/return a snížit chyby",
+      "Týmový provoz (role, přístup, evidence)",
     ],
     isntBullets: [
-      "veřejný marketplace ani srovnávač půjčoven (zatím).",
-      "automaticky otevřené bez schválení poskytovatele.",
+      "Instant online booking pro zákazníky",
+      "Platby/refundy jako součást core flow",
+      "Hodinové sloty / opening-hours logika / komplexní pricing",
     ],
-    productTitle: "Jak to vypadá v praxi",
-    productLines: [
-      "V aplikaci spravuješ vybavení a vytváříš rezervace.",
-      "Při výdeji a vrácení eviduješ stav a můžeš vytisknout předávací protokol.",
-      "Data jsou oddělená mezi půjčovnami.",
-    ],
-    roadmapTitle: "Na čem zrovna pracujeme",
-    roadmapIntro:
-      "Kitloop vyvíjíme postupně a otevřeně — funkce ladíme s prvními půjčovnami.",
-    roadmapCards: [
+
+    flowTitle: "Jak to funguje dnes",
+    flowSub: "Tři kroky, žádná složitost navíc.",
+    flowSteps: [
       {
-        label: "Dnes",
-        text: "inventář, rezervace, výdej/vratka, tisk protokolu, export CSV.",
+        title: "Inventář",
+        desc: "Evidence všeho, co půjčujete — od kusů po stav.",
+        bullets: ["Stav každé položky (dostupné / rezervováno / servis)", "Kategorie, varianty, import z CSV"],
+        icon: Package,
       },
       {
-        label: "Teď",
-        text: "onboarding pilotních půjčoven a sběr zpětné vazby.",
+        title: "Interní rezervace",
+        desc: "Staff zakládá rezervace přímo v systému.",
+        bullets: ["Termíny, stavy, přiřazení vybavení", "Přehled dne — co se vydává, co se vrací"],
+        icon: CalendarCheck,
       },
       {
-        label: "Směr",
-        text: "pokud se zapojí dost schválených půjčoven, chceme umožnit i veřejné vyhledávání vybavení (bez slibovaných termínů).",
+        title: "Výdej / Vratka + print/export",
+        desc: "Operace u pultu bez papírů.",
+        bullets: ["Fotodokumentace, evidence depozitu a poznámek", "Tisk předávacího protokolu, export CSV"],
+        icon: QrCode,
       },
     ],
-    howTitle: "Jak začít",
-    steps: [
-      "Zaregistruj účet pro správu půjčovny.",
-      "Vyplň profil poskytovatele.",
-      "Odešli žádost ke schválení.",
+
+    featuresTitle: "Co konkrétně dostanete",
+    featuresSub: "MVP funkce, které jsou dnes live.",
+    features: [
+      { key: "inventory", title: "Inventář", desc: "Evidence kusů, stavů a kategorií. Import z CSV pro rychlý start.", icon: Package, large: true },
+      { key: "reservations", title: "Interní rezervace", desc: "Staff zakládá rezervace, sleduje termíny a stavy. Přehled dne.", icon: CalendarCheck, large: true },
+      { key: "counter", title: "Výdej / Vratka", desc: "Operace u pultu s fotodokumentací a evidencí depozitu.", icon: QrCode, large: false },
+      { key: "dashboard", title: "Provozní přehled", desc: "Dnešní výdeje, vratky, pozdní — vše na jednom místě.", icon: LayoutDashboard, large: false },
+      { key: "exports", title: "Print + Export", desc: "Tisk předávacího protokolu. Export dat do CSV.", icon: FileSpreadsheet, large: false },
     ],
-    howMicro: "Přístup do aplikace se zpřístupní po ručním schválení poskytovatele.",
+
+    pilotTitle: "Jak se do pilotu zapojit",
+    pilotSub: "Tři kroky. Bez závazku.",
+    pilotSteps: [
+      { num: "01", title: "Požádejte o přístup", desc: "Krátká žádost — typ půjčovny, kontakt, pár vět o provozu." },
+      { num: "02", title: "Ruční schválení + call", desc: "Ověříme fit s MVP a domluvíme onboarding." },
+      { num: "03", title: "Import inventáře + spuštění", desc: "Osobní onboarding. Obvykle zvládneme po jednom sezení." },
+    ],
+    pilotBoxTitle: "Co budeme chtít od vás",
+    pilotBoxItems: [
+      "Typ půjčovny + přibližný počet položek inventáře",
+      "Jak dnes vznikají rezervace (walk-in, telefon, Excel…)",
+      "Excel/CSV (pokud máte), nebo začneme s pár položkami",
+    ],
+    pilotCta: "Požádat o pilotní přístup",
+
     faqTitle: "Časté dotazy",
     faqs: [
-      { q: "Kdo se může zaregistrovat?", a: "Firmy a OSVČ, které půjčují outdoor vybavení." },
-      { q: "Co budu potřebovat?", a: "Základní údaje o půjčovně a kontaktní informace." },
-      { q: "Musím mít web?", a: "Ne. Web je volitelný." },
-      {
-        q: "Co když už mám systém?",
-        a: "Zaregistruj se a napiš nám, co používáš — domluvíme nejjednodušší postup.",
-      },
+      { q: "Umí to online rezervace pro zákazníky?", a: "Ne. MVP je provider-only — zákazníci zatím sami nerezervují, rezervace zakládá staff. Po pilotu zvažujeme \"Request Link\", přes který by zákazník mohl poslat poptávku." },
+      { q: "Co znamená ruční schválení?", a: "Hlídáme kapacitu onboardingu a chceme znát provoz, se kterým pracujeme. Není to byrokracie — je to zárukou, že každé spuštění dopadne dobře." },
+      { q: "Jak dostanu data z Excelu do systému?", a: "Kitloop podporuje import inventáře z CSV. Při onboardingu vám s převodem pomůžeme." },
+      { q: "Jak dlouho trvá začít?", a: "Záleží na velikosti inventáře. Obvykle zvládneme spuštění po jednom onboardingovém sezení." },
+      { q: "Platby a kauce?", a: "Evidence depozitu a poznámky jsou součástí procesu výdeje. Platební transakce (online platby, refundy) nejsou součástí core flow v aktuálním MVP." },
     ],
-    footerContact: "Kontakt: support@kitloop.cz.",
+
+    finalTitle: "Chcete být mezi prvními piloty?",
+    finalSub: "Ruční schválení. Osobní onboarding. Provider-only MVP.",
+    finalCta1: "Požádat o pilotní přístup",
+    finalCta2: "Napsat nám",
+
+    showingFeatures: "Zobrazuji funkce",
+    footerContact: "Kontakt: support@kitloop.cz",
     footerPrivacy: "Ochrana soukromí",
   },
+
   en: {
-    h1: "Inventory and reservations for rentals",
-    sub: "A B2B app to manage gear, reservations, and issue/return for outdoor rental businesses.",
-    cta1: "Register your rental",
-    cta2: "Log in",
-    micro: "We review each application personally to know our partners. Questions: support@kitloop.cz.",
-    providerSetupLabel: "Go to provider setup",
-    isTitle: "Is",
-    isntTitle: "Isn't",
+    heroBadge: "MVP • Pilot • Manual approval",
+    heroH1: "Operations system for rental shops.",
+    heroH2: "Inventory → internal reservations → issue/return → overview → export/print.",
+    heroSub:
+      "Pilot for selected rental shops. Manual approval, personal onboarding. Built with the first operators.",
+    heroCta1: "Request pilot access",
+    heroCta2: "Sign in",
+    heroMicro:
+      "Customers don't self-book yet — reservations are created by staff. Payments/refunds are not part of the core flow.",
+
+    demoPrompt: "Customer at the counter: wants 2× e-bike for the weekend.",
+    demoLabel: "Simulated demo",
+    demoPlayBtn: "Play demo",
+    demoItem1: "E-bike Specialized Turbo (frame M)",
+    demoItem2: "E-bike Trek Rail 9.8 (frame L)",
+    demoIssuedBtn: "Issued",
+    demoResult: "Done. That's how fast issue can be when your inventory is under control.",
+    demoResultAria: "Demo complete: issue successful.",
+
+    painTitle: "What's your biggest pain?",
+    painSub: "Pick what fits most — we'll show you what Kitloop does about it.",
+    painSkip: "Skip to features",
+    pains: [
+      { key: "inventory" as Pain, label: "I'm losing track\nof my inventory", icon: Package },
+      { key: "counter" as Pain, label: "Counter chaos\nduring issue/return", icon: ClipboardList },
+      { key: "exports" as Pain, label: "Excel/CSV, exports\nand printing kill me", icon: FileSpreadsheet },
+    ],
+
+    isTitle: "Is for",
+    isntTitle: "Is not for (yet)",
     isBullets: [
-      "for registered businesses and sole traders renting outdoor gear.",
-      "for internal operations (inventory, reservations, issue, returns).",
+      "Rental shops where reservations are created internally (walk-in / phone / email)",
+      "Operations that want to speed up issue/return and reduce errors",
+      "Team operations (roles, access, records)",
     ],
     isntBullets: [
-      "a public marketplace or a rental comparison site (for now).",
-      "automatically open without provider approval.",
+      "Instant online booking for customers",
+      "Payments/refunds as part of the core flow",
+      "Hourly slots / opening-hours logic / complex pricing",
     ],
-    productTitle: "What it looks like in practice",
-    productLines: [
-      "Manage your inventory and create reservations in one place.",
-      "Track issue/return and print a handover protocol when needed.",
-      "Data is separated between providers.",
+
+    flowTitle: "How it works today",
+    flowSub: "Three steps. No added complexity.",
+    flowSteps: [
+      { title: "Inventory", desc: "Track everything you rent — from individual items to their status.", bullets: ["Item status (available / reserved / maintenance)", "Categories, variants, CSV import"], icon: Package },
+      { title: "Internal reservations", desc: "Staff creates reservations directly in the system.", bullets: ["Dates, statuses, equipment assignment", "Today's overview — what's going out, what's coming back"], icon: CalendarCheck },
+      { title: "Issue / Return + print/export", desc: "Counter operations without paperwork.", bullets: ["Photo documentation, deposit and notes tracking", "Print handover protocol, CSV export"], icon: QrCode },
     ],
-    roadmapTitle: "What we're working on",
-    roadmapIntro:
-      "We build Kitloop step by step and openly — shaped with the first rental partners.",
-    roadmapCards: [
-      {
-        label: "Today",
-        text: "inventory, reservations, issue/return, print handover, CSV export.",
-      },
-      {
-        label: "Now",
-        text: "onboarding pilot rentals and collecting feedback.",
-      },
-      {
-        label: "Direction",
-        text: "if enough approved rentals join, we want to enable public gear discovery (no promised dates).",
-      },
+
+    featuresTitle: "What you get",
+    featuresSub: "MVP features live today.",
+    features: [
+      { key: "inventory", title: "Inventory", desc: "Track items, statuses and categories. CSV import for a quick start.", icon: Package, large: true },
+      { key: "reservations", title: "Internal reservations", desc: "Staff creates reservations, tracks dates and statuses. Today's overview.", icon: CalendarCheck, large: true },
+      { key: "counter", title: "Issue / Return", desc: "Counter operations with photo documentation and deposit tracking.", icon: QrCode, large: false },
+      { key: "dashboard", title: "Operations overview", desc: "Today's issues, returns, late items — all in one place.", icon: LayoutDashboard, large: false },
+      { key: "exports", title: "Print + Export", desc: "Print handover protocol. Export data to CSV.", icon: FileSpreadsheet, large: false },
     ],
-    howTitle: "How to start",
-    steps: [
-      "Create an account for your rental.",
-      "Fill in your provider profile.",
-      "Submit for manual approval.",
+
+    pilotTitle: "How to join the pilot",
+    pilotSub: "Three steps. No commitment.",
+    pilotSteps: [
+      { num: "01", title: "Request access", desc: "Short application — type of shop, contact, a few words about your operation." },
+      { num: "02", title: "Manual approval + call", desc: "We verify the fit with the MVP and schedule onboarding." },
+      { num: "03", title: "Import inventory + launch", desc: "Personal onboarding. Usually done after one session." },
     ],
-    howMicro: "Access to the app is enabled after manual provider approval.",
+    pilotBoxTitle: "What we'll need from you",
+    pilotBoxItems: [
+      "Type of rental shop + approximate number of inventory items",
+      "How reservations are created today (walk-in, phone, Excel…)",
+      "Excel/CSV (if you have it), or we start with a few items",
+    ],
+    pilotCta: "Request pilot access",
+
     faqTitle: "FAQ",
     faqs: [
-      { q: "Who can register?", a: "Businesses and sole traders that rent outdoor gear." },
-      { q: "What do I need?", a: "Basic rental details and contact information." },
-      { q: "Do I need a website?", a: "No. A website is optional." },
-      {
-        q: "What if I already use a system?",
-        a: "Register and tell us what you use — we'll suggest the simplest path.",
-      },
+      { q: "Does it support online reservations for customers?", a: "No. The MVP is provider-only — customers don't self-book yet, reservations are created by staff. After the pilot we're considering a \"Request Link\" so customers can submit a request." },
+      { q: "What does manual approval mean?", a: "We manage onboarding capacity and want to know the operation we're working with. It's not bureaucracy — it's our guarantee that every launch goes well." },
+      { q: "How do I get my Excel data into the system?", a: "Kitloop supports CSV import for inventory. We'll help you with the conversion during onboarding." },
+      { q: "How long does it take to get started?", a: "Depends on inventory size. Usually we can launch after one onboarding session." },
+      { q: "Payments and deposits?", a: "Deposit tracking and notes are part of the issue flow. Payment transactions (online payments, refunds) are not part of the core MVP flow." },
     ],
-    footerContact: "Contact: support@kitloop.cz.",
+
+    finalTitle: "Want to be among the first pilots?",
+    finalSub: "Manual approval. Personal onboarding. Provider-only MVP.",
+    finalCta1: "Request pilot access",
+    finalCta2: "Contact us",
+
+    showingFeatures: "Showing features",
+    footerContact: "Contact: support@kitloop.cz",
     footerPrivacy: "Privacy notice",
   },
 } as const;
 
+// ─── Animation variants ────────────────────────────────────────────────────────
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
+};
+
+// ─── Sleep helper ─────────────────────────────────────────────────────────────
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+// ─── Micro-demo ───────────────────────────────────────────────────────────────
+// Pure state machine — no useAnimate, no ID selectors.
+// reduced-motion: initialized to "done" synchronously; useEffect guards null case.
+
+type DemoPhase = "idle" | "playing" | "done";
+
+function MicroDemo({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const shouldReduce = useReducedMotion();
+
+  // Synchronous init — useReducedMotion() is non-null in CSR (null only in SSR).
+  const [phase, setPhase] = useState<DemoPhase>(shouldReduce ? "done" : "idle");
+  const [check1, setCheck1] = useState(!!shouldReduce);
+  const [check2, setCheck2] = useState(!!shouldReduce);
+  const resultRef = useRef<HTMLParagraphElement>(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
+
+  const playDemo = useCallback(async () => {
+    if (phase !== "idle") return;
+    setPhase("playing");
+
+    // Animate checkmarks sequentially (skipped entirely if reduced motion).
+    if (!shouldReduce) {
+      await sleep(350);
+      if (!isMounted.current) return;
+      setCheck1(true);
+      await sleep(280);
+      if (!isMounted.current) return;
+      setCheck2(true);
+      await sleep(200);
+      if (!isMounted.current) return;
+    } else {
+      setCheck1(true);
+      setCheck2(true);
+    }
+
+    setPhase("done");
+    fireDemoComplete(lang);
+
+    // Move focus to result text so screen readers announce it.
+    requestAnimationFrame(() => resultRef.current?.focus());
+  }, [phase, shouldReduce, lang]);
+
+  const items = [
+    { id: "item-1", label: t.demoItem1, checked: check1 },
+    { id: "item-2", label: t.demoItem2, checked: check2 },
+  ];
+
+  return (
+    <div className="relative">
+      <p className="text-xs text-white/60 mb-3 italic">{t.demoPrompt}</p>
+      <Card className="border border-emerald-200/80 shadow-xl bg-white">
+        <CardContent className="p-5 space-y-4">
+          {/* Items */}
+          <div className="space-y-2" role="list">
+            {items.map(({ id, label, checked }) => (
+              <div
+                key={id}
+                role="listitem"
+                className="flex items-center gap-3 rounded-lg border border-slate-100 px-3 py-2.5 transition-colors duration-300"
+                style={{ background: checked ? "rgb(240 253 244)" : undefined }}
+              >
+                <span className="shrink-0 transition-all duration-300">
+                  {checked ? (
+                    <CheckSquare className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                  ) : (
+                    <Square className="h-4 w-4 text-slate-300" aria-hidden="true" />
+                  )}
+                </span>
+                <span className="text-sm">{label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA button — changes state but never unmounts (prevents focus loss) */}
+          <Button
+            variant={phase === "done" ? "success" : "cta"}
+            size="sm"
+            className="w-full"
+            onClick={playDemo}
+            disabled={phase === "playing" || phase === "done"}
+            aria-disabled={phase === "playing" || phase === "done"}
+            type="button"
+          >
+            {phase === "done" ? (
+              <>
+                <CheckCircle2 className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
+                {t.demoIssuedBtn}
+              </>
+            ) : (
+              <>
+                <Play className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
+                {t.demoPlayBtn}
+              </>
+            )}
+          </Button>
+
+          {/* Result — aria-live announces to screen readers without focus move */}
+          <p
+            ref={resultRef}
+            role="status"
+            aria-live="polite"
+            aria-label={phase === "done" ? t.demoResultAria : undefined}
+            tabIndex={-1}
+            className={cn(
+              "text-sm font-medium text-emerald-700 text-center outline-none",
+              "transition-opacity duration-300",
+              phase === "done" ? "opacity-100" : "opacity-0 pointer-events-none select-none",
+            )}
+          >
+            {/* Always rendered to avoid CLS; hidden via opacity */}
+            {t.demoResult}
+          </p>
+        </CardContent>
+      </Card>
+      <p className="mt-2 text-[10px] text-white/40 text-center">{t.demoLabel}</p>
+    </div>
+  );
+}
+
+// ─── Section wrapper ──────────────────────────────────────────────────────────
+
+function Section({
+  children,
+  className,
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  const shouldReduce = useReducedMotion();
+
+  return (
+    <motion.section
+      id={id}
+      initial={shouldReduce ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.08 }}
+      variants={fadeUp}
+      className={className}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+// ─── Feature card ─────────────────────────────────────────────────────────────
+
+function FeatureCard({
+  f,
+  highlighted,
+  cardRef,
+}: {
+  f: { key: string; title: string; desc: string; icon: React.ComponentType<{ className?: string }>; large: boolean };
+  highlighted: boolean;
+  cardRef: (el: HTMLDivElement | null) => void;
+}) {
+  return (
+    <div ref={cardRef}>
+      <Card
+        className={cn(
+          "h-full rounded-2xl border shadow-sm bg-white transition-all duration-300",
+          highlighted && "ring-2 ring-emerald-500 border-emerald-200 shadow-md",
+        )}
+      >
+        <CardContent className={cn("space-y-4", f.large ? "p-6" : "p-5")}>
+          <div
+            className={cn(
+              "flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700",
+              f.large ? "h-12 w-12" : "h-10 w-10",
+            )}
+          >
+            <f.icon className={f.large ? "h-6 w-6" : "h-5 w-5"} aria-hidden="true" />
+          </div>
+          <div>
+            <h3 className={cn("font-bold", f.large ? "text-xl" : "text-base")}>{f.title}</h3>
+            <p className={cn("mt-1 text-muted-foreground", f.large ? "text-base mt-2" : "text-sm")}>
+              {f.desc}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
 export default function Onboarding() {
   const [lang, setLang] = useLang();
+  const [pain, setPain] = usePain();
   const t = copy[lang];
+
+  const signupHref = `/signup?from=onboarding&lang=${lang}`;
+  const loginHref = `/login?lang=${lang}`;
   const privacyHref = `/privacy?lang=${lang}`;
-  const { isAuthenticated, isProvider } = useAuth();
-  const providerSetupHref = `/provider/setup?lang=${lang}`;
+
+  const featuresSectionRef = useRef<HTMLDivElement>(null);
+  const featureRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const isFirstPainEffect = useRef(true);
+
+  // Scroll to highlighted feature card on pain change.
+  // Skip on initial mount so a shared URL (?pain=X) doesn't auto-jump.
+  useEffect(() => {
+    if (isFirstPainEffect.current) {
+      isFirstPainEffect.current = false;
+      return;
+    }
+    if (!pain) return;
+    const el = featureRefs.current[pain];
+    const target = el ?? featuresSectionRef.current;
+    if (target) {
+      requestAnimationFrame(() =>
+        target.scrollIntoView({ behavior: "smooth", block: "center" }),
+      );
+    }
+  }, [pain]);
+
+  const handlePainClick = (key: Pain) => {
+    const next = pain === key ? null : key;
+    setPain(next);
+    if (next) firePainEvent(next, lang);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Lang toggle */}
+
+      {/* Skip link — positioned at document top, visible on focus */}
+      <a
+        href="#features"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-1/2 focus:-translate-x-1/2 focus:z-[60] focus:bg-background focus:px-5 focus:py-2 focus:rounded-full focus:text-sm focus:font-semibold focus:ring-2 focus:ring-emerald-600 focus:shadow-lg"
+      >
+        {t.painSkip}
+      </a>
+
+      {/* ── Lang toggle ──────────────────────────────────────────────────────── */}
       <div className="fixed top-4 right-4 z-50 flex gap-1">
-        <button
-          onClick={() => setLang("cs")}
-          className={`px-3 py-1 text-sm rounded-token-sm border transition-colors ${
-            lang === "cs"
-              ? "bg-foreground text-background border-foreground"
-              : "bg-transparent text-muted-foreground border-border hover:border-foreground"
-          }`}
-        >
-          CZ
-        </button>
-        <button
-          onClick={() => setLang("en")}
-          className={`px-3 py-1 text-sm rounded-token-sm border transition-colors ${
-            lang === "en"
-              ? "bg-foreground text-background border-foreground"
-              : "bg-transparent text-muted-foreground border-border hover:border-foreground"
-          }`}
-        >
-          EN
-        </button>
+        {(["cs", "en"] as Lang[]).map((l) => (
+          <button
+            key={l}
+            onClick={() => setLang(l)}
+            aria-pressed={lang === l}
+            className={cn(
+              "px-3 py-1 text-sm rounded border transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
+              lang === l
+                ? "bg-foreground text-background border-foreground"
+                : "bg-transparent text-muted-foreground border-border hover:border-foreground",
+            )}
+          >
+            {l.toUpperCase()}
+          </button>
+        ))}
       </div>
 
-      {/* Hero */}
-      <section className="max-w-3xl mx-auto px-6 py-20 md:py-28">
-        <div className="space-y-6">
-          <h1 className="font-heading text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-            {t.h1}
-          </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed">{t.sub}</p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button asChild size="lg" className="font-semibold">
-              <Link to="/signup">{t.cta1}</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/login">{t.cta2}</Link>
+      {/* ── A) Hero + Micro-demo ─────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
+        <div
+          className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
+          aria-hidden="true"
+        />
+        <div className="relative container mx-auto px-6 py-20 md:py-28">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Left — copy: opacity stays 1 (LCP-safe), only subtle y lift */}
+            <motion.div
+              initial={{ opacity: 1, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="space-y-6"
+            >
+              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-100">
+                {t.heroBadge}
+              </span>
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
+                {t.heroH1}
+              </h1>
+              <p className="text-base font-medium text-emerald-100/80 break-words [overflow-wrap:break-word]">{t.heroH2}</p>
+              <p className="text-emerald-100/70 leading-relaxed">{t.heroSub}</p>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center pt-2">
+                <Button
+                  asChild
+                  variant="cta"
+                  size="cta"
+                  onClick={() => fireCtaEvent("hero", lang, pain)}
+                >
+                  <Link to={signupHref}>{t.heroCta1}</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="border-white/30 text-white hover:bg-white/10 hover:border-white/50"
+                >
+                  <Link to={loginHref}>{t.heroCta2}</Link>
+                </Button>
+              </div>
+
+              <p className="text-xs text-emerald-200/55 leading-relaxed max-w-sm">
+                {t.heroMicro}
+              </p>
+            </motion.div>
+
+            {/* Right — Micro-demo */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
+              className="lg:pl-8"
+            >
+              <MicroDemo t={t} lang={lang} />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── B) Pain selector ─────────────────────────────────────────────────── */}
+      <Section className="container mx-auto max-w-5xl px-6 py-16">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold md:text-3xl">{t.painTitle}</h2>
+          <p className="mt-2 text-muted-foreground">{t.painSub}</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" role="group" aria-label={t.painTitle}>
+          {t.pains.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={pain === key}
+              onClick={() => handlePainClick(key)}
+              className={cn(
+                "group rounded-2xl border-2 p-6 text-left transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
+                pain === key
+                  ? "border-emerald-500 bg-emerald-50 shadow-md"
+                  : "border-border bg-card hover:border-emerald-300 hover:bg-emerald-50/50",
+              )}
+            >
+              <div
+                className={cn(
+                  "mb-4 flex h-11 w-11 items-center justify-center rounded-full transition-colors",
+                  pain === key
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-700",
+                )}
+              >
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <p
+                className={cn(
+                  "font-semibold leading-snug whitespace-pre-line",
+                  pain === key ? "text-emerald-800" : "text-foreground",
+                )}
+              >
+                {label}
+              </p>
+              <p
+                className={cn(
+                  "mt-2 text-xs font-medium flex items-center gap-1 transition-opacity",
+                  pain === key ? "text-emerald-600 opacity-100" : "opacity-0",
+                )}
+                aria-hidden={pain !== key}
+              >
+                <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                {t.showingFeatures}
+              </p>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* ── C) Je / Není pro ──────────────────────────────────────────────────── */}
+      <Section className="container mx-auto max-w-5xl px-6 py-16">
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="rounded-2xl border-emerald-200 bg-emerald-50/50 shadow-sm">
+            <CardContent className="p-7 space-y-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
+                <p className="text-lg font-bold text-emerald-800">{t.isTitle}</p>
+              </div>
+              <ul className="space-y-3">
+                {t.isBullets.map((b) => (
+                  <li key={b} className="flex gap-3 text-base text-foreground">
+                    <span className="mt-1 text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl border-slate-200 bg-slate-50/50 shadow-sm">
+            <CardContent className="p-7 space-y-4">
+              <div className="flex items-center gap-2">
+                <XCircle className="h-5 w-5 text-slate-400 shrink-0" aria-hidden="true" />
+                <p className="text-lg font-bold text-slate-600">{t.isntTitle}</p>
+              </div>
+              <ul className="space-y-3">
+                {t.isntBullets.map((b) => (
+                  <li key={b} className="flex gap-3 text-base text-muted-foreground">
+                    <span className="mt-1 shrink-0 text-slate-400" aria-hidden="true">✗</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* ── D) Jak to funguje ─────────────────────────────────────────────────── */}
+      <Section className="bg-muted/40 py-16">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold md:text-3xl">{t.flowTitle}</h2>
+            <p className="mt-2 text-muted-foreground">{t.flowSub}</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {t.flowSteps.map((step, i) => (
+              <div key={step.title} className="relative">
+                {i < t.flowSteps.length - 1 && (
+                  <div
+                    className="hidden md:flex absolute -right-3 top-8 z-10 items-center"
+                    aria-hidden="true"
+                  >
+                    <ArrowRight className="h-5 w-5 text-emerald-400" />
+                  </div>
+                )}
+                <Card className="h-full rounded-2xl border shadow-sm bg-white">
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                      <step.icon className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 mb-1">
+                        {String(i + 1).padStart(2, "0")}
+                      </p>
+                      <h3 className="text-lg font-bold">{step.title}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground">{step.desc}</p>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {step.bullets.map((b) => (
+                        <li key={b} className="flex gap-2 text-sm text-foreground">
+                          <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">•</span>
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* ── E) Funkce — Bento grid ────────────────────────────────────────────── */}
+      <Section id="features" className="container mx-auto max-w-5xl px-6 py-16">
+        <div ref={featuresSectionRef} className="text-center mb-12">
+          <h2 className="text-2xl font-bold md:text-3xl">{t.featuresTitle}</h2>
+          <p className="mt-2 text-muted-foreground">{t.featuresSub}</p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2 mb-5">
+          {t.features
+            .filter((f) => f.large)
+            .map((f) => (
+              <FeatureCard
+                key={f.key}
+                f={f}
+                highlighted={pain === f.key}
+                cardRef={(el) => { featureRefs.current[f.key] = el; }}
+              />
+            ))}
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {t.features
+            .filter((f) => !f.large)
+            .map((f) => (
+              <FeatureCard
+                key={f.key}
+                f={f}
+                highlighted={pain === f.key}
+                cardRef={(el) => { featureRefs.current[f.key] = el; }}
+              />
+            ))}
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* ── F) Pilot: Jak začít ──────────────────────────────────────────────── */}
+      <Section className="bg-muted/40 py-16">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold md:text-3xl">{t.pilotTitle}</h2>
+            <p className="mt-2 text-muted-foreground">{t.pilotSub}</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-10">
+            {t.pilotSteps.map((step) => (
+              <Card key={step.num} className="rounded-2xl border shadow-sm bg-white">
+                <CardContent className="p-6 space-y-3">
+                  <span className="text-4xl font-black text-emerald-200 leading-none select-none" aria-hidden="true">
+                    {step.num}
+                  </span>
+                  <h3 className="text-lg font-bold">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="rounded-2xl border-emerald-100 bg-white shadow-sm mb-10">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Users className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
+                <h3 className="font-bold">{t.pilotBoxTitle}</h3>
+              </div>
+              <ul className="space-y-2">
+                {t.pilotBoxItems.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm">
+                    <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          <div className="flex flex-col items-center">
+            <Button
+              asChild
+              variant="cta"
+              size="cta"
+              onClick={() => fireCtaEvent("pilot-section", lang, pain)}
+            >
+              <Link to={signupHref}>{t.pilotCta}</Link>
             </Button>
           </div>
-          {isAuthenticated && isProvider && (
-            <div className="pt-2">
-              <Button asChild variant="secondary" size="sm">
-                <Link to={providerSetupHref}>{t.providerSetupLabel}</Link>
-              </Button>
-            </div>
-          )}
-          <p className="text-sm text-muted-foreground">{t.micro}</p>
         </div>
-      </section>
+      </Section>
 
       <Separator />
 
-      {/* Is / Isn't */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="rounded-2xl border shadow-sm">
-            <CardContent className="p-6 space-y-3">
-              <p className="font-semibold text-base">{t.isTitle}</p>
-              <ul className="space-y-2">
-                {t.isBullets.map((b) => (
-                  <li key={b} className="flex gap-2 text-sm text-foreground">
-                    <span className="mt-0.5 text-green-600 shrink-0">✓</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl border shadow-sm">
-            <CardContent className="p-6 space-y-3">
-              <p className="font-semibold text-base">{t.isntTitle}</p>
-              <ul className="space-y-2">
-                {t.isntBullets.map((b) => (
-                  <li key={b} className="flex gap-2 text-sm text-muted-foreground">
-                    <span className="mt-0.5 shrink-0">✗</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <Separator />
-
-      {/* Product section */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="font-heading text-2xl font-bold mb-8">{t.productTitle}</h2>
-        <ul className="space-y-4">
-          {t.productLines.map((line) => (
-            <li key={line} className="flex gap-3 text-base">
-              <span className="mt-1 w-1.5 h-1.5 rounded-full bg-foreground shrink-0" />
-              <span>{line}</span>
-            </li>
+      {/* ── G) FAQ ───────────────────────────────────────────────────────────── */}
+      <Section className="container mx-auto max-w-3xl px-6 py-16">
+        <h2 className="text-2xl font-bold md:text-3xl mb-8">{t.faqTitle}</h2>
+        <Accordion type="single" collapsible className="space-y-3">
+          {t.faqs.map((faq, i) => (
+            <AccordionItem
+              key={i}
+              value={String(i)}
+              className="rounded-2xl border border-muted-foreground/15 px-5 overflow-hidden"
+            >
+              <AccordionTrigger className="text-left font-semibold py-4 hover:no-underline text-base">
+                {faq.q}
+              </AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground pb-5 leading-relaxed">
+                {faq.a}
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </ul>
-      </section>
+        </Accordion>
+      </Section>
 
       <Separator />
 
-      {/* Roadmap */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="font-heading text-2xl font-bold mb-3">{t.roadmapTitle}</h2>
-        <p className="text-muted-foreground mb-8 text-sm">{t.roadmapIntro}</p>
-        <div className="grid md:grid-cols-3 gap-5">
-          {t.roadmapCards.map((card) => (
-            <Card key={card.label} className="rounded-2xl border shadow-sm">
-              <CardContent className="p-5 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {card.label}
-                </p>
-                <p className="text-sm leading-relaxed">{card.text}</p>
-              </CardContent>
-            </Card>
-          ))}
+      {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
+        <div
+          className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
+          aria-hidden="true"
+        />
+        <div className="relative container mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
+          <h2 className="text-3xl font-bold md:text-4xl">{t.finalTitle}</h2>
+          <p className="text-emerald-100/80 text-lg">{t.finalSub}</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Button
+              asChild
+              variant="cta"
+              size="cta"
+              onClick={() => fireCtaEvent("final", lang, pain)}
+            >
+              <Link to={signupHref}>{t.finalCta1}</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-white/30 text-white hover:bg-white/10 hover:border-white/50"
+            >
+              <a href="mailto:support@kitloop.cz">{t.finalCta2}</a>
+            </Button>
+          </div>
         </div>
       </section>
 
-      <Separator />
-
-      {/* How to start */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="font-heading text-2xl font-bold mb-8">{t.howTitle}</h2>
-        <div className="grid md:grid-cols-3 gap-5 mb-8">
-          {t.steps.map((step, i) => (
-            <Card key={step} className="rounded-2xl border shadow-sm">
-              <CardContent className="p-5 flex gap-4 items-start">
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center text-sm font-bold">
-                  {i + 1}
-                </span>
-                <p className="text-sm leading-relaxed pt-1">{step}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="space-y-3">
-          <Button asChild size="lg" className="font-semibold">
-            <Link to="/signup">{t.cta1}</Link>
-          </Button>
-          <p className="text-sm text-muted-foreground">{t.howMicro}</p>
-        </div>
-      </section>
-
-      <Separator />
-
-      {/* FAQ */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="font-heading text-2xl font-bold mb-8">{t.faqTitle}</h2>
-        <div className="grid md:grid-cols-2 gap-5">
-          {t.faqs.map((faq) => (
-            <Card key={faq.q} className="rounded-2xl border shadow-sm">
-              <CardContent className="p-5 space-y-1">
-                <p className="font-semibold text-sm">{faq.q}</p>
-                <p className="text-sm text-muted-foreground">{faq.a}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <Separator />
-
-      {/* Footer */}
-      <footer className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
+      {/* ── Footer strip ─────────────────────────────────────────────────────── */}
+      <footer className="container mx-auto max-w-5xl px-6 py-8 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
         <span>{t.footerContact}</span>
         <Link
           to={privacyHref}

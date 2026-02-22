@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +13,14 @@ import { Eye, EyeOff, Loader2, Warehouse, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SignUp = () => {
+  const [searchParams] = useSearchParams();
+  // Pre-select provider role when arriving from onboarding page.
+  const fromOnboarding = searchParams.get('from') === 'onboarding';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<UserRole>('customer');
+  const [role, setRole] = useState<UserRole>(fromOnboarding ? 'provider' : 'customer');
   const [isRegistering, setIsRegistering] = useState(false);
 
   const navigate = useNavigate();
@@ -94,11 +98,16 @@ const SignUp = () => {
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
         <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
           <CardHeader className="text-center space-y-1 pb-6">
-            <div className="mb-3 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <p className="text-xs text-emerald-700 font-medium">
-                MVP Access — Free for outdoor rental providers
-              </p>
-            </div>
+            {role === 'provider' && (
+              <div className="mb-3 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg space-y-0.5">
+                <p className="text-xs text-emerald-700 font-semibold">
+                  MVP Access — Free for outdoor rental providers
+                </p>
+                <p className="text-xs text-emerald-700/80">
+                  Access is enabled after manual approval. / Přístup je aktivován po ručním schválení.
+                </p>
+              </div>
+            )}
             <CardTitle className="text-2xl font-bold tracking-tight">{t('signup.title')}</CardTitle>
             <CardDescription>
               {t('signup.description')}
@@ -120,6 +129,9 @@ const SignUp = () => {
                   <User className={cn("w-5 h-5", role === 'customer' ? "text-kitloop-primary" : "text-gray-500")} />
                   <span className={cn("text-xs font-medium", role === 'customer' ? "text-kitloop-primary" : "text-gray-600")}>
                     {t('signup.account_type.customer')}
+                  </span>
+                  <span className="text-[10px] text-center leading-tight text-gray-400">
+                    Not used in MVP
                   </span>
                 </div>
 
