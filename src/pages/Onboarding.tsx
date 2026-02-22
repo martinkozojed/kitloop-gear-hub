@@ -333,7 +333,7 @@ const copy = {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
 
 // ─── Sleep helper ─────────────────────────────────────────────────────────────
@@ -346,7 +346,7 @@ const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 type DemoPhase = "idle" | "playing" | "done";
 
-function MicroDemo({ t, lang }: { t: (typeof copy)["cs"]; lang: Lang }) {
+function MicroDemo({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const shouldReduce = useReducedMotion();
 
   // Synchronous init — useReducedMotion() is non-null in CSR (null only in SSR).
