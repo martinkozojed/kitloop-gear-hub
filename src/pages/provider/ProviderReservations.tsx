@@ -398,6 +398,11 @@ const ProviderReservations = () => {
                                       {t('provider.reservations.cta.confirm')}
                                     </Button>
                                   ) : null}
+                                  {r.status !== 'cancelled' && r.status !== 'completed' ? (
+                                    <Button size="sm" variant="destructive" data-testid={`cancel-reservation-${r.id}`} onClick={() => handleAction(r.id, 'cancel')} disabled={loadingActions[r.id]}>
+                                      {t('provider.reservations.cta.cancel')}
+                                    </Button>
+                                  ) : null}
                                   <Button size="sm" variant="outline" asChild>
                                     <Link to={`/provider/reservations/edit/${r.id}`}>
                                       <Edit className="w-4 h-4 mr-2" /> {t('provider.reservations.cta.detail')}
