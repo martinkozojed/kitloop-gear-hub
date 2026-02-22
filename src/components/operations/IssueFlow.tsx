@@ -207,7 +207,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     const StatusDisplay = () => {
         if (!hasAssets && !overrideMode) {
             return (
-                <div className="flex flex-col items-center justify-center p-6 text-center text-amber-600 bg-amber-50 rounded-xl border border-amber-100 animate-in fade-in zoom-in duration-300">
+                <div data-testid="issue-no-assets-warning" className="flex flex-col items-center justify-center p-6 text-center text-amber-600 bg-amber-50 rounded-xl border border-amber-100 animate-in fade-in zoom-in duration-300">
                     <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
                     <h4 className="font-semibold">{t('operations.issueFlow.noAssets.title')}</h4>
                     <p className="text-sm opacity-80 mt-1 max-w-[250px]">{t('operations.issueFlow.noAssets.desc')}</p>
@@ -242,7 +242,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
 
                 <div className="p-6">
                     {fetchingItems ? (
-                        <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                        <div data-testid="issue-loading" className="h-[200px] flex items-center justify-center text-muted-foreground">
                             <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading details...
                         </div>
                     ) : (
@@ -257,6 +257,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                     </div>
 
                     <Button
+                        data-testid="issue-confirm-btn"
                         variant={overrideMode ? "warning" : "success"}
                         onClick={handleConfirm}
                         disabled={(!isAllowed && !overrideMode) || loading || fetchingItems || autoAssigning}
