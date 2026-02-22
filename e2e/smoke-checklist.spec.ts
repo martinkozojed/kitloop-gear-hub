@@ -557,4 +557,121 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[C5] ✓ PASSED - Reservation cancelled');
   });
 
+  // ── D: Issue flow ──────────────────────────────────────────────────────────
+
+  test('D1: Issue blocked when no assets assigned → confirm button is disabled', async ({ page }) => {
+    const runId = `d1_${Date.now()}`;
+    const uniqueEmail = `e2e_d1_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const supabaseUrl = process.env.E2E_SUPABASE_URL ?? 'http://127.0.0.1:54321';
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    const reservationId = seed.reservation_id;
+
+    // Remove assignment and put asset in maintenance so auto-assign skips it
+    const { createClient } = await import('@supabase/supabase-js');
+    const admin = createClient(supabaseUrl, serviceKey);
+    await admin.from('reservation_assignments').delete().eq('reservation_id', reservationId);
+    await admin.from('assets').update({ status: 'maintenance' }).eq('id', seed.asset_ids[0]);
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${reservationId}`);
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('reservation-issue-btn').click();
+    await expect(page.getByTestId('issue-loading')).toBeHidden({ timeout: 15000 });
+    await expect(page.getByTestId('issue-confirm-btn')).toBeDisabled({ timeout: 5000 });
+    console.log('[D1] ✓ PASSED');
+  });
+
+  test('D2: Hard gate message is visible when no assets available', async ({ page }) => {
+    const runId = `d2_${Date.now()}`;
+    const uniqueEmail = `e2e_d2_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const supabaseUrl = process.env.E2E_SUPABASE_URL ?? 'http://127.0.0.1:54321';
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    const reservationId = seed.reservation_id;
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const admin = createClient(supabaseUrl, serviceKey);
+    // Remove assignment and put asset in maintenance so auto-assign skips it
+    await admin.from('reservation_assignments').delete().eq('reservation_id', reservationId);
+    await admin.from('assets').update({ status: 'maintenance' }).eq('id', seed.asset_ids[0]);
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${reservationId}`);
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('reservation-issue-btn').click();
+    // Wait for IssueFlow loading to complete
+    await expect(page.getByTestId('issue-loading')).toBeHidden({ timeout: 15000 });
+    await expect(page.getByTestId('issue-no-assets-warning')).toBeVisible({ timeout: 5000 });
+    console.log('[D2] ✓ PASSED');
+  });
+
+  test('D3: Make asset available → issue action becomes enabled', async ({ page }) => {
+    const runId = `d3_${Date.now()}`;
+    const uniqueEmail = `e2e_d3_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const supabaseUrl = process.env.E2E_SUPABASE_URL ?? 'http://127.0.0.1:54321';
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    const reservationId = seed.reservation_id;
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const admin = createClient(supabaseUrl, serviceKey);
+    // Block: remove assignment and put asset in maintenance
+    await admin.from('reservation_assignments').delete().eq('reservation_id', reservationId);
+    await admin.from('assets').update({ status: 'maintenance' }).eq('id', seed.asset_ids[0]);
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${reservationId}`);
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('reservation-issue-btn').click();
+    await expect(page.getByTestId('issue-loading')).toBeHidden({ timeout: 15000 });
+    await expect(page.getByTestId('issue-confirm-btn')).toBeDisabled({ timeout: 5000 });
+
+    // Resolve: restore asset to available
+    await admin.from('assets').update({ status: 'available' }).eq('id', seed.asset_ids[0]);
+    // Re-open IssueFlow (close and reopen)
+    await page.keyboard.press('Escape');
+    await page.getByTestId('reservation-issue-btn').click();
+    await expect(page.getByTestId('issue-loading')).toBeHidden({ timeout: 15000 });
+    await expect(page.getByTestId('issue-confirm-btn')).toBeEnabled({ timeout: 5000 });
+    console.log('[D3] ✓ PASSED');
+  });
+
+  test('D4: Issue reservation → status changes to active', async ({ page }) => {
+    const runId = `d4_${Date.now()}`;
+    const uniqueEmail = `e2e_d4_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    const reservationId = seed.reservation_id;
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${reservationId}`);
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('reservation-issue-btn').click();
+    await expect(page.getByTestId('issue-confirm-btn')).toBeEnabled({ timeout: 15000 });
+    await page.getByTestId('issue-confirm-btn').click();
+    // After issue, status should be active
+    await expect(page.getByText(/active|aktivn/i).first()).toBeVisible({ timeout: 15000 });
+    console.log('[D4] ✓ PASSED');
+  });
+
 });
