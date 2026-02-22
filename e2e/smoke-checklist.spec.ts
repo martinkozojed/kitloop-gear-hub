@@ -450,4 +450,37 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[C2] ✓ PASSED - Collision warning shown');
   });
 
+  test('C3: Reservation status shows correctly in reservations list', async ({ page }) => {
+    console.log('[C3] Checking reservation status in list...');
+    const runId = `c3_${Date.now()}`;
+    const uniqueEmail = `e2e_c3_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    // Seed a confirmed reservation; harness sets customer_name = "Preflight Customer <runId>"
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      reservation_status: 'confirmed',
+      password: seedPassword,
+    });
+
+    // Harness prepends "e2e_" to runId → prefix = "e2e_<runId>"
+    const customerMarker = `Preflight Customer e2e_${runId}`;
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto('/provider/reservations');
+    await page.waitForLoadState('networkidle');
+
+    // Assert the seeded reservation row is visible by unique customer name
+    await expect(page.getByText(customerMarker)).toBeVisible({ timeout: 10000 });
+
+    // Assert status "Confirmed"/"Potvrzeno" appears near the customer marker
+    // Row is rendered as a button (expandable); locate by cell containing customer name
+    const rowBtn = page.getByRole('button', { name: new RegExp(customerMarker) });
+    await expect(rowBtn.getByText(/confirmed|potvrzeno/i)).toBeVisible({ timeout: 5000 });
+
+    console.log('[C3] ✓ PASSED - Reservation status shown correctly');
+  });
+
 });
