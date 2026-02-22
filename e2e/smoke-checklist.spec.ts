@@ -319,4 +319,35 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[B3] ✓ PASSED - Asset found in search results');
   });
 
+  test('B4: Asset count on variant matches number of assets created', async ({ page }) => {
+    console.log('[B4] Checking asset count...');
+    const runId = `b4_${Date.now()}`;
+    const uniqueEmail = `e2e_b4_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const assetCount = 3;
+
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: assetCount,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto('/provider/inventory');
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /inventory/i })).toBeVisible({ timeout: 15000 });
+
+    // Filter by the seeded product name to isolate this provider's assets
+    const emailSlug = uniqueEmail.replace(/[^a-z0-9]+/gi, '_').toLowerCase();
+    const productName = `${runId}_preflight_${emailSlug}_product`;
+    await page.getByPlaceholder(/search assets/i).fill(productName);
+    await page.waitForTimeout(500);
+
+    // Verify the table shows exactly assetCount rows
+    await expect(page.getByText(`Showing ${assetCount} of ${assetCount} items`)).toBeVisible({ timeout: 10000 });
+
+    console.log('[B4] ✓ PASSED - Asset count matches');
+  });
+
 });
