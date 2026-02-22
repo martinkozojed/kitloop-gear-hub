@@ -286,4 +286,37 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[B2] ✓ PASSED - Product name updated');
   });
 
+  test('B3: Search inventory by asset tag → asset appears in results', async ({ page }) => {
+    console.log('[B3] Searching inventory...');
+    const runId = `b3_${Date.now()}`;
+    const uniqueEmail = `e2e_b3_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto('/provider/inventory');
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /inventory/i })).toBeVisible({ timeout: 15000 });
+
+    // The seeded product name follows: <runId>_preflight_<emailSlug>_product
+    const emailSlug = uniqueEmail.replace(/[^a-z0-9]+/gi, '_').toLowerCase();
+    const productName = `${runId}_preflight_${emailSlug}_product`;
+
+    // Search by product name (inventory search filters on product_name column)
+    const searchBox = page.getByPlaceholder(/search assets/i);
+    await searchBox.fill(productName);
+    await page.waitForTimeout(500);
+
+    // Verify asset row appears in results
+    await expect(page.getByText(productName).first()).toBeVisible({ timeout: 10000 });
+
+    console.log('[B3] ✓ PASSED - Asset found in search results');
+  });
+
 });
