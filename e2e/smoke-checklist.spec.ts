@@ -403,4 +403,51 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[C1] ✓ PASSED - Reservation created');
   });
 
+  test('C2: Overlapping reservation shows collision warning', async ({ page }) => {
+    console.log('[C2] Checking collision warning...');
+    const runId = `c2_${Date.now()}`;
+    const uniqueEmail = `e2e_c2_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    // Seed with an active reservation at T+1→T+2 (1 asset, fully booked)
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      reservation_status: 'confirmed',
+      password: seedPassword,
+    });
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto('/provider/reservations/new');
+    await page.waitForLoadState('networkidle');
+
+    // Fill customer info
+    await page.locator('#customer_name').fill('C2 Test Customer');
+    await page.locator('#customer_phone').fill('+420123456789');
+
+    // Select product and variant
+    await page.getByTestId('reservation-product-select').click();
+    await page.waitForTimeout(300);
+    await page.getByRole('option').first().click();
+    await page.waitForTimeout(300);
+    await page.getByTestId('reservation-variant-select').click();
+    await page.waitForTimeout(300);
+    await page.getByRole('option').first().click();
+    await page.waitForTimeout(300);
+
+    // Use overlapping dates (T+1→T+2, same as seeded confirmed reservation)
+    const t1 = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const t2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+    const fmt = (d: Date) => d.toISOString().slice(0, 16);
+    await page.getByTestId('reservation-start').fill(fmt(t1));
+    await page.getByTestId('reservation-end').fill(fmt(t2));
+
+    // Wait for availability check — "Obsazeno (X rezervací)" or EN equivalent
+    await expect(page.getByText(/obsazeno|not available|unavailable|conflict/i).first())
+      .toBeVisible({ timeout: 10000 });
+
+    console.log('[C2] ✓ PASSED - Collision warning shown');
+  });
+
 });
