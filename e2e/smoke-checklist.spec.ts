@@ -483,4 +483,44 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[C3] ✓ PASSED - Reservation status shown correctly');
   });
 
+  test('C4: Edit confirmed reservation end date → update saves without errors', async ({ page }) => {
+    console.log('[C4] Editing reservation end date...');
+    const runId = `c4_${Date.now()}`;
+    const uniqueEmail = `e2e_c4_${runId}@example.com`;
+    const seedPassword = 'password123';
+
+    const seedResult = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail,
+      provider_status: 'approved',
+      asset_count: 1,
+      reservation_status: 'confirmed',
+      password: seedPassword,
+    });
+
+    const reservationId = seedResult?.reservation_id;
+    if (!reservationId) throw new Error('Harness did not return reservation_id');
+
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`/provider/reservations/edit/${reservationId}`);
+    await page.waitForLoadState('networkidle');
+
+    // Open end-date inline editor
+    await page.getByTestId('reservation-end-edit-btn').click();
+    await expect(page.getByTestId('reservation-end-edit')).toBeVisible({ timeout: 5000 });
+
+    // Change end date to T+5
+    const t5 = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    const fmt = (d: Date) => d.toISOString().slice(0, 16);
+    await page.getByTestId('reservation-end-edit').fill(fmt(t5));
+
+    // Save
+    await page.getByTestId('reservation-end-save').click();
+
+    // Verify success: edit input hidden, success toast
+    await expect(page.getByTestId('reservation-end-edit')).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText(/updated|aktualizov/i).first()).toBeVisible({ timeout: 5000 });
+
+    console.log('[C4] ✓ PASSED - Reservation end date updated');
+  });
+
 });

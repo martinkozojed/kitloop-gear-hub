@@ -32,6 +32,29 @@ export default function ReservationDetail() {
     const [returnOpen, setReturnOpen] = useState(false);
     const mockNotificationsEnabled = import.meta.env.VITE_ENABLE_MOCK_NOTIFICATIONS === 'true';
 
+    const [editingEndDate, setEditingEndDate] = useState(false);
+    const [endDateDraft, setEndDateDraft] = useState('');
+    const [savingEndDate, setSavingEndDate] = useState(false);
+
+    const handleSaveEndDate = async () => {
+        if (!id || !endDateDraft) return;
+        setSavingEndDate(true);
+        try {
+            const { error } = await supabase
+                .from('reservations')
+                .update({ end_date: new Date(endDateDraft).toISOString() })
+                .eq('id', id);
+            if (error) throw error;
+            toast.success(t('reservationDetail.toasts.updated', { defaultValue: 'Reservation updated' }));
+            setEditingEndDate(false);
+            fetchData();
+        } catch (err) {
+            toast.error(t('reservationDetail.toasts.updateError', { defaultValue: 'Failed to update reservation' }));
+        } finally {
+            setSavingEndDate(false);
+        }
+    };
+
     const fetchData = React.useCallback(async () => {
         setLoading(true);
         try {
@@ -210,10 +233,29 @@ export default function ReservationDetail() {
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium text-muted-foreground">{t('reservationDetail.labels.end')}</label>
-                                                <div className="font-medium flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4" />
-                                                    {format(new Date(reservation.end_date), 'dd.MM.yyyy HH:mm')}
-                                                </div>
+                                                {editingEndDate ? (
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <input
+                                                            type="datetime-local"
+                                                            data-testid="reservation-end-edit"
+                                                            defaultValue={reservation.end_date?.slice(0, 16)}
+                                                            onChange={e => setEndDateDraft(e.target.value)}
+                                                            className="border rounded px-2 py-1 text-sm"
+                                                        />
+                                                        <Button size="sm" data-testid="reservation-end-save" onClick={handleSaveEndDate} disabled={savingEndDate}>
+                                                            {savingEndDate ? <Loader2 className="w-3 h-3 animate-spin" /> : t('common.save', { defaultValue: 'Save' })}
+                                                        </Button>
+                                                        <Button size="sm" variant="ghost" onClick={() => setEditingEndDate(false)}>{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="font-medium flex items-center gap-2">
+                                                        <Calendar className="w-4 h-4" />
+                                                        {format(new Date(reservation.end_date), 'dd.MM.yyyy HH:mm')}
+                                                        <Button size="sm" variant="ghost" className="h-6 px-1" data-testid="reservation-end-edit-btn" onClick={() => { setEndDateDraft(reservation.end_date?.slice(0, 16) ?? ''); setEditingEndDate(true); }}>
+                                                            ✏️
+                                                        </Button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </CardContent>
