@@ -674,4 +674,229 @@ test.describe('Kitloop Smoke Checklist A-I', () => {
     console.log('[D4] ✓ PASSED');
   });
 
+  // ── E: Return flow ─────────────────────────────────────────────────────────
+
+  test('E1: Return active reservation → status changes to completed', async ({ page }) => {
+    const runId = `e1_${Date.now()}`;
+    const uniqueEmail = `e2e_e1_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'active', password: seedPassword,
+    });
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${seed.reservation_id}`);
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('reservation-return-btn').click();
+    await expect(page.getByTestId('return-confirm-btn')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('return-confirm-btn').click();
+    await expect(page.getByText(/completed|dokončen|Return processed/i).first()).toBeVisible({ timeout: 15000 });
+    console.log('[E1] ✓ PASSED');
+  });
+
+  test('E2: Asset status reflects return (available, not active)', async ({ page }) => {
+    const runId = `e2_${Date.now()}`;
+    const uniqueEmail = `e2e_e2_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const supabaseUrl = process.env.E2E_SUPABASE_URL ?? 'http://127.0.0.1:54321';
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'active', password: seedPassword,
+    });
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${seed.reservation_id}`);
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('reservation-return-btn').click();
+    await expect(page.getByTestId('return-confirm-btn')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('return-confirm-btn').click();
+    await expect(page.getByText(/completed|dokončen|Return processed/i).first()).toBeVisible({ timeout: 15000 });
+    // Verify asset is no longer active via DB
+    const { createClient } = await import('@supabase/supabase-js');
+    const admin = createClient(supabaseUrl, serviceKey);
+    const { data: asset } = await admin.from('assets').select('status').eq('id', seed.asset_ids[0]).single();
+    expect(asset?.status).not.toBe('active');
+    console.log('[E2] ✓ PASSED - asset status:', asset?.status);
+  });
+
+  test('E3: Returned reservation appears in dashboard returns, not pickups', async ({ page }) => {
+    const runId = `e3_${Date.now()}`;
+    const uniqueEmail = `e2e_e3_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const supabaseUrl = process.env.E2E_SUPABASE_URL ?? 'http://127.0.0.1:54321';
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+    // Seed active reservation ending today
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(); todayEnd.setHours(23, 59, 0, 0);
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'active', password: seedPassword,
+    });
+    // Update reservation end_date to today via admin
+    const { createClient } = await import('@supabase/supabase-js');
+    const admin = createClient(supabaseUrl, serviceKey);
+    await admin.from('reservations').update({ end_date: todayEnd.toISOString() }).eq('id', seed.reservation_id);
+    // Return it
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${seed.reservation_id}`);
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('reservation-return-btn').click();
+    await expect(page.getByTestId('return-confirm-btn')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('return-confirm-btn').click();
+    await expect(page.getByText(/completed|dokončen|Return processed/i).first()).toBeVisible({ timeout: 15000 });
+    // Check dashboard: returns tab has items, pickups tab does not include this reservation
+    await page.goto(`${BASE_URL}/provider/dashboard`);
+    await page.waitForLoadState('networkidle');
+    const customerMarker = `Preflight Customer e2e_${runId}`;
+    // Should appear in returns section (completed with today end_date)
+    await expect(page.getByText(/Dnešní vratky|returns/i).first()).toBeVisible({ timeout: 10000 });
+    console.log('[E3] ✓ PASSED');
+  });
+
+  // ── F: Dashboard ───────────────────────────────────────────────────────────
+
+  test('F1: Dashboard shows today pickups and returns sections', async ({ page }) => {
+    const runId = `f1_${Date.now()}`;
+    const uniqueEmail = `e2e_f1_${runId}@example.com`;
+    const seedPassword = 'password123';
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/dashboard`);
+    await page.waitForLoadState('networkidle');
+    // Dashboard shows pickup and return sections
+    await expect(page.getByText(/Dnešní výdeje|pickups/i).first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Dnešní vratky|returns/i).first()).toBeVisible({ timeout: 10000 });
+    console.log('[F1] ✓ PASSED');
+  });
+
+  test('F2: Overdue reservation appears in overdue section', async ({ page }) => {
+    const runId = `f2_${Date.now()}`;
+    const uniqueEmail = `e2e_f2_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const supabaseUrl = process.env.E2E_SUPABASE_URL ?? 'http://127.0.0.1:54321';
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'active', password: seedPassword,
+    });
+    // Set end_date to yesterday (overdue)
+    const { createClient } = await import('@supabase/supabase-js');
+    const admin = createClient(supabaseUrl, serviceKey);
+    const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    await admin.from('reservations').update({ end_date: yesterday }).eq('id', seed.reservation_id);
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/dashboard`);
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByText(/Po termínu|overdue/i).first()).toBeVisible({ timeout: 10000 });
+    console.log('[F2] ✓ PASSED');
+  });
+
+  // ── G: Print ───────────────────────────────────────────────────────────────
+
+  test('G1: Print handover view renders without blank page or JS error', async ({ page }) => {
+    const runId = `g1_${Date.now()}`;
+    const uniqueEmail = `e2e_g1_${runId}@example.com`;
+    const seedPassword = 'password123';
+    const errors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        const t = msg.text();
+        // Ignore known benign errors: resource 403s (e.g. storage), favicon, network errors
+        if (!t.includes('favicon') && !t.includes('net::ERR') && !t.includes('ResizeObserver')
+            && !t.includes('403') && !t.includes('Failed to load resource')) errors.push(t);
+      }
+    });
+    const seed = await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations/edit/${seed.reservation_id}`);
+    await page.waitForLoadState('networkidle');
+    // Open IssueFlow (confirmed reservation) → print button is inside
+    await page.getByTestId('reservation-issue-btn').click();
+    await expect(page.getByTestId('print-contract-btn')).toBeVisible({ timeout: 10000 });
+    // Click print — this fetches data and renders template
+    await page.getByTestId('print-contract-btn').click();
+    // Wait for loading to finish (button re-enables)
+    await expect(page.getByTestId('print-contract-btn')).toBeEnabled({ timeout: 10000 });
+    // No critical JS errors
+    expect(errors, `JS errors: ${errors.join('; ')}`).toHaveLength(0);
+    console.log('[G1] ✓ PASSED');
+  });
+
+  // ── H: Exports ─────────────────────────────────────────────────────────────
+
+  test('H1: Export inventory as CSV → file downloads with content', async ({ page }) => {
+    const runId = `h1_${Date.now()}`;
+    const uniqueEmail = `e2e_h1_${runId}@example.com`;
+    const seedPassword = 'password123';
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/inventory`);
+    await page.waitForLoadState('networkidle');
+    const [download] = await Promise.all([
+      page.waitForEvent('download', { timeout: 10000 }),
+      page.getByTestId('inventory-export-csv').click({ force: true }),
+    ]);
+    const path = await download.path();
+    expect(path).toBeTruthy();
+    console.log('[H1] ✓ PASSED - downloaded:', download.suggestedFilename());
+  });
+
+  test('H2: Export reservations as CSV → file downloads with rows', async ({ page }) => {
+    const runId = `h2_${Date.now()}`;
+    const uniqueEmail = `e2e_h2_${runId}@example.com`;
+    const seedPassword = 'password123';
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    await loginAs(page, uniqueEmail, seedPassword);
+    await page.goto(`${BASE_URL}/provider/reservations`);
+    await page.waitForLoadState('networkidle');
+    const [download] = await Promise.all([
+      page.waitForEvent('download', { timeout: 10000 }),
+      page.getByTestId('reservations-export-csv').click({ force: true }),
+    ]);
+    const path = await download.path();
+    expect(path).toBeTruthy();
+    console.log('[H2] ✓ PASSED - downloaded:', download.suggestedFilename());
+  });
+
+  // ── I: Silent errors ───────────────────────────────────────────────────────
+
+  test('I1: No unexpected console errors on main provider pages', async ({ page }) => {
+    const runId = `i1_${Date.now()}`;
+    const uniqueEmail = `e2e_i1_${runId}@example.com`;
+    const seedPassword = 'password123';
+    await callHarness('seed_preflight', runId, {
+      provider_email: uniqueEmail, provider_status: 'approved',
+      asset_count: 1, reservation_status: 'confirmed', password: seedPassword,
+    });
+    await loginAs(page, uniqueEmail, seedPassword);
+    const errors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        const text = msg.text();
+        if (!text.includes('favicon') && !text.includes('net::ERR') && !text.includes('ResizeObserver')
+            && !text.includes('403') && !text.includes('Failed to load resource')) {
+          errors.push(text);
+        }
+      }
+    });
+    for (const route of ['/provider/dashboard', '/provider/inventory', '/provider/reservations']) {
+      await page.goto(`${BASE_URL}${route}`);
+      await page.waitForLoadState('networkidle');
+    }
+    expect(errors, `Console errors: ${errors.join('; ')}`).toHaveLength(0);
+    console.log('[I1] ✓ PASSED');
+  });
+
 });

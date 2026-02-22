@@ -328,7 +328,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                     <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
                         {t('operations.returnFlow.cancel')}
                     </Button>
-                    <Button onClick={handleConfirm} disabled={loading || fetching} className={hasAnyDamage ? "bg-orange-600 hover:bg-orange-700" : ""}>
+                    <Button data-testid="return-confirm-btn" onClick={handleConfirm} disabled={loading || fetching} className={hasAnyDamage ? "bg-orange-600 hover:bg-orange-700" : ""}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (successfullyReturnedReportId ? t('operations.returnFlow.retry') : t('operations.returnFlow.complete'))}
                     </Button>
                 </DialogFooter>
