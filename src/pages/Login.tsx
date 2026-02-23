@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
@@ -45,9 +46,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
 
-      {/* Header — same structure as onboarding */}
+      {/* Header */}
       <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
@@ -63,76 +64,80 @@ const Login = () => {
         </div>
       </header>
 
-      {/* Form */}
+      {/* Centered card */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-sm">
+        <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
+          <CardHeader className="text-center space-y-1 pb-6">
+            <CardTitle className="text-2xl font-bold tracking-tight">{t('login.welcome')}</CardTitle>
+            <CardDescription>{t('login.instructions')}</CardDescription>
+          </CardHeader>
 
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground">{t('login.welcome')}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t('login.instructions')}</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="text-sm font-medium">
-                {t('login.email')}
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder={t('login.email_placeholder')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                data-testid="login-email"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium">
-                  {t('login.password')}
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">
+                  {t('login.email')}
                 </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
-                >
-                  {t('login.forgot_password')}
-                </Link>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder={t('login.email_placeholder')}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-10"
+                  data-testid="login-email"
+                />
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder={t('login.password_placeholder')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                data-testid="login-password"
-              />
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="password" className="text-sm font-medium">
+                    {t('login.password')}
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+                  >
+                    {t('login.forgot_password')}
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={t('login.password_placeholder')}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-10"
+                  data-testid="login-password"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                variant="cta"
+                className="w-full h-10 mt-2"
+                disabled={isLoggingIn}
+                data-testid="login-submit"
+              >
+                {isLoggingIn ? t('login.signing_in') : t('login.sign_in')}
+              </Button>
+            </form>
+          </CardContent>
+
+          <CardFooter className="flex flex-col space-y-3 pt-2">
+            <div className="text-center text-sm text-muted-foreground">
+              {t('login.no_account')}{' '}
+              <Link
+                to="/signup"
+                className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+              >
+                {t('login.create_account')}
+              </Link>
             </div>
-
-            <Button
-              type="submit"
-              variant="cta"
-              className="w-full mt-2"
-              disabled={isLoggingIn}
-              data-testid="login-submit"
-            >
-              {isLoggingIn ? t('login.signing_in') : t('login.sign_in')}
-            </Button>
-          </form>
-
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            {t('login.no_account')}{' '}
-            <Link
-              to="/signup"
-              className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
-            >
-              {t('login.create_account')}
-            </Link>
-          </p>
-
-        </div>
+          </CardFooter>
+        </Card>
       </main>
 
     </div>
