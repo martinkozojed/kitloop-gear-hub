@@ -643,55 +643,46 @@ export default function Onboarding() {
       </Section>
 
       {/* ── D) Jak to funguje ─────────────────────────────────────────────────── */}
-      <Section className="bg-slate-900 py-16">
+      <Section className="bg-white py-16">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-2xl font-bold md:text-3xl text-white">{t.flowTitle}</h2>
-            <p className="mt-2 text-slate-400">{t.flowSub}</p>
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold md:text-3xl">{t.flowTitle}</h2>
+            <p className="mt-2 text-muted-foreground">{t.flowSub}</p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="divide-y divide-slate-100">
             {t.flowSteps.map((step, i) => (
-              <div key={step.title} className="relative">
-                {/* Arrow between cards — desktop only */}
-                {i < t.flowSteps.length - 1 && (
-                  <div
-                    className="hidden md:flex absolute -right-3 top-7 z-10 items-center"
-                    aria-hidden="true"
-                  >
-                    <ArrowRight className="h-4 w-4 text-emerald-500/60" />
-                  </div>
-                )}
-
-                <div className="relative overflow-hidden rounded-2xl bg-slate-800 p-6 h-full ring-1 ring-white/5">
-                  {/* Watermark step number */}
-                  <span
-                    className="absolute -top-3 -right-1 text-8xl font-black leading-none select-none pointer-events-none text-white/[0.04]"
-                    aria-hidden="true"
-                  >
-                    {i + 1}
-                  </span>
-
-                  {/* Icon — filled */}
-                  <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white mb-5">
-                    <step.icon className="h-6 w-6" aria-hidden="true" />
-                  </div>
-
-                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-1">
+              <div
+                key={step.title}
+                className="grid grid-cols-1 md:grid-cols-[64px_1fr_1fr] gap-x-8 gap-y-4 py-8 items-start"
+              >
+                {/* Step number */}
+                <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-0">
+                  <span className="text-5xl font-black leading-none tabular-nums text-emerald-500/25 select-none">
                     {String(i + 1).padStart(2, "0")}
-                  </p>
-                  <h3 className="text-base font-bold text-white mb-2">{step.title}</h3>
-                  <p className="text-sm text-slate-400 mb-4">{step.desc}</p>
-
-                  <ul className="space-y-2">
-                    {step.bullets.map((b) => (
-                      <li key={b} className="flex gap-2 text-sm text-slate-300">
-                        <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  </span>
                 </div>
+
+                {/* Title + desc */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 shrink-0">
+                      <step.icon className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <h3 className="text-base font-bold">{step.title}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground pl-[2.625rem]">{step.desc}</p>
+                </div>
+
+                {/* Bullets */}
+                <ul className="space-y-2 md:pt-0 pt-1">
+                  {step.bullets.map((b) => (
+                    <li key={b} className="flex gap-2 text-sm text-foreground">
+                      <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
