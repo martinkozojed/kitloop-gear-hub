@@ -73,6 +73,11 @@ const AppRoutes = () => {
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
   const isOnboardingRoute = location.pathname.startsWith("/onboarding");
+  const isAuthRoute =
+    location.pathname === "/login" ||
+    location.pathname === "/signup" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/reset-password";
 
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
   const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
@@ -86,12 +91,12 @@ const AppRoutes = () => {
 
   return (
     <>
-      {!isDemoRoute && !isOnboardingRoute && <Navbar />}
-      {!isDemoRoute && !isOnboardingRoute && <CommandMenu />}
+      {!isDemoRoute && !isOnboardingRoute && !isAuthRoute && <Navbar />}
+      {!isDemoRoute && !isOnboardingRoute && !isAuthRoute && <CommandMenu />}
       <main
         className={cn(
           "min-h-screen",
-          !isDemoRoute && !isOnboardingRoute && "pt-16",
+          !isDemoRoute && !isOnboardingRoute && !isAuthRoute && "pt-16",
           isProviderRoute && "bg-muted/50"
         )}
       >
@@ -313,7 +318,7 @@ const AppRoutes = () => {
         </Suspense>
       </main>
       <BuildStamp />
-      {!isProviderRoute && !isOnboardingRoute && <Footer />}
+      {!isProviderRoute && !isOnboardingRoute && !isAuthRoute && <Footer />}
     </>
   );
 };
