@@ -412,7 +412,6 @@ export default function Onboarding() {
               <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
                 {t("onboarding.heroH1")}
               </h1>
-              <p className="text-base font-medium text-slate-700">{t("onboarding.heroH2")}</p>
               <p className="text-slate-500 leading-relaxed">{t("onboarding.heroSub")}</p>
 
               <div className="flex flex-col gap-3 pt-1">
@@ -424,17 +423,6 @@ export default function Onboarding() {
                 >
                   <Link to={signupHref}>{t("onboarding.heroCta1")}</Link>
                 </Button>
-
-                <ul className="space-y-1.5 pt-1">
-                  <li className="flex items-start gap-2 text-sm text-slate-600">
-                    <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-slate-400 shrink-0" aria-hidden="true" />
-                    <span>{t("onboarding.heroBoundary1")}</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-sm text-slate-600">
-                    <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-slate-400 shrink-0" aria-hidden="true" />
-                    <span>{t("onboarding.heroBoundary2")}</span>
-                  </li>
-                </ul>
 
                 <a
                   href="#features"

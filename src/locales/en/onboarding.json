@@ -1,13 +1,10 @@
 {
   "heroBadge": "MVP • Pilot • Manual approval",
   "heroH1": "Operations system for rental shops.",
-  "heroH2": "Inventory → internal reservations → handover/return → overview → export/print.",
   "heroSub": "Pilot for selected rental shops. Manual approval, personal onboarding. Built with the first operators.",
   "heroCta1": "Request pilot access",
   "heroCta2": "Sign in",
   "heroCta3": "See features",
-  "heroBoundary1": "Manual approval — onboarding capacity is limited.",
-  "heroBoundary2": "Customers don't self-book — reservations are created by staff.",
 
   "painTitle": "What's your biggest pain?",
   "painSub": "Pick what fits most — we'll show you what Kitloop does about it.",

@@ -1,13 +1,10 @@
 {
   "heroBadge": "MVP • Pilot • Ruční schválení",
   "heroH1": "Provozní systém pro půjčovny.",
-  "heroH2": "Inventář → interní rezervace → výdej/vratka → přehled → export/print.",
   "heroSub": "Pilot pro vybrané půjčovny. Ruční schválení, osobní onboarding. Stavíme to s prvními provozy.",
   "heroCta1": "Požádat o pilotní přístup",
   "heroCta2": "Přihlásit se",
   "heroCta3": "Zobrazit funkce",
-  "heroBoundary1": "Ruční schválení — kapacita onboardingu je omezená.",
-  "heroBoundary2": "Zákazníci zatím nerezervují sami — rezervace zakládá staff.",
 
   "painTitle": "Co vás pálí nejvíc?",
   "painSub": "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
