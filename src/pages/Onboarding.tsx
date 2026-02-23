@@ -16,11 +16,6 @@
  *     const { pain, lang } = e.detail;
  *     ga('event', 'onboarding_pain_select', { pain, lang });
  *   });
- *
- *   window.addEventListener('kitloop:onboarding_demo_complete', (e) => {
- *     const { lang } = e.detail;
- *     ga('event', 'onboarding_demo_complete', { lang });
- *   });
  */
 
 import React, { useRef, useEffect, useCallback } from "react";
@@ -54,7 +49,6 @@ type Lang = "cs" | "en";
 type Pain = "inventory" | "counter" | "exports";
 
 // ─── URL param hooks ──────────────────────────────────────────────────────────
-// Both hooks read from the same URLSearchParams and always preserve all params.
 
 function useLang(): [Lang, (l: Lang) => void] {
   const [params] = useSearchParams();
@@ -64,7 +58,7 @@ function useLang(): [Lang, (l: Lang) => void] {
 
   const setLang = useCallback(
     (l: Lang) => {
-      const next = new URLSearchParams(params); // preserves pain, from, etc.
+      const next = new URLSearchParams(params);
       next.set("lang", l);
       navigate({ search: next.toString() }, { replace: true });
     },
@@ -83,7 +77,7 @@ function usePain(): [Pain | null, (p: Pain | null) => void] {
 
   const setPain = useCallback(
     (p: Pain | null) => {
-      const next = new URLSearchParams(params); // preserves lang, from, etc.
+      const next = new URLSearchParams(params);
       if (p) next.set("pain", p);
       else next.delete("pain");
       navigate({ search: next.toString() }, { replace: true });
@@ -112,7 +106,6 @@ function firePainEvent(pain: Pain, lang: Lang) {
   );
 }
 
-
 // ─── Copy ─────────────────────────────────────────────────────────────────────
 
 const copy = {
@@ -124,8 +117,9 @@ const copy = {
       "Pilot pro vybrané půjčovny. Ruční schválení, osobní onboarding. Stavíme to s prvními provozy.",
     heroCta1: "Požádat o pilotní přístup",
     heroCta2: "Přihlásit se",
-    heroMicro:
-      "Zákazníci zatím sami nerezervují — rezervace zakládá staff. Platby/refundy nejsou součást core flow.",
+    heroCta3: "Zobrazit funkce",
+    heroBoundary1: "Ruční schválení — kapacita onboardingu je omezená.",
+    heroBoundary2: "Zákazníci zatím nerezervují sami — rezervace zakládá staff.",
 
     painTitle: "Co vás pálí nejvíc?",
     painSub: "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
@@ -133,14 +127,14 @@ const copy = {
     pains: [
       { key: "inventory" as Pain, label: "Ztrácím přehled\no vybavení", icon: Package },
       { key: "counter" as Pain, label: "Na pultu je chaos\npři výdeji/vratce", icon: ClipboardList },
-      { key: "exports" as Pain, label: "Excel/CSV, exporty\na tisk mě ničí", icon: FileSpreadsheet },
+      { key: "exports" as Pain, label: "Excel, exporty\na tisk se hromadí", icon: FileSpreadsheet },
     ],
 
     isTitle: "Je pro",
     isntTitle: "Není pro (zatím)",
     isBullets: [
       "Půjčovny, kde rezervace vzniká interně (walk-in / telefon / email)",
-      "Provozy, co chtějí zrychlit issue/return a snížit chyby",
+      "Provozy, co chtějí zrychlit výdej/vratku a snížit chyby",
       "Týmový provoz (role, přístup, evidence)",
     ],
     isntBullets: [
@@ -219,28 +213,29 @@ const copy = {
   en: {
     heroBadge: "MVP • Pilot • Manual approval",
     heroH1: "Operations system for rental shops.",
-    heroH2: "Inventory → internal reservations → issue/return → overview → export/print.",
+    heroH2: "Inventory → internal reservations → handover/return → overview → export/print.",
     heroSub:
       "Pilot for selected rental shops. Manual approval, personal onboarding. Built with the first operators.",
     heroCta1: "Request pilot access",
     heroCta2: "Sign in",
-    heroMicro:
-      "Customers don't self-book yet — reservations are created by staff. Payments/refunds are not part of the core flow.",
+    heroCta3: "See features",
+    heroBoundary1: "Manual approval — onboarding capacity is limited.",
+    heroBoundary2: "Customers don't self-book — reservations are created by staff.",
 
     painTitle: "What's your biggest pain?",
     painSub: "Pick what fits most — we'll show you what Kitloop does about it.",
     painSkip: "Skip to features",
     pains: [
       { key: "inventory" as Pain, label: "I'm losing track\nof my inventory", icon: Package },
-      { key: "counter" as Pain, label: "Counter chaos\nduring issue/return", icon: ClipboardList },
-      { key: "exports" as Pain, label: "Excel/CSV, exports\nand printing kill me", icon: FileSpreadsheet },
+      { key: "counter" as Pain, label: "Counter chaos\nat handover/return", icon: ClipboardList },
+      { key: "exports" as Pain, label: "Excel, exports\nand printing stack up", icon: FileSpreadsheet },
     ],
 
     isTitle: "Is for",
     isntTitle: "Is not for (yet)",
     isBullets: [
       "Rental shops where reservations are created internally (walk-in / phone / email)",
-      "Operations that want to speed up issue/return and reduce errors",
+      "Operations that want to speed up handovers and reduce errors",
       "Team operations (roles, access, records)",
     ],
     isntBullets: [
@@ -254,7 +249,7 @@ const copy = {
     flowSteps: [
       { title: "Inventory", desc: "Track everything you rent — from individual items to their status.", bullets: ["Item status (available / reserved / maintenance)", "Categories, variants, CSV import"], icon: Package },
       { title: "Internal reservations", desc: "Staff creates reservations directly in the system.", bullets: ["Dates, statuses, equipment assignment", "Today's overview — what's going out, what's coming back"], icon: CalendarCheck },
-      { title: "Issue / Return + print/export", desc: "Counter operations without paperwork.", bullets: ["Photo documentation, deposit and notes tracking", "Print handover protocol, CSV export"], icon: QrCode },
+      { title: "Handover / Return + print/export", desc: "Counter operations without paperwork.", bullets: ["Photo documentation, deposit and notes tracking", "Print handover protocol, CSV export"], icon: QrCode },
     ],
 
     featuresTitle: "What you get",
@@ -262,8 +257,8 @@ const copy = {
     features: [
       { key: "inventory", title: "Inventory", desc: "Track items, statuses and categories. CSV import for a quick start.", icon: Package, large: true },
       { key: "reservations", title: "Internal reservations", desc: "Staff creates reservations, tracks dates and statuses. Today's overview.", icon: CalendarCheck, large: true },
-      { key: "counter", title: "Issue / Return", desc: "Counter operations with photo documentation and deposit tracking.", icon: QrCode, large: false },
-      { key: "dashboard", title: "Operations overview", desc: "Today's issues, returns, late items — all in one place.", icon: LayoutDashboard, large: false },
+      { key: "counter", title: "Handover / Return", desc: "Counter operations with photo documentation and deposit tracking.", icon: QrCode, large: false },
+      { key: "dashboard", title: "Operations overview", desc: "Today's handovers, returns, late items — all in one place.", icon: LayoutDashboard, large: false },
       { key: "exports", title: "Print + Export", desc: "Print handover protocol. Export data to CSV.", icon: FileSpreadsheet, large: false },
     ],
 
@@ -288,7 +283,7 @@ const copy = {
       { q: "What does manual approval mean?", a: "We manage onboarding capacity and want to know the operation we're working with. It's not bureaucracy — it's our guarantee that every launch goes well." },
       { q: "How do I get my Excel data into the system?", a: "Kitloop supports CSV import for inventory. We'll help you with the conversion during onboarding." },
       { q: "How long does it take to get started?", a: "Depends on the size of your inventory. We'll guide you through it step by step — importing data, reviewing the workflow, and making sure your team is ready." },
-      { q: "Payments and deposits?", a: "Deposit tracking and notes are part of the issue flow. Payment transactions (online payments, refunds) are not part of the core MVP flow." },
+      { q: "Payments and deposits?", a: "Deposit tracking and notes are part of the handover flow. Payment transactions (online payments, refunds) are not part of the core MVP flow." },
     ],
 
     finalTitle: "Want to be among the first pilots?",
@@ -337,8 +332,6 @@ function Section({
 }
 
 // ─── Ambient glow layer ───────────────────────────────────────────────────────
-// Two large blurred emerald orbs that drift slowly in the background.
-// Renders nothing when prefers-reduced-motion is active.
 
 function GlowLayer() {
   const shouldReduce = useReducedMotion();
@@ -359,6 +352,102 @@ function GlowLayer() {
   );
 }
 
+// ─── Hero UI preview panel ────────────────────────────────────────────────────
+// Static illustrative data — purely decorative, aria-hidden.
+
+function HeroPreview({ lang }: { lang: Lang }) {
+  const today = new Date().toLocaleDateString(
+    lang === "cs" ? "cs-CZ" : "en-US",
+    { weekday: "short", month: "short", day: "numeric" },
+  );
+
+  const labels = lang === "cs"
+    ? {
+        kpi: ["Výdeje dnes", "Vratky dnes", "Po termínu", "Dostupné"],
+        agendaLabel: "Dnešní agenda",
+        typeOut: "výdej",
+        typeRet: "vratka",
+        disclaimer: "Ukázka rozhraní · ilustrativní data",
+        agenda: [
+          { time: "09:30", name: "Alex T. · E-bike ×2", type: "out" as const },
+          { time: "11:00", name: "Sarah M. · Stan ×1", type: "ret" as const },
+          { time: "14:00", name: "James W. · Tyče ×2", type: "out" as const },
+        ],
+      }
+    : {
+        kpi: ["Check-outs today", "Returns today", "Overdue", "Available"],
+        agendaLabel: "Today's agenda",
+        typeOut: "check-out",
+        typeRet: "return",
+        disclaimer: "UI preview · illustrative data",
+        agenda: [
+          { time: "09:30", name: "Alex T. · E-bike ×2", type: "out" as const },
+          { time: "11:00", name: "Sarah M. · Tent ×1", type: "ret" as const },
+          { time: "14:00", name: "James W. · Poles ×2", type: "out" as const },
+        ],
+      };
+
+  const kpiValues = ["4", "3", "1", "28"];
+
+  return (
+    <div
+      className="rounded-xl border border-slate-200 shadow-lg overflow-hidden bg-white select-none pointer-events-none"
+      aria-hidden="true"
+    >
+      {/* Header strip */}
+      <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+        <span className="text-xs font-medium text-slate-500">{today}</span>
+        <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full tracking-wide">
+          LIVE
+        </span>
+      </div>
+
+      {/* KPI grid 2×2 */}
+      <div className="grid grid-cols-2 divide-x divide-y divide-slate-100">
+        {kpiValues.map((val, i) => (
+          <div key={i} className="px-4 py-3">
+            <p className={cn("text-xl font-bold leading-none", i === 2 ? "text-amber-500" : "text-slate-900")}>
+              {val}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-0.5">{labels.kpi[i]}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Agenda subheader */}
+      <div className="border-t border-slate-100 px-4 py-2 bg-slate-50/60">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          {labels.agendaLabel}
+        </span>
+      </div>
+
+      {/* Agenda rows */}
+      <div className="divide-y divide-slate-50">
+        {labels.agenda.map((item) => (
+          <div key={item.time} className="flex items-center gap-3 px-4 py-2.5">
+            <span className="text-xs font-mono text-slate-400 w-10 shrink-0">{item.time}</span>
+            <span className="text-sm text-slate-700 flex-1 truncate">{item.name}</span>
+            <span
+              className={cn(
+                "text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0",
+                item.type === "out"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-slate-100 text-slate-500",
+              )}
+            >
+              {item.type === "out" ? labels.typeOut : labels.typeRet}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Disclaimer */}
+      <div className="border-t border-slate-100 px-4 py-2 bg-slate-50">
+        <p className="text-[10px] text-slate-400 text-center">{labels.disclaimer}</p>
+      </div>
+    </div>
+  );
+}
 
 // ─── Feature card ─────────────────────────────────────────────────────────────
 
@@ -375,22 +464,22 @@ function FeatureCard({
     <div ref={cardRef}>
       <Card
         className={cn(
-          "h-full rounded-2xl border shadow-sm bg-white transition-all duration-300",
+          "h-full rounded-xl border shadow-sm bg-white transition-all duration-300",
           highlighted && "ring-2 ring-emerald-500 border-emerald-200 shadow-md",
         )}
       >
-        <CardContent className={cn("space-y-4", f.large ? "p-6" : "p-5")}>
+        <CardContent className={cn("space-y-3", f.large ? "p-5" : "p-4")}>
           <div
             className={cn(
-              "flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700",
-              f.large ? "h-12 w-12" : "h-10 w-10",
+              "flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-700",
+              f.large ? "h-10 w-10" : "h-9 w-9",
             )}
           >
-            <f.icon className={f.large ? "h-6 w-6" : "h-5 w-5"} aria-hidden="true" />
+            <f.icon className={f.large ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />
           </div>
           <div>
-            <h3 className={cn("font-bold", f.large ? "text-xl" : "text-base")}>{f.title}</h3>
-            <p className={cn("mt-1 text-muted-foreground", f.large ? "text-base mt-2" : "text-sm")}>
+            <h3 className={cn("font-bold", f.large ? "text-base" : "text-sm")}>{f.title}</h3>
+            <p className={cn("mt-1 text-muted-foreground text-sm")}>
               {f.desc}
             </p>
           </div>
@@ -415,8 +504,6 @@ export default function Onboarding() {
   const featureRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isFirstPainEffect = useRef(true);
 
-  // Scroll to highlighted feature card on pain change.
-  // Skip on initial mount so a shared URL (?pain=X) doesn't auto-jump.
   useEffect(() => {
     if (isFirstPainEffect.current) {
       isFirstPainEffect.current = false;
@@ -441,7 +528,7 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-background text-foreground">
 
-      {/* Skip link — positioned at document top, visible on focus */}
+      {/* Skip link */}
       <a
         href="#features"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-1/2 focus:-translate-x-1/2 focus:z-[60] focus:bg-background focus:px-5 focus:py-2 focus:rounded-full focus:text-sm focus:font-semibold focus:ring-2 focus:ring-emerald-600 focus:shadow-lg"
@@ -452,13 +539,11 @@ export default function Onboarding() {
       {/* ── Standalone header ────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
         <div className="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between w-full">
-          {/* Logo */}
           <Link to="/" className="text-xl font-bold flex items-center shrink-0">
             <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
 
-          {/* Right: CS/EN toggle + sign in */}
           <div className="flex items-center gap-3">
             <div className="flex gap-1" role="group" aria-label={lang === "cs" ? "Jazyk" : "Language"}>
               {(["cs", "en"] as Lang[]).map((l) => (
@@ -498,12 +583,12 @@ export default function Onboarding() {
         <div className="relative mx-auto max-w-5xl px-6 py-12 md:py-16">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
 
-            {/* Left — nadpis + subtext */}
+            {/* Left — copy + CTA + MVP boundary */}
             <motion.div
               initial={{ opacity: 1, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: "easeOut" }}
-              className="space-y-4"
+              className="space-y-5"
             >
               <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
                 {t.heroBadge}
@@ -513,16 +598,8 @@ export default function Onboarding() {
               </h1>
               <p className="text-base font-medium text-slate-700">{t.heroH2}</p>
               <p className="text-slate-500 leading-relaxed">{t.heroSub}</p>
-            </motion.div>
 
-            {/* Right — CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.12, ease: "easeOut" }}
-              className="flex flex-col gap-4 lg:pl-8"
-            >
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 pt-1">
                 <Button
                   asChild
                   variant="cta"
@@ -531,13 +608,39 @@ export default function Onboarding() {
                 >
                   <Link to={signupHref}>{t.heroCta1}</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link to={loginHref}>{t.heroCta2}</Link>
-                </Button>
+
+                {/* MVP boundary — higher contrast than old microcopy */}
+                <ul className="space-y-1.5 pt-1">
+                  <li className="flex items-start gap-2 text-sm text-slate-600">
+                    <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-slate-400 shrink-0" aria-hidden="true" />
+                    <span>{t.heroBoundary1}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-slate-600">
+                    <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-slate-400 shrink-0" aria-hidden="true" />
+                    <span>{t.heroBoundary2}</span>
+                  </li>
+                </ul>
+
+                <a
+                  href="#features"
+                  className={cn(
+                    "text-sm text-muted-foreground hover:text-foreground transition-colors self-start",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded",
+                  )}
+                >
+                  {t.heroCta3} ↓
+                </a>
               </div>
-              <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                {t.heroMicro}
-              </p>
+            </motion.div>
+
+            {/* Right — static UI preview */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
+              className="lg:pl-6"
+            >
+              <HeroPreview lang={lang} />
             </motion.div>
 
           </div>
@@ -545,14 +648,14 @@ export default function Onboarding() {
       </section>
 
       {/* ── B) Pain selector ─────────────────────────────────────────────────── */}
-      <Section className="bg-white py-14">
-          <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-10">
+      <Section className="bg-white py-10">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="text-center mb-8">
             <h2 className="text-2xl font-bold md:text-3xl">{t.painTitle}</h2>
             <p className="mt-2 text-muted-foreground">{t.painSub}</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" role="group" aria-label={t.painTitle}>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="group" aria-label={t.painTitle}>
             {t.pains.map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -560,7 +663,7 @@ export default function Onboarding() {
                 aria-pressed={pain === key}
                 onClick={() => handlePainClick(key)}
                 className={cn(
-                  "group rounded-2xl border-2 p-6 text-left transition-all",
+                  "group rounded-xl border-2 p-4 text-left transition-all",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
                   pain === key
                     ? "border-emerald-500 bg-emerald-50 shadow-md"
@@ -569,17 +672,17 @@ export default function Onboarding() {
               >
                 <div
                   className={cn(
-                    "mb-4 flex h-11 w-11 items-center justify-center rounded-full transition-colors",
+                    "mb-3 flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
                     pain === key
                       ? "bg-emerald-100 text-emerald-700"
                       : "bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-700",
                   )}
                 >
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+                  <Icon className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <p
                   className={cn(
-                    "font-semibold leading-snug whitespace-pre-line",
+                    "text-sm font-semibold leading-snug whitespace-pre-line",
                     pain === key ? "text-emerald-800" : "text-foreground",
                   )}
                 >
@@ -587,7 +690,7 @@ export default function Onboarding() {
                 </p>
                 <p
                   className={cn(
-                    "mt-2 text-xs font-medium flex items-center gap-1 transition-opacity",
+                    "mt-1.5 text-xs font-medium flex items-center gap-1 transition-opacity",
                     pain === key ? "text-emerald-600 opacity-100" : "opacity-0",
                   )}
                   aria-hidden={pain !== key}
@@ -602,19 +705,19 @@ export default function Onboarding() {
       </Section>
 
       {/* ── C) Je / Není pro ──────────────────────────────────────────────────── */}
-      <Section className="bg-slate-50/70 py-14">
+      <Section className="bg-slate-50/70 py-10">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="rounded-2xl border border-emerald-200 bg-white shadow-sm">
-              <CardContent className="p-7 space-y-4">
+          <div className="grid gap-5 md:grid-cols-2">
+            <Card className="rounded-xl border border-emerald-200 bg-white shadow-sm">
+              <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
-                  <p className="text-lg font-bold text-emerald-800">{t.isTitle}</p>
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <p className="text-base font-bold text-emerald-800">{t.isTitle}</p>
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {t.isBullets.map((b) => (
-                    <li key={b} className="flex gap-3 text-base text-foreground">
-                      <span className="mt-1 text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+                    <li key={b} className="flex gap-2.5 text-sm text-foreground">
+                      <span className="mt-0.5 text-emerald-600 shrink-0" aria-hidden="true">✓</span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -622,16 +725,16 @@ export default function Onboarding() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <CardContent className="p-7 space-y-4">
+            <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
+              <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
-                  <XCircle className="h-5 w-5 text-slate-400 shrink-0" aria-hidden="true" />
-                  <p className="text-lg font-bold text-slate-600">{t.isntTitle}</p>
+                  <XCircle className="h-4 w-4 text-slate-400 shrink-0" aria-hidden="true" />
+                  <p className="text-base font-bold text-slate-600">{t.isntTitle}</p>
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {t.isntBullets.map((b) => (
-                    <li key={b} className="flex gap-3 text-base text-muted-foreground">
-                      <span className="mt-1 shrink-0 text-slate-400" aria-hidden="true">✗</span>
+                    <li key={b} className="flex gap-2.5 text-sm text-muted-foreground">
+                      <span className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true">✗</span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -643,9 +746,9 @@ export default function Onboarding() {
       </Section>
 
       {/* ── D) Jak to funguje ─────────────────────────────────────────────────── */}
-      <Section className="bg-white py-16">
+      <Section className="bg-white py-12">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="mb-10">
+          <div className="mb-8">
             <h2 className="text-2xl font-bold md:text-3xl">{t.flowTitle}</h2>
             <p className="mt-2 text-muted-foreground">{t.flowSub}</p>
           </div>
@@ -654,31 +757,28 @@ export default function Onboarding() {
             {t.flowSteps.map((step, i) => (
               <div
                 key={step.title}
-                className="grid grid-cols-1 md:grid-cols-[64px_1fr_1fr] gap-x-8 gap-y-4 py-8 items-start"
+                className="grid grid-cols-1 md:grid-cols-[64px_1fr_1fr] gap-x-8 gap-y-3 py-7 items-start"
               >
-                {/* Step number */}
                 <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-0">
                   <span className="text-5xl font-black leading-none tabular-nums text-emerald-500/25 select-none">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
 
-                {/* Title + desc */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 shrink-0">
-                      <step.icon className="h-4 w-4" aria-hidden="true" />
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 shrink-0">
+                      <step.icon className="h-3.5 w-3.5" aria-hidden="true" />
                     </div>
                     <h3 className="text-base font-bold">{step.title}</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground pl-[2.625rem]">{step.desc}</p>
+                  <p className="text-sm text-muted-foreground pl-[2.375rem]">{step.desc}</p>
                 </div>
 
-                {/* Bullets */}
-                <ul className="space-y-2 md:pt-0 pt-1">
+                <ul className="space-y-1.5 md:pt-0 pt-1">
                   {step.bullets.map((b) => (
                     <li key={b} className="flex gap-2 text-sm text-foreground">
-                      <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
+                      <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
                       <span>{b}</span>
                     </li>
                   ))}
@@ -690,14 +790,14 @@ export default function Onboarding() {
       </Section>
 
       {/* ── E) Funkce — Bento grid ────────────────────────────────────────────── */}
-      <Section id="features" className="bg-white py-16 scroll-mt-24">
+      <Section id="features" className="bg-slate-50/70 py-12 scroll-mt-24">
         <div className="mx-auto max-w-5xl px-6">
-          <div ref={featuresSectionRef} className="text-center mb-12">
+          <div ref={featuresSectionRef} className="text-center mb-8">
             <h2 className="text-2xl font-bold md:text-3xl">{t.featuresTitle}</h2>
             <p className="mt-2 text-muted-foreground">{t.featuresSub}</p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 mb-5">
+          <div className="grid gap-4 md:grid-cols-2 mb-4">
             {t.features
               .filter((f) => f.large)
               .map((f) => (
@@ -710,7 +810,7 @@ export default function Onboarding() {
               ))}
           </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {t.features
               .filter((f) => !f.large)
               .map((f) => (
@@ -726,36 +826,36 @@ export default function Onboarding() {
       </Section>
 
       {/* ── F) Pilot: Jak začít ──────────────────────────────────────────────── */}
-      <Section className="bg-muted/40 py-16">
+      <Section className="bg-white py-12">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-2xl font-bold md:text-3xl">{t.pilotTitle}</h2>
             <p className="mt-2 text-muted-foreground">{t.pilotSub}</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3 mb-10">
+          <div className="grid gap-4 md:grid-cols-3 mb-6">
             {t.pilotSteps.map((step) => (
-              <Card key={step.num} className="rounded-2xl border shadow-sm bg-white">
-                <CardContent className="p-6 space-y-3">
-                  <span className="text-4xl font-black text-emerald-200 leading-none select-none" aria-hidden="true">
+              <Card key={step.num} className="rounded-xl border shadow-sm bg-white">
+                <CardContent className="p-5 space-y-2">
+                  <span className="text-3xl font-black text-emerald-200 leading-none select-none" aria-hidden="true">
                     {step.num}
                   </span>
-                  <h3 className="text-lg font-bold">{step.title}</h3>
+                  <h3 className="text-base font-bold">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.desc}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Card className="rounded-2xl border-emerald-100 bg-white shadow-sm mb-10">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
-                <h3 className="font-bold">{t.pilotBoxTitle}</h3>
+          <Card className="rounded-xl border-emerald-100 bg-white shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                <h3 className="font-bold text-sm">{t.pilotBoxTitle}</h3>
               </div>
-              <ul className="space-y-2">
+              <ul className="space-y-1.5">
                 {t.pilotBoxItems.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm">
+                  <li key={item} className="flex gap-2.5 text-sm">
                     <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">→</span>
                     <span>{item}</span>
                   </li>
@@ -763,25 +863,24 @@ export default function Onboarding() {
               </ul>
             </CardContent>
           </Card>
-
         </div>
       </Section>
 
       {/* ── G) FAQ ───────────────────────────────────────────────────────────── */}
-      <Section className="bg-white py-14">
+      <Section className="bg-slate-50/70 py-10">
         <div className="mx-auto max-w-3xl px-6">
-          <h2 className="text-2xl font-bold md:text-3xl mb-8">{t.faqTitle}</h2>
-          <Accordion type="single" collapsible className="space-y-3">
+          <h2 className="text-2xl font-bold md:text-3xl mb-6">{t.faqTitle}</h2>
+          <Accordion type="single" collapsible className="space-y-2">
             {t.faqs.map((faq, i) => (
               <AccordionItem
                 key={i}
                 value={String(i)}
-                className="rounded-2xl border border-muted-foreground/15 px-5 overflow-hidden"
+                className="rounded-xl border border-muted-foreground/15 px-5 overflow-hidden bg-white"
               >
-                <AccordionTrigger className="text-left font-semibold py-4 hover:no-underline text-base">
+                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground pb-5 leading-relaxed">
+                <AccordionContent className="text-sm text-muted-foreground pb-4 leading-relaxed">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -791,10 +890,10 @@ export default function Onboarding() {
       </Section>
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-emerald-50/70">
-        <div className="relative mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
+      <section className="bg-emerald-50/70">
+        <div className="mx-auto max-w-3xl px-6 py-14 text-center space-y-5">
           <h2 className="text-3xl font-bold md:text-4xl text-slate-900">{t.finalTitle}</h2>
-          <p className="text-slate-600 text-lg">{t.finalSub}</p>
+          <p className="text-slate-600">{t.finalSub}</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button
               asChild
@@ -812,7 +911,7 @@ export default function Onboarding() {
       </section>
 
       {/* ── Footer strip ─────────────────────────────────────────────────────── */}
-      <footer className="mx-auto max-w-5xl px-6 py-8 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
+      <footer className="mx-auto max-w-5xl px-6 py-6 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
         <span>{t.footerContact}</span>
         <Link
           to={privacyHref}
