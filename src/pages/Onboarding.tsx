@@ -643,46 +643,55 @@ export default function Onboarding() {
       </Section>
 
       {/* ── D) Jak to funguje ─────────────────────────────────────────────────── */}
-      <Section className="bg-muted/40 py-16">
+      <Section className="bg-slate-900 py-16">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold md:text-3xl">{t.flowTitle}</h2>
-            <p className="mt-2 text-muted-foreground">{t.flowSub}</p>
+          <div className="text-center mb-14">
+            <h2 className="text-2xl font-bold md:text-3xl text-white">{t.flowTitle}</h2>
+            <p className="mt-2 text-slate-400">{t.flowSub}</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             {t.flowSteps.map((step, i) => (
               <div key={step.title} className="relative">
+                {/* Arrow between cards — desktop only */}
                 {i < t.flowSteps.length - 1 && (
                   <div
-                    className="hidden md:flex absolute -right-3 top-8 z-10 items-center"
+                    className="hidden md:flex absolute -right-3 top-7 z-10 items-center"
                     aria-hidden="true"
                   >
-                    <ArrowRight className="h-5 w-5 text-emerald-400" />
+                    <ArrowRight className="h-4 w-4 text-emerald-500/60" />
                   </div>
                 )}
-                <Card className="h-full rounded-2xl border shadow-sm bg-white">
-                  <CardContent className="p-6 space-y-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                      <step.icon className="h-6 w-6" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 mb-1">
-                        {String(i + 1).padStart(2, "0")}
-                      </p>
-                      <h3 className="text-lg font-bold">{step.title}</h3>
-                      <p className="mt-2 text-sm text-muted-foreground">{step.desc}</p>
-                    </div>
-                    <ul className="space-y-1.5">
-                      {step.bullets.map((b) => (
-                        <li key={b} className="flex gap-2 text-sm text-foreground">
-                          <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">•</span>
-                          <span>{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+
+                <div className="relative overflow-hidden rounded-2xl bg-slate-800 p-6 h-full ring-1 ring-white/5">
+                  {/* Watermark step number */}
+                  <span
+                    className="absolute -top-3 -right-1 text-8xl font-black leading-none select-none pointer-events-none text-white/[0.04]"
+                    aria-hidden="true"
+                  >
+                    {i + 1}
+                  </span>
+
+                  {/* Icon — filled */}
+                  <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white mb-5">
+                    <step.icon className="h-6 w-6" aria-hidden="true" />
+                  </div>
+
+                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-1">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="text-base font-bold text-white mb-2">{step.title}</h3>
+                  <p className="text-sm text-slate-400 mb-4">{step.desc}</p>
+
+                  <ul className="space-y-2">
+                    {step.bullets.map((b) => (
+                      <li key={b} className="flex gap-2 text-sm text-slate-300">
+                        <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             ))}
           </div>
