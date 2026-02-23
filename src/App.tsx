@@ -72,6 +72,7 @@ const AppRoutes = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
+  const isOnboardingRoute = location.pathname.startsWith("/onboarding");
 
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
   const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
@@ -85,12 +86,12 @@ const AppRoutes = () => {
 
   return (
     <>
-      {!isDemoRoute && <Navbar />}
-      {!isDemoRoute && <CommandMenu />}
+      {!isDemoRoute && !isOnboardingRoute && <Navbar />}
+      {!isDemoRoute && !isOnboardingRoute && <CommandMenu />}
       <main
         className={cn(
           "min-h-screen",
-          !isDemoRoute && "pt-16",
+          !isDemoRoute && !isOnboardingRoute && "pt-16",
           isProviderRoute && "bg-muted/50"
         )}
       >
@@ -131,7 +132,7 @@ const AppRoutes = () => {
             <Route path="/about" element={<About />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
-            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/onboarding/*" element={<Onboarding />} />
             <Route
               path="/admin/observability"
               element={
@@ -273,11 +274,14 @@ const AppRoutes = () => {
                 </ProviderRoute>
               }
             />
+            {/* Calendar - gated by VITE_ENABLE_CALENDAR */}
             <Route
               path="/provider/calendar"
               element={
                 <ProviderRoute>
-                  <ProviderCalendar />
+                  {import.meta.env.VITE_ENABLE_CALENDAR === 'true'
+                    ? <ProviderCalendar />
+                    : <Navigate to="/provider/dashboard" replace />}
                 </ProviderRoute>
               }
             />
@@ -309,7 +313,7 @@ const AppRoutes = () => {
         </Suspense>
       </main>
       <BuildStamp />
-      {!isProviderRoute && <Footer />}
+      {!isProviderRoute && !isOnboardingRoute && <Footer />}
     </>
   );
 };
