@@ -424,15 +424,17 @@ export default function Onboarding() {
                   <Link to={signupHref}>{t("onboarding.heroCta1")}</Link>
                 </Button>
 
-                <a
-                  href="#features"
+                <button
+                  type="button"
+                  onClick={() => featuresSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                   className={cn(
-                    "text-sm text-muted-foreground hover:text-foreground transition-colors self-start",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded",
+                    "self-start rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground",
+                    "transition-all hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-800",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
                   )}
                 >
                   {t("onboarding.heroCta3")} ↓
-                </a>
+                </button>
               </div>
             </motion.div>
 
