@@ -701,23 +701,18 @@ export default function Onboarding() {
       </Section>
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="bg-emerald-50/70">
-        <div className="mx-auto max-w-3xl px-6 py-14 text-center space-y-5">
-          <h2 className="text-3xl font-bold md:text-4xl text-slate-900">{t("onboarding.finalTitle")}</h2>
-          <p className="text-slate-600">{t("onboarding.finalSub")}</p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button
-              asChild
-              variant="cta"
-              size="cta"
-              onClick={() => fireCtaEvent("final", lang, pain)}
-            >
-              <Link to={signupHref}>{t("onboarding.finalCta1")}</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="mailto:support@kitloop.cz">{t("onboarding.finalCta2")}</a>
-            </Button>
-          </div>
+      <section className="border-t border-border">
+        <div className="mx-auto max-w-2xl px-6 py-12 text-center space-y-4">
+          <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
+          <p className="text-slate-500 text-sm">{t("onboarding.finalSub")}</p>
+          <Button
+            asChild
+            variant="cta"
+            size="cta"
+            onClick={() => fireCtaEvent("final", lang, pain)}
+          >
+            <Link to={signupHref}>{t("onboarding.finalCta1")}</Link>
+          </Button>
         </div>
       </section>
 
