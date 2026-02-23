@@ -537,42 +537,43 @@ export default function Onboarding() {
       </a>
 
       {/* ── Standalone header ────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
-        <div className="mx-auto max-w-5xl px-6 md:px-10 py-4 flex items-center justify-between w-full">
+      <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border sticky top-0 left-0 right-0 z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
             <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
 
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1" role="group" aria-label={lang === "cs" ? "Jazyk" : "Language"}>
-              {(["cs", "en"] as Lang[]).map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setLang(l)}
-                  aria-pressed={lang === l}
-                  className={cn(
-                    "px-2.5 py-1 text-xs rounded-md border transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1",
-                    lang === l
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-transparent text-muted-foreground border-border hover:border-slate-400 hover:text-foreground",
-                  )}
-                >
-                  {l.toUpperCase()}
-                </button>
+          <div className="flex items-center gap-4">
+            {/* Language toggle — plain text, matches LanguageSwitcher style */}
+            <div
+              className="flex items-center gap-1 text-sm font-medium"
+              role="group"
+              aria-label={lang === "cs" ? "Jazyk" : "Language"}
+            >
+              {(["en", "cs"] as Lang[]).map((l, i) => (
+                <React.Fragment key={l}>
+                  {i > 0 && <span className="text-border select-none">·</span>}
+                  <button
+                    onClick={() => setLang(l)}
+                    aria-pressed={lang === l}
+                    className={cn(
+                      "transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded",
+                      lang === l
+                        ? "text-foreground font-semibold"
+                        : "text-muted-foreground hover:text-emerald-600",
+                    )}
+                  >
+                    {l.toUpperCase()}
+                  </button>
+                </React.Fragment>
               ))}
             </div>
 
-            <Link
-              to={loginHref}
-              className={cn(
-                "text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1",
-              )}
-            >
-              {t.heroCta2}
-            </Link>
+            <Button variant="outline" size="sm" asChild>
+              <Link to={loginHref}>{t.heroCta2}</Link>
+            </Button>
           </div>
         </div>
       </header>
