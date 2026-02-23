@@ -54,7 +54,7 @@ function useLang(): [Lang, (l: Lang) => void] {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const raw = params.get("lang");
-  const lang: Lang = raw === "en" ? "en" : "cs";
+  const lang: Lang = raw === "cs" ? "cs" : "en";
 
   const setLang = useCallback(
     (l: Lang) => {
