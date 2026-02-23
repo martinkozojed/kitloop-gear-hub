@@ -126,13 +126,6 @@ const copy = {
     heroCta2: "Přihlásit se",
     heroMicro:
       "Zákazníci zatím sami nerezervují — rezervace zakládá staff. Platby/refundy nejsou součást core flow.",
-    demoCardTitle: "Přehled dnešního dne",
-    demoCardMock: "Demo data",
-    demoKpi1: "aktivních výpůjček",
-    demoKpi2: "výdejů dnes",
-    demoTypePickup: "výdej",
-    demoTypeReturn: "vratka",
-    demoCardCta: "Vyzkoušet interaktivní demo",
 
     painTitle: "Co vás pálí nejvíc?",
     painSub: "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
@@ -233,13 +226,6 @@ const copy = {
     heroCta2: "Sign in",
     heroMicro:
       "Customers don't self-book yet — reservations are created by staff. Payments/refunds are not part of the core flow.",
-    demoCardTitle: "Today's overview",
-    demoCardMock: "Demo data",
-    demoKpi1: "active rentals",
-    demoKpi2: "issues today",
-    demoTypePickup: "pickup",
-    demoTypeReturn: "return",
-    demoCardCta: "Try interactive demo",
 
     painTitle: "What's your biggest pain?",
     painSub: "Pick what fits most — we'll show you what Kitloop does about it.",
@@ -373,89 +359,6 @@ function GlowLayer() {
   );
 }
 
-// ─── Hero demo card — teaser pro DemoDashboard ───────────────────────────────
-// Zobrazuje živý náhled dnešního přehledu s mock daty.
-// Odkaz /demo/dashboard vyžaduje VITE_ENABLE_DEMO=true na produkci.
-
-function HeroDemoCard({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const agendaItems = lang === "cs"
-    ? [
-        { time: "09:30", name: "E-bike Specialized Turbo", type: "pickup" as const },
-        { time: "11:00", name: "Trek Rail 9.8 (rám L)", type: "return" as const },
-        { time: "14:00", name: "Cargo nosič XL", type: "pickup" as const },
-      ]
-    : [
-        { time: "09:30", name: "E-bike Specialized Turbo", type: "pickup" as const },
-        { time: "11:00", name: "Trek Rail 9.8 (frame L)", type: "return" as const },
-        { time: "14:00", name: "Cargo Carrier XL", type: "pickup" as const },
-      ];
-
-  return (
-    <div className="rounded-xl border border-slate-200/70 shadow-xl shadow-slate-900/[0.08] bg-white overflow-hidden">
-      {/* Header strip */}
-      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2" aria-hidden="true">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
-            {t.demoCardTitle}
-          </span>
-        </div>
-        <span className="text-[10px] text-slate-400 italic">{t.demoCardMock}</span>
-      </div>
-
-      {/* KPI strip */}
-      <div className="grid grid-cols-2 divide-x divide-slate-100 border-b border-slate-100">
-        <div className="px-5 py-3">
-          <p className="text-2xl font-bold text-slate-900 leading-none">18</p>
-          <p className="mt-0.5 text-xs text-slate-400">{t.demoKpi1}</p>
-        </div>
-        <div className="px-5 py-3">
-          <p className="text-2xl font-bold text-slate-900 leading-none">6</p>
-          <p className="mt-0.5 text-xs text-slate-400">{t.demoKpi2}</p>
-        </div>
-      </div>
-
-      {/* Agenda rows */}
-      <div className="divide-y divide-slate-50">
-        {agendaItems.map((item, i) => (
-          <div key={i} className="flex items-center gap-3 px-5 py-2.5">
-            <span className="text-xs font-mono text-slate-400 w-10 shrink-0">{item.time}</span>
-            <span className="text-sm text-slate-700 flex-1 truncate">{item.name}</span>
-            <span
-              className={cn(
-                "text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0",
-                item.type === "pickup"
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-slate-100 text-slate-500",
-              )}
-            >
-              {item.type === "pickup" ? t.demoTypePickup : t.demoTypeReturn}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* CTA */}
-      <div className="px-5 py-4 bg-slate-50 border-t border-slate-100">
-        <Link
-          to="/demo/dashboard"
-          className={cn(
-            "w-full flex items-center justify-center gap-2",
-            "bg-slate-900 text-white text-sm font-semibold rounded-lg px-4 py-2.5",
-            "hover:bg-slate-800 transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
-          )}
-        >
-          {t.demoCardCta}
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
-      </div>
-    </div>
-  );
-}
 
 // ─── Feature card ─────────────────────────────────────────────────────────────
 
@@ -589,56 +492,43 @@ export default function Onboarding() {
         </div>
       </header>
 
-      {/* ── A) Hero + Micro-demo ─────────────────────────────────────────────── */}
+      {/* ── A) Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white">
         <GlowLayer />
-        <div className="relative mx-auto max-w-5xl px-6 py-20 md:py-28">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            {/* Left — copy: opacity stays 1 (LCP-safe), only subtle y lift */}
-            <motion.div
-              initial={{ opacity: 1, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="space-y-6"
-            >
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
-                {t.heroBadge}
-              </span>
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-foreground">
-                {t.heroH1}
-              </h1>
-              <p className="text-base font-medium text-slate-700 break-words [overflow-wrap:break-word]">{t.heroH2}</p>
-              <p className="text-slate-500 leading-relaxed">{t.heroSub}</p>
+        <div className="relative mx-auto max-w-2xl px-6 py-14 md:py-20 text-center">
+          <motion.div
+            initial={{ opacity: 1, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="space-y-5"
+          >
+            <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
+              {t.heroBadge}
+            </span>
+            <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
+              {t.heroH1}
+            </h1>
+            <p className="text-base font-medium text-slate-700">{t.heroH2}</p>
+            <p className="text-slate-500 leading-relaxed">{t.heroSub}</p>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center pt-2">
-                <Button
-                  asChild
-                  variant="cta"
-                  size="cta"
-                  onClick={() => fireCtaEvent("hero", lang, pain)}
-                >
-                  <Link to={signupHref}>{t.heroCta1}</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link to={loginHref}>{t.heroCta2}</Link>
-                </Button>
-              </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center pt-1">
+              <Button
+                asChild
+                variant="cta"
+                size="cta"
+                onClick={() => fireCtaEvent("hero", lang, pain)}
+              >
+                <Link to={signupHref}>{t.heroCta1}</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to={loginHref}>{t.heroCta2}</Link>
+              </Button>
+            </div>
 
-              <p className="text-xs text-muted-foreground/60 leading-relaxed max-w-sm">
-                {t.heroMicro}
-              </p>
-            </motion.div>
-
-            {/* Right — Demo card teaser */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
-              className="lg:pl-8"
-            >
-              <HeroDemoCard t={t} lang={lang} />
-            </motion.div>
-          </div>
+            <p className="text-xs text-muted-foreground/60 leading-relaxed max-w-sm mx-auto">
+              {t.heroMicro}
+            </p>
+          </motion.div>
         </div>
       </section>
 
