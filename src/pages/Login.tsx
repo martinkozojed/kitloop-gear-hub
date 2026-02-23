@@ -58,26 +58,14 @@ const Login = () => {
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
           <div className="flex items-center gap-3">
-            {/* Language toggle — subtle, rarely used */}
-            <div className="flex items-center gap-0.5 text-xs" role="group" aria-label="Language">
-              {(["en", "cs"] as const).map((l, i) => (
-                <React.Fragment key={l}>
-                  {i > 0 && <span className="text-border/60 select-none px-0.5">·</span>}
-                  <button
-                    onClick={() => i18n.changeLanguage(l)}
-                    aria-pressed={lang === l}
-                    className={cn(
-                      "transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5",
-                      lang === l
-                        ? "text-muted-foreground font-medium"
-                        : "text-muted-foreground/50 hover:text-muted-foreground",
-                    )}
-                  >
-                    {l.toUpperCase()}
-                  </button>
-                </React.Fragment>
-              ))}
-            </div>
+            {/* Language toggle — single button showing the other language */}
+            <button
+              onClick={() => i18n.changeLanguage(lang === "en" ? "cs" : "en")}
+              aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
+            >
+              {lang === "en" ? "CS" : "EN"}
+            </button>
             <Link
               to="/onboarding"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"

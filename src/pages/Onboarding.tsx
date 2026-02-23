@@ -377,30 +377,14 @@ export default function Onboarding() {
           </Link>
 
           <div className="flex items-center gap-3">
-            {/* Language toggle — subtle, rarely used */}
-            <div
-              className="flex items-center gap-0.5 text-xs"
-              role="group"
-              aria-label={lang === "cs" ? "Jazyk" : "Language"}
+            {/* Language toggle — single button showing the other language */}
+            <button
+              onClick={() => setLang(lang === "en" ? "cs" : "en")}
+              aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
             >
-              {(["en", "cs"] as Lang[]).map((l, i) => (
-                <React.Fragment key={l}>
-                  {i > 0 && <span className="text-border/60 select-none px-0.5">·</span>}
-                  <button
-                    onClick={() => setLang(l)}
-                    aria-pressed={lang === l}
-                    className={cn(
-                      "transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5",
-                      lang === l
-                        ? "text-muted-foreground font-medium"
-                        : "text-muted-foreground/50 hover:text-muted-foreground",
-                    )}
-                  >
-                    {l.toUpperCase()}
-                  </button>
-                </React.Fragment>
-              ))}
-            </div>
+              {lang === "en" ? "CS" : "EN"}
+            </button>
 
             <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
               <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
