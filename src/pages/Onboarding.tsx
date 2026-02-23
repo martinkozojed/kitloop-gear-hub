@@ -346,12 +346,12 @@ function GlowLayer() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
       <motion.div
-        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-300/20 blur-3xl"
+        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-300/[0.10] blur-3xl"
         animate={{ x: [0, 35, 0], y: [0, -25, 0] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-400/15 blur-3xl"
+        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-400/[0.05] blur-3xl"
         animate={{ x: [0, -25, 0], y: [0, 30, 0] }}
         transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
       />
@@ -764,16 +764,6 @@ export default function Onboarding() {
             </CardContent>
           </Card>
 
-          <div className="flex flex-col items-center">
-            <Button
-              asChild
-              variant="cta"
-              size="cta"
-              onClick={() => fireCtaEvent("pilot-section", lang, pain)}
-            >
-              <Link to={signupHref}>{t.pilotCta}</Link>
-            </Button>
-          </div>
         </div>
       </Section>
 
@@ -802,7 +792,6 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-emerald-50/70">
-        <GlowLayer />
         <div className="relative mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
           <h2 className="text-3xl font-bold md:text-4xl text-slate-900">{t.finalTitle}</h2>
           <p className="text-slate-600 text-lg">{t.finalSub}</p>
