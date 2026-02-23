@@ -516,16 +516,16 @@ export default function Onboarding() {
       <Section className="bg-slate-50/70 py-10">
         <div className="mx-auto max-w-5xl px-6">
           <div className="grid gap-5 md:grid-cols-2">
-            <Card className="rounded-xl border border-emerald-200 bg-white shadow-sm">
+            <Card className="rounded-xl border-0 bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-200">
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
-                  <p className="text-base font-bold text-emerald-800">{t("onboarding.isTitle")}</p>
+                  <CheckCircle2 className="h-4 w-4 text-white/80 shrink-0" aria-hidden="true" />
+                  <p className="text-base font-bold text-white">{t("onboarding.isTitle")}</p>
                 </div>
                 <ul className="space-y-2">
                   {tIsBullets().map((b) => (
-                    <li key={b} className="flex gap-2.5 text-sm text-foreground">
-                      <span className="mt-0.5 text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+                    <li key={b} className="flex gap-2.5 text-sm text-emerald-50">
+                      <span className="mt-0.5 text-white/70 shrink-0" aria-hidden="true">✓</span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -686,12 +686,12 @@ export default function Onboarding() {
               <AccordionItem
                 key={i}
                 value={String(i)}
-                className="rounded-xl border border-muted-foreground/15 px-5 overflow-hidden bg-white"
+                className="group rounded-xl border border-muted-foreground/15 px-5 overflow-hidden bg-white transition-all data-[state=open]:bg-gradient-to-br data-[state=open]:from-emerald-500 data-[state=open]:to-emerald-700 data-[state=open]:border-transparent data-[state=open]:shadow-lg data-[state=open]:shadow-emerald-200"
               >
-                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm">
+                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm group-data-[state=open]:text-white [&[data-state=open]>svg]:text-white">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground pb-4 leading-relaxed">
+                <AccordionContent className="text-sm leading-relaxed text-muted-foreground group-data-[state=open]:text-emerald-50">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -702,13 +702,13 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6">
-        <div className="mx-auto max-w-2xl rounded-3xl bg-white px-10 py-12 text-center space-y-5 shadow-xl shadow-emerald-100 [background-clip:padding-box] [border:2px_solid_transparent] [background-image:linear-gradient(white,white),linear-gradient(to_bottom_right,theme(colors.emerald.400),theme(colors.emerald.700))] [background-origin:border-box]">
-          <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
-          <p className="text-slate-500 text-sm">{t("onboarding.finalSub")}</p>
+        <div className="mx-auto max-w-2xl rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 px-10 py-12 text-center space-y-5 shadow-xl shadow-emerald-200">
+          <h2 className="text-2xl font-bold md:text-3xl text-white">{t("onboarding.finalTitle")}</h2>
+          <p className="text-emerald-100 text-sm">{t("onboarding.finalSub")}</p>
           <Button
             asChild
-            variant="cta"
             size="cta"
+            className="bg-white text-emerald-800 hover:bg-emerald-50 shadow-sm"
             onClick={() => fireCtaEvent("final", lang, pain)}
           >
             <Link to={signupHref}>{t("onboarding.finalCta1")}</Link>
