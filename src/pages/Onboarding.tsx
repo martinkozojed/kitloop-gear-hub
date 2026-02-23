@@ -428,9 +428,9 @@ export default function Onboarding() {
                   type="button"
                   onClick={() => featuresSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                   className={cn(
-                    "self-start rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground",
-                    "transition-all hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-800",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
+                    "self-start px-4 py-2.5 text-sm font-semibold text-muted-foreground",
+                    "transition-colors hover:text-emerald-700",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 rounded",
                   )}
                 >
                   {t("onboarding.heroCta3")} ↓
