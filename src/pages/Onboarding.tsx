@@ -701,14 +701,14 @@ export default function Onboarding() {
       </Section>
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="border-t border-border">
-        <div className="mx-auto max-w-2xl px-6 py-12 text-center space-y-4">
-          <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
-          <p className="text-slate-500 text-sm">{t("onboarding.finalSub")}</p>
+      <section className="py-14 px-6">
+        <div className="mx-auto max-w-2xl rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 px-10 py-12 text-center space-y-5 shadow-xl shadow-emerald-200">
+          <h2 className="text-2xl font-bold md:text-3xl text-white">{t("onboarding.finalTitle")}</h2>
+          <p className="text-emerald-100 text-sm">{t("onboarding.finalSub")}</p>
           <Button
             asChild
-            variant="cta"
             size="cta"
+            className="bg-white text-emerald-800 hover:bg-emerald-50 shadow-sm"
             onClick={() => fireCtaEvent("final", lang, pain)}
           >
             <Link to={signupHref}>{t("onboarding.finalCta1")}</Link>
