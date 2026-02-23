@@ -7,14 +7,16 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/lib/error-utils";
+import { cn } from "@/lib/utils";
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { login } = useAuth();
+  const lang = i18n.language?.startsWith("cs") ? "cs" : "en";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,12 +57,34 @@ const Login = () => {
             <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
-          <Link
-            to="/onboarding"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Back
-          </Link>
+          <div className="flex items-center gap-4">
+            {/* Language toggle — same as onboarding header */}
+            <div className="flex items-center gap-1 text-sm font-medium" role="group" aria-label="Language">
+              {(["en", "cs"] as const).map((l, i) => (
+                <React.Fragment key={l}>
+                  {i > 0 && <span className="text-border select-none">·</span>}
+                  <button
+                    onClick={() => i18n.changeLanguage(l)}
+                    aria-pressed={lang === l}
+                    className={cn(
+                      "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded",
+                      lang === l
+                        ? "text-foreground font-semibold"
+                        : "text-muted-foreground hover:text-emerald-600",
+                    )}
+                  >
+                    {l.toUpperCase()}
+                  </button>
+                </React.Fragment>
+              ))}
+            </div>
+            <Link
+              to="/onboarding"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Back
+            </Link>
+          </div>
         </div>
       </header>
 
