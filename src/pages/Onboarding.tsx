@@ -23,7 +23,7 @@
  *   });
  */
 
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -43,9 +43,6 @@ import {
   CheckCircle2,
   XCircle,
   ArrowRight,
-  Play,
-  CheckSquare,
-  Square,
   ClipboardList,
   Users,
 } from "lucide-react";
@@ -115,11 +112,6 @@ function firePainEvent(pain: Pain, lang: Lang) {
   );
 }
 
-function fireDemoComplete(lang: Lang) {
-  window.dispatchEvent(
-    new CustomEvent("kitloop:onboarding_demo_complete", { detail: { lang } }),
-  );
-}
 
 // ─── Copy ─────────────────────────────────────────────────────────────────────
 
@@ -134,15 +126,7 @@ const copy = {
     heroCta2: "Přihlásit se",
     heroMicro:
       "Zákazníci zatím sami nerezervují — rezervace zakládá staff. Platby/refundy nejsou součást core flow.",
-
-    demoPrompt: "Zákazník je na pultu: chce 2× e-bike na víkend.",
-    demoLabel: "Simulované demo",
-    demoPlayBtn: "Přehrát ukázku",
-    demoItem1: "E-bike Specialized Turbo (rám M)",
-    demoItem2: "E-bike Trek Rail 9.8 (rám L)",
-    demoIssuedBtn: "Vydáno",
-    demoResult: "Hotovo. Takhle rychlý může být výdej, když máte inventář pod kontrolou.",
-    demoResultAria: "Demo dokončeno: výdej úspěšný.",
+    heroVisualAlt: "Náhled rozhraní Kitloop — přehled rezervací a inventáře",
 
     painTitle: "Co vás pálí nejvíc?",
     painSub: "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
@@ -243,15 +227,7 @@ const copy = {
     heroCta2: "Sign in",
     heroMicro:
       "Customers don't self-book yet — reservations are created by staff. Payments/refunds are not part of the core flow.",
-
-    demoPrompt: "Customer at the counter: wants 2× e-bike for the weekend.",
-    demoLabel: "Simulated demo",
-    demoPlayBtn: "Play demo",
-    demoItem1: "E-bike Specialized Turbo (frame M)",
-    demoItem2: "E-bike Trek Rail 9.8 (frame L)",
-    demoIssuedBtn: "Issued",
-    demoResult: "Done. That's how fast issue can be when your inventory is under control.",
-    demoResultAria: "Demo complete: issue successful.",
+    heroVisualAlt: "Kitloop interface preview — reservations and inventory overview",
 
     painTitle: "What's your biggest pain?",
     painSub: "Pick what fits most — we'll show you what Kitloop does about it.",
@@ -335,134 +311,6 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
 
-// ─── Sleep helper ─────────────────────────────────────────────────────────────
-
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-// ─── Micro-demo ───────────────────────────────────────────────────────────────
-// Pure state machine — no useAnimate, no ID selectors.
-// reduced-motion: initialized to "done" synchronously; useEffect guards null case.
-
-type DemoPhase = "idle" | "playing" | "done";
-
-function MicroDemo({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const shouldReduce = useReducedMotion();
-
-  // Synchronous init — useReducedMotion() is non-null in CSR (null only in SSR).
-  const [phase, setPhase] = useState<DemoPhase>(shouldReduce ? "done" : "idle");
-  const [check1, setCheck1] = useState(!!shouldReduce);
-  const [check2, setCheck2] = useState(!!shouldReduce);
-  const resultRef = useRef<HTMLParagraphElement>(null);
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => { isMounted.current = false; };
-  }, []);
-
-  const playDemo = useCallback(async () => {
-    if (phase !== "idle") return;
-    setPhase("playing");
-
-    // Animate checkmarks sequentially (skipped entirely if reduced motion).
-    if (!shouldReduce) {
-      await sleep(350);
-      if (!isMounted.current) return;
-      setCheck1(true);
-      await sleep(280);
-      if (!isMounted.current) return;
-      setCheck2(true);
-      await sleep(200);
-      if (!isMounted.current) return;
-    } else {
-      setCheck1(true);
-      setCheck2(true);
-    }
-
-    setPhase("done");
-    fireDemoComplete(lang);
-
-    // Move focus to result text so screen readers announce it.
-    requestAnimationFrame(() => resultRef.current?.focus());
-  }, [phase, shouldReduce, lang]);
-
-  const items = [
-    { id: "item-1", label: t.demoItem1, checked: check1 },
-    { id: "item-2", label: t.demoItem2, checked: check2 },
-  ];
-
-  return (
-    <div className="relative">
-      <p className="text-xs text-slate-400 mb-3 italic">{t.demoPrompt}</p>
-      <Card className="border border-emerald-200/80 shadow-xl bg-white">
-        <CardContent className="p-5 space-y-4">
-          {/* Items */}
-          <div className="space-y-2" role="list">
-            {items.map(({ id, label, checked }) => (
-              <div
-                key={id}
-                role="listitem"
-                className="flex items-center gap-3 rounded-lg border border-slate-100 px-3 py-2.5 transition-colors duration-300"
-                style={{ background: checked ? "rgb(240 253 244)" : undefined }}
-              >
-                <span className="shrink-0 transition-all duration-300">
-                  {checked ? (
-                    <CheckSquare className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                  ) : (
-                    <Square className="h-4 w-4 text-slate-300" aria-hidden="true" />
-                  )}
-                </span>
-                <span className="text-sm">{label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA button — changes state but never unmounts (prevents focus loss) */}
-          <Button
-            variant={phase === "done" ? "success" : "cta"}
-            size="sm"
-            className="w-full"
-            onClick={playDemo}
-            disabled={phase === "playing" || phase === "done"}
-            aria-disabled={phase === "playing" || phase === "done"}
-            type="button"
-          >
-            {phase === "done" ? (
-              <>
-                <CheckCircle2 className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
-                {t.demoIssuedBtn}
-              </>
-            ) : (
-              <>
-                <Play className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
-                {t.demoPlayBtn}
-              </>
-            )}
-          </Button>
-
-          {/* Result — aria-live announces to screen readers without focus move */}
-          <p
-            ref={resultRef}
-            role="status"
-            aria-live="polite"
-            aria-label={phase === "done" ? t.demoResultAria : undefined}
-            tabIndex={-1}
-            className={cn(
-              "text-sm font-medium text-emerald-700 text-center outline-none",
-              "transition-opacity duration-300",
-              phase === "done" ? "opacity-100" : "opacity-0 pointer-events-none select-none",
-            )}
-          >
-            {/* Always rendered to avoid CLS; hidden via opacity */}
-            {t.demoResult}
-          </p>
-        </CardContent>
-      </Card>
-      <p className="mt-2 text-[10px] text-slate-400/70 text-center">{t.demoLabel}</p>
-    </div>
-  );
-}
-
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 
 function Section({
@@ -508,6 +356,35 @@ function GlowLayer() {
         className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-400/15 blur-3xl"
         animate={{ x: [0, -25, 0], y: [0, 30, 0] }}
         transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+      />
+    </div>
+  );
+}
+
+// ─── Hero visual — screenshot frame ──────────────────────────────────────────
+
+function HeroVisual({ alt }: { alt: string }) {
+  return (
+    <div className="rounded-xl overflow-hidden border border-slate-200/70 shadow-2xl shadow-slate-900/[0.08]">
+      {/* Browser chrome strip */}
+      <div className="bg-slate-50 px-4 py-2.5 flex items-center gap-3 border-b border-slate-200/60">
+        <div className="flex gap-1.5" aria-hidden="true">
+          <div className="w-2.5 h-2.5 rounded-full bg-slate-300/80" />
+          <div className="w-2.5 h-2.5 rounded-full bg-slate-300/80" />
+          <div className="w-2.5 h-2.5 rounded-full bg-slate-300/80" />
+        </div>
+        <div className="flex-1 bg-white rounded px-3 py-0.5 text-xs text-slate-400 border border-slate-200/60 truncate" aria-hidden="true">
+          app.kitloop.cz
+        </div>
+      </div>
+      <img
+        src="/hero-dashboard.png"
+        alt={alt}
+        className="w-full block"
+        width={1512}
+        height={861}
+        loading="eager"
+        decoding="async"
       />
     </div>
   );
@@ -685,14 +562,14 @@ export default function Onboarding() {
               </p>
             </motion.div>
 
-            {/* Right — Micro-demo */}
+            {/* Right — UI screenshot */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
               className="lg:pl-8"
             >
-              <MicroDemo t={t} lang={lang} />
+              <HeroVisual alt={t.heroVisualAlt} />
             </motion.div>
           </div>
         </div>
