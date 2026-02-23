@@ -28,7 +28,6 @@ import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
   AccordionContent,
@@ -205,7 +204,7 @@ const copy = {
     pilotSteps: [
       { num: "01", title: "Požádejte o přístup", desc: "Krátká žádost — typ půjčovny, kontakt, pár vět o provozu." },
       { num: "02", title: "Ruční schválení + call", desc: "Ověříme fit s MVP a domluvíme onboarding." },
-      { num: "03", title: "Import inventáře + spuštění", desc: "Osobní onboarding. Obvykle zvládneme po jednom sezení." },
+      { num: "03", title: "Import inventáře + spuštění", desc: "Osobní onboarding. Projdeme vše krok za krokem." },
     ],
     pilotBoxTitle: "Co budeme chtít od vás",
     pilotBoxItems: [
@@ -220,7 +219,7 @@ const copy = {
       { q: "Umí to online rezervace pro zákazníky?", a: "Ne. MVP je provider-only — zákazníci zatím sami nerezervují, rezervace zakládá staff. Po pilotu zvažujeme \"Request Link\", přes který by zákazník mohl poslat poptávku." },
       { q: "Co znamená ruční schválení?", a: "Hlídáme kapacitu onboardingu a chceme znát provoz, se kterým pracujeme. Není to byrokracie — je to zárukou, že každé spuštění dopadne dobře." },
       { q: "Jak dostanu data z Excelu do systému?", a: "Kitloop podporuje import inventáře z CSV. Při onboardingu vám s převodem pomůžeme." },
-      { q: "Jak dlouho trvá začít?", a: "Záleží na velikosti inventáře. Obvykle zvládneme spuštění po jednom onboardingovém sezení." },
+      { q: "Jak dlouho trvá začít?", a: "Záleží na rozsahu inventáře. Provedeme vás krok za krokem — importujeme data, projdeme workflow a zajistíme, že tým je připravený." },
       { q: "Platby a kauce?", a: "Evidence depozitu a poznámky jsou součástí procesu výdeje. Platební transakce (online platby, refundy) nejsou součástí core flow v aktuálním MVP." },
     ],
 
@@ -299,7 +298,7 @@ const copy = {
     pilotSteps: [
       { num: "01", title: "Request access", desc: "Short application — type of shop, contact, a few words about your operation." },
       { num: "02", title: "Manual approval + call", desc: "We verify the fit with the MVP and schedule onboarding." },
-      { num: "03", title: "Import inventory + launch", desc: "Personal onboarding. Usually done after one session." },
+      { num: "03", title: "Import inventory + launch", desc: "Personal onboarding. We'll guide you through it step by step." },
     ],
     pilotBoxTitle: "What we'll need from you",
     pilotBoxItems: [
@@ -314,7 +313,7 @@ const copy = {
       { q: "Does it support online reservations for customers?", a: "No. The MVP is provider-only — customers don't self-book yet, reservations are created by staff. After the pilot we're considering a \"Request Link\" so customers can submit a request." },
       { q: "What does manual approval mean?", a: "We manage onboarding capacity and want to know the operation we're working with. It's not bureaucracy — it's our guarantee that every launch goes well." },
       { q: "How do I get my Excel data into the system?", a: "Kitloop supports CSV import for inventory. We'll help you with the conversion during onboarding." },
-      { q: "How long does it take to get started?", a: "Depends on inventory size. Usually we can launch after one onboarding session." },
+      { q: "How long does it take to get started?", a: "Depends on the size of your inventory. We'll guide you through it step by step — importing data, reviewing the workflow, and making sure your team is ready." },
       { q: "Payments and deposits?", a: "Deposit tracking and notes are part of the issue flow. Payment transactions (online payments, refunds) are not part of the core MVP flow." },
     ],
 
@@ -580,33 +579,56 @@ export default function Onboarding() {
         {t.painSkip}
       </a>
 
-      {/* ── Lang toggle ──────────────────────────────────────────────────────── */}
-      <div className="fixed top-4 right-4 z-50 flex gap-1">
-        {(["cs", "en"] as Lang[]).map((l) => (
-          <button
-            key={l}
-            onClick={() => setLang(l)}
-            aria-pressed={lang === l}
-            className={cn(
-              "px-3 py-1 text-sm rounded border transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
-              lang === l
-                ? "bg-foreground text-background border-foreground"
-                : "bg-transparent text-muted-foreground border-border hover:border-foreground",
-            )}
-          >
-            {l.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      {/* ── Standalone header ────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
+        <div className="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between w-full">
+          {/* Logo */}
+          <Link to="/" className="text-xl font-bold flex items-center shrink-0">
+            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
+            <span className="text-foreground tracking-wide">loop</span>
+          </Link>
+
+          {/* Right: CS/EN toggle + sign in */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1" role="group" aria-label={lang === "cs" ? "Jazyk" : "Language"}>
+              {(["cs", "en"] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  aria-pressed={lang === l}
+                  className={cn(
+                    "px-2.5 py-1 text-xs rounded-md border transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1",
+                    lang === l
+                      ? "bg-slate-900 text-white border-slate-900"
+                      : "bg-transparent text-muted-foreground border-border hover:border-slate-400 hover:text-foreground",
+                  )}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            <Link
+              to={loginHref}
+              className={cn(
+                "text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1",
+              )}
+            >
+              {t.heroCta2}
+            </Link>
+          </div>
+        </div>
+      </header>
 
       {/* ── A) Hero + Micro-demo ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800">
         <div
           className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
           aria-hidden="true"
         />
-        <div className="relative container mx-auto px-6 py-20 md:py-28">
+        <div className="relative mx-auto max-w-5xl px-6 py-20 md:py-28">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             {/* Left — copy: opacity stays 1 (LCP-safe), only subtle y lift */}
             <motion.div
@@ -615,14 +637,14 @@ export default function Onboarding() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="space-y-6"
             >
-              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-100">
+              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-200">
                 {t.heroBadge}
               </span>
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-white">
                 {t.heroH1}
               </h1>
-              <p className="text-base font-medium text-emerald-100/80 break-words [overflow-wrap:break-word]">{t.heroH2}</p>
-              <p className="text-emerald-100/70 leading-relaxed">{t.heroSub}</p>
+              <p className="text-base font-medium text-emerald-100 break-words [overflow-wrap:break-word]">{t.heroH2}</p>
+              <p className="text-emerald-200/80 leading-relaxed">{t.heroSub}</p>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center pt-2">
                 <Button
@@ -633,17 +655,23 @@ export default function Onboarding() {
                 >
                   <Link to={signupHref}>{t.heroCta1}</Link>
                 </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white/50"
+
+                {/* Secondary CTA — glass style for dark backgrounds */}
+                <Link
+                  to={loginHref}
+                  className={cn(
+                    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
+                    "text-sm font-semibold rounded-md h-11 px-8",
+                    "bg-white/10 text-white border border-white/20",
+                    "hover:bg-white/15 hover:border-white/35 transition-all",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900",
+                  )}
                 >
-                  <Link to={loginHref}>{t.heroCta2}</Link>
-                </Button>
+                  {t.heroCta2}
+                </Link>
               </div>
 
-              <p className="text-xs text-emerald-200/55 leading-relaxed max-w-sm">
+              <p className="text-xs text-emerald-300/60 leading-relaxed max-w-sm">
                 {t.heroMicro}
               </p>
             </motion.div>
@@ -662,106 +690,106 @@ export default function Onboarding() {
       </section>
 
       {/* ── B) Pain selector ─────────────────────────────────────────────────── */}
-      <Section className="container mx-auto max-w-5xl px-6 py-16">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold md:text-3xl">{t.painTitle}</h2>
-          <p className="mt-2 text-muted-foreground">{t.painSub}</p>
-        </div>
+      <Section className="bg-white py-14">
+          <div className="mx-auto max-w-5xl px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold md:text-3xl">{t.painTitle}</h2>
+            <p className="mt-2 text-muted-foreground">{t.painSub}</p>
+          </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" role="group" aria-label={t.painTitle}>
-          {t.pains.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              type="button"
-              aria-pressed={pain === key}
-              onClick={() => handlePainClick(key)}
-              className={cn(
-                "group rounded-2xl border-2 p-6 text-left transition-all",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
-                pain === key
-                  ? "border-emerald-500 bg-emerald-50 shadow-md"
-                  : "border-border bg-card hover:border-emerald-300 hover:bg-emerald-50/50",
-              )}
-            >
-              <div
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" role="group" aria-label={t.painTitle}>
+            {t.pains.map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={pain === key}
+                onClick={() => handlePainClick(key)}
                 className={cn(
-                  "mb-4 flex h-11 w-11 items-center justify-center rounded-full transition-colors",
+                  "group rounded-2xl border-2 p-6 text-left transition-all",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
                   pain === key
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-700",
+                    ? "border-emerald-500 bg-emerald-50 shadow-md"
+                    : "border-border bg-card hover:border-emerald-300 hover:bg-emerald-50/50",
                 )}
               >
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <p
-                className={cn(
-                  "font-semibold leading-snug whitespace-pre-line",
-                  pain === key ? "text-emerald-800" : "text-foreground",
-                )}
-              >
-                {label}
-              </p>
-              <p
-                className={cn(
-                  "mt-2 text-xs font-medium flex items-center gap-1 transition-opacity",
-                  pain === key ? "text-emerald-600 opacity-100" : "opacity-0",
-                )}
-                aria-hidden={pain !== key}
-              >
-                <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                {t.showingFeatures}
-              </p>
-            </button>
-          ))}
+                <div
+                  className={cn(
+                    "mb-4 flex h-11 w-11 items-center justify-center rounded-full transition-colors",
+                    pain === key
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-700",
+                  )}
+                >
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p
+                  className={cn(
+                    "font-semibold leading-snug whitespace-pre-line",
+                    pain === key ? "text-emerald-800" : "text-foreground",
+                  )}
+                >
+                  {label}
+                </p>
+                <p
+                  className={cn(
+                    "mt-2 text-xs font-medium flex items-center gap-1 transition-opacity",
+                    pain === key ? "text-emerald-600 opacity-100" : "opacity-0",
+                  )}
+                  aria-hidden={pain !== key}
+                >
+                  <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                  {t.showingFeatures}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
       </Section>
-
-      <Separator />
 
       {/* ── C) Je / Není pro ──────────────────────────────────────────────────── */}
-      <Section className="container mx-auto max-w-5xl px-6 py-16">
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="rounded-2xl border-emerald-200 bg-emerald-50/50 shadow-sm">
-            <CardContent className="p-7 space-y-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
-                <p className="text-lg font-bold text-emerald-800">{t.isTitle}</p>
-              </div>
-              <ul className="space-y-3">
-                {t.isBullets.map((b) => (
-                  <li key={b} className="flex gap-3 text-base text-foreground">
-                    <span className="mt-1 text-emerald-600 shrink-0" aria-hidden="true">✓</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+      <Section className="bg-slate-50/70 py-14">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="rounded-2xl border border-emerald-200 bg-white shadow-sm">
+              <CardContent className="p-7 space-y-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <p className="text-lg font-bold text-emerald-800">{t.isTitle}</p>
+                </div>
+                <ul className="space-y-3">
+                  {t.isBullets.map((b) => (
+                    <li key={b} className="flex gap-3 text-base text-foreground">
+                      <span className="mt-1 text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
 
-          <Card className="rounded-2xl border-slate-200 bg-slate-50/50 shadow-sm">
-            <CardContent className="p-7 space-y-4">
-              <div className="flex items-center gap-2">
-                <XCircle className="h-5 w-5 text-slate-400 shrink-0" aria-hidden="true" />
-                <p className="text-lg font-bold text-slate-600">{t.isntTitle}</p>
-              </div>
-              <ul className="space-y-3">
-                {t.isntBullets.map((b) => (
-                  <li key={b} className="flex gap-3 text-base text-muted-foreground">
-                    <span className="mt-1 shrink-0 text-slate-400" aria-hidden="true">✗</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+            <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <CardContent className="p-7 space-y-4">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-5 w-5 text-slate-400 shrink-0" aria-hidden="true" />
+                  <p className="text-lg font-bold text-slate-600">{t.isntTitle}</p>
+                </div>
+                <ul className="space-y-3">
+                  {t.isntBullets.map((b) => (
+                    <li key={b} className="flex gap-3 text-base text-muted-foreground">
+                      <span className="mt-1 shrink-0 text-slate-400" aria-hidden="true">✗</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </Section>
-
-      <Separator />
 
       {/* ── D) Jak to funguje ─────────────────────────────────────────────────── */}
       <Section className="bg-muted/40 py-16">
-        <div className="container mx-auto max-w-5xl px-6">
+        <div className="mx-auto max-w-5xl px-6">
           <div className="text-center mb-12">
             <h2 className="text-2xl font-bold md:text-3xl">{t.flowTitle}</h2>
             <p className="mt-2 text-muted-foreground">{t.flowSub}</p>
@@ -806,47 +834,45 @@ export default function Onboarding() {
         </div>
       </Section>
 
-      <Separator />
-
       {/* ── E) Funkce — Bento grid ────────────────────────────────────────────── */}
-      <Section id="features" className="container mx-auto max-w-5xl px-6 py-16">
-        <div ref={featuresSectionRef} className="text-center mb-12">
-          <h2 className="text-2xl font-bold md:text-3xl">{t.featuresTitle}</h2>
-          <p className="mt-2 text-muted-foreground">{t.featuresSub}</p>
-        </div>
+      <Section id="features" className="bg-white py-16 scroll-mt-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <div ref={featuresSectionRef} className="text-center mb-12">
+            <h2 className="text-2xl font-bold md:text-3xl">{t.featuresTitle}</h2>
+            <p className="mt-2 text-muted-foreground">{t.featuresSub}</p>
+          </div>
 
-        <div className="grid gap-5 md:grid-cols-2 mb-5">
-          {t.features
-            .filter((f) => f.large)
-            .map((f) => (
-              <FeatureCard
-                key={f.key}
-                f={f}
-                highlighted={pain === f.key}
-                cardRef={(el) => { featureRefs.current[f.key] = el; }}
-              />
-            ))}
-        </div>
+          <div className="grid gap-5 md:grid-cols-2 mb-5">
+            {t.features
+              .filter((f) => f.large)
+              .map((f) => (
+                <FeatureCard
+                  key={f.key}
+                  f={f}
+                  highlighted={pain === f.key}
+                  cardRef={(el) => { featureRefs.current[f.key] = el; }}
+                />
+              ))}
+          </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
-          {t.features
-            .filter((f) => !f.large)
-            .map((f) => (
-              <FeatureCard
-                key={f.key}
-                f={f}
-                highlighted={pain === f.key}
-                cardRef={(el) => { featureRefs.current[f.key] = el; }}
-              />
-            ))}
+          <div className="grid gap-5 md:grid-cols-3">
+            {t.features
+              .filter((f) => !f.large)
+              .map((f) => (
+                <FeatureCard
+                  key={f.key}
+                  f={f}
+                  highlighted={pain === f.key}
+                  cardRef={(el) => { featureRefs.current[f.key] = el; }}
+                />
+              ))}
+          </div>
         </div>
       </Section>
 
-      <Separator />
-
       {/* ── F) Pilot: Jak začít ──────────────────────────────────────────────── */}
       <Section className="bg-muted/40 py-16">
-        <div className="container mx-auto max-w-5xl px-6">
+        <div className="mx-auto max-w-5xl px-6">
           <div className="text-center mb-12">
             <h2 className="text-2xl font-bold md:text-3xl">{t.pilotTitle}</h2>
             <p className="mt-2 text-muted-foreground">{t.pilotSub}</p>
@@ -896,40 +922,38 @@ export default function Onboarding() {
         </div>
       </Section>
 
-      <Separator />
-
       {/* ── G) FAQ ───────────────────────────────────────────────────────────── */}
-      <Section className="container mx-auto max-w-3xl px-6 py-16">
-        <h2 className="text-2xl font-bold md:text-3xl mb-8">{t.faqTitle}</h2>
-        <Accordion type="single" collapsible className="space-y-3">
-          {t.faqs.map((faq, i) => (
-            <AccordionItem
-              key={i}
-              value={String(i)}
-              className="rounded-2xl border border-muted-foreground/15 px-5 overflow-hidden"
-            >
-              <AccordionTrigger className="text-left font-semibold py-4 hover:no-underline text-base">
-                {faq.q}
-              </AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground pb-5 leading-relaxed">
-                {faq.a}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+      <Section className="bg-white py-14">
+        <div className="mx-auto max-w-3xl px-6">
+          <h2 className="text-2xl font-bold md:text-3xl mb-8">{t.faqTitle}</h2>
+          <Accordion type="single" collapsible className="space-y-3">
+            {t.faqs.map((faq, i) => (
+              <AccordionItem
+                key={i}
+                value={String(i)}
+                className="rounded-2xl border border-muted-foreground/15 px-5 overflow-hidden"
+              >
+                <AccordionTrigger className="text-left font-semibold py-4 hover:no-underline text-base">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground pb-5 leading-relaxed">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
       </Section>
 
-      <Separator />
-
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800">
         <div
           className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
           aria-hidden="true"
         />
-        <div className="relative container mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
-          <h2 className="text-3xl font-bold md:text-4xl">{t.finalTitle}</h2>
-          <p className="text-emerald-100/80 text-lg">{t.finalSub}</p>
+        <div className="relative mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
+          <h2 className="text-3xl font-bold md:text-4xl text-white">{t.finalTitle}</h2>
+          <p className="text-emerald-100 text-lg">{t.finalSub}</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button
               asChild
@@ -939,20 +963,26 @@ export default function Onboarding() {
             >
               <Link to={signupHref}>{t.finalCta1}</Link>
             </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-white/30 text-white hover:bg-white/10 hover:border-white/50"
+
+            {/* Secondary CTA — glass style for dark backgrounds */}
+            <a
+              href="mailto:support@kitloop.cz"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 whitespace-nowrap",
+                "text-sm font-semibold rounded-md h-11 px-8",
+                "bg-white/10 text-white border border-white/20",
+                "hover:bg-white/15 hover:border-white/35 transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900",
+              )}
             >
-              <a href="mailto:support@kitloop.cz">{t.finalCta2}</a>
-            </Button>
+              {t.finalCta2}
+            </a>
           </div>
         </div>
       </section>
 
       {/* ── Footer strip ─────────────────────────────────────────────────────── */}
-      <footer className="container mx-auto max-w-5xl px-6 py-8 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
+      <footer className="mx-auto max-w-5xl px-6 py-8 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
         <span>{t.footerContact}</span>
         <Link
           to={privacyHref}
