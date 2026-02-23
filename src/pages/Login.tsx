@@ -57,20 +57,20 @@ const Login = () => {
             <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
-          <div className="flex items-center gap-4">
-            {/* Language toggle — same as onboarding header */}
-            <div className="flex items-center gap-1 text-sm font-medium" role="group" aria-label="Language">
+          <div className="flex items-center gap-3">
+            {/* Language toggle — subtle, rarely used */}
+            <div className="flex items-center gap-0.5 text-xs" role="group" aria-label="Language">
               {(["en", "cs"] as const).map((l, i) => (
                 <React.Fragment key={l}>
-                  {i > 0 && <span className="text-border select-none">·</span>}
+                  {i > 0 && <span className="text-border/60 select-none px-0.5">·</span>}
                   <button
                     onClick={() => i18n.changeLanguage(l)}
                     aria-pressed={lang === l}
                     className={cn(
-                      "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded",
+                      "transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5",
                       lang === l
-                        ? "text-foreground font-semibold"
-                        : "text-muted-foreground hover:text-emerald-600",
+                        ? "text-muted-foreground font-medium"
+                        : "text-muted-foreground/50 hover:text-muted-foreground",
                     )}
                   >
                     {l.toUpperCase()}
