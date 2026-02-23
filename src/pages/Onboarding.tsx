@@ -393,7 +393,7 @@ function MicroDemo({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
 
   return (
     <div className="relative">
-      <p className="text-xs text-white/60 mb-3 italic">{t.demoPrompt}</p>
+      <p className="text-xs text-slate-400 mb-3 italic">{t.demoPrompt}</p>
       <Card className="border border-emerald-200/80 shadow-xl bg-white">
         <CardContent className="p-5 space-y-4">
           {/* Items */}
@@ -458,7 +458,7 @@ function MicroDemo({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           </p>
         </CardContent>
       </Card>
-      <p className="mt-2 text-[10px] text-white/40 text-center">{t.demoLabel}</p>
+      <p className="mt-2 text-[10px] text-slate-400/70 text-center">{t.demoLabel}</p>
     </div>
   );
 }
@@ -487,6 +487,29 @@ function Section({
     >
       {children}
     </motion.section>
+  );
+}
+
+// ─── Ambient glow layer ───────────────────────────────────────────────────────
+// Two large blurred emerald orbs that drift slowly in the background.
+// Renders nothing when prefers-reduced-motion is active.
+
+function GlowLayer() {
+  const shouldReduce = useReducedMotion();
+  if (shouldReduce) return null;
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <motion.div
+        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-300/20 blur-3xl"
+        animate={{ x: [0, 35, 0], y: [0, -25, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-400/15 blur-3xl"
+        animate={{ x: [0, -25, 0], y: [0, 30, 0] }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+      />
+    </div>
   );
 }
 
@@ -623,11 +646,8 @@ export default function Onboarding() {
       </header>
 
       {/* ── A) Hero + Micro-demo ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800">
-        <div
-          className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
-          aria-hidden="true"
-        />
+      <section className="relative overflow-hidden bg-white">
+        <GlowLayer />
         <div className="relative mx-auto max-w-5xl px-6 py-20 md:py-28">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             {/* Left — copy: opacity stays 1 (LCP-safe), only subtle y lift */}
@@ -637,14 +657,14 @@ export default function Onboarding() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="space-y-6"
             >
-              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-200">
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
                 {t.heroBadge}
               </span>
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-white">
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-foreground">
                 {t.heroH1}
               </h1>
-              <p className="text-base font-medium text-emerald-100 break-words [overflow-wrap:break-word]">{t.heroH2}</p>
-              <p className="text-emerald-200/80 leading-relaxed">{t.heroSub}</p>
+              <p className="text-base font-medium text-slate-700 break-words [overflow-wrap:break-word]">{t.heroH2}</p>
+              <p className="text-slate-500 leading-relaxed">{t.heroSub}</p>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center pt-2">
                 <Button
@@ -655,23 +675,12 @@ export default function Onboarding() {
                 >
                   <Link to={signupHref}>{t.heroCta1}</Link>
                 </Button>
-
-                {/* Secondary CTA — glass style for dark backgrounds */}
-                <Link
-                  to={loginHref}
-                  className={cn(
-                    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-                    "text-sm font-semibold rounded-md h-11 px-8",
-                    "bg-white/10 text-white border border-white/20",
-                    "hover:bg-white/15 hover:border-white/35 transition-all",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900",
-                  )}
-                >
-                  {t.heroCta2}
-                </Link>
+                <Button asChild variant="outline" size="lg">
+                  <Link to={loginHref}>{t.heroCta2}</Link>
+                </Button>
               </div>
 
-              <p className="text-xs text-emerald-300/60 leading-relaxed max-w-sm">
+              <p className="text-xs text-muted-foreground/60 leading-relaxed max-w-sm">
                 {t.heroMicro}
               </p>
             </motion.div>
@@ -946,14 +955,11 @@ export default function Onboarding() {
       </Section>
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800">
-        <div
-          className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
-          aria-hidden="true"
-        />
+      <section className="relative overflow-hidden bg-emerald-50/70">
+        <GlowLayer />
         <div className="relative mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
-          <h2 className="text-3xl font-bold md:text-4xl text-white">{t.finalTitle}</h2>
-          <p className="text-emerald-100 text-lg">{t.finalSub}</p>
+          <h2 className="text-3xl font-bold md:text-4xl text-slate-900">{t.finalTitle}</h2>
+          <p className="text-slate-600 text-lg">{t.finalSub}</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button
               asChild
@@ -963,20 +969,9 @@ export default function Onboarding() {
             >
               <Link to={signupHref}>{t.finalCta1}</Link>
             </Button>
-
-            {/* Secondary CTA — glass style for dark backgrounds */}
-            <a
-              href="mailto:support@kitloop.cz"
-              className={cn(
-                "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-                "text-sm font-semibold rounded-md h-11 px-8",
-                "bg-white/10 text-white border border-white/20",
-                "hover:bg-white/15 hover:border-white/35 transition-all",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900",
-              )}
-            >
-              {t.finalCta2}
-            </a>
+            <Button asChild variant="outline" size="lg">
+              <a href="mailto:support@kitloop.cz">{t.finalCta2}</a>
+            </Button>
           </div>
         </div>
       </section>
