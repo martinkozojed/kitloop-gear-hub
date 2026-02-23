@@ -126,7 +126,13 @@ const copy = {
     heroCta2: "Přihlásit se",
     heroMicro:
       "Zákazníci zatím sami nerezervují — rezervace zakládá staff. Platby/refundy nejsou součást core flow.",
-    heroVisualAlt: "Náhled rozhraní Kitloop — přehled rezervací a inventáře",
+    demoCardTitle: "Přehled dnešního dne",
+    demoCardMock: "Demo data",
+    demoKpi1: "aktivních výpůjček",
+    demoKpi2: "výdejů dnes",
+    demoTypePickup: "výdej",
+    demoTypeReturn: "vratka",
+    demoCardCta: "Vyzkoušet interaktivní demo",
 
     painTitle: "Co vás pálí nejvíc?",
     painSub: "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
@@ -227,7 +233,13 @@ const copy = {
     heroCta2: "Sign in",
     heroMicro:
       "Customers don't self-book yet — reservations are created by staff. Payments/refunds are not part of the core flow.",
-    heroVisualAlt: "Kitloop interface preview — reservations and inventory overview",
+    demoCardTitle: "Today's overview",
+    demoCardMock: "Demo data",
+    demoKpi1: "active rentals",
+    demoKpi2: "issues today",
+    demoTypePickup: "pickup",
+    demoTypeReturn: "return",
+    demoCardCta: "Try interactive demo",
 
     painTitle: "What's your biggest pain?",
     painSub: "Pick what fits most — we'll show you what Kitloop does about it.",
@@ -361,31 +373,86 @@ function GlowLayer() {
   );
 }
 
-// ─── Hero visual — screenshot frame ──────────────────────────────────────────
+// ─── Hero demo card — teaser pro DemoDashboard ───────────────────────────────
+// Zobrazuje živý náhled dnešního přehledu s mock daty.
+// Odkaz /demo/dashboard vyžaduje VITE_ENABLE_DEMO=true na produkci.
 
-function HeroVisual({ alt }: { alt: string }) {
+function HeroDemoCard({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const agendaItems = lang === "cs"
+    ? [
+        { time: "09:30", name: "E-bike Specialized Turbo", type: "pickup" as const },
+        { time: "11:00", name: "Trek Rail 9.8 (rám L)", type: "return" as const },
+        { time: "14:00", name: "Cargo nosič XL", type: "pickup" as const },
+      ]
+    : [
+        { time: "09:30", name: "E-bike Specialized Turbo", type: "pickup" as const },
+        { time: "11:00", name: "Trek Rail 9.8 (frame L)", type: "return" as const },
+        { time: "14:00", name: "Cargo Carrier XL", type: "pickup" as const },
+      ];
+
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-200/70 shadow-2xl shadow-slate-900/[0.08]">
-      {/* Browser chrome strip */}
-      <div className="bg-slate-50 px-4 py-2.5 flex items-center gap-3 border-b border-slate-200/60">
-        <div className="flex gap-1.5" aria-hidden="true">
-          <div className="w-2.5 h-2.5 rounded-full bg-slate-300/80" />
-          <div className="w-2.5 h-2.5 rounded-full bg-slate-300/80" />
-          <div className="w-2.5 h-2.5 rounded-full bg-slate-300/80" />
+    <div className="rounded-xl border border-slate-200/70 shadow-xl shadow-slate-900/[0.08] bg-white overflow-hidden">
+      {/* Header strip */}
+      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2" aria-hidden="true">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
+            {t.demoCardTitle}
+          </span>
         </div>
-        <div className="flex-1 bg-white rounded px-3 py-0.5 text-xs text-slate-400 border border-slate-200/60 truncate" aria-hidden="true">
-          app.kitloop.cz
+        <span className="text-[10px] text-slate-400 italic">{t.demoCardMock}</span>
+      </div>
+
+      {/* KPI strip */}
+      <div className="grid grid-cols-2 divide-x divide-slate-100 border-b border-slate-100">
+        <div className="px-5 py-3">
+          <p className="text-2xl font-bold text-slate-900 leading-none">18</p>
+          <p className="mt-0.5 text-xs text-slate-400">{t.demoKpi1}</p>
+        </div>
+        <div className="px-5 py-3">
+          <p className="text-2xl font-bold text-slate-900 leading-none">6</p>
+          <p className="mt-0.5 text-xs text-slate-400">{t.demoKpi2}</p>
         </div>
       </div>
-      <img
-        src="/hero-dashboard.png"
-        alt={alt}
-        className="w-full block"
-        width={1512}
-        height={861}
-        loading="eager"
-        decoding="async"
-      />
+
+      {/* Agenda rows */}
+      <div className="divide-y divide-slate-50">
+        {agendaItems.map((item, i) => (
+          <div key={i} className="flex items-center gap-3 px-5 py-2.5">
+            <span className="text-xs font-mono text-slate-400 w-10 shrink-0">{item.time}</span>
+            <span className="text-sm text-slate-700 flex-1 truncate">{item.name}</span>
+            <span
+              className={cn(
+                "text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0",
+                item.type === "pickup"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-slate-100 text-slate-500",
+              )}
+            >
+              {item.type === "pickup" ? t.demoTypePickup : t.demoTypeReturn}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="px-5 py-4 bg-slate-50 border-t border-slate-100">
+        <Link
+          to="/demo/dashboard"
+          className={cn(
+            "w-full flex items-center justify-center gap-2",
+            "bg-slate-900 text-white text-sm font-semibold rounded-lg px-4 py-2.5",
+            "hover:bg-slate-800 transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2",
+          )}
+        >
+          {t.demoCardCta}
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
+      </div>
     </div>
   );
 }
@@ -562,14 +629,14 @@ export default function Onboarding() {
               </p>
             </motion.div>
 
-            {/* Right — UI screenshot */}
+            {/* Right — Demo card teaser */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
               className="lg:pl-8"
             >
-              <HeroVisual alt={t.heroVisualAlt} />
+              <HeroDemoCard t={t} lang={lang} />
             </motion.div>
           </div>
         </div>
