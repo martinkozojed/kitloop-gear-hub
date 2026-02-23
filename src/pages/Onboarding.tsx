@@ -539,7 +539,7 @@ export default function Onboarding() {
       {/* ── Standalone header ────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
         <div className="mx-auto max-w-5xl px-6 md:px-10 py-4 flex items-center justify-between w-full">
-          <Link to="/" className="text-2xl font-bold flex items-center shrink-0">
+          <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
             <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>

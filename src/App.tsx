@@ -97,7 +97,7 @@ const AppRoutes = () => {
       >
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Navigate to="/onboarding" replace />} />
             <Route
               path="/demo/dashboard"
               element={
