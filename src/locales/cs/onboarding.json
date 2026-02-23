@@ -1,0 +1,111 @@
+{
+  "heroBadge": "MVP • Pilot • Ruční schválení",
+  "heroH1": "Provozní systém pro půjčovny.",
+  "heroH2": "Inventář → interní rezervace → výdej/vratka → přehled → export/print.",
+  "heroSub": "Pilot pro vybrané půjčovny. Ruční schválení, osobní onboarding. Stavíme to s prvními provozy.",
+  "heroCta1": "Požádat o pilotní přístup",
+  "heroCta2": "Přihlásit se",
+  "heroCta3": "Zobrazit funkce",
+  "heroBoundary1": "Ruční schválení — kapacita onboardingu je omezená.",
+  "heroBoundary2": "Zákazníci zatím nerezervují sami — rezervace zakládá staff.",
+
+  "painTitle": "Co vás pálí nejvíc?",
+  "painSub": "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
+  "painSkip": "Přeskočit na funkce",
+  "pains": [
+    { "key": "inventory", "label": "Ztrácím přehled\no vybavení" },
+    { "key": "counter", "label": "Na pultu je chaos\npři výdeji/vratce" },
+    { "key": "exports", "label": "Excel, exporty\na tisk se hromadí" }
+  ],
+
+  "isTitle": "Je pro",
+  "isntTitle": "Není pro (zatím)",
+  "isBullets": [
+    "Půjčovny, kde rezervace vzniká interně (walk-in / telefon / email)",
+    "Provozy, co chtějí zrychlit výdej/vratku a snížit chyby",
+    "Týmový provoz (role, přístup, evidence)"
+  ],
+  "isntBullets": [
+    "Instant online booking pro zákazníky",
+    "Platby/refundy jako součást core flow",
+    "Hodinové sloty / opening-hours logika / komplexní pricing"
+  ],
+
+  "flowTitle": "Jak to funguje dnes",
+  "flowSub": "Tři kroky, žádná složitost navíc.",
+  "flowSteps": [
+    {
+      "title": "Inventář",
+      "desc": "Evidence všeho, co půjčujete — od kusů po stav.",
+      "bullets": ["Stav každé položky (dostupné / rezervováno / servis)", "Kategorie, varianty, import z CSV"]
+    },
+    {
+      "title": "Interní rezervace",
+      "desc": "Staff zakládá rezervace přímo v systému.",
+      "bullets": ["Termíny, stavy, přiřazení vybavení", "Přehled dne — co se vydává, co se vrací"]
+    },
+    {
+      "title": "Výdej / Vratka + print/export",
+      "desc": "Operace u pultu bez papírů.",
+      "bullets": ["Fotodokumentace, evidence depozitu a poznámek", "Tisk předávacího protokolu, export CSV"]
+    }
+  ],
+
+  "featuresTitle": "Co konkrétně dostanete",
+  "featuresSub": "MVP funkce, které jsou dnes live.",
+  "features": [
+    { "key": "inventory",    "title": "Inventář",           "desc": "Evidence kusů, stavů a kategorií. Import z CSV pro rychlý start.",                       "large": true  },
+    { "key": "reservations", "title": "Interní rezervace",  "desc": "Staff zakládá rezervace, sleduje termíny a stavy. Přehled dne.",                         "large": true  },
+    { "key": "counter",      "title": "Výdej / Vratka",     "desc": "Operace u pultu s fotodokumentací a evidencí depozitu.",                                 "large": false },
+    { "key": "dashboard",    "title": "Provozní přehled",   "desc": "Dnešní výdeje, vratky, pozdní — vše na jednom místě.",                                   "large": false },
+    { "key": "exports",      "title": "Print + Export",     "desc": "Tisk předávacího protokolu. Export dat do CSV.",                                          "large": false }
+  ],
+
+  "pilotTitle": "Jak se do pilotu zapojit",
+  "pilotSub": "Tři kroky. Bez závazku.",
+  "pilotSteps": [
+    { "num": "01", "title": "Požádejte o přístup",         "desc": "Krátká žádost — typ půjčovny, kontakt, pár vět o provozu." },
+    { "num": "02", "title": "Ruční schválení + call",      "desc": "Ověříme fit s MVP a domluvíme onboarding." },
+    { "num": "03", "title": "Import inventáře + spuštění", "desc": "Osobní onboarding. Projdeme vše krok za krokem." }
+  ],
+  "pilotBoxTitle": "Co budeme chtít od vás",
+  "pilotBoxItems": [
+    "Typ půjčovny + přibližný počet položek inventáře",
+    "Jak dnes vznikají rezervace (walk-in, telefon, Excel…)",
+    "Excel/CSV (pokud máte), nebo začneme s pár položkami"
+  ],
+  "pilotCta": "Požádat o pilotní přístup",
+
+  "faqTitle": "Časté dotazy",
+  "faqs": [
+    {
+      "q": "Umí to online rezervace pro zákazníky?",
+      "a": "Ne. MVP je provider-only — zákazníci zatím sami nerezervují, rezervace zakládá staff. Po pilotu zvažujeme \"Request Link\", přes který by zákazník mohl poslat poptávku."
+    },
+    {
+      "q": "Co znamená ruční schválení?",
+      "a": "Hlídáme kapacitu onboardingu a chceme znát provoz, se kterým pracujeme. Není to byrokracie — je to zárukou, že každé spuštění dopadne dobře."
+    },
+    {
+      "q": "Jak dostanu data z Excelu do systému?",
+      "a": "Kitloop podporuje import inventáře z CSV. Při onboardingu vám s převodem pomůžeme."
+    },
+    {
+      "q": "Jak dlouho trvá začít?",
+      "a": "Záleží na rozsahu inventáře. Provedeme vás krok za krokem — importujeme data, projdeme workflow a zajistíme, že tým je připravený."
+    },
+    {
+      "q": "Platby a kauce?",
+      "a": "Evidence depozitu a poznámky jsou součástí procesu výdeje. Platební transakce (online platby, refundy) nejsou součástí core flow v aktuálním MVP."
+    }
+  ],
+
+  "finalTitle": "Chcete být mezi prvními piloty?",
+  "finalSub": "Ruční schválení. Osobní onboarding. Provider-only MVP.",
+  "finalCta1": "Požádat o pilotní přístup",
+  "finalCta2": "Napsat nám",
+
+  "showingFeatures": "Zobrazuji funkce",
+  "footerContact": "Kontakt: support@kitloop.cz",
+  "footerPrivacy": "Ochrana soukromí"
+}
