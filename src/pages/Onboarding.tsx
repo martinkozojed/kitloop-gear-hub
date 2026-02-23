@@ -495,40 +495,52 @@ export default function Onboarding() {
       {/* ── A) Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white">
         <GlowLayer />
-        <div className="relative mx-auto max-w-2xl px-6 py-14 md:py-20 text-center">
-          <motion.div
-            initial={{ opacity: 1, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="space-y-5"
-          >
-            <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
-              {t.heroBadge}
-            </span>
-            <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
-              {t.heroH1}
-            </h1>
-            <p className="text-base font-medium text-slate-700">{t.heroH2}</p>
-            <p className="text-slate-500 leading-relaxed">{t.heroSub}</p>
+        <div className="relative mx-auto max-w-5xl px-6 py-12 md:py-16">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center pt-1">
-              <Button
-                asChild
-                variant="cta"
-                size="cta"
-                onClick={() => fireCtaEvent("hero", lang, pain)}
-              >
-                <Link to={signupHref}>{t.heroCta1}</Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link to={loginHref}>{t.heroCta2}</Link>
-              </Button>
-            </div>
+            {/* Left — nadpis + subtext */}
+            <motion.div
+              initial={{ opacity: 1, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="space-y-4"
+            >
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
+                {t.heroBadge}
+              </span>
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
+                {t.heroH1}
+              </h1>
+              <p className="text-base font-medium text-slate-700">{t.heroH2}</p>
+              <p className="text-slate-500 leading-relaxed">{t.heroSub}</p>
+            </motion.div>
 
-            <p className="text-xs text-muted-foreground/60 leading-relaxed max-w-sm mx-auto">
-              {t.heroMicro}
-            </p>
-          </motion.div>
+            {/* Right — CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.12, ease: "easeOut" }}
+              className="flex flex-col gap-4 lg:pl-8"
+            >
+              <div className="flex flex-col gap-3">
+                <Button
+                  asChild
+                  variant="cta"
+                  size="cta"
+                  onClick={() => fireCtaEvent("hero", lang, pain)}
+                >
+                  <Link to={signupHref}>{t.heroCta1}</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link to={loginHref}>{t.heroCta2}</Link>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                {t.heroMicro}
+              </p>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
