@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 
 const SignUp = () => {
   const [searchParams] = useSearchParams();
-  // Pre-select provider role when arriving from onboarding page.
   const fromOnboarding = searchParams.get('from') === 'onboarding';
 
   const [email, setEmail] = useState('');
@@ -24,8 +23,9 @@ const SignUp = () => {
   const [isRegistering, setIsRegistering] = useState(false);
 
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { signUp } = useAuth();
+  const lang = i18n.language?.startsWith("cs") ? "cs" : "en";
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,9 +46,7 @@ const SignUp = () => {
       await signUp(email, password, role);
       toast.success(t('signup.success') || 'Account created successfully!');
 
-      // Redirect logic
       if (role === 'provider') {
-        // New providers must complete setup
         navigate('/provider/setup');
       } else {
         navigate('/');
@@ -67,35 +65,36 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50/50">
-      {/* Left side - Hero/Branding (Optional, hides on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-kitloop-dark text-white p-12 flex-col justify-between relative overflow-hidden">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 text-2xl font-bold mb-8">
-            <div className="w-8 h-8 bg-kitloop-primary rounded-lg flex items-center justify-center">
-              K
-            </div>
-            Kitloop
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+
+      {/* Header — same as Login */}
+      <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
+            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
+            <span className="text-foreground tracking-wide">loop</span>
+          </Link>
+          <div className="flex items-center gap-3">
+            {/* Language toggle — single button showing the other language */}
+            <button
+              onClick={() => i18n.changeLanguage(lang === "en" ? "cs" : "en")}
+              aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
+            >
+              {lang === "en" ? "CS" : "EN"}
+            </button>
+            <Link
+              to="/onboarding"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Back
+            </Link>
           </div>
-          <h1 className="text-4xl font-bold leading-tight mb-4">
-            {t('signup.hero.title')}
-          </h1>
-          <p className="text-gray-400 text-lg max-w-md">
-            {t('signup.hero.description')}
-          </p>
         </div>
+      </header>
 
-        {/* Abstract shapes/bg */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-kitloop-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-
-        <div className="relative z-10 text-sm text-gray-500">
-          {t('signup.hero.copyright', { year: new Date().getFullYear() })}
-        </div>
-      </div>
-
-      {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+      {/* Centered card */}
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
         <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
           <CardHeader className="text-center space-y-1 pb-6">
             {role === 'provider' && (
@@ -109,28 +108,27 @@ const SignUp = () => {
               </div>
             )}
             <CardTitle className="text-2xl font-bold tracking-tight">{t('signup.title')}</CardTitle>
-            <CardDescription>
-              {t('signup.description')}
-            </CardDescription>
+            <CardDescription>{t('signup.description')}</CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSignUp} className="space-y-4">
-              {/* Account Type Selector */}
+              {/* Account type selector */}
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div
                   onClick={() => setRole('customer')}
                   className={cn(
-                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-gray-50",
+                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-slate-50",
                     role === 'customer'
-                      ? "border-kitloop-primary bg-green-50/50"
-                      : "border-gray-200"
+                      ? "border-emerald-500 bg-emerald-50/50"
+                      : "border-slate-200"
                   )}
                 >
-                  <User className={cn("w-5 h-5", role === 'customer' ? "text-kitloop-primary" : "text-gray-500")} />
-                  <span className={cn("text-xs font-medium", role === 'customer' ? "text-kitloop-primary" : "text-gray-600")}>
+                  <User className={cn("w-5 h-5", role === 'customer' ? "text-emerald-600" : "text-slate-400")} />
+                  <span className={cn("text-xs font-medium", role === 'customer' ? "text-emerald-700" : "text-slate-500")}>
                     {t('signup.account_type.customer')}
                   </span>
-                  <span className="text-[10px] text-center leading-tight text-gray-400">
+                  <span className="text-[10px] text-center leading-tight text-slate-400">
                     Not used in MVP
                   </span>
                 </div>
@@ -138,14 +136,14 @@ const SignUp = () => {
                 <div
                   onClick={() => setRole('provider')}
                   className={cn(
-                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-gray-50",
+                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-slate-50",
                     role === 'provider'
-                      ? "border-kitloop-primary bg-green-50/50"
-                      : "border-gray-200"
+                      ? "border-emerald-500 bg-emerald-50/50"
+                      : "border-slate-200"
                   )}
                 >
-                  <Warehouse className={cn("w-5 h-5", role === 'provider' ? "text-kitloop-primary" : "text-gray-500")} />
-                  <span className={cn("text-xs font-medium", role === 'provider' ? "text-kitloop-primary" : "text-gray-600")}>
+                  <Warehouse className={cn("w-5 h-5", role === 'provider' ? "text-emerald-600" : "text-slate-400")} />
+                  <span className={cn("text-xs font-medium", role === 'provider' ? "text-emerald-700" : "text-slate-500")}>
                     {t('signup.account_type.provider')}
                   </span>
                 </div>
@@ -180,7 +178,7 @@ const SignUp = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -207,19 +205,24 @@ const SignUp = () => {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4 pt-2">
-            <div className="text-center text-sm text-gray-500">
+
+          <CardFooter className="flex flex-col space-y-3 pt-2">
+            <div className="text-center text-sm text-muted-foreground">
               {t('signup.have_account')}{' '}
-              <Link to="/login" className="text-kitloop-primary hover:underline font-medium">
+              <Link to="/login" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
                 {t('signup.sign_in')}
               </Link>
             </div>
-            <div className="text-[10px] text-center text-gray-400 px-8">
-              By clicking continue, you agree to our Terms of Service and Privacy Policy.
+            <div className="text-[10px] text-center text-slate-400 px-8">
+              By clicking continue, you agree to our{' '}
+              <Link to="/terms" className="underline hover:text-slate-600 transition-colors">Terms of Service</Link>
+              {' '}and{' '}
+              <Link to="/privacy" className="underline hover:text-slate-600 transition-colors">Privacy Policy</Link>.
             </div>
           </CardFooter>
         </Card>
-      </div>
+      </main>
+
     </div>
   );
 };

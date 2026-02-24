@@ -9,16 +9,28 @@ import { toast } from "sonner";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck, Link2, Copy } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
 import { logger } from '@/lib/logger';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useTranslation } from 'react-i18next';
 
 const ProviderSettings = () => {
-  const { provider, profile, isAdmin } = useAuth();
+  const { provider, profile, isAdmin, refreshProfile } = useAuth();
   const { t } = useTranslation();
+  const [requestLinkLoading, setRequestLinkLoading] = useState(false);
+  const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false);
+  /** Token shown only once after generate/regenerate; never read from DB. */
+  const [lastGeneratedToken, setLastGeneratedToken] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     rental_name: '',
@@ -557,6 +569,140 @@ const ProviderSettings = () => {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Link2 className="h-5 w-5" />
+                  {t('provider.requestLink.sectionTitle')}
+                </CardTitle>
+                <CardDescription>{t('provider.requestLink.sectionDesc')}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(provider?.request_link_created_at || lastGeneratedToken) ? (
+                  <>
+                    {lastGeneratedToken ? (
+                      <div className="space-y-2">
+                        <p className="text-sm text-amber-600 dark:text-amber-400">{t('provider.requestLink.showOnce')}</p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Input
+                            readOnly
+                            value={`${typeof window !== 'undefined' ? window.location.origin : ''}/request/${lastGeneratedToken}`}
+                            className="font-mono text-sm"
+                          />
+                          <Button
+                            variant="outline"
+                            size="default"
+                            onClick={async () => {
+                              const url = `${window.location.origin}/request/${lastGeneratedToken}`;
+                              try {
+                                await navigator.clipboard.writeText(url);
+                                toast.success(t('provider.requestLink.copied'));
+                              } catch {
+                                toast.error('Copy failed');
+                              }
+                            }}
+                          >
+                            <Copy className="h-4 w-4 mr-2" />
+                            {t('provider.requestLink.copyLink')}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {t('provider.requestLink.linkActive')}
+                      </p>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setRegenerateDialogOpen(true)}
+                    >
+                      {t('provider.requestLink.regenerateLink')}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="default"
+                    disabled={requestLinkLoading || !provider?.id}
+                    onClick={async () => {
+                      if (!provider?.id) return;
+                      setRequestLinkLoading(true);
+                      try {
+                        const { data, error } = await supabase.rpc('generate_or_regenerate_request_link_token', {
+                          p_provider_id: provider.id,
+                        });
+                        if (error) throw error;
+                        await refreshProfile();
+                        if (typeof data === 'string') {
+                          setLastGeneratedToken(data);
+                          const url = `${window.location.origin}/request/${data}`;
+                          try {
+                            await navigator.clipboard.writeText(url);
+                          } catch { /* ignore */ }
+                          toast.success(t('provider.requestLink.copied'));
+                        }
+                      } catch (e) {
+                        logger.error('Generate request link failed', e);
+                        toast.error(getErrorMessage(e) || 'Failed to generate link');
+                      } finally {
+                        setRequestLinkLoading(false);
+                      }
+                    }}
+                  >
+                    {requestLinkLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                    {t('provider.requestLink.generateLink')}
+                  </Button>
+                )}
+                {!provider?.request_link_created_at && !lastGeneratedToken && !requestLinkLoading && (
+                  <p className="text-sm text-muted-foreground">{t('provider.requestLink.noLink')}</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {regenerateDialogOpen && (
+              <AlertDialog open={regenerateDialogOpen} onOpenChange={setRegenerateDialogOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t('provider.requestLink.regenerateLink')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('provider.requestLink.regenerateConfirm')}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <Button variant="outline" onClick={() => setRegenerateDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={async () => {
+                        if (!provider?.id) return;
+                        setRegenerateDialogOpen(false);
+                        setRequestLinkLoading(true);
+                        try {
+                          const { data, error } = await supabase.rpc('generate_or_regenerate_request_link_token', {
+                            p_provider_id: provider.id,
+                          });
+                          if (error) throw error;
+                          await refreshProfile();
+                          if (typeof data === 'string') {
+                            setLastGeneratedToken(data);
+                            try {
+                              await navigator.clipboard.writeText(`${window.location.origin}/request/${data}`);
+                            } catch { /* ignore */ }
+                            toast.success(t('provider.requestLink.copied'));
+                          }
+                        } catch (e) {
+                          toast.error(getErrorMessage(e) || 'Failed');
+                        } finally {
+                          setRequestLinkLoading(false);
+                        }
+                      }}
+                    >
+                      Regenerate
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         )}
       </div>

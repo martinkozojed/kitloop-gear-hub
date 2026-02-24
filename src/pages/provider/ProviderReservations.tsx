@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -19,13 +20,15 @@ import { exportReservationsCsv } from '@/lib/csv-export';
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { getErrorMessage } from "@/lib/error-utils";
 import { formatDateRange, formatPrice } from "@/lib/availability";
-import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle, ArrowRightLeft, LayoutGrid, List, Download } from "lucide-react";
+import { Plus, Search, Calendar, Loader2, Filter, ChevronDown, ChevronUp, Phone, Mail, Edit, CheckCircle, XCircle, AlertCircle, ArrowRightLeft, LayoutGrid, List, Download, Link2 } from "lucide-react";
 import ReservationCalendar from "@/components/reservations/ReservationCalendar";
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { track } from '@/lib/telemetry';
 import { logEvent } from '@/lib/app-events';
 
@@ -56,17 +59,32 @@ interface Reservation {
   } | null;
 }
 
+interface ReservationRequestRow {
+  id: string;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  requested_start_date: string;
+  requested_end_date: string;
+  requested_gear_text: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
 const ProviderReservations = () => {
   const { provider } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [filteredReservations, setFilteredReservations] = useState<Reservation[]>([]);
+  const [requests, setRequests] = useState<ReservationRequestRow[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
+  const [rejectRequestId, setRejectRequestId] = useState<string | null>(null);
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -146,6 +164,52 @@ const ProviderReservations = () => {
 
     fetchReservations();
   }, [provider?.id, t]);
+
+  // Fetch reservation_requests (pending)
+  useEffect(() => {
+    const fetchRequests = async () => {
+      if (!provider?.id) return;
+      setLoadingRequests(true);
+      try {
+        const { data, error } = await supabase
+          .from('reservation_requests')
+          .select('id, customer_name, customer_email, customer_phone, requested_start_date, requested_end_date, requested_gear_text, notes, created_at')
+          .eq('provider_id', provider.id)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        setRequests((data as ReservationRequestRow[]) ?? []);
+      } catch (e) {
+        console.error('Error fetching requests:', e);
+        toast.error(t('provider.reservations.toasts.fetchError'));
+      } finally {
+        setLoadingRequests(false);
+      }
+    };
+    fetchRequests();
+  }, [provider?.id, t]);
+
+  const handleRejectRequest = async (requestId: string) => {
+    setRejectRequestId(null);
+    try {
+      const { data, error } = await supabase
+        .from('reservation_requests')
+        .update({ status: 'rejected' })
+        .eq('id', requestId)
+        .eq('status', 'pending')
+        .select('id');
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        toast.info(t('provider.requestLink.alreadyProcessed'));
+        setRequests(prev => prev.filter(r => r.id !== requestId));
+        return;
+      }
+      setRequests(prev => prev.filter(r => r.id !== requestId));
+      toast.success(t('provider.requestLink.rejectedToast'));
+    } catch (e) {
+      toast.error(getErrorMessage(e) || 'Failed');
+    }
+  };
 
   // Filter reservations
   useEffect(() => {
@@ -294,13 +358,14 @@ const ProviderReservations = () => {
         />
 
         <Tabs defaultValue="list" className="w-full">
-          <div className="flex items-center justify-between mb-4">
-            <TabsList>
-              <TabsTrigger value="list"><List className="w-4 h-4 mr-2" /> {t('provider.reservations.tabs.list')}</TabsTrigger>
-              <TabsTrigger value="calendar"><LayoutGrid className="w-4 h-4 mr-2" /> {t('provider.reservations.tabs.calendar')}</TabsTrigger>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <TabsList className="w-full sm:w-auto flex overflow-x-auto">
+              <TabsTrigger value="list" className="flex-1 sm:flex-none"><List className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{t('provider.reservations.tabs.list')}</span></TabsTrigger>
+              <TabsTrigger value="calendar" className="flex-1 sm:flex-none"><LayoutGrid className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{t('provider.reservations.tabs.calendar')}</span></TabsTrigger>
+              <TabsTrigger value="requests" className="flex-1 sm:flex-none"><Link2 className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{t('provider.requestLink.requestsTab')}</span></TabsTrigger>
             </TabsList>
 
-            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
+            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="w-full sm:w-auto min-h-10">
               <Filter className="w-4 h-4 mr-2" /> {t('provider.reservations.filters.toggle')}
             </Button>
           </div>
@@ -340,22 +405,22 @@ const ProviderReservations = () => {
                 }}
               />
             ) : (
-              <div className="rounded-md border bg-card">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-muted/50 border-b">
-                    <tr>
-                      <th className="p-4 font-medium">{t('provider.reservations.table.customer')}</th>
-                      <th className="p-4 font-medium">{t('provider.reservations.table.item')}</th>
-                      <th className="p-4 font-medium">{t('provider.reservations.table.dates')}</th>
-                      <th className="p-4 font-medium">{t('provider.reservations.table.status')}</th>
-                      <th className="p-4 font-medium w-[50px]"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <div className="rounded-md border border-border bg-card">
+                <Table className="min-w-[600px]">
+                  <TableHeader className="border-b">
+                    <TableRow>
+                      <TableHead>{t('provider.reservations.table.customer')}</TableHead>
+                      <TableHead>{t('provider.reservations.table.item')}</TableHead>
+                      <TableHead>{t('provider.reservations.table.dates')}</TableHead>
+                      <TableHead>{t('provider.reservations.table.status')}</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {filteredReservations.map(r => (
                       <React.Fragment key={r.id}>
-                        <tr
-                          className="border-b hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+                        <TableRow
+                          className="hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                           onClick={() => toggleRowExpansion(r.id)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
@@ -369,20 +434,20 @@ const ProviderReservations = () => {
                           aria-label={t('provider.reservations.expandRow', { customer: r.customer_name })}
                           data-testid={`reservation-row-${r.id}`}
                         >
-                          <td className="p-4 font-medium" data-testid={`reservation-customer-${r.id}`}>{r.customer_name}</td>
-                          <td className="p-4">
+                          <TableCell className="font-medium" data-testid={`reservation-customer-${r.id}`}>{r.customer_name}</TableCell>
+                          <TableCell>
                             <div className="font-medium">{getItemName(r)}</div>
                             <div className="text-xs text-muted-foreground">{getItemCategory(r)}</div>
-                          </td>
-                          <td className="p-4">
+                          </TableCell>
+                          <TableCell>
                             {r.start_date && r.end_date && formatDateRange(new Date(r.start_date), new Date(r.end_date))}
-                          </td>
-                          <td className="p-4" data-testid={`reservation-status-${r.id}`}><StatusBadge status={normalizeStatus(r.status)} size="sm" /></td>
-                          <td className="p-4">{expandedRows.has(r.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</td>
-                        </tr>
+                          </TableCell>
+                          <TableCell data-testid={`reservation-status-${r.id}`}><StatusBadge status={normalizeStatus(r.status)} size="sm" /></TableCell>
+                          <TableCell>{expandedRows.has(r.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</TableCell>
+                        </TableRow>
                         {expandedRows.has(r.id) && (
-                          <tr className="bg-muted/20">
-                            <td colSpan={5} className="p-4">
+                          <TableRow className="bg-muted/20 hover:bg-muted/20">
+                            <TableCell colSpan={5} className="p-4">
                               <div className="grid md:grid-cols-2 gap-4">
                                 <div>
                                   <h4 className="font-semibold mb-2">{t('provider.reservations.table.contact')}</h4>
@@ -391,7 +456,7 @@ const ProviderReservations = () => {
                                     <div>{r.customer_phone}</div>
                                   </div>
                                 </div>
-                                <div className="flex gap-2 items-start justify-end">
+                                <div className="flex flex-wrap gap-2 items-start justify-end">
                                   {r.status === 'hold' || r.status === 'pending' ? (
                                     <Button size="sm" onClick={() => handleAction(r.id, 'confirm')} disabled={loadingActions[r.id]}>
                                       {loadingActions[r.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
@@ -415,13 +480,13 @@ const ProviderReservations = () => {
                                   <span className="font-medium text-foreground">{t('provider.reservations.table.note')}: </span> {r.notes}
                                 </div>
                               )}
-                            </td>
-                          </tr>
+                            </TableCell>
+                          </TableRow>
                         )}
                       </React.Fragment>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             )}
           </TabsContent>
@@ -431,6 +496,85 @@ const ProviderReservations = () => {
               <div className="h-[600px] border rounded-lg shadow-sm">
                 <ReservationCalendar providerId={provider.id} />
               </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="requests" className="space-y-4">
+            {loadingRequests ? (
+              <div className="flex items-center justify-center min-h-[200px]">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : requests.length === 0 ? (
+              <EmptyState
+                icon={Link2}
+                title={t('provider.requestLink.empty')}
+                description={t('provider.requestLink.emptyDesc')}
+              />
+            ) : (
+              <div className="rounded-md border border-border bg-card">
+                <Table className="min-w-[600px]">
+                  <TableHeader className="border-b">
+                    <TableRow>
+                      <TableHead>{t('provider.requestLink.customer')}</TableHead>
+                      <TableHead>{t('provider.requestLink.dates')}</TableHead>
+                      <TableHead>{t('provider.requestLink.requestedGear')}</TableHead>
+                      <TableHead>{t('provider.requestLink.receivedAt')}</TableHead>
+                      <TableHead className="w-[180px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {requests.map((req) => (
+                      <TableRow key={req.id}>
+                        <TableCell className="font-medium">
+                          <div>{req.customer_name}</div>
+                          <div className="text-xs text-muted-foreground">{req.customer_email ?? req.customer_phone ?? '—'}</div>
+                        </TableCell>
+                        <TableCell>
+                          {req.requested_start_date} – {req.requested_end_date}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">{req.requested_gear_text || '—'}</TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {req.created_at ? new Date(req.created_at).toLocaleDateString() : '—'}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => navigate(`/provider/reservations/new?fromRequest=${req.id}`, { state: { fromRequest: req } })}
+                            >
+                              {t('provider.requestLink.createReservation')}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setRejectRequestId(req.id)}
+                            >
+                              {t('provider.requestLink.reject')}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+
+            {rejectRequestId && (
+              <AlertDialog open={!!rejectRequestId} onOpenChange={(open) => !open && setRejectRequestId(null)}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t('provider.requestLink.reject')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('provider.requestLink.rejectConfirm')}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <Button variant="outline" onClick={() => setRejectRequestId(null)}>{t('provider.reservations.buttons.cancel', 'Cancel')}</Button>
+                    <Button variant="destructive" onClick={() => rejectRequestId && handleRejectRequest(rejectRequestId)}>
+                      {t('provider.requestLink.reject')}
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </TabsContent>
         </Tabs>

@@ -1,30 +1,18 @@
 /**
  * /onboarding — Kitloop pilot gateway
  *
- * Standalone page (no Navbar/Footer). Language via ?lang=cs|en.
- * Pain context via ?pain=inventory|counter|exports (preserved alongside lang).
+ * Standalone page (no Navbar/Footer). Language via i18next (synced from ?lang=cs|en on load).
+ * Pain context via ?pain=inventory|counter|exports (URL param, preserved on navigation).
  * Primary goal: qualified pilot access request, not self-serve signup.
  *
- * Analytics hook points — wire up to GA4 / Mixpanel / PostHog as needed:
- *
- *   window.addEventListener('kitloop:onboarding_cta_click', (e) => {
- *     const { placement, lang, pain } = e.detail;
- *     ga('event', 'onboarding_cta_click', { placement, lang, pain });
- *   });
- *
- *   window.addEventListener('kitloop:onboarding_pain_select', (e) => {
- *     const { pain, lang } = e.detail;
- *     ga('event', 'onboarding_pain_select', { pain, lang });
- *   });
- *
- *   window.addEventListener('kitloop:onboarding_demo_complete', (e) => {
- *     const { lang } = e.detail;
- *     ga('event', 'onboarding_demo_complete', { lang });
- *   });
+ * Analytics hook points:
+ *   window.addEventListener('kitloop:onboarding_cta_click', (e) => { ... });
+ *   window.addEventListener('kitloop:onboarding_pain_select', (e) => { ... });
  */
 
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,9 +31,6 @@ import {
   CheckCircle2,
   XCircle,
   ArrowRight,
-  Play,
-  CheckSquare,
-  Square,
   ClipboardList,
   Users,
 } from "lucide-react";
@@ -56,26 +41,31 @@ import { cn } from "@/lib/utils";
 type Lang = "cs" | "en";
 type Pain = "inventory" | "counter" | "exports";
 
-// ─── URL param hooks ──────────────────────────────────────────────────────────
-// Both hooks read from the same URLSearchParams and always preserve all params.
+interface PainItem   { key: Pain; label: string; }
+interface FlowStep   { title: string; desc: string; bullets: string[]; }
+interface Feature    { key: string; title: string; desc: string; large: boolean; }
+interface PilotStep  { num: string; title: string; desc: string; }
+interface FAQ        { q: string; a: string; }
 
-function useLang(): [Lang, (l: Lang) => void] {
-  const [params] = useSearchParams();
-  const navigate = useNavigate();
-  const raw = params.get("lang");
-  const lang: Lang = raw === "en" ? "en" : "cs";
+// ─── Static icon maps (icons can't live in JSON) ──────────────────────────────
 
-  const setLang = useCallback(
-    (l: Lang) => {
-      const next = new URLSearchParams(params); // preserves pain, from, etc.
-      next.set("lang", l);
-      navigate({ search: next.toString() }, { replace: true });
-    },
-    [params, navigate],
-  );
+const painIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  inventory: Package,
+  counter:   ClipboardList,
+  exports:   FileSpreadsheet,
+};
 
-  return [lang, setLang];
-}
+const featureIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  inventory:    Package,
+  reservations: CalendarCheck,
+  counter:      QrCode,
+  dashboard:    LayoutDashboard,
+  exports:      FileSpreadsheet,
+};
+
+const flowStepIcons = [Package, CalendarCheck, QrCode];
+
+// ─── URL param hook — pain only ───────────────────────────────────────────────
 
 function usePain(): [Pain | null, (p: Pain | null) => void] {
   const [params] = useSearchParams();
@@ -86,7 +76,7 @@ function usePain(): [Pain | null, (p: Pain | null) => void] {
 
   const setPain = useCallback(
     (p: Pain | null) => {
-      const next = new URLSearchParams(params); // preserves lang, from, etc.
+      const next = new URLSearchParams(params);
       if (p) next.set("pain", p);
       else next.delete("pain");
       navigate({ search: next.toString() }, { replace: true });
@@ -99,7 +89,7 @@ function usePain(): [Pain | null, (p: Pain | null) => void] {
 
 // ─── Analytics ────────────────────────────────────────────────────────────────
 
-function fireCtaEvent(placement: string, lang: Lang, pain: Pain | null) {
+function fireCtaEvent(placement: string, lang: string, pain: Pain | null) {
   window.dispatchEvent(
     new CustomEvent("kitloop:onboarding_cta_click", {
       detail: { placement, lang, pain },
@@ -107,7 +97,7 @@ function fireCtaEvent(placement: string, lang: Lang, pain: Pain | null) {
   );
 }
 
-function firePainEvent(pain: Pain, lang: Lang) {
+function firePainEvent(pain: Pain, lang: string) {
   window.dispatchEvent(
     new CustomEvent("kitloop:onboarding_pain_select", {
       detail: { pain, lang },
@@ -115,353 +105,12 @@ function firePainEvent(pain: Pain, lang: Lang) {
   );
 }
 
-function fireDemoComplete(lang: Lang) {
-  window.dispatchEvent(
-    new CustomEvent("kitloop:onboarding_demo_complete", { detail: { lang } }),
-  );
-}
-
-// ─── Copy ─────────────────────────────────────────────────────────────────────
-
-const copy = {
-  cs: {
-    heroBadge: "MVP • Pilot • Ruční schválení",
-    heroH1: "Provozní systém pro půjčovny.",
-    heroH2: "Inventář → interní rezervace → výdej/vratka → přehled → export/print.",
-    heroSub:
-      "Pilot pro vybrané půjčovny. Ruční schválení, osobní onboarding. Stavíme to s prvními provozy.",
-    heroCta1: "Požádat o pilotní přístup",
-    heroCta2: "Přihlásit se",
-    heroMicro:
-      "Zákazníci zatím sami nerezervují — rezervace zakládá staff. Platby/refundy nejsou součást core flow.",
-
-    demoPrompt: "Zákazník je na pultu: chce 2× e-bike na víkend.",
-    demoLabel: "Simulované demo",
-    demoPlayBtn: "Přehrát ukázku",
-    demoItem1: "E-bike Specialized Turbo (rám M)",
-    demoItem2: "E-bike Trek Rail 9.8 (rám L)",
-    demoIssuedBtn: "Vydáno",
-    demoResult: "Hotovo. Takhle rychlý může být výdej, když máte inventář pod kontrolou.",
-    demoResultAria: "Demo dokončeno: výdej úspěšný.",
-
-    painTitle: "Co vás pálí nejvíc?",
-    painSub: "Vyberte, co nejvíc sedí — ukážeme vám, co s tím Kitloop dělá.",
-    painSkip: "Přeskočit na funkce",
-    pains: [
-      { key: "inventory" as Pain, label: "Ztrácím přehled\no vybavení", icon: Package },
-      { key: "counter" as Pain, label: "Na pultu je chaos\npři výdeji/vratce", icon: ClipboardList },
-      { key: "exports" as Pain, label: "Excel/CSV, exporty\na tisk mě ničí", icon: FileSpreadsheet },
-    ],
-
-    isTitle: "Je pro",
-    isntTitle: "Není pro (zatím)",
-    isBullets: [
-      "Půjčovny, kde rezervace vzniká interně (walk-in / telefon / email)",
-      "Provozy, co chtějí zrychlit issue/return a snížit chyby",
-      "Týmový provoz (role, přístup, evidence)",
-    ],
-    isntBullets: [
-      "Instant online booking pro zákazníky",
-      "Platby/refundy jako součást core flow",
-      "Hodinové sloty / opening-hours logika / komplexní pricing",
-    ],
-
-    flowTitle: "Jak to funguje dnes",
-    flowSub: "Tři kroky, žádná složitost navíc.",
-    flowSteps: [
-      {
-        title: "Inventář",
-        desc: "Evidence všeho, co půjčujete — od kusů po stav.",
-        bullets: ["Stav každé položky (dostupné / rezervováno / servis)", "Kategorie, varianty, import z CSV"],
-        icon: Package,
-      },
-      {
-        title: "Interní rezervace",
-        desc: "Staff zakládá rezervace přímo v systému.",
-        bullets: ["Termíny, stavy, přiřazení vybavení", "Přehled dne — co se vydává, co se vrací"],
-        icon: CalendarCheck,
-      },
-      {
-        title: "Výdej / Vratka + print/export",
-        desc: "Operace u pultu bez papírů.",
-        bullets: ["Fotodokumentace, evidence depozitu a poznámek", "Tisk předávacího protokolu, export CSV"],
-        icon: QrCode,
-      },
-    ],
-
-    featuresTitle: "Co konkrétně dostanete",
-    featuresSub: "MVP funkce, které jsou dnes live.",
-    features: [
-      { key: "inventory", title: "Inventář", desc: "Evidence kusů, stavů a kategorií. Import z CSV pro rychlý start.", icon: Package, large: true },
-      { key: "reservations", title: "Interní rezervace", desc: "Staff zakládá rezervace, sleduje termíny a stavy. Přehled dne.", icon: CalendarCheck, large: true },
-      { key: "counter", title: "Výdej / Vratka", desc: "Operace u pultu s fotodokumentací a evidencí depozitu.", icon: QrCode, large: false },
-      { key: "dashboard", title: "Provozní přehled", desc: "Dnešní výdeje, vratky, pozdní — vše na jednom místě.", icon: LayoutDashboard, large: false },
-      { key: "exports", title: "Print + Export", desc: "Tisk předávacího protokolu. Export dat do CSV.", icon: FileSpreadsheet, large: false },
-    ],
-
-    pilotTitle: "Jak se do pilotu zapojit",
-    pilotSub: "Tři kroky. Bez závazku.",
-    pilotSteps: [
-      { num: "01", title: "Požádejte o přístup", desc: "Krátká žádost — typ půjčovny, kontakt, pár vět o provozu." },
-      { num: "02", title: "Ruční schválení + call", desc: "Ověříme fit s MVP a domluvíme onboarding." },
-      { num: "03", title: "Import inventáře + spuštění", desc: "Osobní onboarding. Projdeme vše krok za krokem." },
-    ],
-    pilotBoxTitle: "Co budeme chtít od vás",
-    pilotBoxItems: [
-      "Typ půjčovny + přibližný počet položek inventáře",
-      "Jak dnes vznikají rezervace (walk-in, telefon, Excel…)",
-      "Excel/CSV (pokud máte), nebo začneme s pár položkami",
-    ],
-    pilotCta: "Požádat o pilotní přístup",
-
-    faqTitle: "Časté dotazy",
-    faqs: [
-      { q: "Umí to online rezervace pro zákazníky?", a: "Ne. MVP je provider-only — zákazníci zatím sami nerezervují, rezervace zakládá staff. Po pilotu zvažujeme \"Request Link\", přes který by zákazník mohl poslat poptávku." },
-      { q: "Co znamená ruční schválení?", a: "Hlídáme kapacitu onboardingu a chceme znát provoz, se kterým pracujeme. Není to byrokracie — je to zárukou, že každé spuštění dopadne dobře." },
-      { q: "Jak dostanu data z Excelu do systému?", a: "Kitloop podporuje import inventáře z CSV. Při onboardingu vám s převodem pomůžeme." },
-      { q: "Jak dlouho trvá začít?", a: "Záleží na rozsahu inventáře. Provedeme vás krok za krokem — importujeme data, projdeme workflow a zajistíme, že tým je připravený." },
-      { q: "Platby a kauce?", a: "Evidence depozitu a poznámky jsou součástí procesu výdeje. Platební transakce (online platby, refundy) nejsou součástí core flow v aktuálním MVP." },
-    ],
-
-    finalTitle: "Chcete být mezi prvními piloty?",
-    finalSub: "Ruční schválení. Osobní onboarding. Provider-only MVP.",
-    finalCta1: "Požádat o pilotní přístup",
-    finalCta2: "Napsat nám",
-
-    showingFeatures: "Zobrazuji funkce",
-    footerContact: "Kontakt: support@kitloop.cz",
-    footerPrivacy: "Ochrana soukromí",
-  },
-
-  en: {
-    heroBadge: "MVP • Pilot • Manual approval",
-    heroH1: "Operations system for rental shops.",
-    heroH2: "Inventory → internal reservations → issue/return → overview → export/print.",
-    heroSub:
-      "Pilot for selected rental shops. Manual approval, personal onboarding. Built with the first operators.",
-    heroCta1: "Request pilot access",
-    heroCta2: "Sign in",
-    heroMicro:
-      "Customers don't self-book yet — reservations are created by staff. Payments/refunds are not part of the core flow.",
-
-    demoPrompt: "Customer at the counter: wants 2× e-bike for the weekend.",
-    demoLabel: "Simulated demo",
-    demoPlayBtn: "Play demo",
-    demoItem1: "E-bike Specialized Turbo (frame M)",
-    demoItem2: "E-bike Trek Rail 9.8 (frame L)",
-    demoIssuedBtn: "Issued",
-    demoResult: "Done. That's how fast issue can be when your inventory is under control.",
-    demoResultAria: "Demo complete: issue successful.",
-
-    painTitle: "What's your biggest pain?",
-    painSub: "Pick what fits most — we'll show you what Kitloop does about it.",
-    painSkip: "Skip to features",
-    pains: [
-      { key: "inventory" as Pain, label: "I'm losing track\nof my inventory", icon: Package },
-      { key: "counter" as Pain, label: "Counter chaos\nduring issue/return", icon: ClipboardList },
-      { key: "exports" as Pain, label: "Excel/CSV, exports\nand printing kill me", icon: FileSpreadsheet },
-    ],
-
-    isTitle: "Is for",
-    isntTitle: "Is not for (yet)",
-    isBullets: [
-      "Rental shops where reservations are created internally (walk-in / phone / email)",
-      "Operations that want to speed up issue/return and reduce errors",
-      "Team operations (roles, access, records)",
-    ],
-    isntBullets: [
-      "Instant online booking for customers",
-      "Payments/refunds as part of the core flow",
-      "Hourly slots / opening-hours logic / complex pricing",
-    ],
-
-    flowTitle: "How it works today",
-    flowSub: "Three steps. No added complexity.",
-    flowSteps: [
-      { title: "Inventory", desc: "Track everything you rent — from individual items to their status.", bullets: ["Item status (available / reserved / maintenance)", "Categories, variants, CSV import"], icon: Package },
-      { title: "Internal reservations", desc: "Staff creates reservations directly in the system.", bullets: ["Dates, statuses, equipment assignment", "Today's overview — what's going out, what's coming back"], icon: CalendarCheck },
-      { title: "Issue / Return + print/export", desc: "Counter operations without paperwork.", bullets: ["Photo documentation, deposit and notes tracking", "Print handover protocol, CSV export"], icon: QrCode },
-    ],
-
-    featuresTitle: "What you get",
-    featuresSub: "MVP features live today.",
-    features: [
-      { key: "inventory", title: "Inventory", desc: "Track items, statuses and categories. CSV import for a quick start.", icon: Package, large: true },
-      { key: "reservations", title: "Internal reservations", desc: "Staff creates reservations, tracks dates and statuses. Today's overview.", icon: CalendarCheck, large: true },
-      { key: "counter", title: "Issue / Return", desc: "Counter operations with photo documentation and deposit tracking.", icon: QrCode, large: false },
-      { key: "dashboard", title: "Operations overview", desc: "Today's issues, returns, late items — all in one place.", icon: LayoutDashboard, large: false },
-      { key: "exports", title: "Print + Export", desc: "Print handover protocol. Export data to CSV.", icon: FileSpreadsheet, large: false },
-    ],
-
-    pilotTitle: "How to join the pilot",
-    pilotSub: "Three steps. No commitment.",
-    pilotSteps: [
-      { num: "01", title: "Request access", desc: "Short application — type of shop, contact, a few words about your operation." },
-      { num: "02", title: "Manual approval + call", desc: "We verify the fit with the MVP and schedule onboarding." },
-      { num: "03", title: "Import inventory + launch", desc: "Personal onboarding. We'll guide you through it step by step." },
-    ],
-    pilotBoxTitle: "What we'll need from you",
-    pilotBoxItems: [
-      "Type of rental shop + approximate number of inventory items",
-      "How reservations are created today (walk-in, phone, Excel…)",
-      "Excel/CSV (if you have it), or we start with a few items",
-    ],
-    pilotCta: "Request pilot access",
-
-    faqTitle: "FAQ",
-    faqs: [
-      { q: "Does it support online reservations for customers?", a: "No. The MVP is provider-only — customers don't self-book yet, reservations are created by staff. After the pilot we're considering a \"Request Link\" so customers can submit a request." },
-      { q: "What does manual approval mean?", a: "We manage onboarding capacity and want to know the operation we're working with. It's not bureaucracy — it's our guarantee that every launch goes well." },
-      { q: "How do I get my Excel data into the system?", a: "Kitloop supports CSV import for inventory. We'll help you with the conversion during onboarding." },
-      { q: "How long does it take to get started?", a: "Depends on the size of your inventory. We'll guide you through it step by step — importing data, reviewing the workflow, and making sure your team is ready." },
-      { q: "Payments and deposits?", a: "Deposit tracking and notes are part of the issue flow. Payment transactions (online payments, refunds) are not part of the core MVP flow." },
-    ],
-
-    finalTitle: "Want to be among the first pilots?",
-    finalSub: "Manual approval. Personal onboarding. Provider-only MVP.",
-    finalCta1: "Request pilot access",
-    finalCta2: "Contact us",
-
-    showingFeatures: "Showing features",
-    footerContact: "Contact: support@kitloop.cz",
-    footerPrivacy: "Privacy notice",
-  },
-} as const;
-
 // ─── Animation variants ────────────────────────────────────────────────────────
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
+  hidden:  { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
-
-// ─── Sleep helper ─────────────────────────────────────────────────────────────
-
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-// ─── Micro-demo ───────────────────────────────────────────────────────────────
-// Pure state machine — no useAnimate, no ID selectors.
-// reduced-motion: initialized to "done" synchronously; useEffect guards null case.
-
-type DemoPhase = "idle" | "playing" | "done";
-
-function MicroDemo({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const shouldReduce = useReducedMotion();
-
-  // Synchronous init — useReducedMotion() is non-null in CSR (null only in SSR).
-  const [phase, setPhase] = useState<DemoPhase>(shouldReduce ? "done" : "idle");
-  const [check1, setCheck1] = useState(!!shouldReduce);
-  const [check2, setCheck2] = useState(!!shouldReduce);
-  const resultRef = useRef<HTMLParagraphElement>(null);
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => { isMounted.current = false; };
-  }, []);
-
-  const playDemo = useCallback(async () => {
-    if (phase !== "idle") return;
-    setPhase("playing");
-
-    // Animate checkmarks sequentially (skipped entirely if reduced motion).
-    if (!shouldReduce) {
-      await sleep(350);
-      if (!isMounted.current) return;
-      setCheck1(true);
-      await sleep(280);
-      if (!isMounted.current) return;
-      setCheck2(true);
-      await sleep(200);
-      if (!isMounted.current) return;
-    } else {
-      setCheck1(true);
-      setCheck2(true);
-    }
-
-    setPhase("done");
-    fireDemoComplete(lang);
-
-    // Move focus to result text so screen readers announce it.
-    requestAnimationFrame(() => resultRef.current?.focus());
-  }, [phase, shouldReduce, lang]);
-
-  const items = [
-    { id: "item-1", label: t.demoItem1, checked: check1 },
-    { id: "item-2", label: t.demoItem2, checked: check2 },
-  ];
-
-  return (
-    <div className="relative">
-      <p className="text-xs text-white/60 mb-3 italic">{t.demoPrompt}</p>
-      <Card className="border border-emerald-200/80 shadow-xl bg-white">
-        <CardContent className="p-5 space-y-4">
-          {/* Items */}
-          <div className="space-y-2" role="list">
-            {items.map(({ id, label, checked }) => (
-              <div
-                key={id}
-                role="listitem"
-                className="flex items-center gap-3 rounded-lg border border-slate-100 px-3 py-2.5 transition-colors duration-300"
-                style={{ background: checked ? "rgb(240 253 244)" : undefined }}
-              >
-                <span className="shrink-0 transition-all duration-300">
-                  {checked ? (
-                    <CheckSquare className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                  ) : (
-                    <Square className="h-4 w-4 text-slate-300" aria-hidden="true" />
-                  )}
-                </span>
-                <span className="text-sm">{label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA button — changes state but never unmounts (prevents focus loss) */}
-          <Button
-            variant={phase === "done" ? "success" : "cta"}
-            size="sm"
-            className="w-full"
-            onClick={playDemo}
-            disabled={phase === "playing" || phase === "done"}
-            aria-disabled={phase === "playing" || phase === "done"}
-            type="button"
-          >
-            {phase === "done" ? (
-              <>
-                <CheckCircle2 className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
-                {t.demoIssuedBtn}
-              </>
-            ) : (
-              <>
-                <Play className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
-                {t.demoPlayBtn}
-              </>
-            )}
-          </Button>
-
-          {/* Result — aria-live announces to screen readers without focus move */}
-          <p
-            ref={resultRef}
-            role="status"
-            aria-live="polite"
-            aria-label={phase === "done" ? t.demoResultAria : undefined}
-            tabIndex={-1}
-            className={cn(
-              "text-sm font-medium text-emerald-700 text-center outline-none",
-              "transition-opacity duration-300",
-              phase === "done" ? "opacity-100" : "opacity-0 pointer-events-none select-none",
-            )}
-          >
-            {/* Always rendered to avoid CLS; hidden via opacity */}
-            {t.demoResult}
-          </p>
-        </CardContent>
-      </Card>
-      <p className="mt-2 text-[10px] text-white/40 text-center">{t.demoLabel}</p>
-    </div>
-  );
-}
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 
@@ -475,7 +124,6 @@ function Section({
   id?: string;
 }) {
   const shouldReduce = useReducedMotion();
-
   return (
     <motion.section
       id={id}
@@ -490,6 +138,113 @@ function Section({
   );
 }
 
+// ─── Ambient glow layer ───────────────────────────────────────────────────────
+
+function GlowLayer() {
+  const shouldReduce = useReducedMotion();
+  if (shouldReduce) return null;
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <motion.div
+        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-300/[0.10] blur-3xl"
+        animate={{ x: [0, 35, 0], y: [0, -25, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-400/[0.05] blur-3xl"
+        animate={{ x: [0, -25, 0], y: [0, 30, 0] }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+      />
+    </div>
+  );
+}
+
+// ─── Hero UI preview panel ────────────────────────────────────────────────────
+// Static illustrative data — purely decorative, aria-hidden.
+
+function HeroPreview({ lang }: { lang: Lang }) {
+  const today = new Date().toLocaleDateString(
+    lang === "cs" ? "cs-CZ" : "en-US",
+    { weekday: "short", month: "short", day: "numeric" },
+  );
+
+  const labels = lang === "cs"
+    ? {
+        kpi: ["Výdeje dnes", "Vratky dnes", "Po termínu", "Dostupné"],
+        agendaLabel: "Dnešní agenda",
+        typeOut: "výdej",
+        typeRet: "vratka",
+        disclaimer: "Ukázka rozhraní · ilustrativní data",
+        agenda: [
+          { time: "09:30", name: "Alex T. · E-bike ×2", type: "out" as const },
+          { time: "11:00", name: "Sarah M. · Stan ×1",  type: "ret" as const },
+          { time: "14:00", name: "James W. · Tyče ×2",  type: "out" as const },
+        ],
+      }
+    : {
+        kpi: ["Check-outs today", "Returns today", "Overdue", "Available"],
+        agendaLabel: "Today's agenda",
+        typeOut: "check-out",
+        typeRet: "return",
+        disclaimer: "UI preview · illustrative data",
+        agenda: [
+          { time: "09:30", name: "Alex T. · E-bike ×2",  type: "out" as const },
+          { time: "11:00", name: "Sarah M. · Tent ×1",   type: "ret" as const },
+          { time: "14:00", name: "James W. · Poles ×2",  type: "out" as const },
+        ],
+      };
+
+  const kpiValues = ["4", "3", "1", "28"];
+
+  return (
+    <div
+      className="rounded-xl border border-slate-200 shadow-lg overflow-hidden bg-white select-none pointer-events-none"
+      aria-hidden="true"
+    >
+      <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+        <span className="text-xs font-medium text-slate-500">{today}</span>
+        <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full tracking-wide">
+          LIVE
+        </span>
+      </div>
+      <div className="grid grid-cols-2 divide-x divide-y divide-slate-100">
+        {kpiValues.map((val, i) => (
+          <div key={i} className="px-4 py-3">
+            <p className={cn("text-xl font-bold leading-none", i === 2 ? "text-amber-500" : "text-slate-900")}>
+              {val}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-0.5">{labels.kpi[i]}</p>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-slate-100 px-4 py-2 bg-slate-50/60">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          {labels.agendaLabel}
+        </span>
+      </div>
+      <div className="divide-y divide-slate-50">
+        {labels.agenda.map((item) => (
+          <div key={item.time} className="flex items-center gap-3 px-4 py-2.5">
+            <span className="text-xs font-mono text-slate-400 w-10 shrink-0">{item.time}</span>
+            <span className="text-sm text-slate-700 flex-1 truncate">{item.name}</span>
+            <span
+              className={cn(
+                "text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0",
+                item.type === "out" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500",
+              )}
+            >
+              {item.type === "out" ? labels.typeOut : labels.typeRet}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-slate-100 px-4 py-2 bg-slate-50">
+        <p className="text-[10px] text-slate-400 text-center">{labels.disclaimer}</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Feature card ─────────────────────────────────────────────────────────────
 
 function FeatureCard({
@@ -497,32 +252,31 @@ function FeatureCard({
   highlighted,
   cardRef,
 }: {
-  f: { key: string; title: string; desc: string; icon: React.ComponentType<{ className?: string }>; large: boolean };
+  f: Feature;
   highlighted: boolean;
   cardRef: (el: HTMLDivElement | null) => void;
 }) {
+  const Icon = featureIcons[f.key];
   return (
     <div ref={cardRef}>
       <Card
         className={cn(
-          "h-full rounded-2xl border shadow-sm bg-white transition-all duration-300",
+          "h-full rounded-xl border shadow-sm bg-white transition-all duration-300",
           highlighted && "ring-2 ring-emerald-500 border-emerald-200 shadow-md",
         )}
       >
-        <CardContent className={cn("space-y-4", f.large ? "p-6" : "p-5")}>
+        <CardContent className={cn("space-y-3", f.large ? "p-5" : "p-4")}>
           <div
             className={cn(
-              "flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700",
-              f.large ? "h-12 w-12" : "h-10 w-10",
+              "flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-700",
+              f.large ? "h-10 w-10" : "h-9 w-9",
             )}
           >
-            <f.icon className={f.large ? "h-6 w-6" : "h-5 w-5"} aria-hidden="true" />
+            {Icon && <Icon className={f.large ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />}
           </div>
           <div>
-            <h3 className={cn("font-bold", f.large ? "text-xl" : "text-base")}>{f.title}</h3>
-            <p className={cn("mt-1 text-muted-foreground", f.large ? "text-base mt-2" : "text-sm")}>
-              {f.desc}
-            </p>
+            <h3 className={cn("font-bold", f.large ? "text-base" : "text-sm")}>{f.title}</h3>
+            <p className="mt-1 text-muted-foreground text-sm">{f.desc}</p>
           </div>
         </CardContent>
       </Card>
@@ -533,27 +287,62 @@ function FeatureCard({
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function Onboarding() {
-  const [lang, setLang] = useLang();
+  const { t, i18n } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [pain, setPain] = usePain();
-  const t = copy[lang];
 
-  const signupHref = `/signup?from=onboarding&lang=${lang}`;
-  const loginHref = `/login?lang=${lang}`;
+  // Derive lang from i18next (normalise to cs | en)
+  const lang: Lang = i18n.language?.startsWith("cs") ? "cs" : "en";
+
+  // On mount: sync ?lang= URL param → i18next (one-time)
+  const langSynced = useRef(false);
+  useEffect(() => {
+    if (langSynced.current) return;
+    langSynced.current = true;
+    const paramLang = searchParams.get("lang");
+    if (paramLang === "cs" || paramLang === "en") {
+      i18n.changeLanguage(paramLang);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const setLang = useCallback(
+    (l: Lang) => {
+      i18n.changeLanguage(l);
+      // Keep URL param in sync so shared links work
+      const next = new URLSearchParams(searchParams);
+      next.set("lang", l);
+      navigate({ search: next.toString() }, { replace: true });
+    },
+    [i18n, searchParams, navigate],
+  );
+
+  // Helpers for typed array data from i18next
+  const tPains      = () => t("onboarding.pains",      { returnObjects: true }) as PainItem[];
+  const tFlowSteps  = () => t("onboarding.flowSteps",  { returnObjects: true }) as FlowStep[];
+  const tFeatures   = () => t("onboarding.features",   { returnObjects: true }) as Feature[];
+  const tPilotSteps = () => t("onboarding.pilotSteps", { returnObjects: true }) as PilotStep[];
+  const tPilotBoxItems = () => t("onboarding.pilotBoxItems", { returnObjects: true }) as string[];
+  const tIsBullets  = () => t("onboarding.isBullets",  { returnObjects: true }) as string[];
+  const tIsntBullets = () => t("onboarding.isntBullets", { returnObjects: true }) as string[];
+  const tFaqs       = () => t("onboarding.faqs",       { returnObjects: true }) as FAQ[];
+
+  const signupHref  = `/signup?from=onboarding&lang=${lang}`;
+  const loginHref   = `/login?lang=${lang}`;
   const privacyHref = `/privacy?lang=${lang}`;
 
   const featuresSectionRef = useRef<HTMLDivElement>(null);
-  const featureRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const isFirstPainEffect = useRef(true);
+  const featureRefs        = useRef<Record<string, HTMLDivElement | null>>({});
+  const isFirstPainEffect  = useRef(true);
 
-  // Scroll to highlighted feature card on pain change.
-  // Skip on initial mount so a shared URL (?pain=X) doesn't auto-jump.
   useEffect(() => {
     if (isFirstPainEffect.current) {
       isFirstPainEffect.current = false;
       return;
     }
     if (!pain) return;
-    const el = featureRefs.current[pain];
+    const el     = featureRefs.current[pain];
     const target = el ?? featuresSectionRef.current;
     if (target) {
       requestAnimationFrame(() =>
@@ -571,195 +360,172 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-background text-foreground">
 
-      {/* Skip link — positioned at document top, visible on focus */}
+      {/* Skip link */}
       <a
         href="#features"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-1/2 focus:-translate-x-1/2 focus:z-[60] focus:bg-background focus:px-5 focus:py-2 focus:rounded-full focus:text-sm focus:font-semibold focus:ring-2 focus:ring-emerald-600 focus:shadow-lg"
       >
-        {t.painSkip}
+        {t("onboarding.painSkip")}
       </a>
 
       {/* ── Standalone header ────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
-        <div className="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between w-full">
-          {/* Logo */}
-          <Link to="/" className="text-xl font-bold flex items-center shrink-0">
+      <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border sticky top-0 left-0 right-0 z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
             <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
 
-          {/* Right: CS/EN toggle + sign in */}
           <div className="flex items-center gap-3">
-            <div className="flex gap-1" role="group" aria-label={lang === "cs" ? "Jazyk" : "Language"}>
-              {(["cs", "en"] as Lang[]).map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setLang(l)}
-                  aria-pressed={lang === l}
-                  className={cn(
-                    "px-2.5 py-1 text-xs rounded-md border transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1",
-                    lang === l
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-transparent text-muted-foreground border-border hover:border-slate-400 hover:text-foreground",
-                  )}
-                >
-                  {l.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
-            <Link
-              to={loginHref}
-              className={cn(
-                "text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1",
-              )}
+            {/* Language toggle — single button showing the other language */}
+            <button
+              onClick={() => setLang(lang === "en" ? "cs" : "en")}
+              aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
             >
-              {t.heroCta2}
-            </Link>
+              {lang === "en" ? "CS" : "EN"}
+            </button>
+
+            <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
+              <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* ── A) Hero + Micro-demo ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800">
-        <div
-          className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
-          aria-hidden="true"
-        />
-        <div className="relative mx-auto max-w-5xl px-6 py-20 md:py-28">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            {/* Left — copy: opacity stays 1 (LCP-safe), only subtle y lift */}
-            <motion.div
-              initial={{ opacity: 1, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="space-y-6"
-            >
-              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-200">
-                {t.heroBadge}
-              </span>
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-white">
-                {t.heroH1}
-              </h1>
-              <p className="text-base font-medium text-emerald-100 break-words [overflow-wrap:break-word]">{t.heroH2}</p>
-              <p className="text-emerald-200/80 leading-relaxed">{t.heroSub}</p>
+      {/* ── A) Hero ──────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-white">
+        <GlowLayer />
+        <div className="relative mx-auto max-w-5xl px-6 py-12 md:py-16">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center pt-2">
+            {/* Left — copy + CTA */}
+            <motion.div
+              initial={{ opacity: 1, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="space-y-5"
+            >
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
+                {t("onboarding.heroBadge")}
+              </span>
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
+                {t("onboarding.heroH1")}
+              </h1>
+              <p className="text-slate-500 leading-relaxed">{t("onboarding.heroSub")}</p>
+
+              <div className="flex flex-col gap-3 pt-1">
                 <Button
                   asChild
                   variant="cta"
                   size="cta"
                   onClick={() => fireCtaEvent("hero", lang, pain)}
                 >
-                  <Link to={signupHref}>{t.heroCta1}</Link>
+                  <Link to={signupHref}>{t("onboarding.heroCta1")}</Link>
                 </Button>
 
-                {/* Secondary CTA — glass style for dark backgrounds */}
-                <Link
-                  to={loginHref}
+                <button
+                  type="button"
+                  onClick={() => featuresSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                   className={cn(
-                    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-                    "text-sm font-semibold rounded-md h-11 px-8",
-                    "bg-white/10 text-white border border-white/20",
-                    "hover:bg-white/15 hover:border-white/35 transition-all",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900",
+                    "self-start px-4 py-2.5 text-sm font-semibold text-muted-foreground",
+                    "transition-colors hover:text-emerald-700",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 rounded",
                   )}
                 >
-                  {t.heroCta2}
-                </Link>
+                  {t("onboarding.heroCta3")} ↓
+                </button>
               </div>
-
-              <p className="text-xs text-emerald-300/60 leading-relaxed max-w-sm">
-                {t.heroMicro}
-              </p>
             </motion.div>
 
-            {/* Right — Micro-demo */}
+            {/* Right — static UI preview */}
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
-              className="lg:pl-8"
+              transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
+              className="lg:pl-6"
             >
-              <MicroDemo t={t} lang={lang} />
+              <HeroPreview lang={lang} />
             </motion.div>
+
           </div>
         </div>
       </section>
 
       {/* ── B) Pain selector ─────────────────────────────────────────────────── */}
-      <Section className="bg-white py-14">
-          <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold md:text-3xl">{t.painTitle}</h2>
-            <p className="mt-2 text-muted-foreground">{t.painSub}</p>
+      <Section className="bg-white py-10">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.painTitle")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("onboarding.painSub")}</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" role="group" aria-label={t.painTitle}>
-            {t.pains.map(({ key, label, icon: Icon }) => (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={pain === key}
-                onClick={() => handlePainClick(key)}
-                className={cn(
-                  "group rounded-2xl border-2 p-6 text-left transition-all",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
-                  pain === key
-                    ? "border-emerald-500 bg-emerald-50 shadow-md"
-                    : "border-border bg-card hover:border-emerald-300 hover:bg-emerald-50/50",
-                )}
-              >
-                <div
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="group" aria-label={t("onboarding.painTitle")}>
+            {tPains().map(({ key, label }) => {
+              const Icon = painIcons[key];
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={pain === key}
+                  onClick={() => handlePainClick(key)}
                   className={cn(
-                    "mb-4 flex h-11 w-11 items-center justify-center rounded-full transition-colors",
+                    "group rounded-xl border-2 p-4 text-left transition-all",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
                     pain === key
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-700",
+                      ? "border-emerald-500 bg-emerald-50 shadow-md"
+                      : "border-border bg-card hover:border-emerald-300 hover:bg-emerald-50/50",
                   )}
                 >
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <p
-                  className={cn(
-                    "font-semibold leading-snug whitespace-pre-line",
-                    pain === key ? "text-emerald-800" : "text-foreground",
-                  )}
-                >
-                  {label}
-                </p>
-                <p
-                  className={cn(
-                    "mt-2 text-xs font-medium flex items-center gap-1 transition-opacity",
-                    pain === key ? "text-emerald-600 opacity-100" : "opacity-0",
-                  )}
-                  aria-hidden={pain !== key}
-                >
-                  <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                  {t.showingFeatures}
-                </p>
-              </button>
-            ))}
+                  <div
+                    className={cn(
+                      "mb-3 flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
+                      pain === key
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-700",
+                    )}
+                  >
+                    {Icon && <Icon className="h-4 w-4" aria-hidden="true" />}
+                  </div>
+                  <p
+                    className={cn(
+                      "text-sm font-semibold leading-snug whitespace-pre-line",
+                      pain === key ? "text-emerald-800" : "text-foreground",
+                    )}
+                  >
+                    {label}
+                  </p>
+                  <p
+                    className={cn(
+                      "mt-1.5 text-xs font-medium flex items-center gap-1 transition-opacity",
+                      pain === key ? "text-emerald-600 opacity-100" : "opacity-0",
+                    )}
+                    aria-hidden={pain !== key}
+                  >
+                    <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                    {t("onboarding.showingFeatures")}
+                  </p>
+                </button>
+              );
+            })}
           </div>
         </div>
       </Section>
 
       {/* ── C) Je / Není pro ──────────────────────────────────────────────────── */}
-      <Section className="bg-slate-50/70 py-14">
+      <Section className="bg-slate-50/70 py-10">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="rounded-2xl border border-emerald-200 bg-white shadow-sm">
-              <CardContent className="p-7 space-y-4">
+          <div className="grid gap-5 md:grid-cols-2">
+            <Card className="rounded-xl border-0 bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-200">
+              <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
-                  <p className="text-lg font-bold text-emerald-800">{t.isTitle}</p>
+                  <CheckCircle2 className="h-4 w-4 text-white/80 shrink-0" aria-hidden="true" />
+                  <p className="text-base font-bold text-white">{t("onboarding.isTitle")}</p>
                 </div>
-                <ul className="space-y-3">
-                  {t.isBullets.map((b) => (
-                    <li key={b} className="flex gap-3 text-base text-foreground">
-                      <span className="mt-1 text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+                <ul className="space-y-2">
+                  {tIsBullets().map((b) => (
+                    <li key={b} className="flex gap-2.5 text-sm text-emerald-50">
+                      <span className="mt-0.5 text-white/70 shrink-0" aria-hidden="true">✓</span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -767,16 +533,16 @@ export default function Onboarding() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <CardContent className="p-7 space-y-4">
+            <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
+              <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
-                  <XCircle className="h-5 w-5 text-slate-400 shrink-0" aria-hidden="true" />
-                  <p className="text-lg font-bold text-slate-600">{t.isntTitle}</p>
+                  <XCircle className="h-4 w-4 text-slate-400 shrink-0" aria-hidden="true" />
+                  <p className="text-base font-bold text-slate-600">{t("onboarding.isntTitle")}</p>
                 </div>
-                <ul className="space-y-3">
-                  {t.isntBullets.map((b) => (
-                    <li key={b} className="flex gap-3 text-base text-muted-foreground">
-                      <span className="mt-1 shrink-0 text-slate-400" aria-hidden="true">✗</span>
+                <ul className="space-y-2">
+                  {tIsntBullets().map((b) => (
+                    <li key={b} className="flex gap-2.5 text-sm text-muted-foreground">
+                      <span className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true">✗</span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -788,62 +554,62 @@ export default function Onboarding() {
       </Section>
 
       {/* ── D) Jak to funguje ─────────────────────────────────────────────────── */}
-      <Section className="bg-muted/40 py-16">
+      <Section className="bg-white py-12">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold md:text-3xl">{t.flowTitle}</h2>
-            <p className="mt-2 text-muted-foreground">{t.flowSub}</p>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.flowTitle")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("onboarding.flowSub")}</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {t.flowSteps.map((step, i) => (
-              <div key={step.title} className="relative">
-                {i < t.flowSteps.length - 1 && (
-                  <div
-                    className="hidden md:flex absolute -right-3 top-8 z-10 items-center"
-                    aria-hidden="true"
-                  >
-                    <ArrowRight className="h-5 w-5 text-emerald-400" />
+          <div className="divide-y divide-slate-100">
+            {tFlowSteps().map((step, i) => {
+              const StepIcon = flowStepIcons[i];
+              return (
+                <div
+                  key={step.title}
+                  className="grid grid-cols-1 md:grid-cols-[64px_1fr_1fr] gap-x-8 gap-y-3 py-7 items-start"
+                >
+                  <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-0">
+                    <span className="text-5xl font-black leading-none tabular-nums text-emerald-500/25 select-none">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                   </div>
-                )}
-                <Card className="h-full rounded-2xl border shadow-sm bg-white">
-                  <CardContent className="p-6 space-y-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                      <step.icon className="h-6 w-6" aria-hidden="true" />
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 shrink-0">
+                        {StepIcon && <StepIcon className="h-3.5 w-3.5" aria-hidden="true" />}
+                      </div>
+                      <h3 className="text-base font-bold">{step.title}</h3>
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 mb-1">
-                        {String(i + 1).padStart(2, "0")}
-                      </p>
-                      <h3 className="text-lg font-bold">{step.title}</h3>
-                      <p className="mt-2 text-sm text-muted-foreground">{step.desc}</p>
-                    </div>
-                    <ul className="space-y-1.5">
-                      {step.bullets.map((b) => (
-                        <li key={b} className="flex gap-2 text-sm text-foreground">
-                          <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">•</span>
-                          <span>{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+                    <p className="text-sm text-muted-foreground pl-[2.375rem]">{step.desc}</p>
+                  </div>
+
+                  <ul className="space-y-1.5 md:pt-0 pt-1">
+                    {step.bullets.map((b) => (
+                      <li key={b} className="flex gap-2 text-sm text-foreground">
+                        <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
         </div>
       </Section>
 
       {/* ── E) Funkce — Bento grid ────────────────────────────────────────────── */}
-      <Section id="features" className="bg-white py-16 scroll-mt-24">
+      <Section id="features" className="bg-slate-50/70 py-12 scroll-mt-24">
         <div className="mx-auto max-w-5xl px-6">
-          <div ref={featuresSectionRef} className="text-center mb-12">
-            <h2 className="text-2xl font-bold md:text-3xl">{t.featuresTitle}</h2>
-            <p className="mt-2 text-muted-foreground">{t.featuresSub}</p>
+          <div ref={featuresSectionRef} className="text-center mb-8">
+            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.featuresTitle")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("onboarding.featuresSub")}</p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 mb-5">
-            {t.features
+          <div className="grid gap-4 md:grid-cols-2 mb-4">
+            {tFeatures()
               .filter((f) => f.large)
               .map((f) => (
                 <FeatureCard
@@ -855,8 +621,8 @@ export default function Onboarding() {
               ))}
           </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
-            {t.features
+          <div className="grid gap-4 md:grid-cols-3">
+            {tFeatures()
               .filter((f) => !f.large)
               .map((f) => (
                 <FeatureCard
@@ -871,36 +637,36 @@ export default function Onboarding() {
       </Section>
 
       {/* ── F) Pilot: Jak začít ──────────────────────────────────────────────── */}
-      <Section className="bg-muted/40 py-16">
+      <Section className="bg-white py-12">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold md:text-3xl">{t.pilotTitle}</h2>
-            <p className="mt-2 text-muted-foreground">{t.pilotSub}</p>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.pilotTitle")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("onboarding.pilotSub")}</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3 mb-10">
-            {t.pilotSteps.map((step) => (
-              <Card key={step.num} className="rounded-2xl border shadow-sm bg-white">
-                <CardContent className="p-6 space-y-3">
-                  <span className="text-4xl font-black text-emerald-200 leading-none select-none" aria-hidden="true">
+          <div className="grid gap-4 md:grid-cols-3 mb-6">
+            {tPilotSteps().map((step) => (
+              <Card key={step.num} className="rounded-xl border shadow-sm bg-white">
+                <CardContent className="p-5 space-y-2">
+                  <span className="text-3xl font-black text-emerald-200 leading-none select-none" aria-hidden="true">
                     {step.num}
                   </span>
-                  <h3 className="text-lg font-bold">{step.title}</h3>
+                  <h3 className="text-base font-bold">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.desc}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Card className="rounded-2xl border-emerald-100 bg-white shadow-sm mb-10">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
-                <h3 className="font-bold">{t.pilotBoxTitle}</h3>
+          <Card className="rounded-xl border-emerald-100 bg-white shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                <h3 className="font-bold text-sm">{t("onboarding.pilotBoxTitle")}</h3>
               </div>
-              <ul className="space-y-2">
-                {t.pilotBoxItems.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm">
+              <ul className="space-y-1.5">
+                {tPilotBoxItems().map((item) => (
+                  <li key={item} className="flex gap-2.5 text-sm">
                     <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">→</span>
                     <span>{item}</span>
                   </li>
@@ -908,35 +674,24 @@ export default function Onboarding() {
               </ul>
             </CardContent>
           </Card>
-
-          <div className="flex flex-col items-center">
-            <Button
-              asChild
-              variant="cta"
-              size="cta"
-              onClick={() => fireCtaEvent("pilot-section", lang, pain)}
-            >
-              <Link to={signupHref}>{t.pilotCta}</Link>
-            </Button>
-          </div>
         </div>
       </Section>
 
       {/* ── G) FAQ ───────────────────────────────────────────────────────────── */}
-      <Section className="bg-white py-14">
+      <Section className="bg-slate-50/70 py-10">
         <div className="mx-auto max-w-3xl px-6">
-          <h2 className="text-2xl font-bold md:text-3xl mb-8">{t.faqTitle}</h2>
-          <Accordion type="single" collapsible className="space-y-3">
-            {t.faqs.map((faq, i) => (
+          <h2 className="text-2xl font-bold md:text-3xl mb-6">{t("onboarding.faqTitle")}</h2>
+          <Accordion type="single" collapsible className="space-y-2">
+            {tFaqs().map((faq, i) => (
               <AccordionItem
                 key={i}
                 value={String(i)}
-                className="rounded-2xl border border-muted-foreground/15 px-5 overflow-hidden"
+                className="group rounded-xl border border-muted-foreground/15 px-5 overflow-hidden bg-white transition-all data-[state=open]:bg-gradient-to-br data-[state=open]:from-emerald-500 data-[state=open]:to-emerald-700 data-[state=open]:border-transparent data-[state=open]:shadow-lg data-[state=open]:shadow-emerald-200"
               >
-                <AccordionTrigger className="text-left font-semibold py-4 hover:no-underline text-base">
+                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm group-data-[state=open]:text-white [&[data-state=open]>svg]:text-white">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground pb-5 leading-relaxed">
+                <AccordionContent className="text-sm leading-relaxed text-muted-foreground group-data-[state=open]:text-emerald-50">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -946,49 +701,29 @@ export default function Onboarding() {
       </Section>
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800">
-        <div
-          className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent"
-          aria-hidden="true"
-        />
-        <div className="relative mx-auto max-w-3xl px-6 py-20 text-center space-y-6">
-          <h2 className="text-3xl font-bold md:text-4xl text-white">{t.finalTitle}</h2>
-          <p className="text-emerald-100 text-lg">{t.finalSub}</p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button
-              asChild
-              variant="cta"
-              size="cta"
-              onClick={() => fireCtaEvent("final", lang, pain)}
-            >
-              <Link to={signupHref}>{t.finalCta1}</Link>
-            </Button>
-
-            {/* Secondary CTA — glass style for dark backgrounds */}
-            <a
-              href="mailto:support@kitloop.cz"
-              className={cn(
-                "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-                "text-sm font-semibold rounded-md h-11 px-8",
-                "bg-white/10 text-white border border-white/20",
-                "hover:bg-white/15 hover:border-white/35 transition-all",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900",
-              )}
-            >
-              {t.finalCta2}
-            </a>
-          </div>
+      <section className="py-14 px-6">
+        <div className="mx-auto max-w-2xl rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 px-10 py-12 text-center space-y-5 shadow-xl shadow-emerald-200">
+          <h2 className="text-2xl font-bold md:text-3xl text-white">{t("onboarding.finalTitle")}</h2>
+          <p className="text-emerald-100 text-sm">{t("onboarding.finalSub")}</p>
+          <Button
+            asChild
+            size="cta"
+            className="bg-white text-emerald-800 hover:bg-emerald-50 shadow-sm"
+            onClick={() => fireCtaEvent("final", lang, pain)}
+          >
+            <Link to={signupHref}>{t("onboarding.finalCta1")}</Link>
+          </Button>
         </div>
       </section>
 
       {/* ── Footer strip ─────────────────────────────────────────────────────── */}
-      <footer className="mx-auto max-w-5xl px-6 py-8 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
-        <span>{t.footerContact}</span>
+      <footer className="mx-auto max-w-5xl px-6 py-6 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-sm text-muted-foreground">
+        <span>{t("onboarding.footerContact")}</span>
         <Link
           to={privacyHref}
           className="underline underline-offset-4 hover:text-foreground transition-colors"
         >
-          {t.footerPrivacy}
+          {t("onboarding.footerPrivacy")}
         </Link>
       </footer>
     </div>

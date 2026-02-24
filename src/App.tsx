@@ -1,5 +1,4 @@
 
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -34,6 +33,7 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 const DemoDashboard = lazy(() => import("./pages/DemoDashboard"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const RequestLink = lazy(() => import("./pages/RequestLink"));
 
 // Provider pages (heavy)
 const ProviderSetup = lazy(() => import("./pages/provider/ProviderSetup"));
@@ -73,9 +73,17 @@ const AppRoutes = () => {
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
   const isOnboardingRoute = location.pathname.startsWith("/onboarding");
+  const isAuthRoute =
+    location.pathname === "/login" ||
+    location.pathname === "/signup" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/reset-password";
+  const isRequestRoute = location.pathname.startsWith("/request");
 
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
   const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
+
+  const hideNavAndMenu = isDemoRoute || isOnboardingRoute || isAuthRoute || isRequestRoute;
 
   // Global Shortcut: 'c' -> New Reservation
   useKeyboardShortcut(
@@ -86,18 +94,18 @@ const AppRoutes = () => {
 
   return (
     <>
-      {!isDemoRoute && !isOnboardingRoute && <Navbar />}
-      {!isDemoRoute && !isOnboardingRoute && <CommandMenu />}
+      {!hideNavAndMenu && <Navbar />}
+      {!hideNavAndMenu && <CommandMenu />}
       <main
         className={cn(
           "min-h-screen",
-          !isDemoRoute && !isOnboardingRoute && "pt-16",
+          !hideNavAndMenu && "pt-16",
           isProviderRoute && "bg-muted/50"
         )}
       >
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Navigate to="/onboarding" replace />} />
             <Route
               path="/demo/dashboard"
               element={
@@ -125,6 +133,7 @@ const AppRoutes = () => {
               }
             />
             <Route path="/my-reservations" element={<Navigate to="/login" replace />} />
+            <Route path="/request/:token" element={<RequestLink />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -313,7 +322,7 @@ const AppRoutes = () => {
         </Suspense>
       </main>
       <BuildStamp />
-      {!isProviderRoute && !isOnboardingRoute && <Footer />}
+      {!isProviderRoute && !isOnboardingRoute && !isAuthRoute && <Footer />}
     </>
   );
 };
@@ -333,7 +342,6 @@ const App = () => {
       <AuthProvider>
         <CommandProvider>
           <TooltipProvider>
-            <Toaster />
             <Sonner />
             <BrowserRouter>
               <AppRoutes />
