@@ -1248,6 +1248,7 @@ export type Database = {
           status: string | null
           tax_id: string | null
           terms_text: string | null
+          request_link_created_at: string | null
           time_zone: string
           updated_at: string
           user_id: string | null
@@ -1280,6 +1281,7 @@ export type Database = {
           phone: string
           pickup_instructions?: string | null
           rental_name: string
+          request_link_created_at?: string | null
           seasonal_mode?: boolean | null
           status?: string | null
           tax_id?: string | null
@@ -1316,6 +1318,7 @@ export type Database = {
           phone?: string
           pickup_instructions?: string | null
           rental_name?: string
+          request_link_created_at?: string | null
           seasonal_mode?: boolean | null
           status?: string | null
           tax_id?: string | null
@@ -1396,6 +1399,81 @@ export type Database = {
           {
             foreignKeyName: "reservation_assignments_reservation_id_fkey"
             columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reservation_requests: {
+        Row: {
+          id: string
+          provider_id: string
+          request_link_token_hash: string | null
+          customer_name: string
+          customer_email: string | null
+          customer_phone: string | null
+          requested_start_date: string
+          requested_end_date: string
+          product_variant_id: string | null
+          requested_gear_text: string | null
+          notes: string | null
+          status: string
+          converted_reservation_id: string | null
+          converted_at: string | null
+          rejected_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          provider_id: string
+          request_link_token_hash?: string | null
+          customer_name: string
+          customer_email?: string | null
+          customer_phone?: string | null
+          requested_start_date: string
+          requested_end_date: string
+          product_variant_id?: string | null
+          requested_gear_text?: string | null
+          notes?: string | null
+          status?: string
+          converted_reservation_id?: string | null
+          converted_at?: string | null
+          rejected_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          provider_id?: string
+          request_link_token_hash?: string | null
+          customer_name?: string
+          customer_email?: string | null
+          customer_phone?: string | null
+          requested_start_date?: string
+          requested_end_date?: string
+          product_variant_id?: string | null
+          requested_gear_text?: string | null
+          notes?: string | null
+          status?: string
+          converted_reservation_id?: string | null
+          converted_at?: string | null
+          rejected_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_requests_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_requests_converted_reservation_id_fkey"
+            columns: ["converted_reservation_id"]
             isOneToOne: false
             referencedRelation: "reservations"
             referencedColumns: ["id"]
@@ -2165,6 +2243,23 @@ export type Database = {
           p_variant_id: string
         }
         Returns: Json
+      }
+      convert_request_to_reservation: {
+        Args: {
+          p_request_id: string
+          p_variant_id: string
+          p_quantity: number
+          p_start_date: string
+          p_end_date: string
+          p_total_price_cents: number
+          p_notes?: string
+          p_idempotency_key?: string
+        }
+        Returns: string
+      }
+      generate_or_regenerate_request_link_token: {
+        Args: { p_provider_id: string }
+        Returns: string
       }
       create_return_report: {
         Args: {

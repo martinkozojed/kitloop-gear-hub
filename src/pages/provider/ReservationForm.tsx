@@ -416,8 +416,8 @@ const ReservationForm = () => {
           p_start_date: start.toISOString(),
           p_end_date: end.toISOString(),
           p_total_price_cents: Math.round(totalPrice * 100),
-          p_notes: formData.notes.trim() || null,
-          p_idempotency_key: null,
+          p_notes: formData.notes.trim() || undefined,
+          p_idempotency_key: undefined,
         });
         if (convertError) throw convertError;
         reservationId = convId as string;

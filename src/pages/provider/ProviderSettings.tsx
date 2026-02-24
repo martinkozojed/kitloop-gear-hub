@@ -634,7 +634,7 @@ const ProviderSettings = () => {
                         });
                         if (error) throw error;
                         await refreshProfile();
-                        if (data) {
+                        if (typeof data === 'string') {
                           setLastGeneratedToken(data);
                           const url = `${window.location.origin}/request/${data}`;
                           try {
@@ -683,7 +683,7 @@ const ProviderSettings = () => {
                           });
                           if (error) throw error;
                           await refreshProfile();
-                          if (data) {
+                          if (typeof data === 'string') {
                             setLastGeneratedToken(data);
                             try {
                               await navigator.clipboard.writeText(`${window.location.origin}/request/${data}`);
