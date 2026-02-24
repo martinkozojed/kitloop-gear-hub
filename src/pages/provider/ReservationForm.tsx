@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,11 +70,29 @@ interface AvailabilityState {
   } | null;
 }
 
+export interface FromRequestState {
+  id: string;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  requested_start_date: string;
+  requested_end_date: string;
+  requested_gear_text: string | null;
+  notes: string | null;
+  status?: string;
+}
+
 const ReservationForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const fromRequestId = searchParams.get('fromRequest');
   const { provider } = useAuth();
   const { t, i18n } = useTranslation();
   const currentLocale = i18n.language.startsWith('cs') ? cs : enUS;
+  const fromRequestState = (location.state as { fromRequest?: FromRequestState })?.fromRequest;
+  const [resolvedRequest, setResolvedRequest] = useState<FromRequestState | null>(null);
+  const [requestResolveError, setRequestResolveError] = useState<string | null>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -142,6 +160,73 @@ const ReservationForm = () => {
 
     fetchProducts();
   }, [provider?.id]);
+
+  // Resolve request from URL (refresh-safe): state if matching, else fetch by id
+  useEffect(() => {
+    if (!fromRequestId || !provider?.id) {
+      if (fromRequestId && !provider?.id) setResolvedRequest(null);
+      return;
+    }
+    if (fromRequestState?.id === fromRequestId) {
+      setRequestResolveError(null);
+      setResolvedRequest(fromRequestState.status === 'pending' ? fromRequestState : null);
+      if (fromRequestState.status !== 'pending') {
+        setRequestResolveError(t('provider.requestLink.alreadyProcessed'));
+      }
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('reservation_requests')
+        .select('id, customer_name, customer_email, customer_phone, requested_start_date, requested_end_date, requested_gear_text, notes, status')
+        .eq('id', fromRequestId)
+        .eq('provider_id', provider.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        setRequestResolveError(getErrorMessage(error) || 'Request not found');
+        setResolvedRequest(null);
+        return;
+      }
+      if (!data) {
+        setRequestResolveError(t('provider.requestLink.alreadyProcessed'));
+        setResolvedRequest(null);
+        return;
+      }
+      const row = data as FromRequestState & { status?: string };
+      if (row.status !== 'pending') {
+        setRequestResolveError(t('provider.requestLink.alreadyProcessed'));
+        setResolvedRequest(null);
+        return;
+      }
+      setRequestResolveError(null);
+      setResolvedRequest(row);
+    })();
+    return () => { cancelled = true; };
+  }, [fromRequestId, provider?.id, fromRequestState?.id, fromRequestState?.status, t]);
+
+  const fromRequest = resolvedRequest ?? (fromRequestState?.id === fromRequestId ? fromRequestState : null);
+
+  const didPrefillFromRequest = useRef(false);
+  // Prefill from reservation request (Request Link flow) — once per request id
+  useEffect(() => {
+    if (!fromRequest?.id || didPrefillFromRequest.current) return;
+    didPrefillFromRequest.current = true;
+    const parts: string[] = [];
+    if (fromRequest.requested_gear_text) parts.push(fromRequest.requested_gear_text);
+    if (fromRequest.notes) parts.push(fromRequest.notes);
+    const notes = parts.join('\n\n');
+    setFormData(prev => ({
+      ...prev,
+      customer_name: fromRequest.customer_name ?? '',
+      customer_email: fromRequest.customer_email ?? '',
+      customer_phone: fromRequest.customer_phone ?? '',
+      start_date: fromRequest.requested_start_date ?? '',
+      end_date: fromRequest.requested_end_date ?? '',
+      notes: notes || prev.notes,
+    }));
+  }, [fromRequest]);
 
   // Check availability when Variant or Date changes
   useEffect(() => {
@@ -287,6 +372,15 @@ const ReservationForm = () => {
 
     if (!provider?.id) return;
 
+    if (fromRequestId && requestResolveError) {
+      toast.error(t('provider.requestLink.alreadyProcessed'));
+      return;
+    }
+    if (fromRequestId && !fromRequest) {
+      toast.error(t('provider.reservationForm.toasts.loadingRequest', 'Loading request…'));
+      return;
+    }
+
     setSubmitting(true);
     track('reservations.create_started', { variant_id: formData.variant_id }, 'ReservationForm');
     try {
@@ -311,10 +405,30 @@ const ReservationForm = () => {
         return;
       }
 
+      let reservationId: string;
+
+      if (fromRequestId && fromRequest?.id) {
+        // Atomic convert: one RPC creates reservation and marks request converted
+        const { data: convId, error: convertError } = await supabase.rpc('convert_request_to_reservation', {
+          p_request_id: fromRequest.id,
+          p_variant_id: formData.variant_id,
+          p_quantity: formData.quantity,
+          p_start_date: start.toISOString(),
+          p_end_date: end.toISOString(),
+          p_total_price_cents: Math.round(totalPrice * 100),
+          p_notes: formData.notes.trim() || null,
+          p_idempotency_key: null,
+        });
+        if (convertError) throw convertError;
+        reservationId = convId as string;
+        track('reservations.created', { reservation_id: reservationId, via: 'convert_request' }, 'ReservationForm');
+        toast.success(t('provider.reservationForm.toasts.created', { status: 'hold' }));
+        navigate(`/provider/reservations/edit/${reservationId}`);
+        return;
+      }
 
       const reservationResult = await createReservationHold({
         providerId: provider.id,
-        // gearId is explicitly excluded or null for Inventory 2.0 reservations
         productVariantId: formData.variant_id,
         startDate: start,
         endDate: end,
@@ -331,7 +445,8 @@ const ReservationForm = () => {
         customerUserId: null,
       });
 
-      track('reservations.created', { reservation_id: reservationResult.reservation_id, status: reservationResult.status }, 'ReservationForm');
+      reservationId = reservationResult.reservation_id;
+      track('reservations.created', { reservation_id: reservationId, status: reservationResult.status }, 'ReservationForm');
       toast.success(t('provider.reservationForm.toasts.created', { status: reservationResult.status }));
       navigate('/provider/reservations');
 
@@ -377,6 +492,13 @@ const ReservationForm = () => {
           <h1 className="text-3xl font-bold mb-2">{t('provider.reservationForm.title')}</h1>
           <p className="text-muted-foreground">{t('provider.reservationForm.subtitle')}</p>
         </div>
+
+        {requestResolveError && (
+          <div className="mb-4 p-4 rounded-lg border border-amber-500/50 bg-amber-500/10 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <p>{requestResolveError}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Customer Info */}

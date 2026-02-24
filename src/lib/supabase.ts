@@ -68,4 +68,6 @@ export interface Provider {
   current_season?: string | null;
   tax_id?: string | null;
   terms_text?: string | null;
+  /** When the current request link was created (token never stored; link shown only once after generate/regenerate). */
+  request_link_created_at?: string | null;
 }
