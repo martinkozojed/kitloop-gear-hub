@@ -18,12 +18,6 @@ import App from "./App.tsx";
 import "./index.css";
 import "./lib/i18n";
 
-if (import.meta.env.PROD) {
-  import("virtual:pwa-register").then((m) => {
-    const registerSW = m.registerSW ?? m.default;
-    if (typeof registerSW === "function") registerSW({ immediate: true });
-  });
-}
 
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
 
