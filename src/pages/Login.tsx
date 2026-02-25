@@ -31,7 +31,9 @@ const Login = () => {
     try {
       await login(email.trim(), password);
       toast.success(t('login.success'));
-      navigate('/');
+      // Land in provider dashboard so Navbar + sidebar are visible (dashboard, logout).
+      // ProviderRoute will redirect non-providers to / or setup as needed.
+      navigate('/provider/dashboard');
     } catch (error) {
       const errorMessage = getErrorMessage(error) || t('login.error');
 
