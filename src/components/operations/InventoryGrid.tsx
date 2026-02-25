@@ -217,6 +217,8 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
         [onDelete, onEdit, canDelete, t]
     );
 
+    // TanStack Table returns non-memoizable functions; React Compiler skips this by design.
+    // eslint-disable-next-line react-hooks/incompatible-library -- useReactTable() API limitation
     const table = useReactTable({
         data,
         columns,

@@ -204,7 +204,7 @@ const ReservationForm = () => {
       setResolvedRequest(row);
     })();
     return () => { cancelled = true; };
-  }, [fromRequestId, provider?.id, fromRequestState?.id, fromRequestState?.status, t]);
+  }, [fromRequestId, provider?.id, fromRequestState, t]);
 
   const fromRequest = resolvedRequest ?? (fromRequestState?.id === fromRequestId ? fromRequestState : null);
 
@@ -226,7 +226,7 @@ const ReservationForm = () => {
       end_date: fromRequest.requested_end_date ?? '',
       notes: notes || prev.notes,
     }));
-  }, [fromRequest]);
+  }, [fromRequest, fromRequestState]);
 
   // Check availability when Variant or Date changes
   useEffect(() => {
