@@ -1179,7 +1179,16 @@
     "cta": {
       "newReservation": "Nová rezervace",
       "refresh": "Obnovit data",
-      "createReservation": "Vytvořit rezervaci"
+      "createReservation": "Vytvořit rezervaci",
+      "addGear": "Přidat vybavení"
+    },
+    "actionCenter": {
+      "todaysPickups": "Dnešní výdeje",
+      "todaysReturns": "Dnešní vratky",
+      "overdue": "Po termínu",
+      "noPickupsToday": "Dnes žádné výdeje.",
+      "noReturnsToday": "Dnes žádné vratky.",
+      "noOverdue": "Žádné rezervace po termínu."
     },
     "view": {
       "overview": "Režim přehledu",

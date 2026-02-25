@@ -146,7 +146,7 @@ const HowItWorks = () => {
   );
 
   return (
-    <div className="bg-background pb-36">
+    <div className="light bg-background pb-36">
       <JsonLd data={jsonLd} />
 
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
