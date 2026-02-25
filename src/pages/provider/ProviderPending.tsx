@@ -14,10 +14,10 @@ const ProviderPending = () => {
   return (
     <ProviderLayout>
       <div className="relative max-w-6xl mx-auto py-12 px-6">
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] rounded-3xl pointer-events-none" />
-        <div className="relative max-w-3xl mx-auto text-center space-y-6 bg-white/70 backdrop-blur-sm rounded-2xl p-10 shadow-lg pointer-events-auto">
+        <div className="absolute inset-0 rounded-3xl pointer-events-none" />
+        <div className="relative max-w-3xl mx-auto text-center space-y-6 bg-card border border-border rounded-2xl p-10 shadow-elevated pointer-events-auto">
           <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
+            <div className="h-16 w-16 rounded-full bg-status-warning/10 text-status-warning border border-status-warning/20 flex items-center justify-center">
               <AlertTriangle className="h-8 w-8" />
             </div>
           </div>

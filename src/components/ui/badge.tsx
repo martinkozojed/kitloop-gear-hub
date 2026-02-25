@@ -11,17 +11,17 @@ const badgeVariants = cva(
         default:
           "bg-primary text-primary-foreground hover:bg-primary/80",
         secondary:
-          "bg-muted text-muted-foreground hover:bg-muted/80",
+          "bg-muted text-muted-foreground hover:bg-accent",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline:
           "text-foreground",
         success:
-          "bg-[hsl(var(--action-success))] text-white hover:bg-[hsl(var(--action-success)/0.8)]",
+          "bg-status-success text-status-success-foreground hover:opacity-90",
         warning:
-          "bg-[hsl(var(--action-warning))] text-white hover:bg-[hsl(var(--action-warning)/0.8)]",
+          "bg-status-warning text-status-warning-foreground hover:opacity-90",
         info:
-          "bg-[hsl(var(--action-info))] text-white hover:bg-[hsl(var(--action-info)/0.8)]",
+          "bg-status-info text-status-info-foreground hover:opacity-90",
       },
     },
     defaultVariants: {

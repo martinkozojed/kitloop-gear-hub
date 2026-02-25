@@ -122,7 +122,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                     <div className="space-y-6">
                         {/* Header */}
                         <div className="flex items-start gap-4">
-                            <Avatar className="w-16 h-16 border-2 border-white shadow-sm">
+                            <Avatar className="w-16 h-16 border-2 border-border">
                                 <AvatarFallback className="text-xl bg-primary/10 text-primary">
                                     {profile.full_name.substring(0, 2).toUpperCase()}
                                 </AvatarFallback>
@@ -148,7 +148,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                         </div>
                                     )}
                                     {account && (
-                                        <div className="flex items-center gap-2 text-emerald-700">
+                                        <div className="flex items-center gap-2 text-foreground">
                                             <Building2 className="w-3.5 h-3.5" />
                                             <span className="font-medium">{account.name}</span>
                                         </div>
@@ -197,10 +197,10 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                 </div>
 
                                 {/* RISK MANAGEMENT CARD */}
-                                <Card className={profile.risk_status === 'blacklist' ? 'border-red-500 bg-red-50' : profile.risk_status === 'warning' ? 'border-amber-500 bg-amber-50' : ''}>
+                                <Card className={profile.risk_status === 'blacklist' ? 'border-status-danger bg-status-danger/10' : profile.risk_status === 'warning' ? 'border-status-warning bg-status-warning/10' : ''}>
                                     <CardHeader className="pb-2 flex flex-row items-center justify-between">
                                         <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                            <AlertTriangle className={profile.risk_status === 'safe' ? 'text-gray-400' : 'text-red-600'} size={16} />
+                                            <AlertTriangle className={profile.risk_status === 'safe' ? 'text-muted-foreground' : 'text-status-danger'} size={16} />
                                             {t('operations.customerSheet.risk.title')}
                                         </CardTitle>
                                         <Badge variant={profile.risk_status === 'safe' ? 'outline' : 'destructive'}>
@@ -213,7 +213,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                                 variant={profile.risk_status === 'safe' ? 'primary' : 'outline'}
                                                 size="sm"
                                                 onClick={() => updateRiskStatus('safe')}
-                                                className="bg-green-600 hover:bg-green-700 text-white border-none"
+                                                className="bg-status-success text-status-success-foreground hover:opacity-90 border-none"
                                             >
                                                 {t('operations.customerSheet.risk.markSafe')}
                                             </Button>
@@ -221,7 +221,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                                 variant={profile.risk_status === 'warning' ? 'primary' : 'outline'}
                                                 size="sm"
                                                 onClick={() => updateRiskStatus('warning')}
-                                                className={profile.risk_status === 'warning' ? "bg-amber-600 hover:bg-amber-700" : "text-amber-600 border-amber-200 hover:bg-amber-50"}
+                                                className={profile.risk_status === 'warning' ? "bg-status-warning text-status-warning-foreground hover:opacity-90" : "text-status-warning border-status-warning/30 hover:bg-status-warning/10"}
                                             >
                                                 {t('operations.customerSheet.risk.markWarning')}
                                             </Button>
@@ -229,7 +229,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                                 variant={profile.risk_status === 'blacklist' ? 'primary' : 'outline'}
                                                 size="sm"
                                                 onClick={() => updateRiskStatus('blacklist')}
-                                                className="col-span-2 bg-red-600 hover:bg-red-700 text-white"
+                                                className="col-span-2 bg-status-danger text-status-danger-foreground hover:opacity-90"
                                             >
                                                 {t('operations.customerSheet.risk.markBlacklist')}
                                             </Button>
@@ -241,7 +241,7 @@ export function CustomerDetailSheet({ customerId, open, onOpenChange, onUpdate }
                                                     placeholder={t('operations.customerSheet.risk.notesPlaceholder')}
                                                     defaultValue={profile.risk_notes || ''}
                                                     onBlur={(e) => updateRiskNotes(e.target.value)}
-                                                    className="bg-white"
+                                                    className="bg-card"
                                                 />
                                             </div>
                                         )}

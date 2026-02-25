@@ -20,6 +20,7 @@ const requestFormSchema = z.object({
   requested_end_date: z.string().min(1, "End date is required"),
   requested_gear_text: z.string().max(1000).optional(),
   notes: z.string().max(2000).optional(),
+  _hp: z.string().optional().or(z.literal("")),
 }).refine(
   (data) => {
     const email = data.customer_email?.trim();
@@ -70,6 +71,7 @@ const RequestLink = () => {
       requested_end_date: "",
       requested_gear_text: "",
       notes: "",
+      _hp: "",
     },
   });
 
@@ -86,6 +88,7 @@ const RequestLink = () => {
         requested_end_date: values.requested_end_date,
         requested_gear_text: values.requested_gear_text?.trim() || null,
         notes: values.notes?.trim() || null,
+        _hp: values._hp ?? "",
       });
       setPageState("success");
     } catch (err: unknown) {
@@ -265,6 +268,17 @@ const RequestLink = () => {
                       placeholder={t("requestLink.notes_placeholder", "Any other details")}
                       rows={3}
                       className="rounded-token-md"
+                    />
+                  </div>
+                  {/* Honeypot: hidden from users; server rejects if filled (bot trap) */}
+                  <div className="absolute -left-[9999px] w-1 h-1 overflow-hidden" aria-hidden>
+                    <Label htmlFor="request_hp">Leave empty</Label>
+                    <Input
+                      id="request_hp"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      {...form.register("_hp")}
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">

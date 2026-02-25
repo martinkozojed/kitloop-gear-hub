@@ -100,7 +100,7 @@ const AppRoutes = () => {
         className={cn(
           "min-h-screen",
           !hideNavAndMenu && "pt-16",
-          isProviderRoute && "bg-muted/50"
+          isProviderRoute && "bg-muted"
         )}
       >
         <Suspense fallback={<PageLoader />}>

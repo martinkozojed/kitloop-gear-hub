@@ -59,16 +59,16 @@ export const RevenueCard = memo(function RevenueCard({
           TrendIcon ? (
             <span
               className={`rounded-full p-2 ${changeTone === "positive"
-                ? "bg-emerald-50 text-emerald-600"
+                ? "bg-status-success/10 text-status-success border border-status-success/20"
                 : changeTone === "negative"
-                  ? "bg-rose-50 text-rose-700"
-                  : "bg-slate-100 text-slate-600"
+                  ? "bg-status-danger/10 text-status-danger border border-status-danger/20"
+                  : "bg-muted text-muted-foreground"
                 }`}
             >
               <TrendIcon className="h-4 w-4" />
             </span>
           ) : (
-            <span className="rounded-full bg-slate-100 p-2 text-slate-600">
+            <span className="rounded-full bg-muted p-2 text-muted-foreground">
               Kč
             </span>
           )

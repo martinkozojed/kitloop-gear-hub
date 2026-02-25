@@ -279,7 +279,7 @@ const ProviderAnalytics = () => {
   const revenueIcon = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">
+        <span className="rounded-full bg-status-success/10 p-2 text-status-success border border-status-success/20">
           <Info className="h-4 w-4" />
         </span>
       </TooltipTrigger>
@@ -292,7 +292,7 @@ const ProviderAnalytics = () => {
   const activeReservationsIcon = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">
+        <span className="rounded-full bg-status-success/10 p-2 text-status-success border border-status-success/20">
           <Info className="h-4 w-4" />
         </span>
       </TooltipTrigger>
@@ -305,7 +305,7 @@ const ProviderAnalytics = () => {
   const utilizationIcon = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">
+        <span className="rounded-full bg-status-success/10 p-2 text-status-success border border-status-success/20">
           <Info className="h-4 w-4" />
         </span>
       </TooltipTrigger>
@@ -318,7 +318,7 @@ const ProviderAnalytics = () => {
   const ratingIcon = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">★</span>
+        <span className="rounded-full bg-status-success/10 p-2 text-status-success border border-status-success/20">★</span>
       </TooltipTrigger>
       <TooltipContent>
         {t("provider.analytics.tooltips.rating")}
@@ -326,7 +326,7 @@ const ProviderAnalytics = () => {
     </Tooltip>
   );
 
-  const insightsIcon = <span className="rounded-full bg-emerald-50 p-2 text-emerald-600">💡</span>;
+  const insightsIcon = <span className="rounded-full bg-status-success/10 p-2 text-status-success border border-status-success/20">💡</span>;
 
   const hasAnyError =
     analytics.isError ||
@@ -347,7 +347,7 @@ const ProviderAnalytics = () => {
         <header className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
-              <h1 className="text-3xl font-heading font-bold text-emerald-950">
+              <h1 className="text-3xl font-heading font-bold text-foreground">
                 {t("provider.analytics.title")}
               </h1>
               <p className="text-sm text-muted-foreground">
@@ -359,7 +359,7 @@ const ProviderAnalytics = () => {
                 type="single"
                 value={period}
                 onValueChange={handlePeriodChange}
-                className="flex rounded-full border border-emerald-100 bg-white p-1 shadow-sm"
+                className="flex rounded-full border border-border bg-card p-1"
               >
                 {periodOptions.map((option) => (
                   <ToggleGroupItem
@@ -381,7 +381,7 @@ const ProviderAnalytics = () => {
                       variant="outline"
                       size="icon"
                       onClick={handleRefresh}
-                      className="h-8 w-8 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                      className="h-8 w-8 text-status-success border-status-success/30 hover:bg-status-success/10"
                     >
                       <RefreshCcw className="h-4 w-4" />
                     </Button>
@@ -394,7 +394,7 @@ const ProviderAnalytics = () => {
             </div>
           </div>
           {errorMessage && (
-            <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            <div className="flex items-center gap-2 rounded-lg border border-status-danger/30 bg-status-danger/10 px-3 py-2 text-sm text-status-danger">
               <AlertCircle className="h-4 w-4" />
               <span>{errorMessage}</span>
             </div>

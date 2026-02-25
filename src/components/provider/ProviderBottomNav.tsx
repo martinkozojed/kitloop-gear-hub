@@ -23,7 +23,7 @@ const ProviderBottomNav = () => {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-xl border-t border-border z-50 pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 pb-safe">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto relative">
           {navItems.map((item) => {
             // Special case for Scan FAB

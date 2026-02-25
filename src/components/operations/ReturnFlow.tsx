@@ -7,6 +7,14 @@ import {
     DialogFooter,
     DialogDescription,
 } from "@/components/ui/dialog";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+} from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -40,6 +48,7 @@ interface AssetReturnState {
 export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: ReturnFlowProps) {
     const { t } = useTranslation();
     const { user, provider } = useAuth();
+    const isMobile = useIsMobile();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);
 
@@ -241,12 +250,114 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
     const hasAnyDamage = assets.some(a => a.isDamaged);
 
+    const bodyContent = (
+        <>
+            <div className="py-4 space-y-6">
+                {fetching ? (
+                    <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
+                ) : (
+                    <div className="space-y-4">
+                        {assets.map(asset => (
+                            <div key={asset.id} className={cn(
+                                "p-4 border rounded-token-lg transition-all",
+                                asset.isDamaged ? "border-status-warning/30 bg-status-warning/10" : "border-border bg-muted"
+                            )}>
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <p className="font-medium text-sm">{asset.product_name}</p>
+                                        <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`dmg-${asset.id}`}
+                                            checked={asset.isDamaged}
+                                            onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
+                                        />
+                                        <Label htmlFor={`dmg-${asset.id}`} className="text-sm cursor-pointer">
+                                            {t('operations.returnFlow.reportDamage')}
+                                        </Label>
+                                    </div>
+                                </div>
+
+                                {asset.isDamaged && (
+                                    <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                        <div className="space-y-1">
+                                            <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
+                                            <Textarea
+                                                placeholder={t('operations.returnFlow.describeIssue')}
+                                                className="h-20 text-xs bg-background"
+                                                value={asset.note}
+                                                onChange={(e) => updateNote(asset.id, e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <Label className="text-xs">{t('operations.returnFlow.evidencePhoto')}</Label>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    id={`file-${asset.id}`}
+                                                    onChange={(e) => handleFileChange(asset.id, e.target.files?.[0] || null)}
+                                                />
+                                                <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-${asset.id}`)?.click()}>
+                                                    <Camera className="w-3 h-3 mr-2" />
+                                                    {asset.photoFile ? asset.photoFile.name : t('operations.returnFlow.uploadPhoto')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {hasAnyDamage && (
+                    <div className="flex items-center gap-2 p-3 text-xs bg-status-warning/10 text-status-warning border border-status-warning/20 rounded-token-md">
+                        <AlertOctagon className="w-4 h-4" />
+                        {t('operations.returnFlow.damageWarning')}
+                    </div>
+                )}
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+                <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading} className="w-full sm:w-auto">
+                    {t('operations.returnFlow.cancel')}
+                </Button>
+                <Button data-testid="return-confirm-btn" variant={hasAnyDamage ? "warning" : undefined} onClick={handleConfirm} disabled={loading || fetching} className="w-full sm:w-auto">
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (successfullyReturnedReportId ? t('operations.returnFlow.retry') : t('operations.returnFlow.complete'))}
+                </Button>
+            </div>
+        </>
+    );
+
+    if (isMobile) {
+        return (
+            <Sheet open={open} onOpenChange={onOpenChange}>
+                <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-token-lg">
+                    <SheetHeader>
+                        <SheetTitle className="flex items-center gap-2">
+                            <PackageCheck className="w-5 h-5 text-status-success" />
+                            {t('operations.returnFlow.title')}
+                        </SheetTitle>
+                        <SheetDescription>
+                            {reservation.customerName} - {reservation.itemName}
+                        </SheetDescription>
+                    </SheetHeader>
+                    {bodyContent}
+                </SheetContent>
+            </Sheet>
+        );
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <PackageCheck className="w-5 h-5 text-emerald-600" />
+                        <PackageCheck className="w-5 h-5 text-status-success" />
                         {t('operations.returnFlow.title')}
                     </DialogTitle>
                     <DialogDescription>
@@ -261,8 +372,8 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                         <div className="space-y-4">
                             {assets.map(asset => (
                                 <div key={asset.id} className={cn(
-                                    "p-4 border rounded-lg transition-all",
-                                    asset.isDamaged ? "border-orange-200 bg-orange-50/50" : "border-slate-100 bg-slate-50/50"
+                                    "p-4 border rounded-token-lg transition-all",
+                                    asset.isDamaged ? "border-status-warning/30 bg-status-warning/10" : "border-border bg-muted"
                                 )}>
                                     <div className="flex items-start justify-between">
                                         <div>
@@ -271,11 +382,11 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <Checkbox
-                                                id={`dmg-${asset.id}`}
+                                                id={`dmg-d-${asset.id}`}
                                                 checked={asset.isDamaged}
                                                 onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
                                             />
-                                            <Label htmlFor={`dmg-${asset.id}`} className="text-sm cursor-pointer">
+                                            <Label htmlFor={`dmg-d-${asset.id}`} className="text-sm cursor-pointer">
                                                 {t('operations.returnFlow.reportDamage')}
                                             </Label>
                                         </div>
@@ -287,7 +398,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                                 <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
                                                 <Textarea
                                                     placeholder={t('operations.returnFlow.describeIssue')}
-                                                    className="h-20 text-xs bg-white"
+                                                    className="h-20 text-xs bg-background"
                                                     value={asset.note}
                                                     onChange={(e) => updateNote(asset.id, e.target.value)}
                                                 />
@@ -300,10 +411,10 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                                         type="file"
                                                         accept="image/*"
                                                         className="hidden"
-                                                        id={`file-${asset.id}`}
+                                                        id={`file-d-${asset.id}`}
                                                         onChange={(e) => handleFileChange(asset.id, e.target.files?.[0] || null)}
                                                     />
-                                                    <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-${asset.id}`)?.click()}>
+                                                    <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-d-${asset.id}`)?.click()}>
                                                         <Camera className="w-3 h-3 mr-2" />
                                                         {asset.photoFile ? asset.photoFile.name : t('operations.returnFlow.uploadPhoto')}
                                                     </Button>
@@ -317,7 +428,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                     )}
 
                     {hasAnyDamage && (
-                        <div className="flex items-center gap-2 p-3 text-xs text-orange-800 bg-orange-100 rounded-md">
+                        <div className="flex items-center gap-2 p-3 text-xs bg-status-warning/10 text-status-warning border border-status-warning/20 rounded-token-md">
                             <AlertOctagon className="w-4 h-4" />
                             {t('operations.returnFlow.damageWarning')}
                         </div>
@@ -328,7 +439,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                     <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
                         {t('operations.returnFlow.cancel')}
                     </Button>
-                    <Button data-testid="return-confirm-btn" onClick={handleConfirm} disabled={loading || fetching} className={hasAnyDamage ? "bg-orange-600 hover:bg-orange-700" : ""}>
+                    <Button data-testid="return-confirm-btn" variant={hasAnyDamage ? "warning" : undefined} onClick={handleConfirm} disabled={loading || fetching}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (successfullyReturnedReportId ? t('operations.returnFlow.retry') : t('operations.returnFlow.complete'))}
                     </Button>
                 </DialogFooter>

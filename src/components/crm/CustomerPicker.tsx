@@ -88,7 +88,7 @@ export function CustomerPicker({ value, onSelect }: CustomerPickerProps) {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[320px] p-0 bg-white shadow-lg border rounded-xl" align="start">
+            <PopoverContent className="w-[320px] p-0 bg-popover shadow-elevated border border-border rounded-xl" align="start">
                 <Command shouldFilter={false}>
                     <CommandInput placeholder={t('provider.reservationForm.crm.inputPlaceholder')} onValueChange={setSearch} />
                     <CommandList>

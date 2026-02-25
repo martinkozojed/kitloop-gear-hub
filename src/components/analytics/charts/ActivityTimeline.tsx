@@ -15,11 +15,11 @@ interface ActivityTimelineProps {
 }
 
 const statusTone: Record<string, string> = {
-  confirmed: "bg-blue-100 text-blue-700",
-  active: "bg-emerald-100 text-emerald-700",
-  completed: "bg-slate-200 text-slate-700",
-  cancelled: "bg-rose-100 text-rose-700",
-  hold: "bg-amber-100 text-amber-700",
+  confirmed: "bg-status-info/10 text-status-info border border-status-info/20",
+  active: "bg-status-success/10 text-status-success border border-status-success/20",
+  completed: "bg-status-neutral/10 text-status-neutral border border-status-neutral/20",
+  cancelled: "bg-status-danger/10 text-status-danger border border-status-danger/20",
+  hold: "bg-status-warning/10 text-status-warning border border-status-warning/20",
 };
 
 export const ActivityTimeline = memo(function ActivityTimeline({
@@ -38,7 +38,7 @@ export const ActivityTimeline = memo(function ActivityTimeline({
         {isLoading ? (
           <Skeleton className="h-48 w-full rounded-xl" />
         ) : data.length === 0 ? (
-          <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted/10 text-sm text-muted-foreground">
+          <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted text-sm text-muted-foreground">
             {emptyMessage}
           </div>
         ) : (
@@ -50,7 +50,7 @@ export const ActivityTimeline = memo(function ActivityTimeline({
 
               return (
                 <li key={event.reservationId} className="relative pl-6">
-                  <span className="absolute left-0 top-2 h-3 w-3 rounded-full bg-emerald-500" />
+                  <span className="absolute left-0 top-2 h-3 w-3 rounded-full bg-status-success" />
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">

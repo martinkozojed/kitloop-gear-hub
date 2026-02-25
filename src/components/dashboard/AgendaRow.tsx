@@ -47,7 +47,7 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                 <span className="text-xl font-bold font-mono tracking-tight text-foreground group-hover:text-primary transition-colors">{data.time}</span>
                 <span className={cn(
                     "text-xs uppercase font-bold tracking-wide mt-0.5",
-                    isPickup ? "text-emerald-600/80" : "text-emerald-700/80"
+                    isPickup ? "text-status-success" : "text-status-success"
                 )}>
                     {isPickup ? t('dashboard.agenda.pickupLabel') : t('dashboard.agenda.returnLabel')}
                 </span>
@@ -62,10 +62,10 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                     >
                         {data.customerName}
                         {data.customerRiskStatus === 'warning' && (
-                            <Icon icon={ShieldCheck} className="text-amber-500" />
+                            <Icon icon={ShieldCheck} className="text-status-warning" />
                         )}
                         {data.customerRiskStatus === 'blacklist' && (
-                            <Icon icon={ShieldCheck} className="text-red-500" />
+                            <Icon icon={ShieldCheck} className="text-status-danger" />
                         )}
                     </div>
                 </div>

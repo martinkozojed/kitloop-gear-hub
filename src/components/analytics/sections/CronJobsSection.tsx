@@ -96,8 +96,8 @@ export function CronJobsSection({ data, isLoading, initialFilter = 'all' }: Cron
     });
 
     const renderStatus = (status: string | null, stale: boolean) => {
-        if (stale) return <Badge variant="destructive" className="bg-amber-100 text-amber-800 border-amber-200"><Clock className="w-3 h-3 mr-1" /> Stale</Badge>;
-        if (status === 'success') return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle2 className="w-3 h-3 mr-1" /> OK</Badge>;
+        if (stale) return <Badge variant="outline" className="bg-status-warning/10 text-status-warning border-status-warning/20"><Clock className="w-3 h-3 mr-1" /> Stale</Badge>;
+        if (status === 'success') return <Badge variant="outline" className="bg-status-success/10 text-status-success border-status-success/20"><CheckCircle2 className="w-3 h-3 mr-1" /> OK</Badge>;
         if (status === 'failed') return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" /> Failed</Badge>;
         if (status === 'started') return <Badge variant="secondary"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Running</Badge>;
         return <Badge variant="outline">Unknown</Badge>;
@@ -113,7 +113,7 @@ export function CronJobsSection({ data, isLoading, initialFilter = 'all' }: Cron
                 <Card>
                     <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Stale Jobs</CardTitle></CardHeader>
                     <CardContent>
-                        <div className={`text-2xl font-bold ${stats.stale > 0 ? "text-amber-600" : ""}`}>
+                        <div className={`text-2xl font-bold ${stats.stale > 0 ? "text-status-warning" : ""}`}>
                             {isLoading ? "-" : stats.stale}
                         </div>
                     </CardContent>
@@ -121,7 +121,7 @@ export function CronJobsSection({ data, isLoading, initialFilter = 'all' }: Cron
                 <Card>
                     <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Failing Jobs</CardTitle></CardHeader>
                     <CardContent>
-                        <div className={`text-2xl font-bold ${stats.failed > 0 ? "text-red-600" : ""}`}>
+                        <div className={`text-2xl font-bold ${stats.failed > 0 ? "text-status-danger" : ""}`}>
                             {isLoading ? "-" : stats.failed}
                         </div>
                     </CardContent>
@@ -149,7 +149,7 @@ export function CronJobsSection({ data, isLoading, initialFilter = 'all' }: Cron
                                 variant={filter === 'stale' ? 'default' : 'outline'}
                                 size="sm"
                                 onClick={() => setFilter('stale')}
-                                className={stats.stale > 0 ? 'border-amber-400 text-amber-700' : ''}
+                                className={stats.stale > 0 ? 'border-status-warning text-status-warning' : ''}
                                 data-testid="cron-filter-stale"
                             >
                                 Stale ({stats.stale})
@@ -158,7 +158,7 @@ export function CronJobsSection({ data, isLoading, initialFilter = 'all' }: Cron
                                 variant={filter === 'failing' ? 'default' : 'outline'}
                                 size="sm"
                                 onClick={() => setFilter('failing')}
-                                className={stats.failed > 0 ? 'border-red-400 text-red-700' : ''}
+                                className={stats.failed > 0 ? 'border-status-danger text-status-danger' : ''}
                                 data-testid="cron-filter-failing"
                             >
                                 Failing ({stats.failed})

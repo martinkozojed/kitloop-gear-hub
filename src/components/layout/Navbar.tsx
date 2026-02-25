@@ -69,7 +69,7 @@ const Navbar = () => {
             <div className="w-full max-w-md relative group">
               <Button
                 variant="outline"
-                className="w-full justify-start text-muted-foreground bg-muted/50 hover:bg-white border-transparent hover:border-gray-200 transition-all"
+                className="w-full justify-start text-muted-foreground bg-muted hover:bg-accent border-transparent hover:border-border transition-all"
                 onClick={() => setOpen(true)}
               >
                 <Search className="mr-2 h-4 w-4" />

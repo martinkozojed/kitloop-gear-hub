@@ -165,8 +165,8 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                                 </Button>
                             </div>
                         ) : result.asset.status === 'maintenance' ? (
-                            <div className="p-4 border rounded-lg bg-amber-50 border-amber-100">
-                                <h5 className="font-medium text-amber-900 mb-1">In Maintenance</h5>
+                            <div className="p-4 border border-status-warning/30 rounded-lg bg-status-warning/10">
+                                <h5 className="font-medium text-status-warning mb-1">In Maintenance</h5>
                                 {maintenanceEnabled && (
                                     <Button
                                         className="w-full mt-2"

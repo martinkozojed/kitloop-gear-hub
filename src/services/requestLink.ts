@@ -7,9 +7,10 @@ export interface SubmitRequestPayload {
   customer_phone: string;
   requested_start_date: string;
   requested_end_date: string;
-  product_variant_id?: string | null;
   requested_gear_text?: string | null;
   notes?: string | null;
+  /** Honeypot: must be sent in body; server rejects if non-empty. */
+  _hp?: string;
 }
 
 export interface SubmitRequestResult {

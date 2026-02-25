@@ -201,7 +201,7 @@ function HeroPreview({ lang }: { lang: Lang }) {
       className="rounded-xl border border-slate-200 shadow-lg overflow-hidden bg-white select-none pointer-events-none"
       aria-hidden="true"
     >
-      <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+      <div className="px-4 py-2.5 bg-subtle border-b border-slate-100 flex items-center justify-between">
         <span className="text-xs font-medium text-slate-500">{today}</span>
         <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full tracking-wide">
           LIVE
@@ -217,7 +217,7 @@ function HeroPreview({ lang }: { lang: Lang }) {
           </div>
         ))}
       </div>
-      <div className="border-t border-slate-100 px-4 py-2 bg-slate-50/60">
+      <div className="border-t border-slate-100 px-4 py-2 bg-subtle/80">
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
           {labels.agendaLabel}
         </span>
@@ -238,7 +238,7 @@ function HeroPreview({ lang }: { lang: Lang }) {
           </div>
         ))}
       </div>
-      <div className="border-t border-slate-100 px-4 py-2 bg-slate-50">
+      <div className="border-t border-slate-100 px-4 py-2 bg-subtle">
         <p className="text-[10px] text-slate-400 text-center">{labels.disclaimer}</p>
       </div>
     </div>
@@ -362,7 +362,7 @@ export default function Onboarding() {
 
       {/* Skip link */}
       <a
-        href="#features"
+        href="#section-features"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-1/2 focus:-translate-x-1/2 focus:z-[60] focus:bg-background focus:px-5 focus:py-2 focus:rounded-full focus:text-sm focus:font-semibold focus:ring-2 focus:ring-emerald-600 focus:shadow-lg"
       >
         {t("onboarding.painSkip")}
@@ -513,19 +513,19 @@ export default function Onboarding() {
       </Section>
 
       {/* ── C) Je / Není pro ──────────────────────────────────────────────────── */}
-      <Section className="bg-slate-50/70 py-10">
+      <Section className="bg-subtle py-10">
         <div className="mx-auto max-w-5xl px-6">
           <div className="grid gap-5 md:grid-cols-2">
-            <Card className="rounded-xl border-0 bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-200">
+            <Card className="rounded-token-lg border-0 bg-inverse shadow-elevated">
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-white/80 shrink-0" aria-hidden="true" />
-                  <p className="text-base font-bold text-white">{t("onboarding.isTitle")}</p>
+                  <CheckCircle2 className="h-4 w-4 text-inverse-foreground/80 shrink-0" aria-hidden="true" />
+                  <p className="text-base font-bold text-inverse-foreground">{t("onboarding.isTitle")}</p>
                 </div>
                 <ul className="space-y-2">
                   {tIsBullets().map((b) => (
-                    <li key={b} className="flex gap-2.5 text-sm text-emerald-50">
-                      <span className="mt-0.5 text-white/70 shrink-0" aria-hidden="true">✓</span>
+                    <li key={b} className="flex gap-2.5 text-sm text-inverse-foreground">
+                      <span className="mt-0.5 text-inverse-foreground/70 shrink-0" aria-hidden="true">✓</span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -601,7 +601,7 @@ export default function Onboarding() {
       </Section>
 
       {/* ── E) Funkce — Bento grid ────────────────────────────────────────────── */}
-      <Section id="features" className="bg-slate-50/70 py-12 scroll-mt-24">
+      <Section id="section-features" className="bg-subtle py-12 scroll-mt-24">
         <div className="mx-auto max-w-5xl px-6">
           <div ref={featuresSectionRef} className="text-center mb-8">
             <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.featuresTitle")}</h2>
@@ -678,7 +678,7 @@ export default function Onboarding() {
       </Section>
 
       {/* ── G) FAQ ───────────────────────────────────────────────────────────── */}
-      <Section className="bg-slate-50/70 py-10">
+      <Section className="bg-subtle py-10">
         <div className="mx-auto max-w-3xl px-6">
           <h2 className="text-2xl font-bold md:text-3xl mb-6">{t("onboarding.faqTitle")}</h2>
           <Accordion type="single" collapsible className="space-y-2">
@@ -686,12 +686,12 @@ export default function Onboarding() {
               <AccordionItem
                 key={i}
                 value={String(i)}
-                className="group rounded-xl border border-muted-foreground/15 px-5 overflow-hidden bg-white transition-all data-[state=open]:bg-gradient-to-br data-[state=open]:from-emerald-500 data-[state=open]:to-emerald-700 data-[state=open]:border-transparent data-[state=open]:shadow-lg data-[state=open]:shadow-emerald-200"
+                className="group rounded-token-lg border border-muted-foreground/15 px-5 overflow-hidden bg-white transition-all data-[state=open]:bg-inverse data-[state=open]:border-transparent data-[state=open]:shadow-elevated"
               >
-                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm group-data-[state=open]:text-white [&[data-state=open]>svg]:text-white">
+                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm group-data-[state=open]:text-inverse-foreground [&[data-state=open]>svg]:text-inverse-foreground">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm leading-relaxed text-muted-foreground group-data-[state=open]:text-emerald-50">
+                <AccordionContent className="text-sm leading-relaxed text-muted-foreground group-data-[state=open]:text-inverse-foreground">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -702,13 +702,13 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6">
-        <div className="mx-auto max-w-2xl rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 px-10 py-12 text-center space-y-5 shadow-xl shadow-emerald-200">
-          <h2 className="text-2xl font-bold md:text-3xl text-white">{t("onboarding.finalTitle")}</h2>
-          <p className="text-emerald-100 text-sm">{t("onboarding.finalSub")}</p>
+        <div className="mx-auto max-w-2xl rounded-token-xl bg-inverse px-10 py-12 text-center space-y-5 shadow-elevated">
+          <h2 className="text-2xl font-bold md:text-3xl text-inverse-foreground">{t("onboarding.finalTitle")}</h2>
+          <p className="text-inverse-foreground/90 text-sm">{t("onboarding.finalSub")}</p>
           <Button
             asChild
+            variant="cta"
             size="cta"
-            className="bg-white text-emerald-800 hover:bg-emerald-50 shadow-sm"
             onClick={() => fireCtaEvent("final", lang, pain)}
           >
             <Link to={signupHref}>{t("onboarding.finalCta1")}</Link>

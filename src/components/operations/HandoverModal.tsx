@@ -232,7 +232,7 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        {mode === 'Check-In' ? <ArrowRight className="rotate-180 text-orange-500" /> : <ArrowRight className="text-green-500" />}
+                        {mode === 'Check-In' ? <ArrowRight className="rotate-180 text-status-warning" /> : <ArrowRight className="text-status-success" />}
                         {mode} Items
                         <Badge variant="outline" className="ml-2">{reservation.status}</Badge>
                     </DialogTitle>
@@ -240,7 +240,7 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
 
                 <div className="space-y-6">
                     {/* Header Info */}
-                    <div className="grid grid-cols-2 gap-4 text-sm bg-muted/50 p-4 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4 text-sm bg-muted p-4 rounded-lg">
                         <div>
                             <p className="text-muted-foreground">Product</p>
                             <p className="font-medium">{reservation.product_variants?.product?.name} ({reservation.product_variants?.name})</p>
@@ -289,7 +289,7 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
                                     {assignments.map(a => (
                                         <div key={a.id} className="p-3 flex justify-between items-center group">
                                             <div className="flex items-center gap-3">
-                                                {a.returned_at ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Loader2 className="h-4 w-4 text-blue-500 animate-spin-slow" />}
+                                                {a.returned_at ? <CheckCircle className="h-4 w-4 text-status-success" /> : <Loader2 className="h-4 w-4 text-status-info animate-spin-slow" />}
                                                 <div>
                                                     <p className="font-medium">{a.asset_tag}</p>
                                                     <p className="text-xs text-muted-foreground">{a.product_name} - {a.variant_name}</p>
@@ -297,11 +297,11 @@ export function HandoverModal({ reservationId, open, onOpenChange, onSuccess }: 
                                             </div>
                                             <div className="text-right text-xs">
                                                 <p className="text-muted-foreground">{new Date(a.assigned_at).toLocaleTimeString()}</p>
-                                                {a.returned_at && <p className="text-green-600">Returned {new Date(a.returned_at).toLocaleTimeString()}</p>}
+                                                {a.returned_at && <p className="text-status-success">Returned {new Date(a.returned_at).toLocaleTimeString()}</p>}
 
                                                 {/* Allow removal if accidentally scanned out and not returned yet? */}
                                                 {!a.returned_at && mode === 'Check-Out' && (
-                                                    <Button variant="ghost" size="sm" className="h-6 text-red-500 opacity-0 group-hover:opacity-100"
+                                                    <Button variant="ghost" size="sm" className="h-6 text-status-danger opacity-0 group-hover:opacity-100"
                                                         onClick={() => {
                                                             // TODO: Implement removal
                                                             toast.info('Removal not impl yet');

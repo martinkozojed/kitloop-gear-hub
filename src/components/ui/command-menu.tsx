@@ -32,6 +32,7 @@ const marketplaceEnabled = import.meta.env.VITE_ENABLE_MARKETPLACE === 'true';
 const crmEnabled = import.meta.env.VITE_ENABLE_CRM === 'true';
 const analyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
 const scanEnabled = import.meta.env.VITE_ENABLE_SCAN === 'true';
+const calendarEnabled = import.meta.env.VITE_ENABLE_CALENDAR === 'true';
 
 export function CommandMenu() {
     const { open, setOpen } = useCommand()
@@ -78,10 +79,12 @@ export function CommandMenu() {
                         <Box className="mr-2 h-4 w-4" />
                         <span>Inventory</span>
                     </CommandItem>
-                    <CommandItem onSelect={() => runCommand(() => navigate("/provider/calendar"))}>
-                        <Calendar className="mr-2 h-4 w-4" />
-                        <span>Calendar</span>
-                    </CommandItem>
+                    {calendarEnabled && (
+                        <CommandItem onSelect={() => runCommand(() => navigate("/provider/calendar"))}>
+                            <Calendar className="mr-2 h-4 w-4" />
+                            <span>Calendar</span>
+                        </CommandItem>
+                    )}
                     {crmEnabled && (
                         <CommandItem onSelect={() => runCommand(() => navigate("/provider/customers"))}>
                             <User className="mr-2 h-4 w-4" />

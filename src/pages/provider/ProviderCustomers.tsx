@@ -104,9 +104,9 @@ const ProviderCustomers = () => {
                     />
                 </FilterBar>
 
-                <div className="border rounded-md bg-white shadow-sm overflow-hidden">
+                <div className="rounded-md border border-border bg-card overflow-hidden">
                     <Table>
-                        <TableHeader className="bg-muted/50">
+                        <TableHeader>
                             <TableRow>
                                 <TableHead>{t('operations.crm.table.name')}</TableHead>
                                 <TableHead>{t('operations.crm.table.status')}</TableHead>
@@ -141,7 +141,7 @@ const ProviderCustomers = () => {
                                 filteredCustomers.map((customer) => (
                                     <TableRow
                                         key={customer.id}
-                                        className="cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+                                        className="cursor-pointer hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                                         onClick={() => handleRowClick(customer.id)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' || e.key === ' ') {

@@ -7,88 +7,124 @@
 
 @layer base {
 
-  /* --- PROFESSIONAL SAAS THEME (Linear/Bento Style) --- */
+  /* ========== SURFACES (5-level model) ========== */
   :root {
-    --background: 210 20% 98%;
-    /* Cool Gray/Zinc 50 - Distinct from white */
-    --surface: 0 0% 100%;
-    /* Pure White */
-    --foreground: 220 15% 15%;
-    /* High stiffness text */
+    /* Canvas */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 220 10% 45%;
+    /* Surface (cards, panels, tables) */
+    --card: 0 0% 100%;
+    --card-foreground: var(--foreground);
 
-    --border: 220 13% 91%;
-    /* Subtle but visible border */
-    --input: 220 13% 91%;
-    --ring: 142 76% 36%;
+    /* Overlay (dialogs, popovers, dropdowns) */
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--foreground);
+
+    /* Inset (table head, filter bar, secondary blocks) */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 19% 35%;
+
+    /* Interactive highlight (hover/selected – NOT status) */
+    --accent: 214 32% 91%;
+    --accent-foreground: var(--foreground);
+
+    /* Secondary (map to muted; keeps shadcn happy) */
+    --secondary: var(--muted);
+    --secondary-foreground: var(--foreground);
+
+    /* Borders & focus (contrast: borders/focus ≥3:1 vs adjacent surface) */
+    --border: 214 32% 91%;
+    --input: 213 27% 84%;
+    --ring: 175 84% 32%;
+
+    /* ========== ACTIONS (ops-first) ========== */
+    --primary: 222 47% 11%;
+    --primary-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --brand: 175 84% 32%;
+    --brand-foreground: 0 0% 100%;
+
+    /* ========== STATUS (semantic solids; soft via alpha) ========== */
+    --status-success: 142 76% 29%;
+    --status-info: 201 90% 28%;
+    --status-warning: 32 81% 29%;
+    --status-danger: 0 70% 35%;
+    --status-neutral: 215 19% 35%;
+    --status-foreground: 0 0% 100%;
 
     /* --- RADIUS SCALE (Design Tokens) --- */
     --radius: 0.75rem;
-    /* Legacy shadcn default */
     --radius-sm: 6px;
-    /* Badges, chips, small inputs */
     --radius-md: 10px;
-    /* Buttons, inputs, table cells */
     --radius-lg: 16px;
-    /* Cards, modals, containers */
     --radius-xl: 24px;
-    /* MARKETING ONLY: hero, feature cards */
 
     /* --- SHADOW SCALE (Design Tokens) --- */
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
     --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
     --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
-    --shadow-hero: 0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 25px hsl(142 76% 36% / 0.1);
-    --shadow-hero-hover: 0 12px 32px hsl(142 76% 36% / 0.15);
+    --shadow-hero: 0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 25px hsl(175 84% 32% / 0.1);
+    --shadow-hero-hover: 0 12px 32px hsl(175 84% 32% / 0.15);
 
     /* MARKETING GRADIENTS */
-    --hero-glow: radial-gradient(circle at top, hsl(199 89% 60% / 0.18), transparent 60%), radial-gradient(circle at bottom, hsl(142 76% 36% / 0.2), transparent 55%);
+    --hero-glow: radial-gradient(circle at top, hsl(199 89% 60% / 0.18), transparent 60%), radial-gradient(circle at bottom, hsl(175 84% 32% / 0.2), transparent 55%);
 
-    /* Brand Colors - Outdoor Emerald (UNIFIED) */
-    --primary: 142 76% 36%;
-    /* Emerald 600 - Main brand color */
-    --primary-foreground: 0 0% 100%;
-    /* Pure White */
+    /* Public surfaces: section background and dark accent blocks */
+    --bg-subtle: 210 40% 96%;
+    --bg-inverse: 142 40% 11%;
+    --text-inverse: 0 0% 100%;
+  }
 
-    /* Emerald Color Scale (Consistent across app) */
-    --emerald-50: 142 76% 97%;
-    --emerald-100: 142 76% 94%;
-    --emerald-200: 142 69% 86%;
-    --emerald-500: 142 76% 48%;
-    --emerald-600: 142 76% 36%;
-    /* Same as --primary */
-    --emerald-700: 142 76% 29%;
-    --emerald-800: 142 76% 24%;
-    --emerald-900: 142 76% 19%;
+  .dark {
+    /* Canvas */
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Surface */
+    --card: 222 47% 11%;
+    --card-foreground: var(--foreground);
 
-    /* --- STATUS COLORS (Design Tokens) --- */
-    /* Consistent status colors for operational clarity */
-    /* HSL format to match codebase (H S% L%) */
-    --status-pending: 24 95% 53%;
-    /* Orange-500 - Waiting for action */
-    --status-confirmed: 217 91% 60%;
-    /* Blue-500 - Confirmed/Active (info) */
-    --status-active: 160 84% 39%;
-    /* Emerald-500 - Ready for pickup (success) */
-    --status-overdue: 0 84% 60%;
-    /* Red-500 - Requires urgent attention */
-    --status-completed: 220 9% 46%;
-    /* Gray-500 - Finished/archived/cancelled */
+    /* Overlay */
+    --popover: 222 47% 11%;
+    --popover-foreground: var(--foreground);
 
-    /* --- ACTION COLORS (For buttons, alerts) --- */
-    --action-success: 16 185 129;
-    /* Emerald-500 */
-    --action-warning: 249 115 22;
-    /* Orange-500 */
-    --action-danger: 239 68 68;
-    /* Red-500 */
-    --action-info: 59 130 246;
-    /* Blue-500 */
+    /* Inset */
+    --muted: 222 35% 13%;
+    --muted-foreground: 215 20% 70%;
+
+    /* Interactive highlight */
+    --accent: 222 35% 16%;
+    --accent-foreground: var(--foreground);
+
+    --secondary: var(--muted);
+    --secondary-foreground: var(--foreground);
+
+    /* Borders & focus */
+    --border: 222 20% 24%;
+    --input: 222 20% 30%;
+    --ring: 175 84% 40%;
+
+    /* Actions */
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --brand: 175 84% 40%;
+    --brand-foreground: 222 47% 11%;
+
+    /* Status (keep same hues; alpha handles soft/outline) */
+    --status-success: 142 76% 45%;
+    --status-info: 201 90% 55%;
+    --status-warning: 32 81% 55%;
+    --status-danger: 0 70% 55%;
+    --status-neutral: 215 20% 70%;
+    --status-foreground: 222 47% 11%;
   }
 
   body {
@@ -96,8 +132,8 @@
     color: hsl(var(--foreground));
     @apply antialiased overflow-x-hidden;
     font-family: 'Inter', system-ui, sans-serif;
-    /* Subtle dot pattern */
-    background-image: radial-gradient(hsl(220 13% 91%) 1px, transparent 1px);
+    /* Subtle dot pattern (low saturation) */
+    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
     background-size: 32px 32px;
   }
 
@@ -143,22 +179,27 @@
     @apply bg-background;
   }
 
-  /* --- ACCESSIBILITY: Visible Focus Rings --- */
+  /* --- ACCESSIBILITY: Visible Focus Rings (brand = teal) --- */
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary;
+    @apply outline-2 outline-offset-2 outline-ring;
   }
 
   button:focus-visible,
   a:focus-visible {
-    @apply ring-2 ring-primary ring-offset-2;
+    @apply ring-2 ring-ring ring-offset-2;
   }
 }
 
 @layer utilities {
 
-  /* --- MARKETING-ONLY GRADIENT (Single approved variant) --- */
+  /* --- MARKETING-ONLY GRADIENT (Single approved variant) — CTA buttons only --- */
   .gradient-cta {
-    background: linear-gradient(to right, hsl(142 70% 55%), hsl(142 76% 42%), hsl(142 76% 32%));
+    background: linear-gradient(to right, #4FCB84, #43B273, #2F8C55);
+    box-shadow: 0 14px 35px -20px rgba(41, 120, 72, 0.65);
+  }
+  .gradient-cta:hover {
+    background: linear-gradient(to right, #47BC79, #3FA467, #297A4B);
+    box-shadow: 0 18px 40px -18px rgba(41, 120, 72, 0.6);
   }
 }
 

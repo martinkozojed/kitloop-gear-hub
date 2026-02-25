@@ -40,6 +40,20 @@ export type ReservationStatus =
   | 'expired'
   | 'maintenance';
 
+/** Asset/inventory status → semantic for getStatusColorClasses */
+export function getAssetStatusColorClasses(assetStatus: string): string {
+  const map: Record<string, ReservationStatus> = {
+    available: 'ready',
+    active: 'confirmed',
+    maintenance: 'maintenance',
+    lost: 'overdue',
+    retired: 'cancelled',
+    reserved: 'confirmed',
+    quarantine: 'hold',
+  };
+  return getStatusColorClasses(map[assetStatus] ?? assetStatus);
+}
+
 // Matches Badge variants
 export type SemanticVariant = 'warning' | 'info' | 'success' | 'destructive' | 'secondary' | 'default';
 
@@ -190,28 +204,28 @@ export function getStatusSolidClass(status: ReservationStatus | string): string 
     case 'hold':
     case 'pending':
     case 'unpaid':
-      return 'bg-status-warning text-white';
+      return 'bg-status-warning text-status-warning-foreground';
 
     case 'confirmed':
     case 'active':
     case 'checked_out':
-      return 'bg-status-info text-white';
+      return 'bg-status-info text-status-info-foreground';
 
     case 'ready':
     case 'returned':
     case 'inspected_closed':
-      return 'bg-status-success text-white';
+      return 'bg-status-success text-status-success-foreground';
 
     case 'overdue':
     case 'conflict':
     case 'no_show':
-      return 'bg-status-danger text-white';
+      return 'bg-status-danger text-status-danger-foreground';
 
     case 'completed':
     case 'cancelled':
     case 'expired':
     case 'maintenance':
-      return 'bg-status-neutral text-white';
+      return 'bg-status-neutral text-status-neutral-foreground';
 
     default:
       return 'bg-muted text-muted-foreground';

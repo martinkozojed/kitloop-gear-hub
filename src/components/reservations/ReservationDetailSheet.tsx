@@ -50,8 +50,8 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                     <div className="py-6 space-y-6">
                         {/* Status Warning */}
                         {reservation.status === 'confirmed' && !hasAssignment && (
-                            <div className="p-3 bg-red-50 border border-red-100 rounded-md flex items-center justify-between">
-                                <div className="text-sm text-red-800 font-medium flex items-center gap-2">
+                            <div className="p-3 bg-status-danger/10 border border-status-danger/20 rounded-md flex items-center justify-between">
+                                <div className="text-sm text-status-danger font-medium flex items-center gap-2">
                                     <XCircle className="w-4 h-4" />
                                     Nepřiřazeno (Konflikt)
                                 </div>
@@ -68,7 +68,7 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                         {/* Customer Info */}
                         <div className="space-y-2">
                             <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Zákazník</h4>
-                            <div className="bg-muted/30 p-3 rounded-md space-y-1">
+                            <div className="bg-muted p-3 rounded-md space-y-1">
                                 <div className="font-medium">{reservation.customer_name}</div>
                                 {reservation.customer_email && (
                                     <div className="text-sm flex items-center gap-2 text-muted-foreground">
@@ -97,7 +97,7 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                                 <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Finance</h4>
                                 <div className="text-sm">
                                     <div className="font-medium">{reservation.total_price} Kč</div> {/* Helper for formatting needed */}
-                                    <div className={reservation.deposit_paid ? "text-green-600" : "text-amber-600 font-medium"}>
+                                    <div className={reservation.deposit_paid ? "text-status-success" : "text-status-warning font-medium"}>
                                         {reservation.deposit_paid ? "Záloha zaplacena" : "Nezaplaceno"}
                                     </div>
                                 </div>
@@ -110,9 +110,9 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                                 <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Přiřazeno</h4>
                                 <div className="space-y-1">
                                     {reservation.assignments.map((a, i: number) => (
-                                        <div key={i} className="text-xs bg-slate-50 p-2 rounded border flex justify-between">
+                                        <div key={i} className="text-xs bg-muted p-2 rounded border border-border flex justify-between">
                                             <span>{a.assets?.product_variants?.name || 'Item'}</span>
-                                            <span className="font-mono text-slate-500">{a.assets?.asset_tag || '?'}</span>
+                                            <span className="font-mono text-muted-foreground">{a.assets?.asset_tag || '?'}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -150,12 +150,12 @@ export const ReservationDetailSheet: React.FC<ReservationDetailSheetProps> = ({ 
                         </Button>
 
                         {reservation.status === 'hold' || reservation.status === 'pending' ? (
-                            <Button className="w-full text-green-700 bg-green-50 hover:bg-green-100 border-green-200" onClick={() => onStatusUpdate(reservation.id, 'confirmed')} variant="outline">
+                            <Button className="w-full text-status-success bg-status-success/10 hover:bg-status-success/20 border border-status-success/20" onClick={() => onStatusUpdate(reservation.id, 'confirmed')} variant="outline">
                                 <CheckCircle className="w-4 h-4 mr-2" /> Potvrdit rezervaci
                             </Button>
                         ) : null}
 
-                        <Button className="w-full text-red-600 hover:text-red-700 hover:bg-red-50" variant="ghost" onClick={() => onStatusUpdate(reservation.id, 'cancelled')}>
+                        <Button className="w-full text-status-danger hover:bg-status-danger/10" variant="ghost" onClick={() => onStatusUpdate(reservation.id, 'cancelled')}>
                             Zrušit rezervaci
                         </Button>
                     </SheetFooter>

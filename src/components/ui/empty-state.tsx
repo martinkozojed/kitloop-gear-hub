@@ -34,15 +34,15 @@ export function EmptyState({
     return (
         <div className={cn(
             "flex flex-col items-center justify-center py-16 px-6 text-center",
-            variant === "default" && "border rounded-lg bg-muted/5 border-dashed",
+            variant === "default" && "border rounded-token-lg bg-muted border-dashed",
             variant === "subtle" && "bg-transparent",
             className
         )}>
             {Icon && (
                 <div className={cn(
                     "mb-4 rounded-full flex items-center justify-center",
-                    variant === "default" && "p-4 bg-muted/30",
-                    variant === "subtle" && "p-3 bg-muted/20"
+                    variant === "default" && "p-4 bg-muted",
+                    variant === "subtle" && "p-3 bg-muted"
                 )}>
                     <Icon className={cn(
                         "text-muted-foreground/60",

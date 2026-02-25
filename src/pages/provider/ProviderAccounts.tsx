@@ -142,9 +142,9 @@ const ProviderAccounts = () => {
                     />
                 </FilterBar>
 
-                <div className="border rounded-md bg-white shadow-sm overflow-hidden">
+                <div className="rounded-md border border-border bg-card overflow-hidden">
                     <Table>
-                        <TableHeader className="bg-muted/50">
+                        <TableHeader>
                             <TableRow>
                                 <TableHead>{t('operations.accounts.table.name')}</TableHead>
                                 <TableHead>{t('operations.accounts.table.taxId')}</TableHead>
@@ -199,7 +199,7 @@ const ProviderAccounts = () => {
                                                         <Pencil className="w-4 h-4 mr-2" /> {t('operations.accounts.menu.edit')}
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClick(account.id)}>
+                                                    <DropdownMenuItem className="text-status-danger" onClick={() => handleDeleteClick(account.id)}>
                                                         <Trash2 className="w-4 h-4 mr-2" /> {t('operations.accounts.menu.delete')}
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>

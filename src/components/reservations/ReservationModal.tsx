@@ -316,9 +316,9 @@ const ReservationModal = ({
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <div className="flex justify-between items-center bg-muted p-3 rounded-lg">
                             <span className="text-sm font-medium">Total ({calculateDays()} days):</span>
-                            <span className="text-lg font-bold text-green-600">
+                            <span className="text-lg font-bold text-status-success">
                                 {calculateTotal()} CZK
                             </span>
                         </div>
@@ -389,7 +389,7 @@ const ReservationModal = ({
                 {step === "payment" && clientSecret && (
                     <div className="py-2">
                         {timeLeft !== null && (
-                            <div className="mb-4 p-3 bg-amber-50 text-amber-800 rounded-md flex items-center justify-between text-sm">
+                            <div className="mb-4 p-3 bg-status-warning/10 text-status-warning border border-status-warning/20 rounded-md flex items-center justify-between text-sm">
                                 <span>Complete payment within:</span>
                                 <span className="font-mono font-bold text-lg">{formatTime(timeLeft)}</span>
                             </div>
@@ -403,7 +403,7 @@ const ReservationModal = ({
                                 />
                             </Elements>
                         ) : (
-                            <div className="p-4 bg-red-50 text-red-800 rounded-md">
+                            <div className="p-4 bg-status-danger/10 text-status-danger border border-status-danger/20 rounded-md">
                                 Error: Payment system not configured (Missing Stripe Key).
                             </div>
                         )}
@@ -420,7 +420,7 @@ const ReservationModal = ({
 
                 {step === "success" && (
                     <div className="py-8 text-center space-y-4">
-                        <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <div className="mx-auto w-12 h-12 bg-status-success/10 border border-status-success/20 rounded-full flex items-center justify-center">
                             <span className="text-2xl">🎉</span>
                         </div>
                         <h3 className="text-xl font-bold">Reservation Confirmed!</h3>

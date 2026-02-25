@@ -364,7 +364,7 @@ const InventoryImport = () => {
                 type="file"
                 accept=".csv"
                 onChange={handleFileUpload}
-                className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-status-success/10 file:text-status-success file:border file:border-status-success/20 hover:file:bg-status-success/20"
               />
               {file && (
                 <p className="text-sm text-muted-foreground mt-2">
@@ -382,9 +382,9 @@ const InventoryImport = () => {
               </CardHeader>
               <CardContent>
                 {validationErrors.length > 0 && (
-                  <div className="bg-red-50 p-4 rounded-lg mb-4">
-                    <h3 className="font-semibold text-red-800 mb-2">Validation Errors:</h3>
-                    <ul className="list-disc list-inside text-red-600 text-sm space-y-1">
+                  <div className="bg-status-danger/10 border border-status-danger/20 p-4 rounded-lg mb-4">
+                    <h3 className="font-semibold text-status-danger mb-2">Validation Errors:</h3>
+                    <ul className="list-disc list-inside text-status-danger text-sm space-y-1">
                       {validationErrors.map((err, i) => (
                         <li key={i}>{err}</li>
                       ))}
@@ -394,7 +394,7 @@ const InventoryImport = () => {
 
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm border">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-muted">
                       <tr>
                         <th className="text-left p-2 border-b">Name</th>
                         <th className="text-left p-2 border-b">Category</th>
@@ -414,7 +414,7 @@ const InventoryImport = () => {
                     </tbody>
                   </table>
                   {parsedData.length > 5 && (
-                    <p className="text-gray-500 mt-2 text-sm">
+                    <p className="text-muted-foreground mt-2 text-sm">
                       ...and {parsedData.length - 5} more items
                     </p>
                   )}

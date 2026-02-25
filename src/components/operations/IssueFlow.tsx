@@ -8,6 +8,8 @@ import {
     DialogFooter,
     DialogDescription,
 } from "@/components/ui/dialog";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { ItemState } from "@/lib/logic/reservation-state";
 import { AlertTriangle, Check, ArrowRight, Loader2 } from "lucide-react";
@@ -25,6 +27,7 @@ interface IssueFlowProps {
 
 export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueFlowProps) {
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
     const [loading, setLoading] = useState(false);
     const [items, setItems] = useState<ItemState[]>([]);
     const [fetchingItems, setFetchingItems] = useState(false);
@@ -207,55 +210,96 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     const StatusDisplay = () => {
         if (!hasAssets && !overrideMode) {
             return (
-                <div data-testid="issue-no-assets-warning" className="flex flex-col items-center justify-center p-6 text-center text-amber-600 bg-amber-50 rounded-xl border border-amber-100 animate-in fade-in zoom-in duration-300">
+                <div data-testid="issue-no-assets-warning" className="flex flex-col items-center justify-center p-6 text-center bg-status-warning/10 text-status-warning rounded-token-lg border border-status-warning/20 animate-in fade-in zoom-in duration-300">
                     <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
                     <h4 className="font-semibold">{t('operations.issueFlow.noAssets.title')}</h4>
                     <p className="text-sm opacity-80 mt-1 max-w-[250px]">{t('operations.issueFlow.noAssets.desc')}</p>
                     {autoAssigning && <div className="mt-2 text-xs flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Finding asset...</div>}
-                    {autoAssignError && <p className="mt-1 text-xs font-bold text-red-600">{autoAssignError}</p>}
+                    {autoAssignError && <p className="mt-1 text-xs font-bold text-destructive">{autoAssignError}</p>}
                 </div>
             );
         }
         return (
-            <div className="flex flex-col items-center justify-center p-8 text-center text-emerald-700 bg-emerald-50/50 rounded-xl border border-emerald-100 animate-in fade-in zoom-in duration-300">
-                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
-                    <Check className="w-6 h-6 text-emerald-600" />
+            <div className="flex flex-col items-center justify-center p-8 text-center bg-status-success/10 text-status-success rounded-token-lg border border-status-success/20 animate-in fade-in zoom-in duration-300">
+                <div className="w-12 h-12 bg-status-success/20 rounded-full flex items-center justify-center mb-3">
+                    <Check className="w-6 h-6 text-status-success" />
                 </div>
-                <h4 className="text-lg font-bold text-emerald-800">Ready to Issue</h4>
-                <p className="text-sm text-emerald-600/80 mt-1">Everything looks correct.</p>
-                {overrideMode && <span className="text-[10px] uppercase font-bold text-orange-500 mt-2 bg-orange-50 px-2 py-0.5 rounded-full">Override Active</span>}
+                <h4 className="text-lg font-bold text-foreground">Ready to Issue</h4>
+                <p className="text-sm text-muted-foreground mt-1">Everything looks correct.</p>
+                {overrideMode && <span className="text-status-warning bg-status-warning/10 mt-2 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold">Override Active</span>}
             </div>
         );
     };
 
+    const headerBlock = (
+        <div className="p-6 pb-0 flex items-center justify-between">
+            <div>
+                <span className="text-xl font-semibold leading-none tracking-tight">{reservation.customerName}</span>
+                <p className="text-sm text-muted-foreground mt-0.5">{reservation.itemName}</p>
+            </div>
+            <div className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">#{reservation.id.slice(0, 6)}</div>
+        </div>
+    );
+    const bodyBlock = (
+        <div className="p-6">
+            {fetchingItems ? (
+                <div data-testid="issue-loading" className="h-[200px] flex items-center justify-center text-muted-foreground">
+                    <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading details...
+                </div>
+            ) : (
+                <StatusDisplay />
+            )}
+        </div>
+    );
+    const footerBlock = (
+        <div className="p-6 pt-0 flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-3 bg-muted mt-2 -mx-6 -mb-6 p-6">
+            <div className="flex flex-wrap gap-2">
+                <PrintContractButton reservationId={reservation.id} label={t('operations.issueFlow.contract')} />
+                <Button variant="ghost" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">Cancel</Button>
+            </div>
+            <Button
+                data-testid="issue-confirm-btn"
+                variant={overrideMode ? "warning" : "success"}
+                onClick={handleConfirm}
+                disabled={(!isAllowed && !overrideMode) || loading || fetchingItems || autoAssigning}
+                className="min-w-[120px]"
+                autoFocus
+            >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                    <span className="flex items-center gap-2">Confirm <ArrowRight className="w-4 h-4" /></span>
+                )}
+            </Button>
+        </div>
+    );
+
+    if (isMobile) {
+        return (
+            <Sheet open={open} onOpenChange={onOpenChange}>
+                <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-token-lg p-0 gap-0 border-0">
+                    {headerBlock}
+                    {bodyBlock}
+                    {footerBlock}
+                </SheetContent>
+            </Sheet>
+        );
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md p-0 overflow-hidden gap-0 border-0 shadow-2xl">
-                {/* Headerless-feel or branded header */}
-                <div className="p-6 pb-0 flex items-center justify-between">
+            <DialogContent className="sm:max-w-md p-0 overflow-hidden gap-0">
+                <div className="flex items-center justify-between px-6 pt-6">
                     <div>
                         <DialogTitle className="text-xl">{reservation.customerName}</DialogTitle>
                         <DialogDescription className="text-muted-foreground">{reservation.itemName}</DialogDescription>
                     </div>
                     <div className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">#{reservation.id.slice(0, 6)}</div>
                 </div>
-
-                <div className="p-6">
-                    {fetchingItems ? (
-                        <div data-testid="issue-loading" className="h-[200px] flex items-center justify-center text-muted-foreground">
-                            <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading details...
-                        </div>
-                    ) : (
-                        <StatusDisplay />
-                    )}
-                </div>
-
-                <DialogFooter className="p-6 pt-0 sm:justify-between items-center bg-gray-50/50 mt-2">
+                {bodyBlock}
+                <DialogFooter className="p-6 pt-0 sm:justify-between items-center bg-muted mt-2">
                     <div className="flex gap-2">
                         <PrintContractButton reservationId={reservation.id} label={t('operations.issueFlow.contract')} />
                         <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                     </div>
-
                     <Button
                         data-testid="issue-confirm-btn"
                         variant={overrideMode ? "warning" : "success"}

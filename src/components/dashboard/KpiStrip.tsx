@@ -34,7 +34,7 @@ export function KpiStrip({ data }: { data?: KpiData }) {
             trend: data?.activeTrend || "stable",
             trendDir: data?.activeTrendDir || "neutral",
             icon: Activity,
-            color: "text-emerald-600"
+            color: "text-status-success"
         },
         {
             label: t("dashboard.kpis.returns"),
@@ -42,7 +42,7 @@ export function KpiStrip({ data }: { data?: KpiData }) {
             trend: data?.returnsTrend || "pending",
             trendDir: data?.returnsTrendDir || "neutral",
             icon: RotateCcw,
-            color: "text-emerald-500"
+            color: "text-status-success"
         },
         {
             label: t("dashboard.kpis.revenue"),
@@ -50,7 +50,7 @@ export function KpiStrip({ data }: { data?: KpiData }) {
             trend: data?.revenueTrend || "stable",
             trendDir: data?.revenueTrendDir || "neutral",
             icon: Euro,
-            color: "text-emerald-700"
+            color: "text-status-success"
         }
     ];
 
@@ -66,7 +66,7 @@ export function KpiStrip({ data }: { data?: KpiData }) {
                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
                             {metric.label}
                         </span>
-                        <div className={`p-2 rounded-lg bg-zinc-50 border border-zinc-100 group-hover:bg-white transition-all duration-200`}>
+                        <div className="p-2 rounded-lg bg-muted border border-border group-hover:bg-accent transition-all duration-200">
                             <Icon icon={metric.icon} size="md" className={metric.color} />
                         </div>
                     </div>
@@ -75,8 +75,8 @@ export function KpiStrip({ data }: { data?: KpiData }) {
                         <h2 className="text-4xl font-semibold tracking-tighter text-foreground">
                             {metric.value}
                         </h2>
-                        <div className={`flex items-center text-xs font-semibold ${metric.trendDir === 'up' ? 'text-emerald-600' :
-                            metric.trendDir === 'down' ? 'text-red-600' : 'text-zinc-400'
+                        <div className={`flex items-center text-xs font-semibold ${metric.trendDir === 'up' ? 'text-status-success' :
+                            metric.trendDir === 'down' ? 'text-status-danger' : 'text-muted-foreground'
                             }`}>
                             {metric.trendDir === 'up' && <ArrowUpRight className="h-3 w-3 mr-0.5" />}
                             {metric.trendDir === 'down' && <ArrowDownRight className="h-3 w-3 mr-0.5" />}

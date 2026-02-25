@@ -112,11 +112,12 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
         };
     };
 
+    // Calendar event chip: outline + left status bar (Calm Ops). Selected state = bg-accent in parent if needed.
     const statusColors: Record<string, string> = {
-        'confirmed': 'bg-sky-500 hover:bg-sky-600',
-        'active': 'bg-emerald-500 hover:bg-emerald-600',
-        'hold': 'bg-amber-400 hover:bg-amber-500 text-amber-950', // Warning color for holds
-        'cancelled': 'bg-slate-300'
+        'confirmed': 'border border-border border-l-2 border-l-status-info bg-card text-foreground hover:bg-accent',
+        'active': 'border border-border border-l-2 border-l-status-info bg-card text-foreground hover:bg-accent',
+        'hold': 'border border-border border-l-2 border-l-status-warning bg-card text-foreground hover:bg-accent',
+        'cancelled': 'border border-border bg-muted text-muted-foreground'
     };
 
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -156,13 +157,13 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                         <div className="flex bg-muted rounded-lg p-1">
                             <button
                                 onClick={() => setViewMode('week')}
-                                className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'week' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'week' ? 'bg-background font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                             >
                                 {t('provider.reservations.calendar.week')}
                             </button>
                             <button
                                 onClick={() => setViewMode('month')}
-                                className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'month' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'month' ? 'bg-background font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                             >
                                 {t('provider.reservations.calendar.month')}
                             </button>
@@ -200,19 +201,19 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                     </div>
 
                     <div className="flex gap-2 text-xs text-muted-foreground border-l pl-4 ml-auto">
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-sky-500 rounded-sm"></div> {t('provider.dashboard.status.confirmed')}</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-emerald-500 rounded-sm"></div> {t('provider.dashboard.status.active')}</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-amber-400 rounded-sm"></div> {t('provider.dashboard.status.hold')}</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-red-400 rounded-sm"></div> {t('provider.reservations.calendar.unassigned')}</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-status-info rounded-sm"></div> {t('provider.dashboard.status.confirmed')}</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-status-info rounded-sm"></div> {t('provider.dashboard.status.active')}</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-status-warning rounded-sm"></div> {t('provider.dashboard.status.hold')}</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-status-danger rounded-sm"></div> {t('provider.reservations.calendar.unassigned')}</div>
                     </div>
                 </div>
             </div>
 
             {/* Scrollable Container */}
-            <div className="flex-1 overflow-auto relative bg-slate-50/50">
+            <div className="flex-1 overflow-auto relative bg-muted">
                 <div className="min-w-max">
                     {/* Header Row */}
-                    <div className="flex sticky top-0 z-20 bg-background border-b shadow-sm">
+                    <div className="flex sticky top-0 z-20 bg-background border-b border-border">
                         <div className="sticky left-0 z-30 bg-background border-r p-3 flex items-center font-bold text-sm text-muted-foreground uppercase tracking-wider" style={{ width: SIDEBAR_WIDTH }}>
                             {t('provider.reservations.calendar.header')}
                         </div>
@@ -220,7 +221,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                             {days.map((day, i) => (
                                 <div
                                     key={i}
-                                    className={`border-r p-2 flex flex-col items-center justify-center text-sm ${isSameDay(day, new Date()) ? 'bg-blue-50/80 border-blue-100' : 'bg-background'}`}
+                                    className={`border-r p-2 flex flex-col items-center justify-center text-sm ${isSameDay(day, new Date()) ? 'bg-accent border-border' : 'bg-background'}`}
                                     style={{ width: CELL_WIDTH, height: HEADER_HEIGHT }}
                                 >
                                     <span className="text-muted-foreground text-xs uppercase">{format(day, 'EEE', { locale: currentLocale })}</span>
@@ -260,13 +261,13 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                             });
 
                             return (
-                                <div key={variant.id} className="group bg-white">
+                                <div key={variant.id} className="group bg-card">
                                     {/* Variant Header / Summary Row */}
-                                    <div className="flex bg-slate-100/50 hover:bg-slate-100 transition-colors">
-                                        <div className="sticky left-0 z-10 bg-slate-50 group-hover:bg-slate-100 border-r p-2 px-3 font-medium flex flex-col justify-center shadow-sm" style={{ width: SIDEBAR_WIDTH }}>
-                                            <div className="truncate text-sm font-semibold text-slate-800">{variant.product.name}</div>
+                                    <div className="flex bg-muted hover:bg-accent transition-colors">
+                                        <div className="sticky left-0 z-10 bg-muted group-hover:bg-accent border-r border-border p-2 px-3 font-medium flex flex-col justify-center" style={{ width: SIDEBAR_WIDTH }}>
+                                            <div className="truncate text-sm font-semibold text-foreground">{variant.product.name}</div>
                                             <div className="flex justify-between items-center">
-                                                <div className="truncate text-xs text-slate-500">{variant.name}</div>
+                                                <div className="truncate text-xs text-muted-foreground">{variant.name}</div>
                                                 <Badge variant="secondary" className="text-xs h-4 px-1">{variant.assets.length}ks</Badge>
                                             </div>
                                         </div>
@@ -274,15 +275,15 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                             {/* Grid lines */}
                                             {days.map((d, i) => {
                                                 const load = dailyLoad[i];
-                                                let loadColor = 'bg-emerald-400';
-                                                if (load.percentage >= 90) loadColor = 'bg-red-500';
-                                                else if (load.percentage >= 50) loadColor = 'bg-amber-400';
+                                                let loadColor = 'bg-status-success';
+                                                if (load.percentage >= 90) loadColor = 'bg-status-danger';
+                                                else if (load.percentage >= 50) loadColor = 'bg-status-warning';
 
                                                 // Don't show anything if 0 usage
                                                 const showIndicator = load.activeCount > 0;
 
                                                 return (
-                                                    <div key={i} className={`border-r h-full absolute top-0 bottom-0 flex items-center justify-center ${isSameDay(d, new Date()) ? 'bg-blue-50/30' : ''}`} style={{ width: CELL_WIDTH, left: i * CELL_WIDTH }}>
+                                                    <div key={i} className={`border-r h-full absolute top-0 bottom-0 flex items-center justify-center ${isSameDay(d, new Date()) ? 'bg-accent' : ''}`} style={{ width: CELL_WIDTH, left: i * CELL_WIDTH }}>
                                                         {/* Capacity / Load Indicator */}
                                                         {showIndicator && (
                                                             <div
@@ -299,17 +300,17 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
 
                                     {/* Asset Rows */}
                                     {assetRows.map(({ asset, reservations: localRes }) => (
-                                        <div key={asset.id} className="flex hover:bg-slate-50 transition-colors relative h-12 border-b border-slate-50">
-                                            <div className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 border-r p-2 pl-6 flex items-center text-sm shadow-sm" style={{ width: SIDEBAR_WIDTH }}>
-                                                <span className="truncate text-slate-600 flex gap-2 items-center text-xs font-mono">
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${asset.status === 'active' ? 'bg-emerald-400' : 'bg-slate-300'}`}></span>
+                                        <div key={asset.id} className="flex hover:bg-accent transition-colors relative h-12 border-b border-border">
+                                            <div className="sticky left-0 z-10 bg-card group-hover:bg-accent border-r border-border p-2 pl-6 flex items-center text-sm" style={{ width: SIDEBAR_WIDTH }}>
+                                                <span className="truncate text-foreground flex gap-2 items-center text-xs font-mono">
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${asset.status === 'active' ? 'bg-status-success' : 'bg-muted-foreground/50'}`}></span>
                                                     {asset.asset_tag}
                                                 </span>
                                             </div>
                                             <div className="relative h-full w-full">
                                                 {/* Grid Background */}
                                                 {days.map((d, i) => (
-                                                    <div key={i} className={`absolute top-0 bottom-0 border-r border-slate-100 h-full ${isSameDay(d, new Date()) ? 'bg-blue-50/20' : ''}`} style={{ width: CELL_WIDTH, left: i * CELL_WIDTH }}></div>
+                                                    <div key={i} className={`absolute top-0 bottom-0 border-r border-border h-full ${isSameDay(d, new Date()) ? 'bg-muted' : ''}`} style={{ width: CELL_WIDTH, left: i * CELL_WIDTH }}></div>
                                                 ))}
 
                                                 {/* Reservation Bars */}
@@ -322,7 +323,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                                             {/* Reservation Bar */}
                                                             <div
                                                                 onClick={() => handleReservationClick(res)}
-                                                                className={`absolute top-2 bottom-2 rounded-sm text-xs font-medium text-white px-2 flex items-center overflow-hidden whitespace-nowrap z-10 shadow-sm cursor-pointer hover:brightness-110 transition-all ${statusColors[res.status] || 'bg-blue-500'}`}
+                                                                className={`absolute top-2 bottom-2 rounded-sm text-xs font-medium px-2 flex items-center overflow-hidden whitespace-nowrap z-10 cursor-pointer transition-all ${statusColors[res.status] || 'border border-border border-l-2 border-l-status-info bg-card text-foreground hover:bg-accent'}`}
                                                                 style={style}
                                                                 title={`${res.customer_name} - ${res.status}`}
                                                             >
@@ -332,7 +333,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
 
                                                             {/* Buffer Zone (1 Day Turnaround) */}
                                                             <div
-                                                                className="absolute top-3 bottom-3 bg-slate-100/50 border border-slate-200 border-dashed rounded-r-sm z-0 pointer-events-none"
+                                                                className="absolute top-3 bottom-3 bg-muted border border-border border-dashed rounded-r-sm z-0 pointer-events-none"
                                                                 style={{
                                                                     left: `calc(${parseFloat(style.left as string) + parseFloat(style.width as string)}px)`,
                                                                     width: `${CELL_WIDTH}px` // Hardcoded 1 day buffer
@@ -348,19 +349,19 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
 
                                     {/* Unassigned Row (Critical for Planning) */}
                                     {unassignedReservations.length > 0 && (
-                                        <div className="flex bg-red-50/30 hover:bg-red-50/50 transition-colors relative border-b border-red-100 h-14">
-                                            <div className="sticky left-0 z-10 bg-white/80 border-r p-2 pl-6 flex items-center text-sm shadow-sm" style={{ width: SIDEBAR_WIDTH }}>
+                                        <div className="flex bg-status-danger/10 hover:bg-status-danger/15 transition-colors relative border-b border-status-danger/20 h-14">
+                                            <div className="sticky left-0 z-10 bg-card border-r border-border p-2 pl-6 flex items-center text-sm" style={{ width: SIDEBAR_WIDTH }}>
                                                 <div className="flex flex-col">
-                                                    <span className="truncate text-red-600 font-semibold text-xs flex items-center gap-1">
+                                                    <span className="truncate text-status-danger font-semibold text-xs flex items-center gap-1">
                                                         <AlertCircle className="w-3 h-3" />
                                                         Nepřiřazeno
                                                     </span>
-                                                    <span className="text-xs text-red-400">{unassignedReservations.length} rezervací čeká na přiřazení</span>
+                                                    <span className="text-xs text-status-danger">{unassignedReservations.length} rezervací čeká na přiřazení</span>
                                                 </div>
                                             </div>
                                             <div className="relative h-full w-full">
                                                 {days.map((d, i) => (
-                                                    <div key={i} className={`absolute top-0 bottom-0 border-r border-red-100/50 h-full ${isSameDay(d, new Date()) ? 'bg-blue-50/20' : ''}`} style={{ width: CELL_WIDTH, left: i * CELL_WIDTH }}></div>
+                                                    <div key={i} className={`absolute top-0 bottom-0 border-r border-status-danger/20 h-full ${isSameDay(d, new Date()) ? 'bg-muted' : ''}`} style={{ width: CELL_WIDTH, left: i * CELL_WIDTH }}></div>
                                                 ))}
 
                                                 {unassignedReservations.map((res, idx) => {
@@ -369,7 +370,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                                                         <div
                                                             key={res.id}
                                                             onClick={() => handleReservationClick(res)}
-                                                            className={`absolute rounded-sm text-xs border border-red-200 bg-red-100 text-red-800 px-2 flex items-center overflow-hidden whitespace-nowrap hover:z-20 hover:scale-105 transition-all shadow-sm cursor-pointer`}
+                                                            className={`absolute rounded-sm text-xs border border-status-danger/40 bg-status-danger/10 text-status-danger px-2 flex items-center overflow-hidden whitespace-nowrap hover:z-20 hover:scale-105 transition-all cursor-pointer`}
                                                             style={{ ...style, top: (idx * 16) + 4, height: 20, zIndex: 10 - idx }}
                                                             title={`Nepřiřazeno: ${res.customer_name}`}
                                                         >

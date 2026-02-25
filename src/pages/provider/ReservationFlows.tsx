@@ -70,16 +70,16 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, reservati
                 </DialogHeader>
 
                 {errorMsg && (
-                    <div className="bg-red-50 text-red-800 p-3 rounded text-sm flex gap-2 items-center">
+                    <div className="bg-status-danger/10 text-status-danger border border-status-danger/20 p-3 rounded text-sm flex gap-2 items-center">
                         <AlertTriangle className="w-4 h-4" />
                         {errorMsg}
                     </div>
                 )}
 
                 {overrideMode && (
-                    <div className="space-y-4 border-l-4 border-yellow-400 pl-4 bg-yellow-50 p-4 rounded-r">
-                        <h4 className="font-bold text-yellow-800 text-sm">Vynutit vydání (Override)</h4>
-                        <p className="text-xs text-yellow-700">Rezervace není zaplacena. Pro vydání zadejte důvod.</p>
+                    <div className="space-y-4 border-l-4 border-status-warning pl-4 bg-status-warning/10 p-4 rounded-r border border-status-warning/20">
+                        <h4 className="font-bold text-status-warning text-sm">Vynutit vydání (Override)</h4>
+                        <p className="text-xs text-status-warning">Rezervace není zaplacena. Pro vydání zadejte důvod.</p>
                         <div className="space-y-2">
                             <Label>Důvod (min 3 znaky)</Label>
                             <Input
@@ -220,20 +220,20 @@ export const ReturnModal: React.FC<ReturnModalProps> = ({ open, onClose, reserva
                 </DialogHeader>
 
                 <div className="space-y-4">
-                    <div className="bg-gray-50 p-4 rounded border">
+                    <div className="bg-muted p-4 rounded-md border border-border">
                         <h4 className="font-semibold mb-2 text-sm">Seznam vybavení</h4>
                         <ul className="space-y-2">
                             {assets.map((assignment) => (
-                                <li key={assignment.id} className="flex items-center justify-between text-sm bg-white p-2 rounded border">
+                                <li key={assignment.id} className="flex items-center justify-between text-sm bg-card border border-border p-2 rounded">
                                     <span>
                                         <span className="font-bold">{assignment.asset?.asset_tag || 'N/A'}</span>
-                                        <span className="text-gray-500 ml-2">
+                                        <span className="text-muted-foreground ml-2">
                                             ({assignment.asset?.product_variants?.name || 'Item'})
                                         </span>
                                     </span>
                                     <div className="flex items-center gap-2">
                                         <Label htmlFor={`damage-${assignment.asset_id}`} className="text-xs">
-                                            {damageMap[assignment.asset_id] ? <span className="text-red-600 font-bold">POŠKOZENO</span> : "OK"}
+                                            {damageMap[assignment.asset_id] ? <span className="text-status-danger font-bold">POŠKOZENO</span> : "OK"}
                                         </Label>
                                         <Checkbox
                                             id={`damage-${assignment.asset_id}`}

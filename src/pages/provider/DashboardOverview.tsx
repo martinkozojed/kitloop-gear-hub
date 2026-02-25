@@ -298,7 +298,7 @@ const DashboardOverview = () => {
                       label: t('dashboard.cta.createReservation'),
                       onClick: () => navigate('/provider/reservations/new')
                     }}
-                    className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted/10 rounded-xl"
+                    className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted rounded-xl"
                   />
                 )}
 
@@ -307,7 +307,7 @@ const DashboardOverview = () => {
                     icon={CheckCircle2}
                     title={t('dashboard.agenda.emptyTabTitle', { tab: t(`dashboard.agenda.tabs.${agendaTab}`) })}
                     description={t('dashboard.agenda.emptyTabDesc')}
-                    className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted/10 rounded-xl"
+                    className="h-full items-center justify-center border-2 border-dashed border-muted bg-muted rounded-xl"
                   />
                 )}
               </div>
@@ -332,15 +332,15 @@ const DashboardOverview = () => {
                 <Icon icon={LayoutDashboard} className="text-muted-foreground" /> {t('dashboard.quickStats.title')}
               </h4>
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                <div className="p-3 bg-status-success/10 rounded-lg border border-status-success/20">
                   <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.revenue')}</div>
-                  <div className="text-lg font-bold text-emerald-700">
+                  <div className="text-lg font-bold text-status-success">
                     {currencyFormatter.format(kpiData.dailyRevenue || 0)}
                   </div>
                 </div>
-                <div className="p-3 bg-emerald-100 rounded-lg border border-emerald-200">
+                <div className="p-3 bg-status-success/10 rounded-lg border border-status-success/20">
                   <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.active')}</div>
-                  <div className="text-lg font-bold text-emerald-800">
+                  <div className="text-lg font-bold text-status-success">
                     {numberFormatter.format(kpiData.activeRentals || 0)}
                   </div>
                 </div>
@@ -349,7 +349,7 @@ const DashboardOverview = () => {
           </div>
 
           {viewMode === 'overview' && (
-            <div className="p-4 rounded-lg border bg-amber-50/50 border-amber-200/50 border-dashed text-center text-sm text-amber-900/60">
+            <div className="p-4 rounded-lg border border-status-warning/20 bg-status-warning/10 border-dashed text-center text-sm text-status-warning">
               {t('dashboard.notesPlaceholder')}
             </div>
           )}

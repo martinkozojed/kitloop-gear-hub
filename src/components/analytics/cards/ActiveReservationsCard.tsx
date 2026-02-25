@@ -59,10 +59,10 @@ export const ActiveReservationsCard = memo(function ActiveReservationsCard({
             .map((stat) => (
               <div
                 key={stat.status}
-                className="flex items-center justify-between rounded-md bg-slate-50 px-2 py-1"
+                className="flex items-center justify-between rounded-md bg-muted px-2 py-1"
               >
                 <span>{labels[stat.status] ?? stat.status}</span>
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-foreground">
                   {formatInteger(stat.count)}
                 </span>
               </div>

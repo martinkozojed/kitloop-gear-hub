@@ -143,7 +143,7 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <ArrowRightLeft className="w-5 h-5 text-amber-500" />
+                        <ArrowRightLeft className="w-5 h-5 text-status-warning" />
                         Resolve Conflict / Assign Asset
                     </DialogTitle>
                     <DialogDescription>
@@ -155,7 +155,7 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
                     {loading ? (
                         <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
                     ) : candidates.length === 0 ? (
-                        <div className="text-center p-6 bg-red-50 rounded-md text-red-800">
+                        <div className="text-center p-6 bg-status-danger/10 border border-status-danger/20 rounded-md text-status-danger">
                             <AlertTriangle className="w-8 h-8 mx-auto mb-2 opacity-50" />
                             <p className="font-semibold">No available assets found!</p>
                             <p className="text-sm mt-1">All compatible items are booked for these dates.</p>
@@ -169,8 +169,8 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
                                         key={asset.id}
                                         onClick={() => setSelectedAssetId(asset.id)}
                                         className={`p-3 border rounded-md cursor-pointer flex justify-between items-center transition-all ${selectedAssetId === asset.id
-                                            ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                                            : 'hover:border-gray-300 hover:bg-gray-50'
+                                            ? 'border-primary bg-accent ring-1 ring-ring'
+                                            : 'hover:border-border hover:bg-accent'
                                             }`}
                                     >
                                         <div className="flex flex-col">
@@ -178,14 +178,14 @@ export function ResolveConflictModal({ isOpen, onClose, reservation, onSuccess }
                                             <div className="flex gap-2 mt-1">
                                                 <Badge variant="outline" className="text-xs h-5">{asset.status}</Badge>
                                                 {asset.condition_score !== null && (
-                                                    <span className={`text-xs flex items-center ${asset.condition_score < 70 ? 'text-amber-600' : 'text-green-600'}`}>
+                                                    <span className={`text-xs flex items-center ${asset.condition_score < 70 ? 'text-status-warning' : 'text-status-success'}`}>
                                                         Condition: {asset.condition_score}%
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
                                         {selectedAssetId === asset.id && (
-                                            <CheckCircle className="w-5 h-5 text-blue-600" />
+                                            <CheckCircle className="w-5 h-5 text-primary" />
                                         )}
                                     </div>
                                 ))}

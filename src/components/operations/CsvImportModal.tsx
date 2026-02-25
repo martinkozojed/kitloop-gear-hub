@@ -195,7 +195,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 </DialogHeader>
 
                 <div className="flex-1 overflow-hidden flex flex-col gap-4">
-                    <div className="flex items-center gap-4 p-4 border rounded-md bg-muted/20 border-dashed">
+                    <div className="flex items-center gap-4 p-4 border border-dashed rounded-md bg-muted">
                         <Upload className="w-8 h-8 text-muted-foreground" />
                         <div className="flex-1">
                             <label className="cursor-pointer">
@@ -227,7 +227,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                             <div className="bg-muted px-4 py-2 text-xs font-medium flex justify-between items-center">
                                 <span>{t('provider.inventory.importModal.preview', { count: previewData.length })}</span>
                                 <div className="flex gap-3">
-                                    <span className="text-green-600 flex items-center gap-1">
+                                    <span className="text-status-success flex items-center gap-1">
                                         <CheckCircle className="w-3 h-3" /> {t('provider.inventory.importModal.valid', { count: matchedCount })}
                                     </span>
                                     <span className="text-destructive flex items-center gap-1">
@@ -256,7 +256,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                                                 <TableCell className="text-xs">{row.condition_score}</TableCell>
                                                 <TableCell>
                                                     {row.importStatus === 'matched' ? (
-                                                        <span className="text-green-600 text-xs flex items-center gap-1">
+                                                        <span className="text-status-success text-xs flex items-center gap-1">
                                                             <CheckCircle className="w-3 h-3" /> {t('provider.inventory.importModal.ok')}
                                                         </span>
                                                     ) : (

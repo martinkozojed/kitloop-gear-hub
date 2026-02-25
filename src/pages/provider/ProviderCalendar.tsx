@@ -14,12 +14,12 @@ const ProviderCalendar = () => {
                     <p className="text-muted-foreground">Vizuální přehled rezervací</p>
                 </div>
 
-                <Card className="border-2 border-dashed border-emerald-100 bg-emerald-50/30">
+                <Card className="border-2 border-dashed border-status-success/30 bg-status-success/10">
                     <CardContent className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="p-4 bg-white rounded-full shadow-sm mb-4">
-                            <CalendarIcon className="w-12 h-12 text-emerald-500" />
+                            <CalendarIcon className="w-12 h-12 text-status-success" />
                         </div>
-                        <h2 className="text-2xl font-bold text-emerald-900 mb-2">Chytrý Kalendář</h2>
+                        <h2 className="text-2xl font-bold text-foreground mb-2">Chytrý Kalendář</h2>
                         <p className="text-muted-foreground max-w-md mb-8">
                             Tato funkce je momentálně ve vývoji. Brzy zde uvidíte všechny své rezervace v přehledném kalendářovém zobrazení s možností drag & drop.
                         </p>

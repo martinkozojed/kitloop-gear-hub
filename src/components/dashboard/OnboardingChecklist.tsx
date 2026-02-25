@@ -172,13 +172,13 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
     if (isDismissed || isLoading) return null;
 
     return (
-        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-lg">
+        <Card className="border-status-success/30 bg-status-success/5 shadow-elevated">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle className="text-lg font-semibold text-emerald-900">
+                    <CardTitle className="text-lg font-semibold text-foreground">
                         {t('onboarding.checklist.title')}
                     </CardTitle>
-                    <p className="text-sm text-emerald-600 mt-1">
+                    <p className="text-sm text-status-success mt-1">
                         {t('onboarding.checklist.progress', { completed: completedCount, total: totalCount })}
                     </p>
                 </div>
@@ -186,7 +186,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={handleDismiss}
-                    className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
+                    className="text-status-success hover:bg-status-success/10"
                 >
                     <UiIcon icon={X} />
                 </Button>
@@ -194,12 +194,12 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
             <CardContent className="pt-2">
                 <Progress
                     value={progressPercent}
-                    className="h-2 mb-4 bg-emerald-100"
+                    className="h-2 mb-4 bg-status-success/20"
                 />
 
                 {allDone ? (
                     <div className="text-center py-4">
-                        <p className="text-lg font-medium text-emerald-700">
+                        <p className="text-lg font-medium text-status-success">
                             {t('onboarding.checklist.allDone')}
                         </p>
                     </div>
@@ -211,13 +211,13 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                                     {item.href && !item.completed ? (
                                         <Link
                                             to={item.href}
-                                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/60 transition-colors group"
+                                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors group"
                                         >
                                             <div className={`
                         w-8 h-8 rounded-full flex items-center justify-center
                         ${item.completed
-                                                    ? 'bg-emerald-500 text-white'
-                                                    : 'bg-white border-2 border-gray-200 text-gray-400 group-hover:border-emerald-400 group-hover:text-emerald-500'}
+                                                    ? 'bg-status-success text-status-foreground'
+                                                    : 'bg-card border-2 border-border text-muted-foreground group-hover:border-ring group-hover:text-status-success'}
                       `}>
                                                 {item.completed ? (
                                                     <UiIcon icon={CheckCircle2} size="md" />
@@ -225,11 +225,11 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                                                     <UiIcon icon={item.icon} />
                                                 )}
                                             </div>
-                                            <span className={`flex-1 text-sm font-medium ${item.completed ? 'text-emerald-700 line-through' : 'text-gray-700'}`}>
+                                            <span className={`flex-1 text-sm font-medium ${item.completed ? 'text-status-success line-through' : 'text-foreground'}`}>
                                                 {item.label}
                                             </span>
                                             {!item.completed && (
-                                                <UiIcon icon={ArrowRight} className="text-gray-400 group-hover:text-emerald-500 transition-colors" />
+                                                <UiIcon icon={ArrowRight} className="text-muted-foreground group-hover:text-status-success transition-colors" />
                                             )}
                                         </Link>
                                     ) : (
@@ -237,8 +237,8 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                                             <div className={`
                         w-8 h-8 rounded-full flex items-center justify-center
                         ${item.completed
-                                                    ? 'bg-emerald-500 text-white'
-                                                    : 'bg-white border-2 border-gray-200 text-gray-400'}
+                                                    ? 'bg-status-success text-status-foreground'
+                                                    : 'bg-card border-2 border-border text-muted-foreground'}
                       `}>
                                                 {item.completed ? (
                                                     <UiIcon icon={CheckCircle2} size="md" />
@@ -246,7 +246,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                                                     <UiIcon icon={Circle} />
                                                 )}
                                             </div>
-                                            <span className={`flex-1 text-sm font-medium ${item.completed ? 'text-emerald-700 line-through' : 'text-gray-500'}`}>
+                                            <span className={`flex-1 text-sm font-medium ${item.completed ? 'text-status-success line-through' : 'text-muted-foreground'}`}>
                                                 {item.label}
                                             </span>
                                         </div>

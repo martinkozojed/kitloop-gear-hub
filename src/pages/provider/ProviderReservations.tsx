@@ -371,7 +371,7 @@ const ProviderReservations = () => {
           </div>
 
           {showFilters && (
-            <Card className="mb-4 bg-muted/30">
+            <Card className="mb-4 bg-muted">
               <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -420,7 +420,7 @@ const ProviderReservations = () => {
                     {filteredReservations.map(r => (
                       <React.Fragment key={r.id}>
                         <TableRow
-                          className="hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                          className="hover:bg-accent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                           onClick={() => toggleRowExpansion(r.id)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
@@ -446,7 +446,7 @@ const ProviderReservations = () => {
                           <TableCell>{expandedRows.has(r.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</TableCell>
                         </TableRow>
                         {expandedRows.has(r.id) && (
-                          <TableRow className="bg-muted/20 hover:bg-muted/20">
+                          <TableRow className="bg-muted hover:bg-muted">
                             <TableCell colSpan={5} className="p-4">
                               <div className="grid md:grid-cols-2 gap-4">
                                 <div>
@@ -493,7 +493,7 @@ const ProviderReservations = () => {
 
           <TabsContent value="calendar">
             {provider?.id && (
-              <div className="h-[600px] border rounded-lg shadow-sm">
+              <div className="h-[600px] border border-border rounded-lg bg-card overflow-hidden">
                 <ReservationCalendar providerId={provider.id} />
               </div>
             )}

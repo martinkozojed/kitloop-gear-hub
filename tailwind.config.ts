@@ -55,35 +55,38 @@ export default {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				semantic: {
-					brand: {
-						50: 'hsl(var(--semantic-brand-50))',
-						500: 'hsl(var(--semantic-brand-500))',
-						900: 'hsl(var(--semantic-brand-900))',
-					},
+				// Public surfaces: section background and dark accent
+				subtle: 'hsl(var(--bg-subtle))',
+				inverse: {
+					DEFAULT: 'hsl(var(--bg-inverse))',
+					foreground: 'hsl(var(--text-inverse))',
+				},
+				brand: {
+					DEFAULT: 'hsl(var(--brand) / <alpha-value>)',
+					foreground: 'hsl(var(--brand-foreground) / <alpha-value>)',
+				},
+				// Status: semantic tokens (Badge, StatusBadge, getStatusColorClasses)
+				status: {
 					success: {
-						50: 'hsl(var(--semantic-success-50))',
-						500: 'hsl(var(--semantic-success-500))',
-						text: 'hsl(var(--semantic-success-text))',
+						DEFAULT: 'hsl(var(--status-success) / <alpha-value>)',
+						foreground: 'hsl(var(--status-foreground))',
+					},
+					info: {
+						DEFAULT: 'hsl(var(--status-info) / <alpha-value>)',
+						foreground: 'hsl(var(--status-foreground))',
 					},
 					warning: {
-						50: 'hsl(var(--semantic-warning-50))',
-						500: 'hsl(var(--semantic-warning-500))',
-						text: 'hsl(var(--semantic-warning-text))',
+						DEFAULT: 'hsl(var(--status-warning) / <alpha-value>)',
+						foreground: 'hsl(var(--status-foreground))',
 					},
 					danger: {
-						50: 'hsl(var(--semantic-danger-50))',
-						500: 'hsl(var(--semantic-danger-500))',
-						text: 'hsl(var(--semantic-danger-text))',
-					}
-				},
-				// PR7.1 Status Tokens
-				status: {
-					warning: 'hsl(var(--status-pending) / <alpha-value>)',
-					info: 'hsl(var(--status-confirmed) / <alpha-value>)',
-					success: 'hsl(var(--status-active) / <alpha-value>)',
-					danger: 'hsl(var(--status-overdue) / <alpha-value>)',
-					neutral: 'hsl(var(--status-completed) / <alpha-value>)',
+						DEFAULT: 'hsl(var(--status-danger) / <alpha-value>)',
+						foreground: 'hsl(var(--status-foreground))',
+					},
+					neutral: {
+						DEFAULT: 'hsl(var(--status-neutral) / <alpha-value>)',
+						foreground: 'hsl(var(--status-foreground))',
+					},
 				},
 				kitloop: {
 					accent: '#2E7D32',
