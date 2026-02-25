@@ -358,7 +358,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="light min-h-screen bg-background text-foreground">
 
       {/* Skip link */}
       <a

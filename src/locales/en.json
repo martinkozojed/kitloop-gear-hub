@@ -1191,7 +1191,16 @@
     "cta": {
       "newReservation": "New reservation",
       "refresh": "Refresh data",
-      "createReservation": "Create reservation"
+      "createReservation": "Create reservation",
+      "addGear": "Add gear"
+    },
+    "actionCenter": {
+      "todaysPickups": "Today's pickups",
+      "todaysReturns": "Today's returns",
+      "overdue": "Overdue",
+      "noPickupsToday": "No pickups today.",
+      "noReturnsToday": "No returns today.",
+      "noOverdue": "No overdue reservations."
     },
     "view": {
       "overview": "Overview mode",

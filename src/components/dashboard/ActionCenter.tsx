@@ -102,6 +102,7 @@ interface ActionCenterProps {
 }
 
 export function ActionCenter({ agendaItems, exceptions }: ActionCenterProps) {
+  const { t } = useTranslation();
   const pickups = agendaItems.filter(i => i.type === 'pickup');
   const returns = agendaItems.filter(i => i.type === 'return');
   const overdue = exceptions.filter(e => e.type === 'overdue');
@@ -113,24 +114,23 @@ export function ActionCenter({ agendaItems, exceptions }: ActionCenterProps) {
         <Button asChild>
           <Link to="/provider/reservations/new">
             <Plus className="w-4 h-4 mr-1.5" />
-            Vytvořit rezervaci
+            {t('dashboard.cta.createReservation')}
           </Link>
         </Button>
         <Button asChild variant="outline">
           <Link to="/provider/inventory/new">
             <Package className="w-4 h-4 mr-1.5" />
-            Přidat vybavení
+            {t('dashboard.cta.addGear')}
           </Link>
         </Button>
       </div>
 
       {/* Three sections */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Dnešní výdeje */}
         <Section
-          title="Dnešní výdeje"
+          title={t('dashboard.actionCenter.todaysPickups')}
           count={pickups.length}
-          emptyText="Dnes žádné výdeje."
+          emptyText={t('dashboard.actionCenter.noPickupsToday')}
         >
           {pickups.map(item => (
             <ReservationRow
@@ -144,11 +144,10 @@ export function ActionCenter({ agendaItems, exceptions }: ActionCenterProps) {
           ))}
         </Section>
 
-        {/* Dnešní vratky */}
         <Section
-          title="Dnešní vratky"
+          title={t('dashboard.actionCenter.todaysReturns')}
           count={returns.length}
-          emptyText="Dnes žádné vratky."
+          emptyText={t('dashboard.actionCenter.noReturnsToday')}
         >
           {returns.map(item => (
             <ReservationRow
@@ -162,11 +161,10 @@ export function ActionCenter({ agendaItems, exceptions }: ActionCenterProps) {
           ))}
         </Section>
 
-        {/* Po termínu */}
         <Section
-          title="Po termínu"
+          title={t('dashboard.actionCenter.overdue')}
           count={overdue.length}
-          emptyText="Žádné rezervace po termínu."
+          emptyText={t('dashboard.actionCenter.noOverdue')}
           highlight
         >
           {overdue.map(item => (
