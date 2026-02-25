@@ -43,7 +43,7 @@ jobs:
           chmod +x scripts/ui-drift-scan.sh
           bash scripts/ui-drift-scan.sh
       - name: Upload Drift Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ui-drift-report
           path: docs/ui_drift_raw.txt
@@ -154,7 +154,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Upload dist for Netlify
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist
           path: dist
@@ -166,7 +166,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download dist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: dist
           path: dist
