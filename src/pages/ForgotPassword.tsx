@@ -42,7 +42,7 @@ const ForgotPassword = () => {
 
     if (emailSent) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-kitloop-background px-4">
+            <div className="light flex items-center justify-center min-h-screen bg-subtle px-4">
                 <Card className="w-full max-w-md">
                     <CardHeader className="space-y-1 text-center">
                         <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -73,7 +73,7 @@ const ForgotPassword = () => {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-kitloop-background px-4">
+        <div className="light flex items-center justify-center min-h-screen bg-subtle px-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1 text-center">
                     <CardTitle className="text-2xl font-bold">Zapomenuté heslo</CardTitle>

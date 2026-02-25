@@ -5,14 +5,18 @@ import csCommon from "./cs.json";
 import csHowItWorks from "./cs/howitworks.json";
 import csOnboarding from "./cs/onboarding.json";
 
-// Merge landing-page onboarding translations with dashboard onboarding keys
-// (wizard + checklist) from the main locale files. The spread order ensures
-// landing-page keys (en/onboarding.json) take precedence for shared keys.
+function getOnboardingFromCommon(common: Record<string, unknown>): Record<string, unknown> {
+  const o = common.onboarding;
+  return (typeof o === "object" && o !== null ? o : {}) as Record<string, unknown>;
+}
+
+// Merge landing-page onboarding (en/onboarding.json) with dashboard onboarding
+// (wizard + checklist from en.json/cs.json). Landing-page keys take precedence.
 export const enTranslations = {
   ...enCommon,
   howItWorks: enHowItWorks,
   onboarding: {
-    ...(enCommon as Record<string, unknown>).onboarding as object,
+    ...getOnboardingFromCommon(enCommon as Record<string, unknown>),
     ...enOnboarding,
   },
 } as const;
@@ -21,7 +25,7 @@ export const csTranslations = {
   ...csCommon,
   howItWorks: csHowItWorks,
   onboarding: {
-    ...(csCommon as Record<string, unknown>).onboarding as object,
+    ...getOnboardingFromCommon(csCommon as Record<string, unknown>),
     ...csOnboarding,
   },
 } as const;

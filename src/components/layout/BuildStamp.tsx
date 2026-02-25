@@ -2,6 +2,7 @@ import React from "react";
 import { getBuildInfo } from "@/lib/buildInfo";
 
 export const BuildStamp = () => {
+  if (import.meta.env.PROD) return null;
   const { shortCommit, buildTime } = getBuildInfo();
 
   return (

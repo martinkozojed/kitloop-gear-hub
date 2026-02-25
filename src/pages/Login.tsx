@@ -48,7 +48,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-subtle flex flex-col">
+    <div className="light min-h-screen bg-subtle flex flex-col">
 
       {/* Header */}
       <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
