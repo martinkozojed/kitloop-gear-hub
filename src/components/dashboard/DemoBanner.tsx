@@ -68,13 +68,13 @@ export const DemoBanner: React.FC<DemoBannerProps> = ({
     if (isDismissed || !demoEnabled) return null;
 
     return (
-        <Alert className="bg-amber-50 border-amber-200 mb-4">
+        <Alert className="bg-status-warning/10 border border-status-warning/20 mb-4">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-status-warning/20 text-status-warning flex items-center justify-center">
                         <Sparkles className="w-4 h-4" />
                     </div>
-                    <AlertDescription className="text-amber-800">
+                    <AlertDescription className="text-status-warning">
                         <strong>Demo režim</strong> — Pracujete s ukázkovými daty.
                     </AlertDescription>
                 </div>
@@ -84,7 +84,7 @@ export const DemoBanner: React.FC<DemoBannerProps> = ({
                         size="sm"
                         onClick={handleDeleteDemo}
                         disabled={isDeleting}
-                        className="border-amber-300 text-amber-700 hover:bg-amber-100 hover:text-amber-800"
+                        className="border-status-warning/40 text-status-warning hover:bg-status-warning/20"
                     >
                         {isDeleting ? (
                             <Loader2 className="w-4 h-4 animate-spin mr-1" />
@@ -97,7 +97,7 @@ export const DemoBanner: React.FC<DemoBannerProps> = ({
                         variant="ghost"
                         size="sm"
                         onClick={() => setIsDismissed(true)}
-                        className="text-amber-600 hover:text-amber-800 hover:bg-amber-100 px-2"
+                        className="text-status-warning hover:bg-status-warning/20 px-2"
                     >
                         <X className="w-4 h-4" />
                     </Button>

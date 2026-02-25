@@ -72,7 +72,7 @@ export const ReservationStatusChart = memo(function ReservationStatusChart({
         {isLoading ? (
           <Skeleton className="h-64 w-full rounded-xl" />
         ) : chartData.length === 0 ? (
-          <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted/10 text-sm text-muted-foreground">
+          <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted text-sm text-muted-foreground">
             {emptyMessage}
           </div>
         ) : (

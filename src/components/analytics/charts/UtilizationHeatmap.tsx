@@ -59,7 +59,7 @@ export const UtilizationHeatmap = memo(function UtilizationHeatmap({
         {isLoading ? (
           <Skeleton className="h-48 w-full rounded-xl" />
         ) : heatmapData.length === 0 ? (
-          <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted/10 text-sm text-muted-foreground">
+          <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted text-sm text-muted-foreground">
             {emptyMessage}
           </div>
         ) : (

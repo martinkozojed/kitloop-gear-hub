@@ -18,6 +18,7 @@ import App from "./App.tsx";
 import "./index.css";
 import "./lib/i18n";
 
+
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
 
 if (sentryDsn) {

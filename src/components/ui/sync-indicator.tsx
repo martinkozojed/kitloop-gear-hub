@@ -12,8 +12,8 @@ export function SyncIndicator() {
 
     if (isOffline) {
         return (
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
-                <WifiOff className="w-3 h-3 text-red-500" />
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
+                <WifiOff className="w-3 h-3 text-status-danger" />
                 <span>Offline</span>
             </div>
         );

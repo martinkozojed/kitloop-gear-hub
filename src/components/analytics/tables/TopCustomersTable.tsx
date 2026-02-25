@@ -66,7 +66,7 @@ export const TopCustomersTable = memo(function TopCustomersTable({
         {isLoading ? (
           <Skeleton className="h-48 w-full rounded-xl" />
         ) : data.length === 0 ? (
-          <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted/10 text-sm text-muted-foreground">
+          <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted text-sm text-muted-foreground">
             {emptyMessage}
           </div>
         ) : (
@@ -89,7 +89,7 @@ export const TopCustomersTable = memo(function TopCustomersTable({
                 {data.map((customer) => (
                   <TableRow
                     key={customer.customerName + customer.customerEmail}
-                    className={onSelectCustomer ? "cursor-pointer transition-colors hover:bg-muted/40" : undefined}
+                    className={onSelectCustomer ? "cursor-pointer transition-colors hover:bg-accent" : undefined}
                     onClick={() => onSelectCustomer?.(customer)}
                   >
                     <TableCell className="font-medium">

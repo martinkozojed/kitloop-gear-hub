@@ -46,7 +46,7 @@ const ProviderLayout = ({ children }: ProviderLayoutProps) => {
         variant="ghost"
         size="icon"
         onClick={toggleSidebar}
-        className={`hidden md:flex fixed left-3 top-[5.25rem] z-40 h-10 w-10 rounded-full shadow-sm border border-border bg-white/90 backdrop-blur-sm hover:bg-accent transition-all duration-300 ${
+        className={`hidden md:flex fixed left-3 top-[5.25rem] z-40 h-10 w-10 rounded-full border border-border bg-card hover:bg-accent transition-all duration-300 ${
           sidebarCollapsed ? 'opacity-100 translate-x-0 delay-300' : 'opacity-0 -translate-x-12 pointer-events-none'
         }`}
         title="Zobrazit menu"

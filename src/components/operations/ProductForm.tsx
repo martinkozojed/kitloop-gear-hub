@@ -225,7 +225,7 @@ export function ProductForm({ open, onOpenChange, onSuccess, productId }: Produc
                                     </div>
                                     {variants.length > 1 && (
                                         <Button variant="ghost" size="icon" onClick={() => removeVariant(v.id)}>
-                                            <Trash2 className="w-4 h-4 text-red-500" />
+                                            <Trash2 className="w-4 h-4 text-status-danger" />
                                         </Button>
                                     )}
                                 </div>

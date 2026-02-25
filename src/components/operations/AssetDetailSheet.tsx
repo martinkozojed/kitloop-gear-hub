@@ -190,7 +190,7 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                     </div>
                     <div className="flex gap-2 mt-2 items-center">
                         <Badge variant="outline">{asset?.variant.name}</Badge>
-                        <Badge className={asset?.status === 'available' ? 'bg-green-600' : 'bg-gray-600'}>
+                        <Badge className={asset?.status === 'available' ? 'bg-status-success text-status-success-foreground' : 'bg-muted text-muted-foreground'}>
                             {asset?.status}
                         </Badge>
                         <Badge variant="secondary">Health: {asset?.condition_score}%</Badge>
@@ -277,8 +277,8 @@ export function AssetDetailSheet({ assetId, open, onOpenChange, onUpdate, onEdit
                                             </Button>
                                             {maintenance.map(m => (
                                                 <div key={m.id} className="flex gap-3 border-b pb-3">
-                                                    <div className="bg-orange-100 p-2 rounded-full h-fit">
-                                                        <Wrench className="w-4 h-4 text-orange-600" />
+                                                    <div className="bg-status-warning/10 border border-status-warning/20 p-2 rounded-full h-fit">
+                                                        <Wrench className="w-4 h-4 text-status-warning" />
                                                     </div>
                                                     <div>
                                                         <div className="font-medium capitalize">{m.type} - {m.status}</div>

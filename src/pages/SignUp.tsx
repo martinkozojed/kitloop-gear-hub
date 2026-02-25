@@ -65,13 +65,13 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-subtle flex flex-col">
 
       {/* Header — same as Login */}
       <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
+            <span className="text-primary pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
           <div className="flex items-center gap-3">
@@ -118,13 +118,13 @@ const SignUp = () => {
                 <div
                   onClick={() => setRole('customer')}
                   className={cn(
-                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-slate-50",
+                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-subtle",
                     role === 'customer'
                       ? "border-emerald-500 bg-emerald-50/50"
                       : "border-slate-200"
                   )}
                 >
-                  <User className={cn("w-5 h-5", role === 'customer' ? "text-emerald-600" : "text-slate-400")} />
+                  <User className={cn("w-5 h-5", role === 'customer' ? "text-primary" : "text-slate-400")} />
                   <span className={cn("text-xs font-medium", role === 'customer' ? "text-emerald-700" : "text-slate-500")}>
                     {t('signup.account_type.customer')}
                   </span>
@@ -136,13 +136,13 @@ const SignUp = () => {
                 <div
                   onClick={() => setRole('provider')}
                   className={cn(
-                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-slate-50",
+                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-subtle",
                     role === 'provider'
                       ? "border-emerald-500 bg-emerald-50/50"
                       : "border-slate-200"
                   )}
                 >
-                  <Warehouse className={cn("w-5 h-5", role === 'provider' ? "text-emerald-600" : "text-slate-400")} />
+                  <Warehouse className={cn("w-5 h-5", role === 'provider' ? "text-primary" : "text-slate-400")} />
                   <span className={cn("text-xs font-medium", role === 'provider' ? "text-emerald-700" : "text-slate-500")}>
                     {t('signup.account_type.provider')}
                   </span>
@@ -209,7 +209,7 @@ const SignUp = () => {
           <CardFooter className="flex flex-col space-y-3 pt-2">
             <div className="text-center text-sm text-muted-foreground">
               {t('signup.have_account')}{' '}
-              <Link to="/login" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+              <Link to="/login" className="text-primary hover:opacity-90 font-medium transition-colors">
                 {t('signup.sign_in')}
               </Link>
             </div>

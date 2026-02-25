@@ -132,7 +132,7 @@ const ProviderMaintenance = () => {
                 <PageHeader
                     title={
                         <span className="flex items-center gap-2">
-                            <Wrench className="w-6 h-6 text-orange-600" />
+                            <Wrench className="w-6 h-6 text-status-warning" />
                             {t('operations.maintenance.title')}
                         </span>
                     }
@@ -190,15 +190,15 @@ const ProviderMaintenance = () => {
                             <div className="text-center py-8">{t('operations.maintenance.queue.loading')}</div>
                         ) : items.length === 0 ? (
                             <div className="text-center py-12 text-muted-foreground bg-gray-50 rounded-lg border border-dashed">
-                                <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-500 opacity-50" />
+                                <CheckCircle className="w-8 h-8 mx-auto mb-2 text-status-success opacity-50" />
                                 <p>{t('operations.maintenance.queue.empty')}</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 {items.map(item => (
-                                    <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg bg-white hover:shadow-sm transition-shadow">
+                                    <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border border-border rounded-lg bg-card transition-shadow">
                                         {item.product.image_url && (
-                                            <img src={item.product.image_url} className="w-12 h-12 rounded bg-gray-100 object-cover" />
+                                            <img src={item.product.image_url} className="w-12 h-12 rounded bg-muted object-cover" />
                                         )}
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
@@ -206,11 +206,11 @@ const ProviderMaintenance = () => {
                                                 <Badge variant="outline">{item.variant.name}</Badge>
                                             </div>
                                             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
-                                                <div className="flex items-center gap-1 font-mono text-xs bg-gray-100 px-1 rounded text-foreground">
+                                                <div className="flex items-center gap-1 font-mono text-xs bg-muted px-1 rounded text-foreground">
                                                     {item.asset_tag}
                                                 </div>
                                                 <div className="flex items-center gap-1">
-                                                    <AlertTriangle className="w-3 h-3 text-orange-500" />
+                                                    <AlertTriangle className="w-3 h-3 text-status-warning" />
                                                     {t('operations.maintenance.queue.health', { score: item.condition_score })}
                                                 </div>
                                                 <div className="flex items-center gap-1">
@@ -220,7 +220,7 @@ const ProviderMaintenance = () => {
                                             </div>
                                         </div>
                                         <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                                            <Button size="sm" onClick={() => handleResolve(item.id)} className="w-full sm:w-auto bg-green-600 hover:bg-green-700">
+                                            <Button size="sm" onClick={() => handleResolve(item.id)} className="w-full sm:w-auto bg-status-success text-status-success-foreground hover:opacity-90">
                                                 <CheckCircle className="w-4 h-4 mr-2" />
                                                 {t('operations.maintenance.actions.finish')}
                                             </Button>

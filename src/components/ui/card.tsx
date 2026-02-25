@@ -9,7 +9,7 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: "shadow-card border-border/50",
-        elevated: "shadow-elevated border-none bg-popover/95",
+        elevated: "shadow-elevated border border-border bg-popover",
         outline: "shadow-none border-border bg-transparent",
         ghost: "shadow-none border-none bg-transparent",
       },

@@ -206,7 +206,7 @@ const LogRow = ({ log }: { log: AdminAuditLog }) => {
 
   return (
     <>
-      <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => setOpen((p) => !p)}>
+      <TableRow className="cursor-pointer hover:bg-accent" onClick={() => setOpen((p) => !p)}>
         <TableCell className="whitespace-nowrap">{format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")}</TableCell>
         <TableCell>
           <Badge variant="outline" className="capitalize">{log.action}</Badge>
@@ -223,7 +223,7 @@ const LogRow = ({ log }: { log: AdminAuditLog }) => {
         </TableCell>
       </TableRow>
       {open && (
-        <TableRow className="bg-muted/30">
+        <TableRow className="bg-muted">
           <TableCell colSpan={5}>
             <div className="space-y-2 text-sm">
               <div className="flex gap-4 flex-wrap">

@@ -29,25 +29,25 @@ export const CustomerKpiCards = memo(function CustomerKpiCards({ data, isLoading
           <p className="text-sm text-muted-foreground">—</p>
         ) : (
           <>
-            <div className="rounded-xl border border-border/70 bg-white/60 p-4 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">{subtitles.aov}</p>
               <p className="mt-2 text-2xl font-semibold">
                 {formatCurrencyCZ(data.averageOrderValueCents)}
               </p>
             </div>
-            <div className="rounded-xl border border-border/70 bg-white/60 p-4 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">{subtitles.deposit}</p>
               <p className="mt-2 text-2xl font-semibold">
                 {formatPercent(data.depositRate)}
               </p>
             </div>
-            <div className="rounded-xl border border-border/70 bg-white/60 p-4 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">{subtitles.repeat}</p>
               <p className="mt-2 text-2xl font-semibold">
                 {formatPercent(data.repeatCustomerRate)}
               </p>
             </div>
-            <div className="rounded-xl border border-border/70 bg-white/60 p-4 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">{subtitles.counts}</p>
               <p className="mt-2 text-lg font-semibold">
                 {formatInteger(data.totalCustomers)} customers • {formatInteger(data.totalReservations)} reservations

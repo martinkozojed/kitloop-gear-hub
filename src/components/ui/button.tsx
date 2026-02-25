@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils"
  * | cta         | Emerald gradient| Marketing CTA + 1 global CTA in app (sidebar)|
  * | primary     | Slate-900       | In-app primary actions (page-level)         |
  * | secondary   | Slate outline   | Row actions (Issue), secondary actions      |
- * | success     | Teal-600        | Completing actions (Complete return)        |
- * | warning     | Amber-600       | Attention actions (Resolve)                 |
- * | destructive | Red-600         | Dangerous/delete actions                    |
+ * | success     | status-success  | Completing actions (Complete return)        |
+ * | warning     | status-warning  | Attention actions (Resolve)                 |
+ * | destructive | destructive     | Dangerous/delete actions (design token)     |
  * | ghost       | Text only       | Tertiary, tabs, minimal actions             |
  * | outline     | Border only     | Alternative secondary                       |
  */
@@ -25,48 +25,47 @@ const buttonVariants = cva(
     variants: {
       variant: {
         // CTA - Marketing & 1 global in-app (sidebar "New Reservation")
-        // Emerald gradient - attention magnet, use sparingly
+        // Gradient defined in index.css .gradient-cta — use sparingly
         cta:
-          "bg-gradient-to-r from-[#4FCB84] via-[#43B273] to-[#2F8C55] text-white shadow-[0_14px_35px_-20px_rgba(41,120,72,0.65)] hover:from-[#47BC79] hover:via-[#3FA467] hover:to-[#297A4B] hover:shadow-[0_18px_40px_-18px_rgba(41,120,72,0.6)] focus-visible:ring-[#3FA467]",
+          "gradient-cta text-white focus-visible:ring-[#3FA467]",
 
-        // PRIMARY - In-app main actions (page-level)
-        // Slate-900 solid - professional, authoritative, doesn't compete with status colors
+        // MARKETING - Public-only CTA (SSOT: allowed only on public pages; lint fails in provider)
+        marketing:
+          "gradient-cta text-white focus-visible:ring-[#3FA467]",
+
+        // PRIMARY - In-app main actions (page-level); uses design tokens
         default:
-          "bg-slate-900 text-white shadow-sm hover:bg-slate-800 active:bg-slate-950 focus-visible:ring-slate-500",
+          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/95 focus-visible:ring-ring",
         primary:
-          "bg-slate-900 text-white shadow-sm hover:bg-slate-800 active:bg-slate-950 focus-visible:ring-slate-500",
+          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/95 focus-visible:ring-ring",
 
-        // SECONDARY - Row actions (Issue), secondary buttons
-        // Outline style - visible but calm, doesn't compete with status badges
+        // SECONDARY - Row actions (Issue), secondary buttons; tokens only
         secondary:
-          "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-400",
+          "border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
 
-        // SUCCESS - Completing actions (Complete return, Ready)
-        // Teal-600 - distinct from brand emerald, signals "done/complete"
+        // SUCCESS - Completing actions (Complete return, Ready); uses status token
         success:
-          "bg-teal-600 text-white shadow-sm hover:bg-teal-700 active:bg-teal-800 focus-visible:ring-teal-500",
+          "bg-status-success text-status-success-foreground shadow-sm hover:opacity-90 focus-visible:ring-status-success focus-visible:ring-offset-2",
 
-        // WARNING - Attention actions (Resolve exception)
-        // Amber-600 - requires attention but not critical
+        // WARNING - Attention actions (Resolve exception); uses status token
         warning:
-          "bg-amber-500 text-white shadow-sm hover:bg-amber-600 active:bg-amber-700 focus-visible:ring-amber-500",
+          "bg-status-warning text-status-warning-foreground shadow-sm hover:opacity-90 focus-visible:ring-status-warning focus-visible:ring-offset-2",
 
-        // DESTRUCTIVE - Dangerous actions (Delete, Cancel)
-        // Red-600 - use sparingly to avoid alarm fatigue
+        // DESTRUCTIVE - Dangerous actions (Delete, Cancel); uses design token
         destructive:
-          "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-500",
+          "bg-destructive text-destructive-foreground shadow-sm hover:opacity-90 focus-visible:ring-destructive focus-visible:ring-offset-2",
 
-        // OUTLINE - Alternative secondary with brand hint
+        // OUTLINE - Alternative secondary; tokens only
         outline:
-          "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400",
+          "border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
 
         // GHOST - Tertiary, tabs, minimal footprint
         ghost:
-          "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
+          "text-muted-foreground hover:text-foreground hover:bg-accent",
 
-        // LINK - Text link style
+        // LINK - Text link style (brand hint via ring on focus)
         link:
-          "text-emerald-600 underline-offset-4 hover:underline hover:text-emerald-700",
+          "text-foreground underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",

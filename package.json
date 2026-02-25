@@ -17,7 +17,9 @@
     "test:functions": "deno test supabase/functions/reserve_gear --allow-env --allow-read",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
-    "lint:colors": "bash scripts/lint-hardcoded-colors.sh"
+    "lint:colors": "bash scripts/lint-hardcoded-colors.sh",
+    "report:ui": "bash scripts/report-ui-violations.sh",
+    "generate:pwa-icons": "node scripts/generate-pwa-icons.mjs"
   },
   "engines": {
     "node": "20.x"
@@ -113,12 +115,14 @@
     "lovable-tagger": "^1.1.13",
     "pg": "^8.17.2",
     "postcss": "^8.4.47",
+    "sharp": "^0.34.5",
     "supabase": "^2.72.8",
     "tailwindcss": "^3.4.19",
     "terser": "^5.46.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.1",
     "vite": "^5.4.1",
+    "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.16"
   },
   "optionalDependencies": {

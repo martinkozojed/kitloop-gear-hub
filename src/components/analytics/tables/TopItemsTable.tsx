@@ -42,8 +42,8 @@ function getPerformanceBadge(item: TopItemPerformance): PerformanceBadge {
 
 const badgeStyle: Record<PerformanceBadge, string> = {
   hot: "bg-rose-100 text-rose-700",
-  good: "bg-emerald-100 text-emerald-700",
-  slow: "bg-amber-100 text-amber-700",
+  good: "bg-status-success/10 text-status-success border border-status-success/20",
+  slow: "bg-status-warning/10 text-status-warning border border-status-warning/20",
   dead: "bg-slate-200 text-slate-600",
 };
 
@@ -95,7 +95,7 @@ export const TopItemsTable = memo(function TopItemsTable({
         {isLoading ? (
           <Skeleton className="h-48 w-full rounded-xl" />
         ) : rankedData.length === 0 ? (
-          <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted/10 text-sm text-muted-foreground">
+          <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted text-sm text-muted-foreground">
             {emptyMessage}
           </div>
         ) : (

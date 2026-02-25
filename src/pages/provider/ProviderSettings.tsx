@@ -273,15 +273,15 @@ const ProviderSettings = () => {
   return (
     <ProviderLayout>
       <div className="w-full space-y-6 pb-24">
-        <div className="rounded-2xl border border-emerald-100 bg-white p-6 flex flex-col gap-3 shadow-[0_12px_40px_-28px_rgba(16,185,129,0.6)]">
+        <div className="rounded-2xl border border-border bg-card p-6 flex flex-col gap-3">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-heading font-bold text-emerald-950">{t('provider.settings.title')}</h1>
+              <h1 className="text-3xl font-heading font-bold text-foreground">{t('provider.settings.title')}</h1>
               <p className="text-sm text-muted-foreground">
                 {t('provider.settings.subtitle')}
               </p>
             </div>
-            <Badge variant="outline" className="bg-white text-emerald-700 border-emerald-200 flex items-center gap-1 h-fit">
+            <Badge variant="outline" className="flex items-center gap-1 h-fit">
               <ShieldCheck className="h-4 w-4" />
               {t('provider.settings.status.secured')}
             </Badge>
@@ -289,7 +289,7 @@ const ProviderSettings = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-white">
+          <TabsList className="bg-muted">
             <TabsTrigger value="profile">{t('provider.settings.tabs.profile')}</TabsTrigger>
             <TabsTrigger value="team" disabled>{t('provider.settings.tabs.team')}</TabsTrigger>
             <TabsTrigger value="notifications" disabled>{t('provider.settings.tabs.notifications')}</TabsTrigger>
@@ -322,7 +322,7 @@ const ProviderSettings = () => {
                       placeholder={t('provider.settings.placeholders.rentalName')}
                       disabled={!canEdit}
                     />
-                    {errors.rental_name && <p className="text-xs text-red-600">{errors.rental_name}</p>}
+                    {errors.rental_name && <p className="text-xs text-status-danger">{errors.rental_name}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="company_id">{t('provider.settings.fields.companyId')} *</Label>
@@ -334,7 +334,7 @@ const ProviderSettings = () => {
                       placeholder="12345678"
                       disabled={!canEdit}
                     />
-                    {errors.company_id && <p className="text-xs text-red-600">{errors.company_id}</p>}
+                    {errors.company_id && <p className="text-xs text-status-danger">{errors.company_id}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="tax_id">{t('provider.settings.fields.taxId')}</Label>
@@ -362,7 +362,7 @@ const ProviderSettings = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.country && <p className="text-xs text-red-600">{errors.country}</p>}
+                    {errors.country && <p className="text-xs text-status-danger">{errors.country}</p>}
                   </div>
                 </div>
 
@@ -376,7 +376,7 @@ const ProviderSettings = () => {
                       placeholder={t('provider.settings.placeholders.address')}
                       disabled={!canEdit}
                     />
-                    {errors.address && <p className="text-xs text-red-600">{errors.address}</p>}
+                    {errors.address && <p className="text-xs text-status-danger">{errors.address}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="location">{t('provider.settings.fields.city')} *</Label>
@@ -387,7 +387,7 @@ const ProviderSettings = () => {
                       placeholder={t('provider.settings.placeholders.city')}
                       disabled={!canEdit}
                     />
-                    {errors.location && <p className="text-xs text-red-600">{errors.location}</p>}
+                    {errors.location && <p className="text-xs text-status-danger">{errors.location}</p>}
                   </div>
                 </div>
               </CardContent>
@@ -410,7 +410,7 @@ const ProviderSettings = () => {
                       placeholder={t('provider.settings.placeholders.phone')}
                       disabled={!canEdit}
                     />
-                    {errors.phone && <p className="text-xs text-red-600">{errors.phone}</p>}
+                    {errors.phone && <p className="text-xs text-status-danger">{errors.phone}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="email">{t('provider.settings.fields.email')}</Label>
@@ -425,7 +425,7 @@ const ProviderSettings = () => {
                     <p className="text-xs text-muted-foreground">
                       {t('provider.settings.microcopy.contactEmail')}
                     </p>
-                    {errors.email && <p className="text-xs text-red-600">{errors.email}</p>}
+                    {errors.email && <p className="text-xs text-status-danger">{errors.email}</p>}
                   </div>
                 </div>
                 <div className="space-y-1">
@@ -438,7 +438,7 @@ const ProviderSettings = () => {
                     placeholder="https://kitloop.cz"
                     disabled={!canEdit}
                   />
-                  {errors.website && <p className="text-xs text-red-600">{errors.website}</p>}
+                  {errors.website && <p className="text-xs text-status-danger">{errors.website}</p>}
                 </div>
               </CardContent>
             </Card>
@@ -465,7 +465,7 @@ const ProviderSettings = () => {
                         <SelectItem value="EUR">EUR</SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors.currency && <p className="text-xs text-red-600">{errors.currency}</p>}
+                    {errors.currency && <p className="text-xs text-status-danger">{errors.currency}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="time_zone">{t('provider.settings.fields.timezone')}</Label>
@@ -483,7 +483,7 @@ const ProviderSettings = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.time_zone && <p className="text-xs text-red-600">{errors.time_zone}</p>}
+                    {errors.time_zone && <p className="text-xs text-status-danger">{errors.time_zone}</p>}
                   </div>
                 </CardContent>
               </Card>
@@ -510,8 +510,8 @@ const ProviderSettings = () => {
                   <p className="text-xs text-muted-foreground">
                     {t('provider.settings.hints.terms')}
                   </p>
-                  {errors.terms_text && <p className="text-xs text-red-600">{errors.terms_text}</p>}
-                  <div className="rounded-md border bg-muted/50 p-3 space-y-2">
+                  {errors.terms_text && <p className="text-xs text-status-danger">{errors.terms_text}</p>}
+                  <div className="rounded-md border border-border bg-muted p-3 space-y-2">
                     <p className="text-xs font-semibold">{t('provider.settings.preview.title')}</p>
                     <div className="h-px bg-border" />
                     <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono">{formData.terms_text || t('provider.settings.preview.empty')}</pre>
@@ -541,10 +541,10 @@ const ProviderSettings = () => {
             <Card className="border-emerald-200 shadow-lg">
               <CardContent className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 py-3 px-4">
                 <div>
-                  <p className="text-sm font-medium text-emerald-900">{t('provider.settings.cta.title')}</p>
+                  <p className="text-sm font-medium text-foreground">{t('provider.settings.cta.title')}</p>
                   <p className="text-xs text-muted-foreground">{t('provider.settings.cta.desc')}</p>
                   {Object.keys(errors).length > 0 && (
-                    <p className="text-xs text-red-600 mt-1">{t('provider.settings.toasts.missingFields')}</p>
+                    <p className="text-xs text-status-danger mt-1">{t('provider.settings.toasts.missingFields')}</p>
                   )}
                 </div>
                 <div className="flex gap-2 w-full md:w-auto">
@@ -583,7 +583,7 @@ const ProviderSettings = () => {
                   <>
                     {lastGeneratedToken ? (
                       <div className="space-y-2">
-                        <p className="text-sm text-amber-600 dark:text-amber-400">{t('provider.requestLink.showOnce')}</p>
+                        <p className="text-sm text-status-warning">{t('provider.requestLink.showOnce')}</p>
                         <div className="flex flex-col sm:flex-row gap-2">
                           <Input
                             readOnly

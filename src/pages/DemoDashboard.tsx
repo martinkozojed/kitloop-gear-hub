@@ -256,7 +256,7 @@ const DemoDashboard = () => {
                             </TableHeader>
                             <TableBody>
                                 {mockInventory.map((item) => (
-                                    <TableRow key={item.id} className="hover:bg-muted/50">
+                                    <TableRow key={item.id} className="hover:bg-accent">
                                         <TableCell className="font-medium">{item.name}</TableCell>
                                         <TableCell><Badge variant="secondary">{item.category}</Badge></TableCell>
                                         <TableCell>

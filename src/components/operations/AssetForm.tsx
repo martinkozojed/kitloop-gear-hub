@@ -163,7 +163,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
 
                     {step === 2 && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-                            <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/50">
+                            <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted">
                                 {selectedProduct?.image_url ? (
                                     <img src={selectedProduct.image_url} className="w-12 h-12 rounded object-cover" />
                                 ) : <Box className="w-10 h-10 text-muted-foreground" />}

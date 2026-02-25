@@ -32,17 +32,17 @@ export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
                         key={ex.id}
                         className={`
               p-3 rounded-md border text-sm flex flex-col gap-2
-              ${ex.priority === 'high' ? 'bg-red-50 border-red-100' : 'bg-orange-50 border-orange-100'}
+              ${ex.priority === 'high' ? 'bg-status-danger/10 border-status-danger/20' : 'bg-status-warning/10 border-status-warning/20'}
             `}
                     >
                         <div className="flex items-start gap-3">
                             {ex.type === 'overdue' ? (
-                                <Icon icon={Clock} className="text-red-600 mt-0.5" />
+                                <Icon icon={Clock} className="text-status-danger mt-0.5" />
                             ) : (
-                                <Icon icon={CreditCard} className="text-orange-600 mt-0.5" />
+                                <Icon icon={CreditCard} className="text-status-warning mt-0.5" />
                             )}
                             <div className="flex-1">
-                                <p className={`font-medium ${ex.priority === 'high' ? 'text-red-900' : 'text-orange-900'}`}>
+                                <p className={`font-medium ${ex.priority === 'high' ? 'text-status-danger' : 'text-status-warning'}`}>
                                     {ex.message}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -53,7 +53,7 @@ export function ExceptionsQueue({ exceptions = [] }: ExceptionsQueueProps) {
                         <Button
                             variant="outline"
                             size="sm"
-                            className={`w-full h-7 text-xs bg-white ${ex.priority === 'high' ? 'text-red-700 hover:text-red-800' : 'text-orange-700 hover:text-orange-800'}`}
+                            className={`w-full h-7 text-xs ${ex.priority === 'high' ? 'text-status-danger hover:bg-status-danger/10' : 'text-status-warning hover:bg-status-warning/10'}`}
                             onClick={() => navigate(`/provider/reservations/edit/${ex.id}`)}
                         >
                             {t('dashboard.exceptions.resolve')}

@@ -204,7 +204,7 @@ const ReservationForm = () => {
       setResolvedRequest(row);
     })();
     return () => { cancelled = true; };
-  }, [fromRequestId, provider?.id, fromRequestState?.id, fromRequestState?.status, t]);
+  }, [fromRequestId, provider?.id, fromRequestState, t]);
 
   const fromRequest = resolvedRequest ?? (fromRequestState?.id === fromRequestId ? fromRequestState : null);
 
@@ -226,7 +226,7 @@ const ReservationForm = () => {
       end_date: fromRequest.requested_end_date ?? '',
       notes: notes || prev.notes,
     }));
-  }, [fromRequest]);
+  }, [fromRequest, fromRequestState]);
 
   // Check availability when Variant or Date changes
   useEffect(() => {
@@ -494,7 +494,7 @@ const ReservationForm = () => {
         </div>
 
         {requestResolveError && (
-          <div className="mb-4 p-4 rounded-lg border border-amber-500/50 bg-amber-500/10 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+          <div className="mb-4 p-4 rounded-lg border border-status-warning/30 bg-status-warning/10 text-status-warning flex items-center gap-2">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <p>{requestResolveError}</p>
           </div>
@@ -506,7 +506,7 @@ const ReservationForm = () => {
             <CardHeader><CardTitle>{t('provider.reservationForm.sections.customerInfo')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
 
-              <div className="bg-muted/10 p-4 rounded-lg border border-dashed mb-4">
+              <div className="bg-muted p-4 rounded-lg border border-dashed mb-4">
                 <Label className="mb-2 block">{t('provider.reservationForm.crmSelect')}</Label>
                 <CustomerPicker
                   value={undefined} // We don't strictly bind ID yet, just pre-fill
@@ -542,10 +542,10 @@ const ReservationForm = () => {
                   value={formData.customer_name}
                   onChange={e => handleInputChange('customer_name', e.target.value)}
                   onBlur={() => setTouched(prev => ({ ...prev, customer_name: true }))}
-                  className={errors.customer_name && touched.customer_name ? 'border-red-500' : ''}
+                  className={errors.customer_name && touched.customer_name ? 'border-status-danger' : ''}
                   placeholder={t('provider.reservationForm.placeholders.name')}
                 />
-                {errors.customer_name && touched.customer_name && <p className="text-sm text-red-500 mt-1">{errors.customer_name}</p>}
+                {errors.customer_name && touched.customer_name && <p className="text-sm text-status-danger mt-1">{errors.customer_name}</p>}
               </div>
               <div>
                 <Label htmlFor="customer_phone">{t('provider.reservationForm.labels.phone')} *</Label>
@@ -554,10 +554,10 @@ const ReservationForm = () => {
                   value={formData.customer_phone}
                   onChange={e => handleInputChange('customer_phone', e.target.value)}
                   onBlur={() => setTouched(prev => ({ ...prev, customer_phone: true }))}
-                  className={errors.customer_phone && touched.customer_phone ? 'border-red-500' : ''}
+                  className={errors.customer_phone && touched.customer_phone ? 'border-status-danger' : ''}
                   placeholder={i18n.language.startsWith('cs') ? '+420 123 456 789' : '+1 415 555 1234'}
                 />
-                {errors.customer_phone && touched.customer_phone && <p className="text-sm text-red-500 mt-1">{errors.customer_phone}</p>}
+                {errors.customer_phone && touched.customer_phone && <p className="text-sm text-status-danger mt-1">{errors.customer_phone}</p>}
               </div>
               <div>
                 <Label htmlFor="customer_email">{t('provider.reservationForm.labels.email')}</Label>
@@ -566,10 +566,10 @@ const ReservationForm = () => {
                   value={formData.customer_email}
                   onChange={e => handleInputChange('customer_email', e.target.value)}
                   onBlur={() => setTouched(prev => ({ ...prev, customer_email: true }))}
-                  className={errors.customer_email && touched.customer_email ? 'border-red-500' : ''}
+                  className={errors.customer_email && touched.customer_email ? 'border-status-danger' : ''}
                   placeholder={t('provider.reservationForm.placeholders.email')}
                 />
-                {errors.customer_email && touched.customer_email && <p className="text-sm text-red-500 mt-1">{errors.customer_email}</p>}
+                {errors.customer_email && touched.customer_email && <p className="text-sm text-status-danger mt-1">{errors.customer_email}</p>}
               </div>
             </CardContent>
           </Card>
@@ -588,7 +588,7 @@ const ReservationForm = () => {
                   }}
                 >
                   <SelectTrigger
-                    className={errors.product_id && touched.product_id ? 'border-red-500' : ''}
+                    className={errors.product_id && touched.product_id ? 'border-status-danger' : ''}
                     data-testid="reservation-product-select"
                   >
                     <SelectValue placeholder={t('provider.reservationForm.placeholders.product')} />
@@ -620,7 +620,7 @@ const ReservationForm = () => {
                     onValueChange={v => handleInputChange('variant_id', v)}
                   >
                     <SelectTrigger
-                      className={errors.variant_id && touched.variant_id ? 'border-red-500' : ''}
+                      className={errors.variant_id && touched.variant_id ? 'border-status-danger' : ''}
                       data-testid="reservation-variant-select"
                     >
                       <SelectValue placeholder={t('provider.reservationForm.placeholders.variant')} />
@@ -640,7 +640,7 @@ const ReservationForm = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.variant_id && <p className="text-sm text-red-500 mt-1">{errors.variant_id}</p>}
+                  {errors.variant_id && <p className="text-sm text-status-danger mt-1">{errors.variant_id}</p>}
                 </div>
               )}
 
@@ -654,10 +654,10 @@ const ReservationForm = () => {
                       onChange={e => handleInputChange('start_date', e.target.value)}
                       data-testid="reservation-start"
                       onBlur={() => setTouched(prev => ({ ...prev, start_date: true }))}
-                      className={errors.start_date && touched.start_date ? 'border-red-500' : ''}
+                      className={errors.start_date && touched.start_date ? 'border-status-danger' : ''}
                     />
                   </div>
-                  {errors.start_date && touched.start_date && <p className="text-sm text-red-500 mt-1">{errors.start_date}</p>}
+                  {errors.start_date && touched.start_date && <p className="text-sm text-status-danger mt-1">{errors.start_date}</p>}
                 </div>
                 <div>
                   <Label>{t('provider.reservationForm.labels.end')} *</Label>
@@ -668,17 +668,17 @@ const ReservationForm = () => {
                       onChange={e => handleInputChange('end_date', e.target.value)}
                       data-testid="reservation-end"
                       onBlur={() => setTouched(prev => ({ ...prev, end_date: true }))}
-                      className={errors.end_date && touched.end_date ? 'border-red-500' : ''}
+                      className={errors.end_date && touched.end_date ? 'border-status-danger' : ''}
                     />
                   </div>
-                  {errors.end_date && touched.end_date && <p className="text-sm text-red-500 mt-1">{errors.end_date}</p>}
+                  {errors.end_date && touched.end_date && <p className="text-sm text-status-danger mt-1">{errors.end_date}</p>}
                 </div>
               </div>
 
               {/* Availability Status */}
               {formData.variant_id && formData.start_date && formData.end_date && (
                 <div className={`p-4 border rounded-lg flex items-center gap-2 ${availability.checking ? 'text-muted-foreground' :
-                  availability.result?.isAvailable ? 'text-green-600 bg-green-50/50' : 'text-red-600 bg-red-50/50'
+                  availability.result?.isAvailable ? 'text-status-success bg-status-success/10 border border-status-success/20' : 'text-status-danger bg-status-danger/10 border border-status-danger/20'
                   }`}>
                   {availability.checking ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> {t('provider.reservationForm.availability.checking')}</>
@@ -693,7 +693,7 @@ const ReservationForm = () => {
 
               {/* Price Summary */}
               {selectedVariant && rentalDays > 0 && (
-                <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
+                <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>{t('provider.reservationForm.pricing.rate')}</span>
                     <span className="font-medium">{formatPrice(pricePerDay)} / {t('provider.reservationForm.pricing.perDay')}</span>
@@ -718,7 +718,7 @@ const ReservationForm = () => {
                   maxLength={1000}
                 />
                 {formData.notes.length > 800 && (
-                  <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                  <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-status-warning font-medium' : 'text-muted-foreground'
                     }`}>
                     {formData.notes.length}/1000 {t('provider.reservationForm.notes.chars')}
                   </p>
@@ -736,7 +736,7 @@ const ReservationForm = () => {
             </CardContent>
           </Card>
 
-          <div className="flex gap-3 sticky bottom-4 bg-background/80 backdrop-blur-sm py-2">
+          <div className="flex gap-3 sticky bottom-4 bg-background py-2">
             <Button type="button" variant="outline" onClick={() => navigate('/provider/reservations')}>
               {t('provider.reservationForm.buttons.cancel')}
             </Button>

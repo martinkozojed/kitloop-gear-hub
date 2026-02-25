@@ -247,8 +247,8 @@ const ProviderSetup = () => {
                   disabled={!isAccessible}
                   className={`
                     w-14 h-10 rounded-xl flex items-center justify-center transition-all duration-200 font-medium text-sm
-                    ${isCompleted ? 'bg-primary text-primary-foreground shadow-sm cursor-pointer hover:shadow-md hover:brightness-105' : ''}
-                    ${isCurrent ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30 ring-offset-2' : ''}
+                    ${isCompleted ? 'bg-primary text-primary-foreground cursor-pointer hover:brightness-105' : ''}
+                    ${isCurrent ? 'bg-primary text-primary-foreground ring-2 ring-ring ring-offset-2' : ''}
                     ${!isCompleted && !isCurrent && isAccessible ? 'bg-primary/20 text-primary cursor-pointer hover:bg-primary/30' : ''}
                     ${!isAccessible ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''}
                   `}
@@ -271,7 +271,7 @@ const ProviderSetup = () => {
           })}
         </div>
 
-        <Card className="shadow-lg border bg-white overflow-hidden">
+        <Card className="border border-border bg-card overflow-hidden">
           {/* Subtle header */}
           <CardHeader className="text-center pb-4 border-b border-border">
             <CardTitle className="text-xl font-bold mb-1 text-foreground">
@@ -299,7 +299,7 @@ const ProviderSetup = () => {
                     placeholder={t('onboarding.wizard.placeholders.rentalName')}
                     value={formData.rental_name}
                     onChange={(e) => updateField('rental_name', e.target.value)}
-                    className={`h-11 ${errors.rental_name ? 'border-destructive focus:ring-destructive' : 'focus:ring-primary'}`}
+                    className={`h-11 ${errors.rental_name ? 'border-destructive focus:ring-destructive' : 'focus:ring-ring'}`}
                   />
                   {errors.rental_name && <p className="text-sm text-destructive">{errors.rental_name}</p>}
                 </div>
@@ -428,7 +428,7 @@ const ProviderSetup = () => {
                   type="button"
                   onClick={() => handleInventoryChoice('csv_import')}
                   disabled={isSubmitting}
-                  className="w-full flex items-center gap-4 p-4 bg-muted/30 border-2 border-transparent rounded-xl hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                  className="w-full flex items-center gap-4 p-4 bg-muted border-2 border-transparent rounded-xl hover:border-primary hover:bg-accent transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all shadow-sm">
                     <Upload className="w-6 h-6" />
@@ -444,7 +444,7 @@ const ProviderSetup = () => {
                   type="button"
                   onClick={() => handleInventoryChoice('manual')}
                   disabled={isSubmitting}
-                  className="w-full flex items-center gap-4 p-4 bg-muted/30 border-2 border-transparent rounded-xl hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                  className="w-full flex items-center gap-4 p-4 bg-muted border-2 border-transparent rounded-xl hover:border-primary hover:bg-accent transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all shadow-sm">
                     <PlusCircle className="w-6 h-6" />
@@ -460,7 +460,7 @@ const ProviderSetup = () => {
                   type="button"
                   onClick={() => handleInventoryChoice('demo')}
                   disabled={isSubmitting}
-                  className="w-full flex items-center gap-4 p-4 bg-muted/20 border-2 border-dashed border-muted rounded-xl hover:border-muted-foreground/50 hover:bg-muted/30 transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                  className="w-full flex items-center gap-4 p-4 bg-muted border-2 border-dashed border-muted rounded-xl hover:bg-accent transition-all group disabled:opacity-50 disabled:cursor-not-allowed text-left"
                 >
                   <div className="w-12 h-12 rounded-xl bg-muted group-hover:bg-muted-foreground/20 flex items-center justify-center transition-all">
                     <Sparkles className="w-6 h-6 text-muted-foreground" />

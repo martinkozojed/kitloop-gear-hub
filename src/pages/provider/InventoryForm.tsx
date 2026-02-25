@@ -443,7 +443,7 @@ const InventoryForm = () => {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <Label htmlFor="name">Název položky *</Label>
-                  <span className={`text-xs ${formData.name.length > 100 ? 'text-red-600' : 'text-muted-foreground'}`}>
+                  <span className={`text-xs ${formData.name.length > 100 ? 'text-status-danger' : 'text-muted-foreground'}`}>
                     {formData.name.length}/100
                   </span>
                 </div>
@@ -457,12 +457,12 @@ const InventoryForm = () => {
                     }
                   }}
                   placeholder="např. Ferratový set - kompletní"
-                  className={validationErrors.name ? 'border-red-500' : ''}
+                  className={validationErrors.name ? 'border-status-danger' : ''}
                   disabled={loading || uploadingImages}
                   maxLength={101}
                 />
                 {validationErrors.name && (
-                  <p className="text-sm text-red-600 mt-1">{validationErrors.name}</p>
+                  <p className="text-sm text-status-danger mt-1">{validationErrors.name}</p>
                 )}
               </div>
 
@@ -478,7 +478,7 @@ const InventoryForm = () => {
                   }}
                   disabled={loading || uploadingImages}
                 >
-                  <SelectTrigger className={validationErrors.category ? 'border-red-500' : ''}>
+                  <SelectTrigger className={validationErrors.category ? 'border-status-danger' : ''}>
                     <SelectValue placeholder="Vyberte kategorii" />
                   </SelectTrigger>
                   <SelectContent>
@@ -490,7 +490,7 @@ const InventoryForm = () => {
                   </SelectContent>
                 </Select>
                 {validationErrors.category && (
-                  <p className="text-sm text-red-600 mt-1">{validationErrors.category}</p>
+                  <p className="text-sm text-status-danger mt-1">{validationErrors.category}</p>
                 )}
               </div>
 
@@ -505,7 +505,7 @@ const InventoryForm = () => {
                   maxLength={2000}
                 />
                 {formData.description.length > 1600 && (
-                  <p className={`text-sm mt-1 ${formData.description.length > 1900 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                  <p className={`text-sm mt-1 ${formData.description.length > 1900 ? 'text-status-warning font-medium' : 'text-muted-foreground'
                     }`}>
                     {formData.description.length}/2000 znaků
                   </p>
@@ -537,11 +537,11 @@ const InventoryForm = () => {
                       }
                     }}
                     placeholder="200"
-                    className={validationErrors.price_per_day ? 'border-red-500' : ''}
+                    className={validationErrors.price_per_day ? 'border-status-danger' : ''}
                     disabled={loading || uploadingImages}
                   />
                   {validationErrors.price_per_day && (
-                    <p className="text-sm text-red-600 mt-1">{validationErrors.price_per_day}</p>
+                    <p className="text-sm text-status-danger mt-1">{validationErrors.price_per_day}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Min: 10 Kč, Max: 10,000 Kč</p>
                 </div>
@@ -560,11 +560,11 @@ const InventoryForm = () => {
                         setValidationErrors({ ...validationErrors, quantity_total: undefined });
                       }
                     }}
-                    className={validationErrors.quantity_total ? 'border-red-500' : ''}
+                    className={validationErrors.quantity_total ? 'border-status-danger' : ''}
                     disabled={loading || uploadingImages}
                   />
                   {validationErrors.quantity_total && (
-                    <p className="text-sm text-red-600 mt-1">{validationErrors.quantity_total}</p>
+                    <p className="text-sm text-status-danger mt-1">{validationErrors.quantity_total}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Min: 1, Max: 100</p>
                 </div>
@@ -605,7 +605,7 @@ const InventoryForm = () => {
                     <button
                       type="button"
                       onClick={() => removeExistingImage(img.id)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 bg-status-danger text-status-danger-foreground rounded-full p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                       aria-label="Remove image"
                     >
                       <X className="w-4 h-4" />
@@ -629,7 +629,7 @@ const InventoryForm = () => {
                     <button
                       type="button"
                       onClick={() => removeNewImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                      className="absolute top-1 right-1 bg-status-danger text-status-danger-foreground rounded-full p-1"
                       aria-label="Remove new image"
                     >
                       <X className="w-4 h-4" />
@@ -644,7 +644,7 @@ const InventoryForm = () => {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:border-green-500 hover:bg-green-50/50 transition-colors"
+                    className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:border-status-success hover:bg-status-success/10 transition-colors"
                   >
                     <Upload className="w-8 h-8 text-muted-foreground mb-1" />
                     <span className="text-xs text-muted-foreground">Add</span>
@@ -704,7 +704,7 @@ const InventoryForm = () => {
                   maxLength={1000}
                 />
                 {formData.notes.length > 800 && (
-                  <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-amber-600 font-medium' : 'text-muted-foreground'
+                  <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-status-warning font-medium' : 'text-muted-foreground'
                     }`}>
                     {formData.notes.length}/1000 znaků
                   </p>

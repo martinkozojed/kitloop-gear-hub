@@ -89,13 +89,13 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
 
 
   return (
-    <div className="flex h-full flex-col bg-muted/30 border-r border-border">
+    <div className="flex h-full flex-col bg-muted border-r border-border">
       {/* Header & Command Trigger */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-center gap-2">
           <button
             onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-background border border-input text-sm text-muted-foreground hover:border-primary/50 transition-colors group shadow-sm"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-background border border-input text-sm text-muted-foreground hover:border-primary/50 transition-colors group"
           >
             <span className="flex items-center gap-2">
               <Search className="w-4 h-4 opacity-50 group-hover:opacity-100" />
@@ -136,7 +136,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
                   to={item.path}
                   style={{ height: d.rowHeight, paddingLeft: d.paddingX, paddingRight: d.paddingX }}
                   className={`group flex items-center gap-3 rounded-md text-sm font-medium transition-all ${isActive
-                    ? 'bg-primary/10 text-primary-900 shadow-sm'
+                    ? 'bg-accent text-accent-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                 >

@@ -99,14 +99,14 @@ export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) 
                     <div className="relative rounded-lg overflow-hidden bg-black/5 aspect-square flex flex-col items-center justify-center border-2 border-dashed border-gray-200">
                         {scannerError ? (
                             <div className="flex flex-col items-center gap-2 p-4 text-center">
-                                <AlertCircle className="w-8 h-8 text-amber-500" />
+                                <AlertCircle className="w-8 h-8 text-status-warning" />
                                 <p className="text-sm text-muted-foreground">{scannerError}</p>
                                 <p className="text-xs text-muted-foreground">{t('scanner.useManualEntry')}</p>
                             </div>
                         ) : (
                             <>
                                 <div id="reader" className="w-full h-full"></div>
-                                <p className="absolute bottom-4 text-xs text-muted-foreground bg-white/80 px-2 py-1 rounded-full pointer-events-none">
+                                <p className="absolute bottom-4 text-xs text-muted-foreground bg-popover border border-border px-2 py-1 rounded-full pointer-events-none">
                                     {t('scanner.pointCamera')}
                                 </p>
                             </>

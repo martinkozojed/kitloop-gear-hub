@@ -294,14 +294,14 @@ export default function ReservationDetail() {
                                     </CardHeader>
                                     <CardContent>
                                         {logs.length === 0 ? (
-                                            <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-lg">
+                                            <div className="text-center py-12 text-muted-foreground bg-muted rounded-lg">
                                                 {t('reservationDetail.cards.noMessages')}
                                             </div>
                                         ) : (
                                             <div className="space-y-6 relative border-l-2 border-muted ml-3 pl-6 py-2">
                                                 {logs.map((log) => (
                                                     <div key={log.id} className="relative">
-                                                        <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 ${log.status === 'sent' ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600'
+                                                        <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 ${log.status === 'sent' ? 'bg-status-success/10 border-status-success' : 'bg-status-danger/10 border-status-danger'
                                                             }`} />
 
                                                         <div className="flex flex-col gap-1">

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+const marketplaceEnabled = import.meta.env.VITE_ENABLE_MARKETPLACE === 'true';
 import {
   Search,
   CalendarCheck,
@@ -160,15 +162,17 @@ const HowItWorks = () => {
               </h1>
               <p className="text-lg text-emerald-100/90">{t("howItWorks.hero.subtitle")}</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button asChild variant="cta" size="cta">
-                  <Link
-                    to="/browse"
-                    aria-label="Browse gear"
-                    data-cta="browse-gear"
-                  >
-                    {t("howItWorks.hero.primaryCta")}
-                  </Link>
-                </Button>
+                {marketplaceEnabled && (
+                  <Button asChild variant="cta" size="cta">
+                    <Link
+                      to="/browse"
+                      aria-label="Browse gear"
+                      data-cta="browse-gear"
+                    >
+                      {t("howItWorks.hero.primaryCta")}
+                    </Link>
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
                   size="lg"
@@ -378,15 +382,17 @@ const StickyCta: React.FC<{ scrollToSteps: () => void }> = ({ scrollToSteps }) =
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm font-medium text-emerald-50">{t("howItWorks.stickyCta.message")}</p>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button asChild variant="cta" size="cta">
-              <Link
-                to="/browse"
-                aria-label="Browse gear"
-                data-cta="browse-gear"
-              >
-                {t("howItWorks.stickyCta.primary")}
-              </Link>
-            </Button>
+            {marketplaceEnabled && (
+              <Button asChild variant="cta" size="cta">
+                <Link
+                  to="/browse"
+                  aria-label="Browse gear"
+                  data-cta="browse-gear"
+                >
+                  {t("howItWorks.stickyCta.primary")}
+                </Link>
+              </Button>
+            )}
             <Button size="cta" variant="outline" className="border-white/40 text-white hover:bg-white/10" onClick={scrollToSteps} type="button">
               {t("howItWorks.stickyCta.secondary")}
             </Button>

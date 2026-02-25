@@ -53,7 +53,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'  # Match local environment (v22.20.0)
+          node-version: '20'  # Match CI and Smoke (consistent across workflows)
           cache: 'npm'
 
       - name: Install dependencies
