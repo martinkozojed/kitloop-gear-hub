@@ -153,6 +153,11 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Upload dist for Netlify
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
 
   netlify-preview:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
@@ -160,14 +165,13 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - name: Download dist
+        uses: actions/download-artifact@v4
         with:
-          node-version: "20"
-          cache: "npm"
-      - name: Install dependencies
-        run: npm ci
+          name: dist
+          path: dist
       - name: Netlify deploy preview
         env:
           NETLIFY_AUTH_TOKEN: "${{ secrets.NETLIFY_AUTH_TOKEN }}"
           NETLIFY_SITE_ID: "${{ secrets.NETLIFY_SITE_ID }}"
-        run: npx netlify deploy --dir=dist --build
+        run: npx netlify deploy --dir=dist
