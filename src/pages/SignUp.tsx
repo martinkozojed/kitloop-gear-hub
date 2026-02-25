@@ -65,7 +65,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-subtle flex flex-col">
+    <div className="light min-h-screen bg-subtle flex flex-col">
 
       {/* Header — same as Login */}
       <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
