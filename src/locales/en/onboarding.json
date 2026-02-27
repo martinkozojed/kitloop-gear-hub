@@ -2,19 +2,31 @@
   "heroBadge": "MVP • Pilot • Manual approval",
   "heroH1": "Operations system for rental shops.",
   "heroSub": "Pilot for selected rental shops. Manual approval, personal onboarding. Built with the first operators.",
+  "heroSteps": [
+    "1. Request pilot access",
+    "2. Fit-check call & approval",
+    "3. Concierge setup & import"
+  ],
   "heroCta1": "Request pilot access",
   "heroCta2": "Sign in",
   "heroCta3": "See features",
-
   "painTitle": "What's your biggest pain?",
   "painSub": "Pick what fits most — we'll show you what Kitloop does about it.",
   "painSkip": "Skip to features",
   "pains": [
-    { "key": "inventory", "label": "I'm losing track\nof my inventory" },
-    { "key": "counter", "label": "Counter chaos\nat handover/return" },
-    { "key": "exports", "label": "Excel, exports\nand printing stack up" }
+    {
+      "key": "inventory",
+      "label": "I'm losing track\nof my inventory"
+    },
+    {
+      "key": "counter",
+      "label": "Counter chaos\nat handover/return"
+    },
+    {
+      "key": "exports",
+      "label": "Excel, exports\nand printing stack up"
+    }
   ],
-
   "isTitle": "Is for",
   "isntTitle": "Is not for (yet)",
   "isBullets": [
@@ -27,52 +39,45 @@
     "Payments/refunds as part of the core flow",
     "Hourly slots / opening-hours logic / complex pricing"
   ],
-
-  "flowTitle": "How it works today",
-  "flowSub": "Three steps. No added complexity.",
-  "flowSteps": [
+  "timelineTitle": "Your first hour in Kitloop",
+  "timelineSub": "What product activation actually looks like.",
+  "timelineSteps": [
     {
-      "title": "Inventory",
-      "desc": "Track everything you rent — from individual items to their status.",
-      "bullets": ["Item status (available / reserved / maintenance)", "Categories, variants, CSV import"]
+      "title": "Workspace & Location",
+      "desc": "Setup your rental timezone, currency, and physical pickup address."
     },
     {
-      "title": "Internal reservations",
-      "desc": "Staff creates reservations directly in the system.",
-      "bullets": ["Dates, statuses, equipment assignment", "Today's overview — what's going out, what's coming back"]
+      "title": "Import Inventory",
+      "desc": "Upload your spreadsheet. Our concierge service handles the mapping to get you started faster."
     },
     {
-      "title": "Handover / Return + print/export",
-      "desc": "Counter operations without paperwork.",
-      "bullets": ["Photo documentation, deposit and notes tracking", "Print handover protocol, CSV export"]
+      "title": "First Internal Reservation",
+      "desc": "Create a reservation from a walk-in or phone call. Assign dates, items, and a customer."
+    },
+    {
+      "title": "Handover & Print",
+      "desc": "Execute the handover loop, log a deposit, and print the seamless PDF handover protocol."
     }
   ],
-
-  "featuresTitle": "What you get",
-  "featuresSub": "MVP features live today.",
-  "features": [
-    { "key": "inventory",     "title": "Inventory",             "desc": "Track items, statuses and categories. CSV import for a quick start.",                           "large": true  },
-    { "key": "reservations",  "title": "Internal reservations", "desc": "Staff creates reservations, tracks dates and statuses. Today's overview.",                      "large": true  },
-    { "key": "counter",       "title": "Handover / Return",     "desc": "Counter operations with photo documentation and deposit tracking.",                              "large": false },
-    { "key": "dashboard",     "title": "Operations overview",   "desc": "Today's handovers, returns, late items — all in one place.",                                    "large": false },
-    { "key": "exports",       "title": "Print + Export",        "desc": "Print handover protocol. Export data to CSV.",                                                   "large": false }
+  "whatYouGetTitle": "What you get in the pilot",
+  "whatYouGetSub": "We don’t just give you a login. We ensure your success.",
+  "whatYouGetItems": [
+    {
+      "title": "Concierge Onboarding",
+      "desc": "We guide you on a video call step-by-step through configuration."
+    },
+    {
+      "title": "Data Import Help",
+      "desc": "Struggling with Excel? Send it over, and we will clean and import it for you."
+    },
+    {
+      "title": "Direct Priority Support",
+      "desc": "Found a bug? Have a feature request? You chat directly with the engineers."
+    }
   ],
-
-  "pilotTitle": "How to join the pilot",
-  "pilotSub": "Three steps. No commitment.",
-  "pilotSteps": [
-    { "num": "01", "title": "Request access",            "desc": "Short application — type of shop, contact, a few words about your operation." },
-    { "num": "02", "title": "Manual approval + call",    "desc": "We verify the fit with the MVP and schedule onboarding." },
-    { "num": "03", "title": "Import inventory + launch", "desc": "Personal onboarding. We'll guide you through it step by step." }
-  ],
-  "pilotBoxTitle": "What we'll need from you",
-  "pilotBoxItems": [
-    "Type of rental shop + approximate number of inventory items",
-    "How reservations are created today (walk-in, phone, Excel…)",
-    "Excel/CSV (if you have it), or we start with a few items"
-  ],
-  "pilotCta": "Request pilot access",
-
+  "trustTitle": "Built with pilots. For pilots.",
+  "trustSub": "Why we are doing this and who is behind it.",
+  "trustContent": "Kitloop is an independent software project focused exclusively on the operational reality of outdoor rental shops. We aren't backed by venture capital pushing us to scale at all costs. We are prioritizing a small group of pilot operators to ensure the product perfectly solves the friction of internal reservations, handovers, and physical returns before opening to the public. \nContact: support@kitloop.cz",
   "faqTitle": "FAQ",
   "faqs": [
     {
@@ -96,11 +101,9 @@
       "a": "Deposit tracking and notes are part of the handover flow. Payment transactions (online payments, refunds) are not part of the core MVP flow."
     }
   ],
-
   "finalTitle": "Want to be among the first pilots?",
   "finalSub": "Manual approval. Personal onboarding. Provider-only MVP.",
   "finalCta1": "Request pilot access",
-
   "showingFeatures": "Showing features",
   "footerContact": "Contact: support@kitloop.cz",
   "footerPrivacy": "Privacy notice"
