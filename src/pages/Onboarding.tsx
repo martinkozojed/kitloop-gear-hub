@@ -157,6 +157,7 @@ export default function Onboarding() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [pain, setPain] = usePain();
+  const shouldReduce = useReducedMotion();
 
   // Derive lang from i18next (normalise to cs | en)
   const lang: Lang = i18n.language?.startsWith("cs") ? "cs" : "en";
@@ -315,14 +316,21 @@ export default function Onboarding() {
               <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
                 {/* Real proof asset placeholder */}
                 <video
-                  autoPlay
+                  autoPlay={!shouldReduce}
                   loop
                   muted
                   playsInline
+                  preload="none"
+                  aria-label="Kitloop operations interface preview"
                   className="absolute inset-0 w-full h-full object-cover"
-                  poster="/media-placeholders/hero-loop-poster.jpg"
+                  poster="/onboarding/hero-loop-poster.jpg"
                 >
-                  <source src="/media-placeholders/hero-loop-proof.mp4" type="video/mp4" />
+                  <source src="/onboarding/hero-loop-proof.mp4" type="video/mp4" />
+                  <img
+                    src="/onboarding/hero-loop-poster.jpg"
+                    alt="Kitloop operations interface preview fallback"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
                 </video>
                 {/* Fallback container if video fails */}
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
@@ -444,26 +452,51 @@ export default function Onboarding() {
             <p className="mt-2 text-muted-foreground">{t("onboarding.timelineSub")}</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-4">
-            {tTimelineSteps().map((step, i) => {
-              const StepIcon = timelineIcons[i] || Package;
-              return (
-                <div key={i} className="flex flex-col space-y-3">
-                  <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100/50">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr] items-center">
+            {/* Left: Steps */}
+            <div className="space-y-8">
+              {tTimelineSteps().map((step, i) => {
+                const StepIcon = timelineIcons[i] || Package;
+                return (
+                  <div key={i} className="flex flex-row items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100/50">
                       <StepIcon className="h-5 w-5" aria-hidden="true" />
                     </div>
-                    <span className="text-xl font-bold tracking-tight text-slate-800">0{i + 1}</span>
+                    <div>
+                      <h3 className="text-base font-bold mb-1">{step.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {step.desc}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-bold mb-1.5">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {step.desc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            {/* Right: Media Proof */}
+            <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
+              {/* Real proof asset placeholder */}
+              <video
+                autoPlay={!shouldReduce}
+                loop
+                muted
+                playsInline
+                preload="none"
+                aria-label="Timeline operations proof"
+                className="absolute inset-0 w-full h-full object-cover"
+                poster="/onboarding/timeline-loop-poster.jpg"
+              >
+                <source src="/onboarding/timeline-loop-proof.mp4" type="video/mp4" />
+                <img
+                  src="/onboarding/timeline-loop-poster.jpg"
+                  alt="Timeline operations proof fallback"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </video>
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
+                <p className="text-sm font-medium text-slate-500">Timeline Proof Loading...</p>
+              </div>
+            </div>
           </div>
         </div>
       </Section>
@@ -476,18 +509,34 @@ export default function Onboarding() {
             <p className="mt-2 text-muted-foreground">{t("onboarding.whatYouGetSub")}</p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {tWhatYouGetItems().map((item, i) => (
-              <Card key={i} className="rounded-xl border shadow-sm bg-white">
-                <CardContent className="p-5 space-y-2">
-                  <div className="flex items-center gap-2.5 mb-1">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <h3 className="font-bold text-sm">{item.title}</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground pl-[1.625rem]">{item.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr] items-center">
+            {/* Left: Feature Screenshot */}
+            <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center order-2 lg:order-1">
+              <img
+                src="/onboarding/features-proof-screenshot.jpg"
+                alt="Kitloop Interface Screenshot"
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
+                <p className="text-sm font-medium text-slate-500">Screenshot Proof Loading...</p>
+              </div>
+            </div>
+
+            {/* Right: Bullet points */}
+            <div className="grid gap-4 order-1 lg:order-2">
+              {tWhatYouGetItems().map((item, i) => (
+                <Card key={i} className="rounded-xl border shadow-sm bg-white">
+                  <CardContent className="p-5 space-y-2">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                      <h3 className="font-bold text-sm">{item.title}</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground pl-[1.625rem]">{item.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </Section>
