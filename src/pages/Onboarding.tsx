@@ -157,6 +157,7 @@ export default function Onboarding() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [pain, setPain] = usePain();
+  const shouldReduce = useReducedMotion();
 
   // Derive lang from i18next (normalise to cs | en)
   const lang: Lang = i18n.language?.startsWith("cs") ? "cs" : "en";
@@ -315,7 +316,7 @@ export default function Onboarding() {
               <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
                 {/* Real proof asset placeholder */}
                 <video
-                  autoPlay
+                  autoPlay={!shouldReduce}
                   loop
                   muted
                   playsInline
@@ -476,7 +477,7 @@ export default function Onboarding() {
             <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
               {/* Real proof asset placeholder */}
               <video
-                autoPlay
+                autoPlay={!shouldReduce}
                 loop
                 muted
                 playsInline
