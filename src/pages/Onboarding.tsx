@@ -319,10 +319,17 @@ export default function Onboarding() {
                   loop
                   muted
                   playsInline
+                  preload="none"
+                  aria-label="Kitloop operations interface preview"
                   className="absolute inset-0 w-full h-full object-cover"
                   poster="/onboarding/hero-loop-poster.jpg"
                 >
                   <source src="/onboarding/hero-loop-proof.mp4" type="video/mp4" />
+                  <img
+                    src="/onboarding/hero-loop-poster.jpg"
+                    alt="Kitloop operations interface preview fallback"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
                 </video>
                 {/* Fallback container if video fails */}
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
@@ -473,10 +480,17 @@ export default function Onboarding() {
                 loop
                 muted
                 playsInline
+                preload="none"
+                aria-label="Timeline operations proof"
                 className="absolute inset-0 w-full h-full object-cover"
                 poster="/onboarding/timeline-loop-poster.jpg"
               >
                 <source src="/onboarding/timeline-loop-proof.mp4" type="video/mp4" />
+                <img
+                  src="/onboarding/timeline-loop-poster.jpg"
+                  alt="Timeline operations proof fallback"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               </video>
               <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
                 <p className="text-sm font-medium text-slate-500">Timeline Proof Loading...</p>
