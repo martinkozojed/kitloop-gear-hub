@@ -41,29 +41,20 @@ import { cn } from "@/lib/utils";
 type Lang = "cs" | "en";
 type Pain = "inventory" | "counter" | "exports";
 
-interface PainItem   { key: Pain; label: string; }
-interface FlowStep   { title: string; desc: string; bullets: string[]; }
-interface Feature    { key: string; title: string; desc: string; large: boolean; }
-interface PilotStep  { num: string; title: string; desc: string; }
-interface FAQ        { q: string; a: string; }
+interface PainItem { key: Pain; label: string; }
+interface TimelineStep { title: string; desc: string; }
+interface WhatYouGetItem { title: string; desc: string; }
+interface FAQ { q: string; a: string; }
 
 // ─── Static icon maps (icons can't live in JSON) ──────────────────────────────
 
 const painIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   inventory: Package,
-  counter:   ClipboardList,
-  exports:   FileSpreadsheet,
+  counter: ClipboardList,
+  exports: FileSpreadsheet,
 };
 
-const featureIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  inventory:    Package,
-  reservations: CalendarCheck,
-  counter:      QrCode,
-  dashboard:    LayoutDashboard,
-  exports:      FileSpreadsheet,
-};
-
-const flowStepIcons = [Package, CalendarCheck, QrCode];
+const timelineIcons = [LayoutDashboard, Package, CalendarCheck, QrCode];
 
 // ─── URL param hook — pain only ───────────────────────────────────────────────
 
@@ -108,7 +99,7 @@ function firePainEvent(pain: Pain, lang: string) {
 // ─── Animation variants ────────────────────────────────────────────────────────
 
 const fadeUp = {
-  hidden:  { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
 
@@ -159,131 +150,6 @@ function GlowLayer() {
   );
 }
 
-// ─── Hero UI preview panel ────────────────────────────────────────────────────
-// Static illustrative data — purely decorative, aria-hidden.
-
-function HeroPreview({ lang }: { lang: Lang }) {
-  const today = new Date().toLocaleDateString(
-    lang === "cs" ? "cs-CZ" : "en-US",
-    { weekday: "short", month: "short", day: "numeric" },
-  );
-
-  const labels = lang === "cs"
-    ? {
-        kpi: ["Výdeje dnes", "Vratky dnes", "Po termínu", "Dostupné"],
-        agendaLabel: "Dnešní agenda",
-        typeOut: "výdej",
-        typeRet: "vratka",
-        disclaimer: "Ukázka rozhraní · ilustrativní data",
-        agenda: [
-          { time: "09:30", name: "Alex T. · E-bike ×2", type: "out" as const },
-          { time: "11:00", name: "Sarah M. · Stan ×1",  type: "ret" as const },
-          { time: "14:00", name: "James W. · Tyče ×2",  type: "out" as const },
-        ],
-      }
-    : {
-        kpi: ["Check-outs today", "Returns today", "Overdue", "Available"],
-        agendaLabel: "Today's agenda",
-        typeOut: "check-out",
-        typeRet: "return",
-        disclaimer: "UI preview · illustrative data",
-        agenda: [
-          { time: "09:30", name: "Alex T. · E-bike ×2",  type: "out" as const },
-          { time: "11:00", name: "Sarah M. · Tent ×1",   type: "ret" as const },
-          { time: "14:00", name: "James W. · Poles ×2",  type: "out" as const },
-        ],
-      };
-
-  const kpiValues = ["4", "3", "1", "28"];
-
-  return (
-    <div
-      className="rounded-xl border border-slate-200 shadow-lg overflow-hidden bg-white select-none pointer-events-none"
-      aria-hidden="true"
-    >
-      <div className="px-4 py-2.5 bg-subtle border-b border-slate-100 flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-500">{today}</span>
-        <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full tracking-wide">
-          LIVE
-        </span>
-      </div>
-      <div className="grid grid-cols-2 divide-x divide-y divide-slate-100">
-        {kpiValues.map((val, i) => (
-          <div key={i} className="px-4 py-3">
-            <p className={cn("text-xl font-bold leading-none", i === 2 ? "text-amber-500" : "text-slate-900")}>
-              {val}
-            </p>
-            <p className="text-[11px] text-slate-400 mt-0.5">{labels.kpi[i]}</p>
-          </div>
-        ))}
-      </div>
-      <div className="border-t border-slate-100 px-4 py-2 bg-subtle/80">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          {labels.agendaLabel}
-        </span>
-      </div>
-      <div className="divide-y divide-slate-50">
-        {labels.agenda.map((item) => (
-          <div key={item.time} className="flex items-center gap-3 px-4 py-2.5">
-            <span className="text-xs font-mono text-slate-400 w-10 shrink-0">{item.time}</span>
-            <span className="text-sm text-slate-700 flex-1 truncate">{item.name}</span>
-            <span
-              className={cn(
-                "text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0",
-                item.type === "out" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500",
-              )}
-            >
-              {item.type === "out" ? labels.typeOut : labels.typeRet}
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className="border-t border-slate-100 px-4 py-2 bg-subtle">
-        <p className="text-[10px] text-slate-400 text-center">{labels.disclaimer}</p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Feature card ─────────────────────────────────────────────────────────────
-
-function FeatureCard({
-  f,
-  highlighted,
-  cardRef,
-}: {
-  f: Feature;
-  highlighted: boolean;
-  cardRef: (el: HTMLDivElement | null) => void;
-}) {
-  const Icon = featureIcons[f.key];
-  return (
-    <div ref={cardRef}>
-      <Card
-        className={cn(
-          "h-full rounded-xl border shadow-sm bg-white transition-all duration-300",
-          highlighted && "ring-2 ring-emerald-500 border-emerald-200 shadow-md",
-        )}
-      >
-        <CardContent className={cn("space-y-3", f.large ? "p-5" : "p-4")}>
-          <div
-            className={cn(
-              "flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-700",
-              f.large ? "h-10 w-10" : "h-9 w-9",
-            )}
-          >
-            {Icon && <Icon className={f.large ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />}
-          </div>
-          <div>
-            <h3 className={cn("font-bold", f.large ? "text-base" : "text-sm")}>{f.title}</h3>
-            <p className="mt-1 text-muted-foreground text-sm">{f.desc}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function Onboarding() {
@@ -319,22 +185,20 @@ export default function Onboarding() {
   );
 
   // Helpers for typed array data from i18next
-  const tPains      = () => t("onboarding.pains",      { returnObjects: true }) as PainItem[];
-  const tFlowSteps  = () => t("onboarding.flowSteps",  { returnObjects: true }) as FlowStep[];
-  const tFeatures   = () => t("onboarding.features",   { returnObjects: true }) as Feature[];
-  const tPilotSteps = () => t("onboarding.pilotSteps", { returnObjects: true }) as PilotStep[];
-  const tPilotBoxItems = () => t("onboarding.pilotBoxItems", { returnObjects: true }) as string[];
-  const tIsBullets  = () => t("onboarding.isBullets",  { returnObjects: true }) as string[];
+  const tPains = () => t("onboarding.pains", { returnObjects: true }) as PainItem[];
+  const tHeroSteps = () => t("onboarding.heroSteps", { returnObjects: true }) as string[];
+  const tTimelineSteps = () => t("onboarding.timelineSteps", { returnObjects: true }) as TimelineStep[];
+  const tWhatYouGetItems = () => t("onboarding.whatYouGetItems", { returnObjects: true }) as WhatYouGetItem[];
+  const tIsBullets = () => t("onboarding.isBullets", { returnObjects: true }) as string[];
   const tIsntBullets = () => t("onboarding.isntBullets", { returnObjects: true }) as string[];
-  const tFaqs       = () => t("onboarding.faqs",       { returnObjects: true }) as FAQ[];
+  const tFaqs = () => t("onboarding.faqs", { returnObjects: true }) as FAQ[];
 
-  const signupHref  = `/signup?from=onboarding&lang=${lang}`;
-  const loginHref   = `/login?lang=${lang}`;
+  const signupHref = `/signup?from=onboarding&lang=${lang}`;
+  const loginHref = `/login?lang=${lang}`;
   const privacyHref = `/privacy?lang=${lang}`;
 
   const featuresSectionRef = useRef<HTMLDivElement>(null);
-  const featureRefs        = useRef<Record<string, HTMLDivElement | null>>({});
-  const isFirstPainEffect  = useRef(true);
+  const isFirstPainEffect = useRef(true);
 
   useEffect(() => {
     if (isFirstPainEffect.current) {
@@ -342,11 +206,10 @@ export default function Onboarding() {
       return;
     }
     if (!pain) return;
-    const el     = featureRefs.current[pain];
-    const target = el ?? featuresSectionRef.current;
+    const target = featuresSectionRef.current;
     if (target) {
       requestAnimationFrame(() =>
-        target.scrollIntoView({ behavior: "smooth", block: "center" }),
+        target.scrollIntoView({ behavior: "smooth", block: "start" }),
       );
     }
   }, [pain]);
@@ -412,9 +275,18 @@ export default function Onboarding() {
               <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
                 {t("onboarding.heroH1")}
               </h1>
-              <p className="text-slate-500 leading-relaxed">{t("onboarding.heroSub")}</p>
+              <p className="text-slate-500 leading-relaxed text-lg">{t("onboarding.heroSub")}</p>
 
-              <div className="flex flex-col gap-3 pt-1">
+              <ul className="space-y-2 py-1">
+                {tHeroSteps().map((step) => (
+                  <li key={step} className="flex gap-2.5 text-sm font-medium text-slate-700">
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex flex-col gap-3 pt-2">
                 <Button
                   asChild
                   variant="cta"
@@ -439,14 +311,25 @@ export default function Onboarding() {
             </motion.div>
 
             {/* Right — static UI preview */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
-              className="lg:pl-6"
-            >
-              <HeroPreview lang={lang} />
-            </motion.div>
+            <div className="lg:pl-6">
+              <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
+                {/* Real proof asset placeholder */}
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                  poster="/media-placeholders/hero-loop-poster.jpg"
+                >
+                  <source src="/media-placeholders/hero-loop-proof.mp4" type="video/mp4" />
+                </video>
+                {/* Fallback container if video fails */}
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
+                  <p className="text-sm font-medium text-slate-500">Video Proof Loading...</p>
+                </div>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -553,46 +436,31 @@ export default function Onboarding() {
         </div>
       </Section>
 
-      {/* ── D) Jak to funguje ─────────────────────────────────────────────────── */}
-      <Section className="bg-white py-12">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.flowTitle")}</h2>
-            <p className="mt-2 text-muted-foreground">{t("onboarding.flowSub")}</p>
+      {/* ── D) První hodina (Timeline) ────────────────────────────────────────── */}
+      <Section id="section-features" className="bg-white py-12 scroll-mt-24">
+        <div ref={featuresSectionRef} className="mx-auto max-w-5xl px-6">
+          <div className="mb-8 text-center sm:text-left">
+            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.timelineTitle")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("onboarding.timelineSub")}</p>
           </div>
 
-          <div className="divide-y divide-slate-100">
-            {tFlowSteps().map((step, i) => {
-              const StepIcon = flowStepIcons[i];
+          <div className="grid gap-6 md:grid-cols-4">
+            {tTimelineSteps().map((step, i) => {
+              const StepIcon = timelineIcons[i] || Package;
               return (
-                <div
-                  key={step.title}
-                  className="grid grid-cols-1 md:grid-cols-[64px_1fr_1fr] gap-x-8 gap-y-3 py-7 items-start"
-                >
-                  <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-0">
-                    <span className="text-5xl font-black leading-none tabular-nums text-emerald-500/25 select-none">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 shrink-0">
-                        {StepIcon && <StepIcon className="h-3.5 w-3.5" aria-hidden="true" />}
-                      </div>
-                      <h3 className="text-base font-bold">{step.title}</h3>
+                <div key={i} className="flex flex-col space-y-3">
+                  <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100/50">
+                      <StepIcon className="h-5 w-5" aria-hidden="true" />
                     </div>
-                    <p className="text-sm text-muted-foreground pl-[2.375rem]">{step.desc}</p>
+                    <span className="text-xl font-bold tracking-tight text-slate-800">0{i + 1}</span>
                   </div>
-
-                  <ul className="space-y-1.5 md:pt-0 pt-1">
-                    {step.bullets.map((b) => (
-                      <li key={b} className="flex gap-2 text-sm text-foreground">
-                        <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div>
+                    <h3 className="text-base font-bold mb-1.5">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
                 </div>
               );
             })}
@@ -600,80 +468,45 @@ export default function Onboarding() {
         </div>
       </Section>
 
-      {/* ── E) Funkce — Bento grid ────────────────────────────────────────────── */}
-      <Section id="section-features" className="bg-subtle py-12 scroll-mt-24">
+      {/* ── E) What you get in the pilot (Concierge) ────────────────────────── */}
+      <Section className="bg-subtle py-12 border-y border-slate-100">
         <div className="mx-auto max-w-5xl px-6">
-          <div ref={featuresSectionRef} className="text-center mb-8">
-            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.featuresTitle")}</h2>
-            <p className="mt-2 text-muted-foreground">{t("onboarding.featuresSub")}</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 mb-4">
-            {tFeatures()
-              .filter((f) => f.large)
-              .map((f) => (
-                <FeatureCard
-                  key={f.key}
-                  f={f}
-                  highlighted={pain === f.key}
-                  cardRef={(el) => { featureRefs.current[f.key] = el; }}
-                />
-              ))}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.whatYouGetTitle")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("onboarding.whatYouGetSub")}</p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {tFeatures()
-              .filter((f) => !f.large)
-              .map((f) => (
-                <FeatureCard
-                  key={f.key}
-                  f={f}
-                  highlighted={pain === f.key}
-                  cardRef={(el) => { featureRefs.current[f.key] = el; }}
-                />
-              ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ── F) Pilot: Jak začít ──────────────────────────────────────────────── */}
-      <Section className="bg-white py-12">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.pilotTitle")}</h2>
-            <p className="mt-2 text-muted-foreground">{t("onboarding.pilotSub")}</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3 mb-6">
-            {tPilotSteps().map((step) => (
-              <Card key={step.num} className="rounded-xl border shadow-sm bg-white">
+            {tWhatYouGetItems().map((item, i) => (
+              <Card key={i} className="rounded-xl border shadow-sm bg-white">
                 <CardContent className="p-5 space-y-2">
-                  <span className="text-3xl font-black text-emerald-200 leading-none select-none" aria-hidden="true">
-                    {step.num}
-                  </span>
-                  <h3 className="text-base font-bold">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground">{step.desc}</p>
+                  <div className="flex items-center gap-2.5 mb-1">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <h3 className="font-bold text-sm">{item.title}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground pl-[1.625rem]">{item.desc}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
+        </div>
+      </Section>
 
-          <Card className="rounded-xl border-emerald-100 bg-white shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Users className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
-                <h3 className="font-bold text-sm">{t("onboarding.pilotBoxTitle")}</h3>
-              </div>
-              <ul className="space-y-1.5">
-                {tPilotBoxItems().map((item) => (
-                  <li key={item} className="flex gap-2.5 text-sm">
-                    <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">→</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+      {/* ── F) Trust Block ─────────────────────────────────────────────────── */}
+      <Section className="bg-white py-12">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <div className="mb-6 flex justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+              <Users className="h-5 w-5" />
+            </div>
+          </div>
+          <h2 className="text-xl font-bold md:text-2xl mb-2 text-slate-800">
+            {t("onboarding.trustTitle")}
+          </h2>
+          <p className="text-sm font-medium text-emerald-600 mb-6">{t("onboarding.trustSub")}</p>
+          <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line text-left md:text-center mx-auto max-w-2xl bg-slate-50 p-6 rounded-xl">
+            {t("onboarding.trustContent")}
+          </div>
         </div>
       </Section>
 
