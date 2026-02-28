@@ -12,11 +12,12 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { ItemState } from "@/lib/logic/reservation-state";
-import { AlertTriangle, Check, ArrowRight, Loader2 } from "lucide-react";
+import { AlertTriangle, Check, ArrowRight, Loader2, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { PrintContractButton } from '@/components/contracts/PrintContractButton';
 import { useTranslation } from 'react-i18next';
 import { logEvent } from '@/lib/app-events';
+import { ScannerModal } from './ScannerModal';
 
 interface IssueFlowProps {
     open: boolean;
@@ -207,25 +208,104 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         }
     };
 
+    const [scanning, setScanning] = useState(false);
+    const [scanError, setScanError] = useState<string | null>(null);
+
+    const handleScanAsset = async (scannedCode: string) => {
+        setScanError(null);
+        try {
+            // Find the asset by either ID or asset_tag
+            const { data: assetData, error: assetError } = await supabase
+                .from('assets')
+                .select('id, asset_tag, status, variant_id, provider_id')
+                .or(`id.eq.${scannedCode},asset_tag.eq.${scannedCode}`)
+                .single();
+
+            if (assetError || !assetData) {
+                setScanError(t('operations.issueFlow.scan.notFound', { defaultValue: 'Vybavení nebylo nalezeno v databázi.' }));
+                toast.error(t('operations.issueFlow.scan.notFound'));
+                return;
+            }
+
+            // Verify it belongs to the provider
+            if (assetData.provider_id !== reservationRecord?.provider_id) {
+                setScanError(t('operations.issueFlow.scan.wrongProvider', { defaultValue: 'Tento kus nepatří vaší půjčovně.' }));
+                return;
+            }
+
+            // Verify it matches the reservation's product variant
+            if (assetData.variant_id !== reservationRecord?.product_variant_id) {
+                setScanError(t('operations.issueFlow.scan.wrongVariant', { defaultValue: 'Tento kus neodpovídá rezervovanému typu vybavení.' }));
+                return;
+            }
+
+            // Verify it is not already assigned to another active reservation
+            const { data: conflicts } = await supabase
+                .from('reservation_assignments')
+                .select('reservation:reservations!inner(start_date,end_date,status)')
+                .eq('asset_id', assetData.id)
+                .in('reservations.status', ['hold', 'confirmed', 'active'])
+                .lt('reservations.start_date', reservationRecord.end_date)
+                .gt('reservations.end_date', reservationRecord.start_date);
+
+            if (conflicts && conflicts.length > 0) {
+                setScanError(t('operations.issueFlow.scan.conflict', { defaultValue: 'Tento kus je v daném termínu již rezervován jinde.' }));
+                return;
+            }
+
+            // Valid asset found! Assign it to the reservation
+            const { error: insertError } = await supabase
+                .from('reservation_assignments')
+                .insert({ reservation_id: reservationRecord.id, asset_id: assetData.id });
+
+            if (insertError) throw insertError;
+
+            // Update UI state
+            setItems(prev => [...prev, { id: assetData.id, status: assetData.status as ItemState['status'] }]);
+            toast.success(t('operations.issueFlow.scan.success', { defaultValue: `Vybavení ${assetData.asset_tag || assetData.id} bylo přiřazeno.` }));
+
+        } catch (e: unknown) {
+            console.error("Scanning error", e);
+            setScanError(t('error'));
+        }
+    };
+
     const StatusDisplay = () => {
         if (!hasAssets && !overrideMode) {
             return (
-                <div data-testid="issue-no-assets-warning" className="flex flex-col items-center justify-center p-6 text-center bg-status-warning/10 text-status-warning rounded-token-lg border border-status-warning/20 animate-in fade-in zoom-in duration-300">
-                    <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
-                    <h4 className="font-semibold">{t('operations.issueFlow.noAssets.title')}</h4>
-                    <p className="text-sm opacity-80 mt-1 max-w-[250px]">{t('operations.issueFlow.noAssets.desc')}</p>
-                    {autoAssigning && <div className="mt-2 text-xs flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Finding asset...</div>}
-                    {autoAssignError && <p className="mt-1 text-xs font-bold text-destructive">{autoAssignError}</p>}
+                <div data-testid="issue-no-assets-warning" className="flex flex-col items-center justify-center p-6 text-center bg-muted/50 rounded-token-lg animate-in fade-in zoom-in duration-300 border border-dashed border-border mt-4">
+                    <ScannerModal
+                        open={scanning}
+                        onOpenChange={setScanning}
+                        onScan={handleScanAsset}
+                        title={t('operations.issueFlow.scan.title', { defaultValue: 'Naskenovat vybavení' })}
+                        description={t('operations.issueFlow.scan.desc', { defaultValue: 'Naskenujte QR kód nebo čárový kód z vybavení, které chcete vydat.' })}
+                    />
+
+                    <h4 className="font-semibold text-foreground mb-4">{t('operations.issueFlow.scan.prompt', { defaultValue: 'Vyberte konkrétní kus k vydání' })}</h4>
+
+                    <div className="flex flex-col gap-3 w-full max-w-xs">
+                        <Button onClick={() => setScanning(true)} className="w-full h-12">
+                            <Camera className="w-5 h-5 mr-2" />
+                            {t('operations.issueFlow.scan.button', { defaultValue: 'Naskenovat QR / Čárový kód' })}
+                        </Button>
+                        <span className="text-xs text-muted-foreground uppercase tracking-widest text-center mt-2 mb-2">NEBO</span>
+                        <Button variant="outline" onClick={() => toast.info('Manuální výběr zatím není v MVP implementován.')} className="w-full border-dashed">
+                            {t('operations.issueFlow.scan.manual', { defaultValue: 'Vybrat ze seznamu manuálně' })}
+                        </Button>
+                    </div>
+
+                    {scanError && <p className="mt-4 text-sm font-bold text-destructive bg-destructive/10 px-3 py-2 rounded-md">{scanError}</p>}
                 </div>
             );
         }
         return (
-            <div className="flex flex-col items-center justify-center p-8 text-center bg-status-success/10 text-status-success rounded-token-lg border border-status-success/20 animate-in fade-in zoom-in duration-300">
+            <div className="flex flex-col items-center justify-center p-8 text-center bg-status-success/10 text-status-success rounded-token-lg border border-status-success/20 animate-in fade-in zoom-in duration-300 mt-4">
                 <div className="w-12 h-12 bg-status-success/20 rounded-full flex items-center justify-center mb-3">
                     <Check className="w-6 h-6 text-status-success" />
                 </div>
-                <h4 className="text-lg font-bold text-foreground">Ready to Issue</h4>
-                <p className="text-sm text-muted-foreground mt-1">Everything looks correct.</p>
+                <h4 className="text-lg font-bold text-foreground">{t('operations.issueFlow.readyTitle', { defaultValue: 'Připraveno k vydání' })}</h4>
+                <p className="text-sm text-muted-foreground mt-1">{t('operations.issueFlow.readyDesc', { defaultValue: 'Správné vybavení bylo přiřazeno.' })}</p>
                 {overrideMode && <span className="text-status-warning bg-status-warning/10 mt-2 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold">Override Active</span>}
             </div>
         );
