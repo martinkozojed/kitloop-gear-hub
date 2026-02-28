@@ -1,2 +1,2 @@
-GRANT EXECUTE ON FUNCTION public.issue_reservation(uuid, uuid, uuid, boolean) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.issue_reservation(uuid, uuid, uuid, boolean) TO service_role;
+GRANT EXECUTE ON FUNCTION public.issue_reservation(uuid, uuid, uuid, boolean, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.issue_reservation(uuid, uuid, uuid, boolean, text) TO service_role;

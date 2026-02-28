@@ -1,10 +1,13 @@
 # Kitloop MVP Scope (SSOT)
+
 **Status:** ACTIVE — this is the Single Source of Truth for MVP scope  
 **Owner:** Maintainers (human)  
 **Rule:** If a change is not aligned with this file, it does not ship.
 
 ## 0) Goal (what "MVP ready for onboarding" means)
+
 Ship a production-stable **provider-only SaaS** that a real rental can use for:
+
 - inventory management,
 - internal reservations (created by staff),
 - issue/return operations,
@@ -14,18 +17,23 @@ Ship a production-stable **provider-only SaaS** that a real rental can use for:
 **Warm outreach + manual provider approval.** Landing is onboarding + gate to signup/login (not marketing). No unverifiable promises.
 
 ## 1) Product boundary (hard line)
+
 ### MVP = Provider-only operations
+
 - **Customers cannot create reservations in MVP.**
 - Reservations are created by **provider staff** (walk-in / phone / email / form leads).
 - No public catalogue / no customer accounts required for MVP.
 
 ### MVP+ = Public "Request link" (poptávka), not instant booking
+
 - Optional but allowed **within MVP timeframe** if it stays request-based:
   - customer submits a request → provider approves/declines → only then an internal reservation is created.
 - **No guaranteed real-time availability** in public UI.
 
 ## 2) MUST-HAVE (MVP)
+
 ### Auth & Provider lifecycle (non-negotiable deliverable)
+
 - Signup / login (email+password via Supabase Auth).
 - Session persistence across page reloads.
 - Protected routes: unauthenticated users are redirected to login.
@@ -35,6 +43,7 @@ Ship a production-stable **provider-only SaaS** that a real rental can use for:
   - There is no self-service approval; approval is performed out-of-band by Kitloop staff.
 
 ### Inventory & data model
+
 - Providers manage inventory (products/variants/assets or equivalent canonical tables).
 - `gear_items` is a **TABLE** (not a view). Schema defined in `supabase/migrations/20250101000000_baseline_schema.sql` (search `CREATE TABLE.*gear_items`).
   - **App-layer rule:** Application code must treat `gear_items` as read-only. No direct INSERT/UPDATE/DELETE from `src/` code. Use canonical flows and canonical tables only.
@@ -42,6 +51,7 @@ Ship a production-stable **provider-only SaaS** that a real rental can use for:
   - **Do not change this rule without a `SCOPE CHANGE:` PR.**
 
 ### Reservations (internal)
+
 - Staff can create/modify/cancel internal reservations.
 - **Canonical DB status strings** (actual values stored in the `reservations.status` column and enforced by `check_reservation_status` DB constraint):
 
@@ -66,16 +76,20 @@ Ship a production-stable **provider-only SaaS** that a real rental can use for:
   - Override at Issue: allowed **only** if the role explicitly supports it AND a reason is captured in the audit trail. If neither condition is met, there is **no override in MVP**.
 
 ### Operations (single surface — no duplicates)
+
 The operational overview is the **Dashboard action center** (the existing dashboard page).
+
 - Surfaces: today's pickups, today's returns, overdue items.
 - Issue flow + return flow are accessible from this surface.
 - Print handover protocol (print view) works.
 - **No parallel "Operations page" may be created in MVP.** One surface only. If a separate page is proposed, it requires a `SCOPE CHANGE:` PR.
 
 ### Exports
+
 - CSV export inventory + reservations (Excel-friendly).
 
 ### Security (non-negotiable)
+
 - Never trust provider_id from client when derivable.
 - Provider-only operations must derive provider via server-side chain and enforce membership/role.
 - All SECURITY DEFINER functions:
@@ -84,10 +98,12 @@ The operational overview is the **Dashboard action center** (the existing dashbo
 - RLS must be enabled and correct on all sensitive tables.
 
 ### Reliability
+
 - Each PR includes explicit verification steps.
 - Main branch stays stable (typecheck/lint/build gates pass).
 
 ## 3) MUST-HAVE (MVP+) — Public Request Link (only if implemented)
+
 - Public provider page (Kitloop URL) + simple request form (day-level dates).
 - `booking_requests` (or equivalent) stored with rate limiting / anti-spam.
 - Provider dashboard page to approve/decline requests.
@@ -96,7 +112,9 @@ The operational overview is the **Dashboard action center** (the existing dashbo
 **Language:** Use "Poptávka / Request", not "Rezervace", unless it is guaranteed.
 
 ## 4) OUT OF SCOPE (explicit non-goals for MVP)
+
 These are NOT required and must not block shipping:
+
 - Embedded widget / "integrate Kitloop into their website" (full integration)  
 - Instant online booking with guaranteed availability  
 - Hour-level pickup slots, opening-hours scheduling, buffers  
@@ -108,6 +126,7 @@ These are NOT required and must not block shipping:
 If any of the above is proposed, it must go through Scope Change (section 6).
 
 ## 5) Engineering guardrails (how we work)
+
 - Surgical MVP alignment: prefer hiding via feature flags over refactors.
 - 1 PR = 1 theme, small diff, clear verification.
 - If something loops twice → split task or stop and escalate.
@@ -117,7 +136,9 @@ If any of the above is proposed, it must go through Scope Change (section 6).
   - Evidence of the parity check must be included in the PR description.
 
 ## 6) Scope change control (prevents drift)
+
 Any change that expands scope MUST be a dedicated PR:
+
 - PR title starts with: `SCOPE CHANGE: ...`
 - Update this file with:
   - what changes,
@@ -126,7 +147,18 @@ Any change that expands scope MUST be a dedicated PR:
 Otherwise the PR is rejected.
 
 ## 7) Definition of Done (per PR)
+
 - Typecheck, lint, build pass.
 - Security/RLS not weakened (explicitly verified).
 - Verification steps written in PR description.
 - No new "silent failures" (errors surfaced to user or logged to app_events).
+
+---
+
+### Approved Scope Changes
+
+#### SCOPE CHANGE: Notification Infrastructure (2026-02-28)
+
+- **What changes:** Implementation of a robust, outbox-pattern notification infrastructure (preferences, outbox queue, delivery logs, edge dispatcher, DB triggers for `ops.overdue_detected`, etc.).
+- **Why it's necessary:** Essential for operational reliability ("Pultový OS") to prevent providers from returning to Excel by ensuring they don't miss overdue items or tomorrow's pickups. Centralizes and deduplicates all system messaging.
+- **What gets deprioritized:** Ad-hoc pricing (`reservation_line_items`), public request links (`booking_requests`), and Asset Tracking via QR are pushed back to subsequent post-MVP phases.
