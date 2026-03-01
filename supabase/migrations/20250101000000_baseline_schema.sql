@@ -1454,3 +1454,4 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 
 
 
+-- (Just updating the walkthrough file below via write/append, not the baseline schema)

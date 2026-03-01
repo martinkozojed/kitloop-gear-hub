@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useTranslation } from 'react-i18next';
+import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 
 const ProviderSettings = () => {
   const { provider, profile, isAdmin, refreshProfile } = useAuth();
@@ -292,9 +293,13 @@ const ProviderSettings = () => {
           <TabsList className="bg-muted">
             <TabsTrigger value="profile">{t('provider.settings.tabs.profile')}</TabsTrigger>
             <TabsTrigger value="team" disabled>{t('provider.settings.tabs.team')}</TabsTrigger>
-            <TabsTrigger value="notifications" disabled>{t('provider.settings.tabs.notifications')}</TabsTrigger>
+            <TabsTrigger value="notifications">{t('provider.settings.tabs.notifications')}</TabsTrigger>
             <TabsTrigger value="billing" disabled>{t('provider.settings.tabs.billing')}</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="notifications">
+            <NotificationSettings isEditEnabled={canEdit} />
+          </TabsContent>
 
           <TabsContent value="profile" className="space-y-6">
             {!canEdit && (

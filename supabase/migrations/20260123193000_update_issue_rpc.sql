@@ -1,3 +1,6 @@
+DROP FUNCTION IF EXISTS public.issue_reservation(uuid, uuid, uuid);
+DROP FUNCTION IF EXISTS public.issue_reservation(uuid, uuid, uuid, boolean);
+DROP FUNCTION IF EXISTS public.issue_reservation(uuid, uuid, uuid, boolean, text);
 CREATE OR REPLACE FUNCTION public.issue_reservation(
         p_reservation_id UUID,
         p_provider_id UUID,

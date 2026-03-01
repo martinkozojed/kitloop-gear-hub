@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Menu, User, LogOut, Search } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { NotificationInbox } from "@/components/notifications/NotificationInbox";
 import {
   Drawer,
   DrawerContent,
@@ -105,40 +106,45 @@ const Navbar = () => {
           <LanguageSwitcher />
 
           {isAuthenticated ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 hidden md:flex">
-                  <User className="h-5 w-5" />
-                  <span className="hidden lg:inline">{user?.email}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.email}</p>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+            <div className="flex items-center gap-1">
+              {/* Only show notifications to Providers and Admins (in MVP) */}
+              {(isProvider || isAdmin) && <NotificationInbox />}
 
-                {(isProvider || isAdmin) && (
-                  <DropdownMenuItem asChild>
-                    <Link to="/provider/dashboard" className="cursor-pointer">
-                      {isAdmin ? 'Admin Dashboard' : 'Provider Dashboard'}
-                    </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-2 hidden md:flex">
+                    <User className="h-5 w-5" />
+                    <span className="hidden lg:inline">{user?.email}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user?.email}</p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  {(isProvider || isAdmin) && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/provider/dashboard" className="cursor-pointer">
+                        {isAdmin ? 'Admin Dashboard' : 'Provider Dashboard'}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
                   </DropdownMenuItem>
-                )}
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
             <>
               <Button variant="outline" className="hidden md:flex" asChild>

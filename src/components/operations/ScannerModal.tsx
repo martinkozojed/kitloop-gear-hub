@@ -1,145 +1,153 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Html5Qrcode } from 'html5-qrcode';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, ScanLine, AlertCircle } from 'lucide-react';
+import { Camera, X, RefreshCw, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { track } from '@/lib/telemetry';
 
 interface ScannerModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onScan: (decodedText: string) => void;
+    title?: string;
+    description?: string;
 }
 
-export function ScannerModal({ open, onOpenChange, onScan }: ScannerModalProps) {
+export function ScannerModal({ open, onOpenChange, onScan, title, description }: ScannerModalProps) {
     const { t } = useTranslation();
-    const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-    const [manualCode, setManualCode] = useState('');
-    const [scannerError, setScannerError] = useState<string | null>(null);
+    const scannerRegionId = "html5qr-code-full-region";
+    const [error, setError] = useState<string | null>(null);
+    const [hasCameras, setHasCameras] = useState<boolean>(true);
+    const [isScannerReady, setIsScannerReady] = useState(false);
+    const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
     useEffect(() => {
-        if (open) {
-            // Track modal opened
-            track('inventory.scan_opened', undefined, 'ScannerModal');
-            setTimeout(() => setScannerError(null), 0);
+        let isMounted = true;
 
-            // Small timeout to allow Dialog transition to finish roughly
-            const timer = setTimeout(() => {
-                const element = document.getElementById('reader');
-                if (!element) return;
+        const startScanning = async () => {
+            if (!open) return;
+            setError(null);
 
-                // Cleanup existing if any
-                if (scannerRef.current) {
-                    try { scannerRef.current.clear(); } catch (e) { /* ignore */ }
+            try {
+                // Determine if device has cameras
+                const devices = await Html5Qrcode.getCameras();
+                if (devices && devices.length > 0) {
+                    setHasCameras(true);
+                } else {
+                    setHasCameras(false);
+                    setError(t('components.scanner.noCameras', { defaultValue: 'Byly nenalezeny žádné kamery.' }));
+                    return;
                 }
 
-                // Initialize Scanner
-                const scanner = new Html5QrcodeScanner(
-                    "reader",
+                // Initialize scanner instance
+                if (!html5QrCodeRef.current) {
+                    html5QrCodeRef.current = new Html5Qrcode(scannerRegionId);
+                }
+
+                const qrCodeSuccessCallback = (decodedText: string) => {
+                    // Stop scanning on success and trigger callback
+                    if (html5QrCodeRef.current?.isScanning) {
+                        html5QrCodeRef.current.stop().then(() => {
+                            onScan(decodedText);
+                            onOpenChange(false);
+                        }).catch(err => console.error("Error stopping scanner", err));
+                    }
+                };
+
+                const qrCodeErrorCallback = (errorMessage: string) => {
+                    // Only log errors, don't show to user as it's noisy (triggers on every frame without a QR code)
+                };
+
+                // Start scanner
+                await html5QrCodeRef.current.start(
+                    { facingMode: "environment" }, // Prefer back camera
                     {
                         fps: 10,
                         qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0,
-                        disableFlip: false,
+                        aspectRatio: 1.0
                     },
-                    /* verbose= */ false
+                    qrCodeSuccessCallback,
+                    qrCodeErrorCallback
                 );
 
-                scanner.render((decodedText) => {
-                    scanner.clear();
-                    track('inventory.scan_success', { method: 'camera' }, 'ScannerModal');
-                    onScan(decodedText);
-                    onOpenChange(false);
-                }, (errorMessage) => {
-                    // Camera permission denied or not available
-                    if (errorMessage.includes('NotAllowedError') || errorMessage.includes('NotFoundError')) {
-                        setScannerError(t('scanner.errors.cameraNotAvailable'));
-                        track('inventory.scan_failed', { reason: 'camera_denied' }, 'ScannerModal');
-                    }
-                    // Other scan errors are normal (no QR in frame) - ignore
-                });
+                if (isMounted) setIsScannerReady(true);
 
-                scannerRef.current = scanner;
-            }, 300);
-
-            return () => {
-                clearTimeout(timer);
-                if (scannerRef.current) {
-                    scannerRef.current.clear().catch(err => console.error("Failed to clear scanner", err));
-                    scannerRef.current = null;
+            } catch (err: unknown) {
+                console.error("Camera access failed", err);
+                if (isMounted) {
+                    setError(t('components.scanner.cameraError', { defaultValue: 'Povolte přístup ke kameře v prohlížeči.' }));
                 }
-            };
+            }
+        };
+
+        if (open) {
+            // Slight delay to ensure DOM element is ready
+            setTimeout(() => {
+                startScanning();
+            }, 100);
         }
-    }, [open, t, onOpenChange, onScan]);
 
-    const handleManualSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!manualCode.trim()) return;
+        return () => {
+            isMounted = false;
+            // Cleanup when closed
+            if (html5QrCodeRef.current?.isScanning) {
+                html5QrCodeRef.current.stop().catch(console.error);
+            }
+            setIsScannerReady(false);
+        };
+    }, [open, onOpenChange, onScan, t]);
 
-        track('inventory.scan_success', { method: 'manual' }, 'ScannerModal');
-        onScan(manualCode.trim());
+    const handleClose = () => {
+        if (html5QrCodeRef.current?.isScanning) {
+            html5QrCodeRef.current.stop().catch(console.error);
+        }
+        setIsScannerReady(false);
         onOpenChange(false);
-        setManualCode('');
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <ScanLine className="w-5 h-5" />
-                        {t('scanner.title')}
+                        <Camera className="w-5 h-5" />
+                        {title || t('components.scanner.title', { defaultValue: 'Naskenovat QR kód' })}
                     </DialogTitle>
+                    {description && <DialogDescription>{description}</DialogDescription>}
                 </DialogHeader>
 
-                <div className="flex flex-col gap-6">
-                    {/* Scanner Viewport */}
-                    <div className="relative rounded-lg overflow-hidden bg-black/5 aspect-square flex flex-col items-center justify-center border-2 border-dashed border-gray-200">
-                        {scannerError ? (
-                            <div className="flex flex-col items-center gap-2 p-4 text-center">
-                                <AlertCircle className="w-8 h-8 text-status-warning" />
-                                <p className="text-sm text-muted-foreground">{scannerError}</p>
-                                <p className="text-xs text-muted-foreground">{t('scanner.useManualEntry')}</p>
+                <div className="flex flex-col items-center justify-center p-4">
+                    {/* The element where the scanner stream will be injected */}
+                    <div
+                        id={scannerRegionId}
+                        className="w-full max-w-sm rounded-lg overflow-hidden border-2 border-dashed border-primary/50 relative"
+                        style={{ minHeight: '300px' }}
+                    >
+                        {/* Placeholder text if not ready or error */}
+                        {!isScannerReady && !error && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-muted/20">
+                                <RefreshCw className="w-8 h-8 animate-spin mb-2 opacity-50" />
+                                <span className="text-sm">{t('components.scanner.initializing', { defaultValue: 'Spouštím kameru...' })}</span>
                             </div>
-                        ) : (
-                            <>
-                                <div id="reader" className="w-full h-full"></div>
-                                <p className="absolute bottom-4 text-xs text-muted-foreground bg-popover border border-border px-2 py-1 rounded-full pointer-events-none">
-                                    {t('scanner.pointCamera')}
-                                </p>
-                            </>
+                        )}
+
+                        {error && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-destructive bg-destructive/10 p-6 text-center">
+                                <AlertCircle className="w-8 h-8 mb-2" />
+                                <span className="font-semibold text-sm">{error}</span>
+                            </div>
                         )}
                     </div>
 
-                    {/* Manual Entry Divider */}
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-2 text-muted-foreground">{t('scanner.orEnterManually')}</span>
-                        </div>
-                    </div>
+                    <p className="text-xs text-muted-foreground mt-4 text-center">
+                        {t('components.scanner.hint', { defaultValue: 'Zamiřte kameru na QR kód nebo čárový kód na vybavení. Naskenuje se automaticky.' })}
+                    </p>
+                </div>
 
-                    {/* Manual Entry Form */}
-                    <form onSubmit={handleManualSubmit} className="flex gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                type="text"
-                                placeholder={t('scanner.placeholder')}
-                                aria-label={t('scanner.manualEntryLabel')}
-                                value={manualCode}
-                                onChange={(e) => setManualCode(e.target.value)}
-                                className="pl-9"
-                            />
-                        </div>
-                        <Button type="submit" disabled={!manualCode.trim()}>
-                            {t('scanner.check')}
-                        </Button>
-                    </form>
+                <div className="flex justify-end pt-4">
+                    <Button variant="outline" onClick={handleClose}>
+                        <X className="w-4 h-4 mr-2" /> Zrušit
+                    </Button>
                 </div>
             </DialogContent>
         </Dialog>

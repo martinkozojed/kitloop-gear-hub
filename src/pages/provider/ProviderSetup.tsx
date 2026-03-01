@@ -178,7 +178,7 @@ const ProviderSetup = () => {
         onboarding_completed: true,
         onboarding_step: 3,
         verified: false,
-        status: 'pending',
+        status: 'approved', // Auto-approve in MVP so they can complete the checklist
         country: 'CZ',
         category: 'outdoor-gear',
       };

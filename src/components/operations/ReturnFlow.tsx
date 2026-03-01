@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { requestUploadTicket, uploadWithTicket, UploadTicketError } from "@/lib/upload/client";
 import { rulesForUseCase } from "@/lib/upload/validation";
 import { logEvent } from '@/lib/app-events';
+import { ScannerModal } from './ScannerModal';
 
 interface ReturnFlowProps {
     open: boolean;
@@ -250,67 +251,112 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
     const hasAnyDamage = assets.some(a => a.isDamaged);
 
+    const [scanning, setScanning] = useState(false);
+    const [scannedAssetIds, setScannedAssetIds] = useState<Set<string>>(new Set());
+
+    const handleScanAsset = (scannedCode: string) => {
+        // Try to match by ID or Asset Tag
+        const matchedAsset = assets.find(a => a.id === scannedCode || a.asset_tag === scannedCode);
+
+        if (matchedAsset) {
+            setScannedAssetIds(prev => {
+                const newSet = new Set(prev);
+                newSet.add(matchedAsset.id);
+                return newSet;
+            });
+            toast.success(t('operations.returnFlow.scan.success', { defaultValue: `Vybavení ${matchedAsset.asset_tag} naskenováno a označeno jako vrácené.` }));
+
+            // Auto check the checkbox if no damage? In MVP we still expect them to verify manual damage
+            // For now, scanning it simply highlights the row.
+        } else {
+            toast.error(t('operations.returnFlow.scan.notFound', { defaultValue: 'Tento kus nepatří k této rezervaci nebo nebyl vydán.' }));
+        }
+    };
+
     const bodyContent = (
         <>
             <div className="py-4 space-y-6">
+                <ScannerModal
+                    open={scanning}
+                    onOpenChange={setScanning}
+                    onScan={handleScanAsset}
+                    title={t('operations.returnFlow.scan.title', { defaultValue: 'Naskenovat vrácené vybavení' })}
+                    description={t('operations.returnFlow.scan.desc', { defaultValue: 'Naskenujte kód na vraceném kusu.' })}
+                />
+
+                <div className="flex justify-between items-center bg-muted/50 p-4 rounded-token-lg border border-dashed border-border mb-4">
+                    <div>
+                        <h4 className="font-semibold text-sm">{t('operations.returnFlow.scan.promptTitle', { defaultValue: 'Rychlé vrácení' })}</h4>
+                        <p className="text-xs text-muted-foreground">{t('operations.returnFlow.scan.promptDesc', { defaultValue: 'Naskenujte vybavení pro jeho rychlé odbavení.' })}</p>
+                    </div>
+                    <Button onClick={() => setScanning(true)} size="sm">
+                        <Camera className="w-4 h-4 mr-2" />
+                        {t('operations.returnFlow.scan.button', { defaultValue: 'Skenovat' })}
+                    </Button>
+                </div>
+
                 {fetching ? (
                     <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
                 ) : (
                     <div className="space-y-4">
-                        {assets.map(asset => (
-                            <div key={asset.id} className={cn(
-                                "p-4 border rounded-token-lg transition-all",
-                                asset.isDamaged ? "border-status-warning/30 bg-status-warning/10" : "border-border bg-muted"
-                            )}>
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="font-medium text-sm">{asset.product_name}</p>
-                                        <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={`dmg-${asset.id}`}
-                                            checked={asset.isDamaged}
-                                            onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
-                                        />
-                                        <Label htmlFor={`dmg-${asset.id}`} className="text-sm cursor-pointer">
-                                            {t('operations.returnFlow.reportDamage')}
-                                        </Label>
-                                    </div>
-                                </div>
-
-                                {asset.isDamaged && (
-                                    <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
-                                        <div className="space-y-1">
-                                            <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
-                                            <Textarea
-                                                placeholder={t('operations.returnFlow.describeIssue')}
-                                                className="h-20 text-xs bg-background"
-                                                value={asset.note}
-                                                onChange={(e) => updateNote(asset.id, e.target.value)}
-                                            />
+                        {assets.map(asset => {
+                            const isScanned = scannedAssetIds.has(asset.id);
+                            return (
+                                <div key={asset.id} className={cn(
+                                    "p-4 border rounded-token-lg transition-all",
+                                    asset.isDamaged ? "border-status-warning/30 bg-status-warning/10" :
+                                        isScanned ? "border-status-success/30 bg-status-success/10" : "border-border bg-muted"
+                                )}>
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="font-medium text-sm">{asset.product_name}</p>
+                                            <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
                                         </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id={`dmg-${asset.id}`}
+                                                checked={asset.isDamaged}
+                                                onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
+                                            />
+                                            <Label htmlFor={`dmg-${asset.id}`} className="text-sm cursor-pointer">
+                                                {t('operations.returnFlow.reportDamage')}
+                                            </Label>
+                                        </div>
+                                    </div>
 
-                                        <div className="space-y-1">
-                                            <Label className="text-xs">{t('operations.returnFlow.evidencePhoto')}</Label>
-                                            <div className="flex items-center gap-2">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="hidden"
-                                                    id={`file-${asset.id}`}
-                                                    onChange={(e) => handleFileChange(asset.id, e.target.files?.[0] || null)}
+                                    {asset.isDamaged && (
+                                        <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
+                                                <Textarea
+                                                    placeholder={t('operations.returnFlow.describeIssue')}
+                                                    className="h-20 text-xs bg-background"
+                                                    value={asset.note}
+                                                    onChange={(e) => updateNote(asset.id, e.target.value)}
                                                 />
-                                                <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-${asset.id}`)?.click()}>
-                                                    <Camera className="w-3 h-3 mr-2" />
-                                                    {asset.photoFile ? asset.photoFile.name : t('operations.returnFlow.uploadPhoto')}
-                                                </Button>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">{t('operations.returnFlow.evidencePhoto')}</Label>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        id={`file-${asset.id}`}
+                                                        onChange={(e) => handleFileChange(asset.id, e.target.files?.[0] || null)}
+                                                    />
+                                                    <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-${asset.id}`)?.click()}>
+                                                        <Camera className="w-3 h-3 mr-2" />
+                                                        {asset.photoFile ? asset.photoFile.name : t('operations.returnFlow.uploadPhoto')}
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 
@@ -370,60 +416,64 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                         <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
                     ) : (
                         <div className="space-y-4">
-                            {assets.map(asset => (
-                                <div key={asset.id} className={cn(
-                                    "p-4 border rounded-token-lg transition-all",
-                                    asset.isDamaged ? "border-status-warning/30 bg-status-warning/10" : "border-border bg-muted"
-                                )}>
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <p className="font-medium text-sm">{asset.product_name}</p>
-                                            <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={`dmg-d-${asset.id}`}
-                                                checked={asset.isDamaged}
-                                                onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
-                                            />
-                                            <Label htmlFor={`dmg-d-${asset.id}`} className="text-sm cursor-pointer">
-                                                {t('operations.returnFlow.reportDamage')}
-                                            </Label>
-                                        </div>
-                                    </div>
-
-                                    {asset.isDamaged && (
-                                        <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
-                                            <div className="space-y-1">
-                                                <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
-                                                <Textarea
-                                                    placeholder={t('operations.returnFlow.describeIssue')}
-                                                    className="h-20 text-xs bg-background"
-                                                    value={asset.note}
-                                                    onChange={(e) => updateNote(asset.id, e.target.value)}
-                                                />
+                            {assets.map(asset => {
+                                const isScanned = scannedAssetIds.has(asset.id);
+                                return (
+                                    <div key={asset.id} className={cn(
+                                        "p-4 border rounded-token-lg transition-all",
+                                        asset.isDamaged ? "border-status-warning/30 bg-status-warning/10" :
+                                            isScanned ? "border-status-success/30 bg-status-success/10" : "border-border bg-muted"
+                                    )}>
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <p className="font-medium text-sm">{asset.product_name}</p>
+                                                <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
                                             </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={`dmg-d-${asset.id}`}
+                                                    checked={asset.isDamaged}
+                                                    onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
+                                                />
+                                                <Label htmlFor={`dmg-d-${asset.id}`} className="text-sm cursor-pointer">
+                                                    {t('operations.returnFlow.reportDamage')}
+                                                </Label>
+                                            </div>
+                                        </div>
 
-                                            <div className="space-y-1">
-                                                <Label className="text-xs">{t('operations.returnFlow.evidencePhoto')}</Label>
-                                                <div className="flex items-center gap-2">
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        className="hidden"
-                                                        id={`file-d-${asset.id}`}
-                                                        onChange={(e) => handleFileChange(asset.id, e.target.files?.[0] || null)}
+                                        {asset.isDamaged && (
+                                            <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                                <div className="space-y-1">
+                                                    <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
+                                                    <Textarea
+                                                        placeholder={t('operations.returnFlow.describeIssue')}
+                                                        className="h-20 text-xs bg-background"
+                                                        value={asset.note}
+                                                        onChange={(e) => updateNote(asset.id, e.target.value)}
                                                     />
-                                                    <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-d-${asset.id}`)?.click()}>
-                                                        <Camera className="w-3 h-3 mr-2" />
-                                                        {asset.photoFile ? asset.photoFile.name : t('operations.returnFlow.uploadPhoto')}
-                                                    </Button>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <Label className="text-xs">{t('operations.returnFlow.evidencePhoto')}</Label>
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                            id={`file-d-${asset.id}`}
+                                                            onChange={(e) => handleFileChange(asset.id, e.target.files?.[0] || null)}
+                                                        />
+                                                        <Button variant="outline" size="sm" className="w-full h-9 border-dashed" onClick={() => document.getElementById(`file-d-${asset.id}`)?.click()}>
+                                                            <Camera className="w-3 h-3 mr-2" />
+                                                            {asset.photoFile ? asset.photoFile.name : t('operations.returnFlow.uploadPhoto')}
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
 

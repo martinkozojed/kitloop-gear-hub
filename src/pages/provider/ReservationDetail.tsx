@@ -14,6 +14,7 @@ import { formatPrice } from "@/lib/availability";
 import { useTranslation } from 'react-i18next';
 import { IssueFlow } from "@/components/operations/IssueFlow";
 import { ReturnFlow } from "@/components/operations/ReturnFlow";
+import { ReservationLineItems } from "@/components/reservations/ReservationLineItems";
 
 export default function ReservationDetail() {
     const { id } = useParams<{ id: string }>();
@@ -62,19 +63,27 @@ export default function ReservationDetail() {
 
             // 1. Fetch Reservation
             const { data: res, error: resError } = await supabase
-                .from('reservations')
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .from('reservations' as any)
                 .select(`
                     *,
                     gear:gear_id (name, category),
-                    product_variants:product_variant_id (name, products(name))
+                    product_variants:product_variant_id (name, products(name)),
+                    reservation_line_items (*)
                 `)
                 .eq('id', id)
                 .single();
 
             if (resError) throw resError;
-            setReservation(res);
+            // Sorting line items
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const anyRes = res as any;
+            if (anyRes.reservation_line_items) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                anyRes.reservation_line_items.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+            }
+            setReservation(anyRes);
 
-            // 2. Fetch Logs
             // 2. Fetch Logs (Graceful)
             try {
                 const { data: logData, error: logError } = await supabase
@@ -87,7 +96,6 @@ export default function ReservationDetail() {
                     // Check for 403/401 aka "Security says no"
                     if (logError.code === '42501' || logError.message?.includes('dummy')) throw logError;
                     // For now, treat any log error as "no logs viewable" to avoid blocking page
-                    // Ideally check code '42501' (PGRST301) for Forbidden
                     console.warn('[ReservationDetail] Logs fetch failed (likely RLS), ignoring:', logError.message);
                     setLogs([]);
                 } else {
@@ -170,6 +178,7 @@ export default function ReservationDetail() {
 
     const canIssue = reservation.status === 'confirmed';
     const canReturn = reservation.status === 'active';
+    const isEditingAllowed = ['pending', 'confirmed', 'active'].includes(reservation.status);
 
     return (
         <ProviderLayout>
@@ -258,6 +267,17 @@ export default function ReservationDetail() {
                                                 )}
                                             </div>
                                         </div>
+                                    </CardContent>
+
+                                    <div className="h-px bg-border my-2" />
+
+                                    <CardContent className="pt-2">
+                                        <ReservationLineItems
+                                            reservationId={id as string}
+                                            items={reservation.reservation_line_items || []}
+                                            onItemsChange={fetchData}
+                                            isEditable={isEditingAllowed}
+                                        />
                                     </CardContent>
                                 </Card>
 
