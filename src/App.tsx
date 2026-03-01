@@ -70,6 +70,7 @@ const PageLoader = () => (
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
+  const { isAuthenticated, isProvider } = useAuth();
   const location = useLocation();
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
@@ -84,7 +85,7 @@ const AppRoutes = () => {
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
   const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
 
-  const hideNavAndMenu = isDemoRoute || isOnboardingRoute || isAuthRoute || isRequestRoute;
+  const hideNavAndMenu = isDemoRoute || (isOnboardingRoute && !isAuthenticated) || isAuthRoute || isRequestRoute;
 
   // Global Shortcut: 'c' -> New Reservation
   useKeyboardShortcut(
@@ -143,7 +144,7 @@ const AppRoutes = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/onboarding/*" element={<Onboarding />} />
-            <Route path="/dashboard" element={<Navigate to="/provider/dashboard" replace />} />
+            <Route path="/dashboard/*" element={<Navigate to="/provider/dashboard" replace />} />
             <Route
               path="/admin/observability"
               element={

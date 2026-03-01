@@ -17,6 +17,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import {
   Accordion,
   AccordionContent,
@@ -159,7 +160,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [pain, setPain] = usePain();
   const shouldReduce = useReducedMotion();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isProvider, isAdmin } = useAuth();
 
   // Derive lang from i18next (normalise to cs | en)
   const lang: Lang = i18n.language?.startsWith("cs") ? "cs" : "en";
@@ -234,36 +235,24 @@ export default function Onboarding() {
         {t("onboarding.painSkip")}
       </a>
 
-      {/* ── Standalone header ────────────────────────────────────────────────── */}
-      <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border sticky top-0 left-0 right-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
-            <span className="text-foreground tracking-wide">loop</span>
-          </Link>
+      {!isAuthenticated && (
+        <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border sticky top-0 left-0 right-0 z-50">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
+              <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
+              <span className="text-foreground tracking-wide">loop</span>
+            </Link>
 
-          <div className="flex items-center gap-3">
-            {/* Language toggle — single button showing the other language */}
-            <button
-              onClick={() => setLang(lang === "en" ? "cs" : "en")}
-              aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
-              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
-            >
-              {lang === "en" ? "CS" : "EN"}
-            </button>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
 
-            {isAuthenticated ? (
-              <Button variant="cta" size="sm" asChild className="min-w-[7.5rem] justify-center">
-                <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Do dashboardu"}</Link>
-              </Button>
-            ) : (
               <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
                 <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
               </Button>
-            )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* ── A) Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white">
@@ -296,14 +285,26 @@ export default function Onboarding() {
               </ul>
 
               <div className="flex flex-col gap-3 pt-2">
-                <Button
-                  asChild
-                  variant="cta"
-                  size="cta"
-                  onClick={() => fireCtaEvent("hero", lang, pain)}
-                >
-                  <Link to={signupHref}>{t("onboarding.heroCta1")}</Link>
-                </Button>
+                {(isProvider || isAdmin) ? (
+                  <Button
+                    asChild
+                    variant="cta"
+                    size="cta"
+                    className="w-full sm:w-auto"
+                  >
+                    <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Přejít do dashboardu"}</Link>
+                  </Button>
+                ) : (
+                  <Button
+                    asChild
+                    variant="cta"
+                    size="cta"
+                    className="w-full sm:w-auto"
+                    onClick={() => fireCtaEvent("hero", lang, pain)}
+                  >
+                    <Link to={signupHref}>{t("onboarding.heroCta1")}</Link>
+                  </Button>
+                )}
 
                 <button
                   type="button"
