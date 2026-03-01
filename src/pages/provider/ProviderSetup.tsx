@@ -13,6 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Loader2, MapPin, Package, Store, ArrowRight, Upload, PlusCircle, Sparkles, Check } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
 import { track } from '@/lib/telemetry';
+import { GlowLayer } from '@/components/ui/GlowLayer';
 import { workspaceSchema, locationSchema, type WorkspaceFormData, type LocationFormData } from '@/lib/schemas/onboarding';
 
 type InventoryPath = 'csv_import' | 'manual' | 'demo';
@@ -240,8 +241,9 @@ const ProviderSetup = () => {
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <div className="light min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4 flex items-center justify-center">
-      <div className="max-w-lg w-full">
+    <div className="relative min-h-screen bg-background py-8 px-4 flex items-center justify-center overflow-hidden z-0">
+      <GlowLayer />
+      <div className="relative z-10 max-w-lg w-full">
         {/* Step Indicators */}
         <div className="flex justify-center items-center gap-2 mb-8">
           {steps.map((s, idx) => {

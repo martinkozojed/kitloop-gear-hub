@@ -17,6 +17,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import { GlowLayer as GlobalGlowLayer } from "@/components/ui/GlowLayer";
 import {
   Accordion,
   AccordionContent,
@@ -101,7 +103,8 @@ function firePainEvent(pain: Pain, lang: string) {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as any } },
 };
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
@@ -159,7 +162,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [pain, setPain] = usePain();
   const shouldReduce = useReducedMotion();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isProvider, isAdmin } = useAuth();
 
   // Derive lang from i18next (normalise to cs | en)
   const lang: Lang = i18n.language?.startsWith("cs") ? "cs" : "en";
@@ -234,36 +237,30 @@ export default function Onboarding() {
         {t("onboarding.painSkip")}
       </a>
 
-      {/* ── Standalone header ────────────────────────────────────────────────── */}
-      <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border sticky top-0 left-0 right-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
-            <span className="text-foreground tracking-wide">loop</span>
-          </Link>
+      {!isAuthenticated && (
+        <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border sticky top-0 left-0 right-0 z-50">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
+              <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
+              <span className="text-foreground tracking-wide">loop</span>
+            </Link>
 
-          <div className="flex items-center gap-3">
-            {/* Language toggle — single button showing the other language */}
-            <button
-              onClick={() => setLang(lang === "en" ? "cs" : "en")}
-              aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
-              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
-            >
-              {lang === "en" ? "CS" : "EN"}
-            </button>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
 
-            {isAuthenticated ? (
-              <Button variant="cta" size="sm" asChild className="min-w-[7.5rem] justify-center">
-                <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Do dashboardu"}</Link>
-              </Button>
-            ) : (
-              <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
-                <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
-              </Button>
-            )}
+              {isAuthenticated ? (
+                <Button variant="cta" size="sm" asChild className="min-w-[7.5rem] justify-center">
+                  <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Do dashboardu"}</Link>
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
+                  <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* ── A) Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white">
@@ -296,14 +293,26 @@ export default function Onboarding() {
               </ul>
 
               <div className="flex flex-col gap-3 pt-2">
-                <Button
-                  asChild
-                  variant="cta"
-                  size="cta"
-                  onClick={() => fireCtaEvent("hero", lang, pain)}
-                >
-                  <Link to={signupHref}>{t("onboarding.heroCta1")}</Link>
-                </Button>
+                {(isProvider || isAdmin) ? (
+                  <Button
+                    asChild
+                    variant="cta"
+                    size="cta"
+                    className="w-full sm:w-auto"
+                  >
+                    <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Přejít do dashboardu"}</Link>
+                  </Button>
+                ) : (
+                  <Button
+                    asChild
+                    variant="cta"
+                    size="cta"
+                    className="w-full sm:w-auto"
+                    onClick={() => fireCtaEvent("hero", lang, pain)}
+                  >
+                    <Link to={signupHref}>{t("onboarding.heroCta1")}</Link>
+                  </Button>
+                )}
 
                 <button
                   type="button"
@@ -412,19 +421,19 @@ export default function Onboarding() {
       </Section>
 
       {/* ── C) Je / Není pro ──────────────────────────────────────────────────── */}
-      <Section className="bg-subtle py-10">
+      <Section className="bg-slate-50/50 py-10">
         <div className="mx-auto max-w-5xl px-6">
           <div className="grid gap-5 md:grid-cols-2">
-            <Card className="rounded-token-lg border-0 bg-inverse shadow-elevated">
+            <Card className="rounded-xl border border-emerald-100 bg-emerald-50/50 shadow-sm backdrop-blur-sm">
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-inverse-foreground/80 shrink-0" aria-hidden="true" />
-                  <p className="text-base font-bold text-inverse-foreground">{t("onboarding.isTitle")}</p>
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <p className="text-base font-bold text-emerald-900">{t("onboarding.isTitle")}</p>
                 </div>
                 <ul className="space-y-2">
                   {tIsBullets().map((b) => (
-                    <li key={b} className="flex gap-2.5 text-sm text-inverse-foreground">
-                      <span className="mt-0.5 text-inverse-foreground/70 shrink-0" aria-hidden="true">✓</span>
+                    <li key={b} className="flex gap-2.5 text-sm text-emerald-800">
+                      <span className="mt-0.5 text-emerald-500 shrink-0" aria-hidden="true">✓</span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -568,7 +577,7 @@ export default function Onboarding() {
       </Section>
 
       {/* ── G) FAQ ───────────────────────────────────────────────────────────── */}
-      <Section className="bg-subtle py-10">
+      <Section className="bg-slate-50/50 py-10">
         <div className="mx-auto max-w-3xl px-6">
           <h2 className="text-2xl font-bold md:text-3xl mb-6">{t("onboarding.faqTitle")}</h2>
           <Accordion type="single" collapsible className="space-y-2">
@@ -576,12 +585,12 @@ export default function Onboarding() {
               <AccordionItem
                 key={i}
                 value={String(i)}
-                className="group rounded-token-lg border border-muted-foreground/15 px-5 overflow-hidden bg-white transition-all data-[state=open]:bg-inverse data-[state=open]:border-transparent data-[state=open]:shadow-elevated"
+                className="group rounded-xl border border-slate-200 px-5 overflow-hidden bg-white/70 backdrop-blur-sm transition-all hover:bg-white data-[state=open]:bg-white data-[state=open]:border-emerald-200 data-[state=open]:shadow-sm"
               >
-                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm group-data-[state=open]:text-inverse-foreground [&[data-state=open]>svg]:text-inverse-foreground">
+                <AccordionTrigger className="text-left font-semibold py-3.5 hover:no-underline text-sm group-data-[state=open]:text-emerald-900 [&[data-state=open]>svg]:text-emerald-900">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm leading-relaxed text-muted-foreground group-data-[state=open]:text-inverse-foreground">
+                <AccordionContent className="text-sm leading-relaxed text-slate-600 group-data-[state=open]:text-slate-700">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -591,10 +600,11 @@ export default function Onboarding() {
       </Section>
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="py-14 px-6">
-        <div className="mx-auto max-w-2xl rounded-token-xl bg-inverse px-10 py-12 text-center space-y-5 shadow-elevated">
-          <h2 className="text-2xl font-bold md:text-3xl text-inverse-foreground">{t("onboarding.finalTitle")}</h2>
-          <p className="text-inverse-foreground/90 text-sm">{t("onboarding.finalSub")}</p>
+      <section className="py-14 px-6 relative overflow-hidden">
+        <GlowLayer />
+        <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-slate-200 backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
+          <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
+          <p className="text-slate-600 text-sm">{t("onboarding.finalSub")}</p>
           <Button
             asChild
             variant="cta"

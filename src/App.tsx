@@ -21,6 +21,8 @@ import { CommandMenu } from "./components/ui/command-menu";
 import { useNavigate } from "react-router-dom";
 import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
 import { CommandProvider } from "./context/CommandContext";
+import { useAuth } from "./context/AuthContext";
+import { useCommand } from "./context/CommandContext";
 
 // Lazy-loaded routes for code splitting (reduces initial bundle)
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
@@ -37,8 +39,10 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const RequestLink = lazy(() => import("./pages/RequestLink"));
 
 // Provider pages (heavy)
+const ProviderLayout = lazy(() => import("./components/provider/ProviderLayout"));
 const ProviderSetup = lazy(() => import("./pages/provider/ProviderSetup"));
 const ProviderPending = lazy(() => import("./pages/provider/ProviderPending"));
+const ProviderNotifications = lazy(() => import("./pages/provider/ProviderNotifications"));
 const DashboardOverview = lazy(() => import("./pages/provider/DashboardOverview"));
 const ProviderSettings = lazy(() => import("./pages/provider/ProviderSettings"));
 const ProviderInventory = lazy(() => import("./pages/provider/ProviderInventory"));
@@ -70,6 +74,7 @@ const PageLoader = () => (
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
+  const { isAuthenticated, isProvider } = useAuth();
   const location = useLocation();
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
@@ -84,7 +89,7 @@ const AppRoutes = () => {
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
   const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
 
-  const hideNavAndMenu = isDemoRoute || isOnboardingRoute || isAuthRoute || isRequestRoute;
+  const hideNavAndMenu = isDemoRoute || (isOnboardingRoute && !isAuthenticated) || isAuthRoute || isRequestRoute;
 
   // Global Shortcut: 'c' -> New Reservation
   useKeyboardShortcut(
@@ -143,7 +148,7 @@ const AppRoutes = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/onboarding/*" element={<Onboarding />} />
-            <Route path="/dashboard" element={<Navigate to="/provider/dashboard" replace />} />
+            <Route path="/dashboard/*" element={<Navigate to="/provider/dashboard" replace />} />
             <Route
               path="/admin/observability"
               element={
@@ -180,6 +185,16 @@ const AppRoutes = () => {
               element={
                 <ProviderRoute>
                   <DashboardOverview />
+                </ProviderRoute>
+              }
+            />
+            <Route
+              path="/provider/notifications"
+              element={
+                <ProviderRoute>
+                  <ProviderLayout>
+                    <ProviderNotifications />
+                  </ProviderLayout>
                 </ProviderRoute>
               }
             />
