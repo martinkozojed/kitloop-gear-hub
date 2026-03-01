@@ -56,7 +56,6 @@ export function ScannerModal({ open, onOpenChange, onScan, title, description }:
 
                 const qrCodeErrorCallback = (errorMessage: string) => {
                     // Only log errors, don't show to user as it's noisy (triggers on every frame without a QR code)
-                    // console.log("QR Error:", errorMessage);
                 };
 
                 // Start scanner
