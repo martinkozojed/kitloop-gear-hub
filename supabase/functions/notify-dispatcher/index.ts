@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
+import { createClient } from 'https://esm.sh/v135/@supabase/supabase-js@2.50.0'
 
 // Basic resend email function, can be expanded
 async function sendEmailViaResend(
@@ -135,7 +135,7 @@ if (import.meta.main) {
 
         } catch (err) {
           deliveryStatus = 'failed'
-          errorMessage = err.message
+          errorMessage = err instanceof Error ? err.message : String(err)
         }
 
         // Update the outbox status
@@ -186,7 +186,8 @@ if (import.meta.main) {
         headers: { 'Content-Type': 'application/json' },
       })
     } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      const message = error instanceof Error ? error.message : String(error)
+      return new Response(JSON.stringify({ error: message }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       })
