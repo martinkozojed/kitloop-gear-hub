@@ -103,7 +103,7 @@ const Navbar = () => {
                   <Button variant="ghost" className="flex items-center gap-2 hidden md:flex">
                     <User className="h-5 w-5" />
                     <span className="hidden lg:inline">
-                      {provider?.business_name || user?.email}
+                      {provider?.rental_name || user?.email}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -111,7 +111,7 @@ const Navbar = () => {
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {provider?.business_name || user?.email}
+                        {provider?.rental_name || user?.email}
                       </p>
                       <p className="text-xs text-muted-foreground capitalize">
                         {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
@@ -167,7 +167,7 @@ const Navbar = () => {
                 <div className="flex flex-col gap-3">
                   <div className="text-center py-2 border-b">
                     <p className="text-sm font-medium">
-                      {provider?.business_name || user?.email}
+                      {provider?.rental_name || user?.email}
                     </p>
                     <p className="text-xs text-muted-foreground capitalize">
                       {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
