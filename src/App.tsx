@@ -26,6 +26,7 @@ import { CommandProvider } from "./context/CommandContext";
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const BrowseGear = lazy(() => import("./pages/BrowseGear"));
 const AddRental = lazy(() => import("./pages/AddRental"));
+const PublicBookingRequest = lazy(() => import("./pages/public/PublicBookingRequest"));
 const About = lazy(() => import("./pages/About"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -78,7 +79,7 @@ const AppRoutes = () => {
     location.pathname === "/signup" ||
     location.pathname === "/forgot-password" ||
     location.pathname === "/reset-password";
-  const isRequestRoute = location.pathname.startsWith("/request");
+  const isRequestRoute = location.pathname.startsWith("/book");
 
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
   const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
@@ -133,7 +134,7 @@ const AppRoutes = () => {
               }
             />
             <Route path="/my-reservations" element={<Navigate to="/login" replace />} />
-            <Route path="/request/:token" element={<RequestLink />} />
+            <Route path="/book/:token" element={<PublicBookingRequest />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

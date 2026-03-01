@@ -26,6 +26,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ProviderLayout from "@/components/provider/ProviderLayout";
+import { BookingRequestsWidget } from "@/components/dashboard/BookingRequestsWidget";
 import { toast } from "sonner";
 import { PageLoadingSkeleton } from "@/components/ui/loading-state";
 import { useTranslation } from "react-i18next";
@@ -157,6 +158,13 @@ const DashboardOverview = () => {
               providerId={provider.id}
               onDemoDeleted={() => window.location.reload()}
             />
+          )}
+
+          {/* Pending Requests Widget (Phase 4) */}
+          {provider?.id && (
+            <div className="mb-6">
+              <BookingRequestsWidget providerId={provider.id} />
+            </div>
           )}
 
           {/* 1. Header & Controls */}

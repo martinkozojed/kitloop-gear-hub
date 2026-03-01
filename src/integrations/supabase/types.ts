@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       accounts: {
@@ -161,13 +186,6 @@ export type Database = {
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "app_events_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       asset_events: {
@@ -210,13 +228,6 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asset_events_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "gear_items"
             referencedColumns: ["id"]
           },
           {
@@ -286,6 +297,13 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assets_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
             referencedColumns: ["id"]
           },
           {
@@ -530,6 +548,42 @@ export type Database = {
           },
         ]
       }
+      featured_gear: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          is_new: boolean | null
+          name: string | null
+          price: number | null
+          provider: string | null
+          rating: number | null
+          reviews: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_new?: boolean | null
+          name?: string | null
+          price?: number | null
+          provider?: string | null
+          rating?: number | null
+          reviews?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_new?: boolean | null
+          name?: string | null
+          price?: number | null
+          provider?: string | null
+          rating?: number | null
+          reviews?: number | null
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
@@ -566,50 +620,7 @@ export type Database = {
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "feedback_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
         ]
-      }
-      featured_gear: {
-        Row: {
-          created_at: string
-          id: string
-          image_url: string | null
-          is_new: boolean | null
-          name: string | null
-          price: number | null
-          provider: string | null
-          rating: number | null
-          reviews: number | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          is_new?: boolean | null
-          name?: string | null
-          price?: number | null
-          provider?: string | null
-          rating?: number | null
-          reviews?: number | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          is_new?: boolean | null
-          name?: string | null
-          price?: number | null
-          provider?: string | null
-          rating?: number | null
-          reviews?: number | null
-        }
-        Relationships: []
       }
       gear_availability_blocks: {
         Row: {
@@ -829,13 +840,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "maintenance_log_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "gear_items"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "maintenance_log_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
@@ -867,6 +871,73 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      notification_deliveries: {
+        Row: {
+          bounced_at: string | null
+          channel: string
+          clicked_at: string | null
+          created_at: string
+          delivered_at: string | null
+          external_id: string | null
+          id: string
+          meta: Json
+          opened_at: string | null
+          outbox_id: string
+          provider_id: string
+          user_id: string
+        }
+        Insert: {
+          bounced_at?: string | null
+          channel: string
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          external_id?: string | null
+          id?: string
+          meta?: Json
+          opened_at?: string | null
+          outbox_id: string
+          provider_id: string
+          user_id: string
+        }
+        Update: {
+          bounced_at?: string | null
+          channel?: string
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          external_id?: string | null
+          id?: string
+          meta?: Json
+          opened_at?: string | null
+          outbox_id?: string
+          provider_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_outbox_id_fkey"
+            columns: ["outbox_id"]
+            isOneToOne: false
+            referencedRelation: "notification_outbox"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_deliveries_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_deliveries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       notification_logs: {
         Row: {
@@ -929,6 +1000,138 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "reservations"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_outbox: {
+        Row: {
+          attempt_count: number
+          channel: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          priority: number
+          provider_id: string
+          sent_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempt_count?: number
+          channel: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          priority?: number
+          provider_id: string
+          sent_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          attempt_count?: number
+          channel?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          priority?: number
+          provider_id?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_outbox_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_outbox_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          edu_digest: boolean
+          email_enabled: boolean
+          id: string
+          inapp_enabled: boolean
+          ops_daily_digest: boolean
+          ops_realtime: boolean
+          provider_id: string
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          timezone: string
+          updated_at: string
+          user_id: string
+          webpush_enabled: boolean
+        }
+        Insert: {
+          created_at?: string
+          edu_digest?: boolean
+          email_enabled?: boolean
+          id?: string
+          inapp_enabled?: boolean
+          ops_daily_digest?: boolean
+          ops_realtime?: boolean
+          provider_id: string
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          timezone?: string
+          updated_at?: string
+          user_id: string
+          webpush_enabled?: boolean
+        }
+        Update: {
+          created_at?: string
+          edu_digest?: boolean
+          email_enabled?: boolean
+          id?: string
+          inapp_enabled?: boolean
+          ops_daily_digest?: boolean
+          ops_realtime?: boolean
+          provider_id?: string
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+          webpush_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1244,11 +1447,12 @@ export type Database = {
           phone: string
           pickup_instructions: string | null
           rental_name: string
+          request_link_created_at: string | null
+          request_link_token_hash: string | null
           seasonal_mode: boolean | null
           status: string | null
           tax_id: string | null
           terms_text: string | null
-          request_link_created_at: string | null
           time_zone: string
           updated_at: string
           user_id: string | null
@@ -1282,6 +1486,7 @@ export type Database = {
           pickup_instructions?: string | null
           rental_name: string
           request_link_created_at?: string | null
+          request_link_token_hash?: string | null
           seasonal_mode?: boolean | null
           status?: string | null
           tax_id?: string | null
@@ -1319,6 +1524,7 @@ export type Database = {
           pickup_instructions?: string | null
           rental_name?: string
           request_link_created_at?: string | null
+          request_link_token_hash?: string | null
           seasonal_mode?: boolean | null
           status?: string | null
           tax_id?: string | null
@@ -1328,6 +1534,24 @@ export type Database = {
           user_id?: string | null
           verified?: boolean
           website?: string | null
+        }
+        Relationships: []
+      }
+      request_submit_rate_buckets: {
+        Row: {
+          bucket_key: string
+          count: number
+          window_end: string
+        }
+        Insert: {
+          bucket_key: string
+          count?: number
+          window_end: string
+        }
+        Update: {
+          bucket_key?: string
+          count?: number
+          window_end?: string
         }
         Relationships: []
       }
@@ -1383,13 +1607,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "reservation_assignments_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "gear_items"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "reservation_assignments_reservation_id_fkey"
             columns: ["reservation_id"]
             isOneToOne: false
@@ -1405,75 +1622,52 @@ export type Database = {
           },
         ]
       }
-      reservation_requests: {
+      reservation_line_items: {
         Row: {
-          id: string
-          provider_id: string
-          request_link_token_hash: string | null
-          customer_name: string
-          customer_email: string | null
-          customer_phone: string | null
-          requested_start_date: string
-          requested_end_date: string
-          product_variant_id: string | null
-          requested_gear_text: string | null
-          notes: string | null
-          status: string
-          converted_reservation_id: string | null
-          converted_at: string | null
-          rejected_at: string | null
+          amount: number
           created_at: string
-          updated_at: string
+          created_by: string | null
+          description: string
+          id: string
+          reservation_id: string
+          type: string
         }
         Insert: {
-          id?: string
-          provider_id: string
-          request_link_token_hash?: string | null
-          customer_name: string
-          customer_email?: string | null
-          customer_phone?: string | null
-          requested_start_date: string
-          requested_end_date: string
-          product_variant_id?: string | null
-          requested_gear_text?: string | null
-          notes?: string | null
-          status?: string
-          converted_reservation_id?: string | null
-          converted_at?: string | null
-          rejected_at?: string | null
+          amount: number
           created_at?: string
-          updated_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          reservation_id: string
+          type: string
         }
         Update: {
-          id?: string
-          provider_id?: string
-          request_link_token_hash?: string | null
-          customer_name?: string
-          customer_email?: string | null
-          customer_phone?: string | null
-          requested_start_date?: string
-          requested_end_date?: string
-          product_variant_id?: string | null
-          requested_gear_text?: string | null
-          notes?: string | null
-          status?: string
-          converted_reservation_id?: string | null
-          converted_at?: string | null
-          rejected_at?: string | null
+          amount?: number
           created_at?: string
-          updated_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          reservation_id?: string
+          type?: string
         }
         Relationships: [
           {
-            foreignKeyName: "reservation_requests_provider_id_fkey"
-            columns: ["provider_id"]
+            foreignKeyName: "reservation_line_items_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "providers"
-            referencedColumns: ["id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "reservation_requests_converted_reservation_id_fkey"
-            columns: ["converted_reservation_id"]
+            foreignKeyName: "reservation_line_items_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_provider_activity_feed"
+            referencedColumns: ["reservation_id"]
+          },
+          {
+            foreignKeyName: "reservation_line_items_reservation_id_fkey"
+            columns: ["reservation_id"]
             isOneToOne: false
             referencedRelation: "reservations"
             referencedColumns: ["id"]
@@ -1510,6 +1704,13 @@ export type Database = {
             foreignKeyName: "reservation_lines_product_variant_id_fkey"
             columns: ["product_variant_id"]
             isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_lines_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
             referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
@@ -1525,6 +1726,102 @@ export type Database = {
             columns: ["reservation_id"]
             isOneToOne: false
             referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reservation_requests: {
+        Row: {
+          converted_at: string | null
+          converted_reservation_id: string | null
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          notes: string | null
+          product_variant_id: string | null
+          provider_id: string
+          rejected_at: string | null
+          request_link_token_hash: string | null
+          requested_end_date: string
+          requested_gear_text: string | null
+          requested_start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          converted_at?: string | null
+          converted_reservation_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          notes?: string | null
+          product_variant_id?: string | null
+          provider_id: string
+          rejected_at?: string | null
+          request_link_token_hash?: string | null
+          requested_end_date: string
+          requested_gear_text?: string | null
+          requested_start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          converted_at?: string | null
+          converted_reservation_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          notes?: string | null
+          product_variant_id?: string | null
+          provider_id?: string
+          rejected_at?: string | null
+          request_link_token_hash?: string | null
+          requested_end_date?: string
+          requested_gear_text?: string | null
+          requested_start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_requests_converted_reservation_id_fkey"
+            columns: ["converted_reservation_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_provider_activity_feed"
+            referencedColumns: ["reservation_id"]
+          },
+          {
+            foreignKeyName: "reservation_requests_converted_reservation_id_fkey"
+            columns: ["converted_reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_requests_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_requests_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_requests_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
         ]
@@ -1680,6 +1977,13 @@ export type Database = {
             columns: ["gear_id"]
             isOneToOne: false
             referencedRelation: "gear_items_legacy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_product_variant_id_fkey"
+            columns: ["product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
             referencedColumns: ["id"]
           },
           {
@@ -2183,7 +2487,7 @@ export type Database = {
       }
       approve_provider: { Args: { target_user_id: string }; Returns: undefined }
       assert_provider_role: {
-        Args: { p_provider_id: string; p_roles?: string[] }
+        Args: { p_provider_id: string }
         Returns: undefined
       }
       attach_return_photos: {
@@ -2212,20 +2516,22 @@ export type Database = {
       }
       cleanup_old_rate_limits: { Args: never; Returns: number }
       cleanup_reservation_holds_sql: { Args: never; Returns: Json }
-      create_inventory_item: {
+      convert_request_to_reservation: {
         Args: {
-          p_category: string
-          p_condition: string
-          p_description: string
-          p_image_url: string
-          p_name: string
-          p_price_cents: number
-          p_provider_id: string
-          p_quantity_total: number
-          p_sku?: string
-          p_variant_name?: string
+          p_end_date: string
+          p_idempotency_key?: string
+          p_notes?: string
+          p_quantity: number
+          p_request_id: string
+          p_start_date: string
+          p_total_price_cents: number
+          p_variant_id: string
         }
         Returns: string
+      }
+      convert_reservation_request: {
+        Args: { p_request_id: string; p_reservation_id: string }
+        Returns: undefined
       }
       create_reservation: {
         Args: {
@@ -2243,23 +2549,6 @@ export type Database = {
           p_variant_id: string
         }
         Returns: Json
-      }
-      convert_request_to_reservation: {
-        Args: {
-          p_request_id: string
-          p_variant_id: string
-          p_quantity: number
-          p_start_date: string
-          p_end_date: string
-          p_total_price_cents: number
-          p_notes?: string
-          p_idempotency_key?: string
-        }
-        Returns: string
-      }
-      generate_or_regenerate_request_link_token: {
-        Args: { p_provider_id: string }
-        Returns: string
       }
       create_return_report: {
         Args: {
@@ -2307,6 +2596,16 @@ export type Database = {
         Args: { retention_minutes?: number }
         Returns: Json
       }
+      generate_or_regenerate_request_link_token: {
+        Args: { p_provider_id: string }
+        Returns: string
+      }
+      generate_overdue_notifications: { Args: never; Returns: undefined }
+      generate_provider_request_token: {
+        Args: { p_provider_id: string }
+        Returns: string
+      }
+      generate_tomorrow_pickups_digest: { Args: never; Returns: undefined }
       geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
         Args: { geom1: unknown; geom2: unknown }
@@ -2435,10 +2734,6 @@ export type Database = {
       is_admin_trusted: { Args: never; Returns: boolean }
       is_available:
         | {
-            Args: { end_time: string; gear_id: string; start_time: string }
-            Returns: boolean
-          }
-        | {
             Args: {
               p_end: string
               p_gear: string
@@ -2447,6 +2742,14 @@ export type Database = {
             }
             Returns: boolean
           }
+        | {
+            Args: { end_time: string; p_gear_id: string; start_time: string }
+            Returns: boolean
+          }
+      is_provider_approved: {
+        Args: { p_provider_id: string }
+        Returns: boolean
+      }
       is_provider_member: { Args: { pid: string }; Returns: boolean }
       issue_reservation: {
         Args: {
@@ -2461,16 +2764,20 @@ export type Database = {
       longtransactionsenabled: { Args: never; Returns: boolean }
       manage_product: {
         Args: {
-          p_category: string
-          p_description: string
-          p_image_url: string
-          p_name: string
-          p_price_cents: number
-          p_product_id: string
+          p_category?: string
+          p_description?: string
+          p_image_url?: string
+          p_name?: string
+          p_price_cents?: number
+          p_product_id?: string
           p_provider_id: string
-          p_variants: Json
+          p_variants?: Json
         }
         Returns: string
+      }
+      mark_request_converted: {
+        Args: { p_request_id: string; p_reservation_id: string }
+        Returns: undefined
       }
       mock_send_notification: {
         Args: {
@@ -2520,35 +2827,14 @@ export type Database = {
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
       process_daily_reminders: { Args: never; Returns: undefined }
-      process_return:
-        | {
-            Args: {
-              p_has_damage?: boolean
-              p_notes?: string
-              p_reservation_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_damage_reports?: Json
-              p_provider_id: string
-              p_reservation_id: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_damage_reports?: Json
-              p_general_notes?: string
-              p_photo_paths?: string[]
-              p_provider_id: string
-              p_reservation_id: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
+      process_return: {
+        Args: {
+          p_has_damage?: boolean
+          p_notes?: string
+          p_reservation_id: string
+        }
+        Returns: Json
+      }
       reserve_if_available: {
         Args: {
           p_customer_id: string
@@ -2607,10 +2893,6 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
-      soft_delete_inventory_item: {
-        Args: { p_item_id: string }
-        Returns: undefined
-      }
       st_3dclosestpoint: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
@@ -3192,21 +3474,22 @@ export type Database = {
         Args: { geom: unknown; move: number; wrap: number }
         Returns: unknown
       }
-      unlockrows: { Args: { "": string }; Returns: number }
-      update_inventory_item: {
+      submit_request_public: {
         Args: {
-          p_category: string
-          p_condition: string
-          p_description: string
-          p_image_url: string
-          p_item_id: string
-          p_name: string
-          p_price_cents: number
-          p_quantity_total: number
-          p_sku: string
+          p_customer_email: string
+          p_customer_name: string
+          p_customer_phone: string
+          p_ip_hash: string
+          p_notes?: string
+          p_product_variant_id?: string
+          p_requested_end_date: string
+          p_requested_gear_text?: string
+          p_requested_start_date: string
+          p_token_hash: string
         }
-        Returns: undefined
+        Returns: Json
       }
+      unlockrows: { Args: { "": string }; Returns: number }
       updategeometrysrid: {
         Args: {
           catalogn_name: string
@@ -3393,6 +3676,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "provider", "customer"],

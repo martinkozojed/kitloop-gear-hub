@@ -405,27 +405,8 @@ const ReservationForm = () => {
         return;
       }
 
-      let reservationId: string;
-
-      if (fromRequestId && fromRequest?.id) {
-        // Atomic convert: one RPC creates reservation and marks request converted
-        const { data: convId, error: convertError } = await supabase.rpc('convert_request_to_reservation', {
-          p_request_id: fromRequest.id,
-          p_variant_id: formData.variant_id,
-          p_quantity: formData.quantity,
-          p_start_date: start.toISOString(),
-          p_end_date: end.toISOString(),
-          p_total_price_cents: Math.round(totalPrice * 100),
-          p_notes: formData.notes.trim() || undefined,
-          p_idempotency_key: undefined,
-        });
-        if (convertError) throw convertError;
-        reservationId = convId as string;
-        track('reservations.created', { reservation_id: reservationId, via: 'convert_request' }, 'ReservationForm');
-        toast.success(t('provider.reservationForm.toasts.created', { status: 'hold' }));
-        navigate(`/provider/reservations/edit/${reservationId}`);
-        return;
-      }
+      // The complex atomic converter RPC has been removed in favor of the standard creation flow
+      // we will link the request after creation.
 
       const reservationResult = await createReservationHold({
         providerId: provider.id,
@@ -445,8 +426,23 @@ const ReservationForm = () => {
         customerUserId: null,
       });
 
-      reservationId = reservationResult.reservation_id;
+      const reservationId = reservationResult.reservation_id;
       track('reservations.created', { reservation_id: reservationId, status: reservationResult.status }, 'ReservationForm');
+
+      // If this was spawned from a booking request, mark the request as converted
+      if (fromRequestId && fromRequest?.id) {
+        const { error: convertError } = await supabase.rpc('convert_reservation_request', {
+          p_request_id: fromRequest.id,
+          p_reservation_id: reservationId,
+        });
+        if (convertError) {
+          console.error("Failed to mark request as converted", convertError);
+          // Don't throw, the reservation was created successfully.
+        } else {
+          toast.success("Request converted successfully.");
+        }
+      }
+
       toast.success(t('provider.reservationForm.toasts.created', { status: reservationResult.status }));
       navigate('/provider/reservations');
 
