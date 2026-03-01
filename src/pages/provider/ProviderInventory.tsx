@@ -20,6 +20,8 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useSearchParams } from 'react-router-dom';
 import { exportInventoryCsv } from '@/lib/csv-export';
 import { logEvent } from '@/lib/app-events';
+import { ContextTip } from '@/components/ui/context-tip';
+import { getTip } from '@/content/microcopy.registry';
 
 import { generateDemoData } from '@/lib/demo-data';
 
@@ -271,6 +273,15 @@ const ProviderInventory = () => {
             </>
           }
         />
+
+        {/* Context Tip: pilot tip_inventory_empty — shown when loaded and empty */}
+        {!loading && data.length === 0 && provider?.user_id && (
+          <ContextTip
+            key="tip_inventory_empty"
+            tip={getTip('tip_inventory_empty')}
+            userId={provider.user_id}
+          />
+        )}
 
         <Card className="p-1 min-h-[500px]">
           <InventoryGrid

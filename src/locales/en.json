@@ -1307,6 +1307,9 @@
         "descSuffix": "You cannot issue items until payment is settled.",
         "override": "Admin Override (Log Event)"
       },
+      "scan": {
+        "autoAssigned": "Assigned: {{tag}}"
+      },
       "ready": "Ready for pickup. ID verified?",
       "overrideActive": "⚠️ Override Active - This action will be logged.",
       "cancel": "Cancel",
@@ -1484,6 +1487,150 @@
         "team": "Invite team member"
       },
       "allDone": "🎉 Great job! Everything is ready."
+    }
+  },
+  "ssot": {
+    "tip": {
+      "ariaLabel": "Tip",
+      "dismiss": "Dismiss tip"
+    },
+    "onboarding": {
+      "header": {
+        "title": "Next recommended step",
+        "subtitle": "Follow these steps one by one – it only takes a few minutes."
+      },
+      "steps": {
+        "workspace": {
+          "title": "Set up your workspace",
+          "body": "Enter your rental name, contact details, currency, and timezone.",
+          "cta": "Go to settings"
+        },
+        "location": {
+          "title": "Add a pickup location",
+          "body": "Customers will see the address and opening hours on their confirmation.",
+          "cta": "Set up location"
+        },
+        "inventory": {
+          "title": "Add first items to Inventory",
+          "body": "Add at least 3 items or import a CSV. We recommend 10+ for full use.",
+          "cta": "Open inventory"
+        },
+        "reservation": {
+          "title": "Create your first Reservation",
+          "body": "Try the full flow from Reservation through Check-Out and Return.",
+          "cta": "New reservation"
+        },
+        "issue": {
+          "title": "Issue your first Reservation (Check-Out)",
+          "body": "Today's check-outs appear on the dashboard. Click Issue to hand over equipment.",
+          "cta": "Go to dashboard"
+        },
+        "overview": {
+          "title": "Explore the Overview",
+          "body": "The dashboard shows key metrics, check-out/return queue, and exception alerts.",
+          "cta": "Open overview"
+        }
+      }
+    },
+    "emptyStates": {
+      "inventory": {
+        "title": "Inventory is empty",
+        "body": "Add your first item or import a CSV to start renting.",
+        "primaryCta": "Add item",
+        "secondaryCta": "Import CSV"
+      },
+      "reservations": {
+        "title": "No Reservations yet",
+        "body": "Create your first Reservation or share a request link with customers.",
+        "primaryCta": "New reservation"
+      },
+      "maintenance": {
+        "title": "Everything looks good",
+        "body": "No items are in maintenance. Report damage during Return processing.",
+        "primaryCta": "Open inventory"
+      },
+      "exports": {
+        "title": "No data to export yet",
+        "body": "Exports become available after your first Reservations or Inventory items.",
+        "primaryCta": "Go to reservations",
+        "secondaryCta": "Go to inventory"
+      }
+    },
+    "tips": {
+      "inventory_empty": {
+        "text": "Your Inventory is empty. Add at least 3 items to create your first Reservation.",
+        "cta": "Add item"
+      },
+      "no_reservation_24h": {
+        "text": "You have Inventory set up but no Reservations yet. Create your first one today.",
+        "cta": "New reservation"
+      },
+      "unassigned_assets": {
+        "text": "This Reservation has no assigned equipment. Assign items in the Reservation detail.",
+        "cta": "View reservations"
+      },
+      "export_after_48h": {
+        "text": "Did you know you can export Reservations or Inventory to CSV? It saves time during invoicing.",
+        "cta": "Export reservations"
+      },
+      "scanner": {
+        "text": "Have many Reservations? The QR code scanner speeds up Check-Out and Return.",
+        "cta": "Try scanner"
+      },
+      "collision": {
+        "text": "You keep running into Reservation Collisions. Check availability in the Overview.",
+        "cta": "View reservations"
+      },
+      "condition": {
+        "text": "Recent Returns are missing equipment condition. Record it for a better Overview.",
+        "cta": "Go to dashboard"
+      },
+      "feedback": {
+        "text": "How are you finding Kitloop so far? Your feedback helps us improve."
+      }
+    },
+    "toasts": {
+      "workspace_completed": {
+        "title": "Workspace set up"
+      },
+      "location_completed": {
+        "title": "Location set up"
+      },
+      "inventory_ready": {
+        "title": "Inventory ready"
+      },
+      "reservation_created": {
+        "title": "Reservation created",
+        "desc": "Customer has been notified."
+      },
+      "issue_completed": {
+        "title": "Check-out complete",
+        "desc": "Reservation is now active."
+      },
+      "return_completed": {
+        "title": "Return processed",
+        "desc": "Equipment has been returned to Inventory."
+      },
+      "return_with_damage": {
+        "title": "Return complete – damage reported",
+        "desc": "Damaged items are in maintenance."
+      },
+      "inventory_item_created": {
+        "title": "Item added to Inventory",
+        "desc": "Inventory has been updated."
+      },
+      "inventory_import_completed": {
+        "title": "Import complete",
+        "desc": "Items have been added to Inventory."
+      },
+      "export_generated": {
+        "title": "Export ready",
+        "desc": "File has been downloaded to your device."
+      },
+      "print_generated": {
+        "title": "Print ready",
+        "desc": "Handover receipt has been generated."
+      }
     }
   }
 }
