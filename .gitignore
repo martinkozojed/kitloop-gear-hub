@@ -33,3 +33,9 @@ supabase/functions/**/.env
 # Supabase CLI metadata
 supabase/.temp/
 supabase/.branches/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

@@ -13,10 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Fetch full git history for diff
+          fetch-depth: 0 # Fetch full git history for diff
       - name: Fetch base branch
         run: |
-          git fetch origin ${{ github.base_ref || 'main' }} --depth=1
+          git fetch origin ${{ github.event.pull_request.base.ref || 'main' }} --depth=1
       - uses: actions/setup-node@v6
         with:
           node-version: "20"
@@ -25,7 +25,7 @@ jobs:
         run: npm ci
       - name: Lint changed files only
         run: |
-          BASE_REF="origin/${{ github.base_ref || 'main' }}"
+          BASE_REF="origin/${{ github.event.pull_request.base.ref || 'main' }}"
           echo "Linting against base: $BASE_REF"
           bash ./scripts/lint_changed.sh "$BASE_REF"
 
@@ -48,7 +48,6 @@ jobs:
           name: ui-drift-report
           path: docs/ui_drift_raw.txt
 
-
   typecheck:
     runs-on: ubuntu-latest
     needs: lint
@@ -67,13 +66,6 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     needs: lint
-    env:
-      SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
-      SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
-      SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}"
-      SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
-      STRIPE_SECRET_KEY: "${{ secrets.STRIPE_SECRET_KEY }}"
-      SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
     steps:
       - uses: actions/checkout@v6
       - name: "Install npm deps for Deno npm: resolution"
@@ -87,19 +79,54 @@ jobs:
       - name: Cache dependencies (frozen lock)
         run: deno task deno:cache
       - name: Run reserve_gear unit tests
+        env:
+          SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
+          SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
         run: deno test supabase/functions/reserve_gear --allow-env --allow-read --allow-import=deno.land,esm.sh,legacy.esm.sh
       - name: Run confirm_reservation unit tests
+        env:
+          SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
+          STRIPE_SECRET_KEY: "${{ secrets.STRIPE_SECRET_KEY }}"
         run: deno test --quiet --allow-env --allow-read --allow-import=deno.land,esm.sh,legacy.esm.sh supabase/functions/confirm_reservation
       - name: Run cleanup_reservation_holds unit tests
+        env:
+          SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
         run: deno test --quiet --allow-import=deno.land,esm.sh,legacy.esm.sh supabase/functions/cleanup_reservation_holds || echo "cleanup tests skipped"
       - name: Run create_payment_intent unit tests
+        env:
+          SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
+          STRIPE_SECRET_KEY: "${{ secrets.STRIPE_SECRET_KEY }}"
         run: deno test --quiet --allow-import=deno.land,esm.sh,legacy.esm.sh supabase/functions/create_payment_intent || echo "create_payment_intent tests skipped"
       - name: Run stripe_webhook unit tests
+        env:
+          SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
+          STRIPE_SECRET_KEY: "${{ secrets.STRIPE_SECRET_KEY }}"
         run: deno test --quiet --allow-import=deno.land,esm.sh,legacy.esm.sh supabase/functions/stripe_webhook
+      - name: Run notify-dispatcher unit tests
+        env:
+          SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
+        run: deno test --quiet --allow-import=deno.land,esm.sh,legacy.esm.sh supabase/functions/notify-dispatcher
       # Note: Removed "Verify lockfile unchanged" step - esm.sh CDN returns inconsistent hashes across regions
-      - name: TODO Supabase RLS tests
-        run: |
-          echo "TODO: configure Supabase CLI db test to run supabase/tests/rls_membership.sql"
+
+  test_rls:
+    # RLS regression tests: start local Supabase, apply migrations, run pgTAP tests
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local Supabase
+        run: supabase start -x edge-runtime,imgproxy,inbucket,postgrest,storage-api,realtime,studio,logflare
+      - name: Run RLS regression tests (pgTAP)
+        run: supabase test db
 
   test_db:
     # Nightly/manual only, and only if DB URL secret is present.
@@ -166,7 +193,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
