@@ -136,11 +136,12 @@ export default function PublicBookingRequest() {
             }
 
             setIsSuccess(true);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
             toast({
                 variant: "destructive",
                 title: "Submission failed",
-                description: err.message || "An unexpected error occurred. Please try again.",
+                description: errorMessage,
             });
         } finally {
             setIsSubmitting(false);
