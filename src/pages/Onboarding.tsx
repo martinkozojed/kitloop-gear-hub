@@ -248,9 +248,15 @@ export default function Onboarding() {
             <div className="flex items-center gap-3">
               <LanguageSwitcher />
 
-              <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
-                <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
-              </Button>
+              {isAuthenticated ? (
+                <Button variant="cta" size="sm" asChild className="min-w-[7.5rem] justify-center">
+                  <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Do dashboardu"}</Link>
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
+                  <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
+                </Button>
+              )}
             </div>
           </div>
         </header>
