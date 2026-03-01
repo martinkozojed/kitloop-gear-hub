@@ -52,12 +52,13 @@ const SignUp = () => {
         navigate('/');
       }
     } catch (error) {
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = getErrorMessage(error) || '';
 
-      if (errorMessage.includes('User already registered')) {
-        toast.error(t('signup.error_email_exists') || 'This email is already registered. Please login.');
+      if (errorMessage.includes('User already registered') || String(error).includes('User already registered')) {
+        toast.error(t('signup.error_email_exists'));
       } else {
-        toast.error(errorMessage || t('signup.error') || 'Registration failed');
+        console.error('Signup error:', error);
+        toast.error(t('signup.error'));
       }
     } finally {
       setIsRegistering(false);

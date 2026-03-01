@@ -39,8 +39,10 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const RequestLink = lazy(() => import("./pages/RequestLink"));
 
 // Provider pages (heavy)
+const ProviderLayout = lazy(() => import("./components/provider/ProviderLayout"));
 const ProviderSetup = lazy(() => import("./pages/provider/ProviderSetup"));
 const ProviderPending = lazy(() => import("./pages/provider/ProviderPending"));
+const ProviderNotifications = lazy(() => import("./pages/provider/ProviderNotifications"));
 const DashboardOverview = lazy(() => import("./pages/provider/DashboardOverview"));
 const ProviderSettings = lazy(() => import("./pages/provider/ProviderSettings"));
 const ProviderInventory = lazy(() => import("./pages/provider/ProviderInventory"));
@@ -183,6 +185,16 @@ const AppRoutes = () => {
               element={
                 <ProviderRoute>
                   <DashboardOverview />
+                </ProviderRoute>
+              }
+            />
+            <Route
+              path="/provider/notifications"
+              element={
+                <ProviderRoute>
+                  <ProviderLayout>
+                    <ProviderNotifications />
+                  </ProviderLayout>
                 </ProviderRoute>
               }
             />

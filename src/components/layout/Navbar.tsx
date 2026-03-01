@@ -21,11 +21,12 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useCommand } from "@/context/CommandContext";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, profile, isAuthenticated, logout, isAdmin, isProvider } = useAuth();
+  const { user, profile, provider, isAuthenticated, logout, isAdmin, isProvider } = useAuth();
   const { setOpen } = useCommand();
 
   const scrollToSection = (sectionId: string) => {
@@ -52,7 +53,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+    <header className="py-4 px-6 md:px-10 bg-background shadow-sm border-b border-border fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* Logo */}
@@ -64,23 +65,9 @@ const Navbar = () => {
         </div>
 
         {/* Navigation */}
-        {/* Navigation / Search */}
+        {/* Navigation */}
         <div className="flex-1 hidden md:flex justify-center items-center px-4">
-          {isAuthenticated && profile?.role === 'provider' ? (
-            <div className="w-full max-w-md relative group">
-              <Button
-                variant="outline"
-                className="w-full justify-start text-muted-foreground bg-muted hover:bg-accent border-transparent hover:border-border transition-all"
-                onClick={() => setOpen(true)}
-              >
-                <Search className="mr-2 h-4 w-4" />
-                <span className="inline-flex">Search...</span>
-                <kbd className="pointer-events-none absolute right-2 top-2 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-                  <span className="text-xs">⌘</span>K
-                </kbd>
-              </Button>
-            </div>
-          ) : (
+          {!isAuthenticated && (
             <nav className="flex justify-center items-center gap-8 text-text">
               <button
                 onClick={() => scrollToSection('product')}
@@ -103,6 +90,7 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <LanguageSwitcher />
 
           {isAuthenticated ? (
@@ -114,13 +102,17 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2 hidden md:flex">
                     <User className="h-5 w-5" />
-                    <span className="hidden lg:inline">{user?.email}</span>
+                    <span className="hidden lg:inline">
+                      {provider?.business_name || user?.email}
+                    </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.email}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {provider?.business_name || user?.email}
+                      </p>
                       <p className="text-xs text-muted-foreground capitalize">
                         {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
                       </p>
@@ -174,7 +166,9 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <div className="flex flex-col gap-3">
                   <div className="text-center py-2 border-b">
-                    <p className="text-sm font-medium">{user?.email}</p>
+                    <p className="text-sm font-medium">
+                      {provider?.business_name || user?.email}
+                    </p>
                     <p className="text-xs text-muted-foreground capitalize">
                       {isAdmin ? 'Administrator' : isProvider ? 'Provider' : 'Customer'}
                     </p>

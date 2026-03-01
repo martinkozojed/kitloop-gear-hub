@@ -242,7 +242,10 @@
     "no_account": "Nemáte účet?",
     "create_account": "Vytvořit účet",
     "success": "Úspěšně přihlášeno!",
-    "error_fields": "Zadej prosím email i heslo"
+    "error_fields": "Zadej prosím email i heslo",
+    "error_credentials": "Nesprávný email nebo heslo.",
+    "error_email_not_confirmed": "Nejprve prosím potvrďte svůj email pomocí odkazu, který jsme vám zaslali.",
+    "error": "Při přihlašování nastala chyba. Zkuste to prosím znovu."
   },
   "signup": {
     "title": "Vytvořit účet",
@@ -263,6 +266,8 @@
     "sign_in": "Přihlásit se",
     "success": "Účet byl úspěšně vytvořen!",
     "password_mismatch": "Hesla se neshodují",
+    "error_email_exists": "Tento email je již zaregistrován. Prosím, přihlaste se.",
+    "error": "Při registraci nastala chyba. Zkuste to prosím znovu.",
     "account_type": {
       "customer": "Zákazník",
       "provider": "Půjčovna"

@@ -31,16 +31,19 @@ const Login = () => {
     try {
       await login(email.trim(), password);
       toast.success(t('login.success'));
+      // The ProviderRoute will handle the final redirection (either Setup, Pending, or Dashboard)
+      // We just send them to the dashboard entry point.
       navigate('/provider/dashboard');
     } catch (error) {
-      const errorMessage = getErrorMessage(error) || t('login.error');
+      const errorMessage = getErrorMessage(error) || '';
 
-      if (errorMessage.includes('Invalid login credentials')) {
-        toast.error(t('login.error_credentials') || 'Invalid email or password');
+      if (errorMessage.includes('Invalid login credentials') || String(error).includes('Invalid login credentials')) {
+        toast.error(t('login.error_credentials'));
       } else if (errorMessage.includes('Email not confirmed')) {
-        toast.error(t('login.error_email_not_confirmed') || 'Please confirm your email first');
+        toast.error(t('login.error_email_not_confirmed'));
       } else {
-        toast.error(errorMessage);
+        console.error('Login error:', error);
+        toast.error(t('login.error'));
       }
     } finally {
       setIsLoggingIn(false);

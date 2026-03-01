@@ -31,7 +31,7 @@ interface ProviderSidebarProps {
 const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps) => {
   const location = useLocation();
   const { t } = useTranslation();
-  const { isAdmin } = useAuth();
+  const { user, provider, isAdmin } = useAuth();
   const { canViewFinancials, canEditSettings } = usePermissions();
 
   // Use Desktop Density by default for Sidebar
@@ -152,7 +152,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       <div className="px-4 pb-6 pt-2 border-t border-border mt-auto">
         <div className="mb-4 px-2">
           <p className="text-xs text-muted-foreground truncate">
-            {t('provider.sidebar.loggedIn')} <span className="font-medium text-foreground">Provider Admin</span>
+            {t('provider.sidebar.loggedIn')} <span className="font-medium text-foreground">{provider?.rental_name || user?.email}</span>
           </p>
         </div>
         <Button

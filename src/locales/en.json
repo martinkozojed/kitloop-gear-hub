@@ -242,7 +242,10 @@
     "no_account": "Don't have an account?",
     "create_account": "Create an account",
     "success": "Successfully logged in!",
-    "error_fields": "Please enter both email and password"
+    "error_fields": "Please enter both email and password",
+    "error_credentials": "Invalid email or password.",
+    "error_email_not_confirmed": "Please confirm your email address first via the link we sent you.",
+    "error": "An error occurred during sign in. Please try again."
   },
   "signup": {
     "title": "Create an account",
@@ -263,6 +266,8 @@
     "sign_in": "Sign in",
     "success": "Account created successfully!",
     "password_mismatch": "Passwords do not match",
+    "error_email_exists": "This email is already registered. Please sign in.",
+    "error": "An error occurred during registration. Please try again.",
     "account_type": {
       "customer": "Customer",
       "provider": "Rental Shop"

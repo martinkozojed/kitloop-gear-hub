@@ -25,7 +25,6 @@ export function NotificationSettings({ isEditEnabled }: { isEditEnabled: boolean
             if (!provider || !user) return;
 
             try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { data, error } = await supabase
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     .from('notification_preferences' as any)
@@ -62,7 +61,6 @@ export function NotificationSettings({ isEditEnabled }: { isEditEnabled: boolean
         setSaving(true);
 
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { error } = await supabase
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from('notification_preferences' as any)
