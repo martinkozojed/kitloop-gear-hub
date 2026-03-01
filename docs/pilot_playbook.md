@@ -75,6 +75,7 @@ Co dělat, když to nefunguje:
 - Udělat screenshot.
 - Popsat krok.
 - Poslat na Slack/Email podpory: `support@kitloop.cz`.
+- **Formalizovaně**: Zapsat do [`docs/pilot_feedback_log.md`](./pilot_feedback_log.md) dle šablony.
 
 ## 4. Go/No-Go Kritéria (D-Day Check)
 
@@ -82,3 +83,37 @@ Co dělat, když to nefunguje:
 - [ ] Lze vytvořit testovací rezervaci.
 - [ ] Lze vydat a vrátit.
 - [ ] Staff má přístup (Login funguje).
+
+## 5. Notifikace (Pilot)
+
+**Pilot kanály: pouze in-app.** Email notifikace jsou ve výchozím stavu vypnuté
+(`email_enabled = false`). Zvonečkový indikátor 🔔 v navigační liště ukazuje
+nepřečtené notifikace. Kliknutím se označí jako přečtené.
+
+> Pokud potřebujete zapnout email notifikace, nastavte v Supabase:
+> `UPDATE notification_preferences SET email_enabled = true WHERE user_id = '…';`
+> a ujistěte se, že `RESEND_API_KEY` secret je nastavený.
+
+## 6. Pain Reporting (Pilot)
+
+Po každé směně zapište problémy do [`docs/pilot_feedback_log.md`](./pilot_feedback_log.md).
+
+### Šablona pro hlášení
+
+| Pole | Vyplňte |
+|------|---------|
+| Datum | YYYY-MM-DD HH:MM |
+| Reporter (email) | vaš email |
+| Provider ID | UUID poskytovatele (Settings → About) |
+| Shrnutí | Jednořádkový popis problému |
+| Kroky k reprodukci | 1. … 2. … 3. … |
+| Očekávané chování | Co mělo nastat |
+| Skutečné chování | Co se stalo |
+| Dopad | Nízký / Střední / Vysoký |
+| Screenshot | Odkaz nebo přiložte soubor |
+
+### Proces
+
+1. Zápis po směně do `pilot_feedback_log.md` nebo poslání na `support@kitloop.cz`.
+2. Týdenní review: Kitloop tým třídí a plánuje opravy.
+3. Kritické problémy (blokují provoz): ihned na `support@kitloop.cz` + screenshot.
