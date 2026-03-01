@@ -18,6 +18,9 @@ import { cn } from "./lib/utils";
 import BuildStamp from "./components/layout/BuildStamp";
 
 import { CommandMenu } from "./components/ui/command-menu";
+import { useNavigate } from "react-router-dom";
+import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
+import { CommandProvider } from "./context/CommandContext";
 import { useAuth } from "./context/AuthContext";
 import { useCommand } from "./context/CommandContext";
 
