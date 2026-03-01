@@ -143,6 +143,7 @@ const AppRoutes = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/onboarding/*" element={<Onboarding />} />
+            <Route path="/dashboard" element={<Navigate to="/provider/dashboard" replace />} />
             <Route
               path="/admin/observability"
               element={
