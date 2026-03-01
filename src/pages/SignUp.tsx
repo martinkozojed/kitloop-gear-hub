@@ -71,7 +71,7 @@ const SignUp = () => {
       <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-            <span className="text-primary pr-0.5 tracking-tight">Kit</span>
+            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
             <span className="text-foreground tracking-wide">loop</span>
           </Link>
           <div className="flex items-center gap-3">

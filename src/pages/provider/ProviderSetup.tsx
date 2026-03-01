@@ -226,11 +226,21 @@ const ProviderSetup = () => {
     { num: 3, icon: Package, label: 'Inventář' },
   ];
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">{t('onboarding.wizard.loadingText') || 'Loading...'}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4 flex items-center justify-center">
+    <div className="light min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4 flex items-center justify-center">
       <div className="max-w-lg w-full">
         {/* Step Indicators */}
         <div className="flex justify-center items-center gap-2 mb-8">

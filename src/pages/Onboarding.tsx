@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/context/AuthContext";
 import {
   Accordion,
   AccordionContent,
@@ -158,6 +159,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [pain, setPain] = usePain();
   const shouldReduce = useReducedMotion();
+  const { isAuthenticated } = useAuth();
 
   // Derive lang from i18next (normalise to cs | en)
   const lang: Lang = i18n.language?.startsWith("cs") ? "cs" : "en";
@@ -250,9 +252,15 @@ export default function Onboarding() {
               {lang === "en" ? "CS" : "EN"}
             </button>
 
-            <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
-              <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
-            </Button>
+            {isAuthenticated ? (
+              <Button variant="cta" size="sm" asChild className="min-w-[7.5rem] justify-center">
+                <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Do dashboardu"}</Link>
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" asChild className="min-w-[7.5rem] justify-center">
+                <Link to={loginHref}>{t("onboarding.heroCta2")}</Link>
+              </Button>
+            )}
           </div>
         </div>
       </header>
