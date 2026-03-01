@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/lib/supabase';
 import { track } from '@/lib/telemetry';
+import { onboardingSteps } from '@/content/microcopy.registry';
 import {
     CheckCircle2,
     Circle,
@@ -44,12 +45,21 @@ interface OnboardingChecklistProps {
     providerId: string;
     hasInventory: boolean;
     hasReservation: boolean;
+    /** True when provider has completed at least one Issue flow */
+    hasIssued?: boolean;
+    /** True when provider has completed at least one Return flow */
+    hasReturned?: boolean;
+    /** True when provider has generated an export or print */
+    hasExported?: boolean;
 }
 
 export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
     providerId,
     hasInventory,
     hasReservation,
+    hasIssued = false,
+    hasReturned = false,
+    hasExported = false,
 }) => {
     const { t } = useTranslation();
     const [isDismissed, setIsDismissed] = useState(false);
@@ -99,7 +109,6 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
         }
     };
 
-    // Build checklist items dynamically
     const items: ChecklistItem[] = [
         {
             id: 'workspace',
@@ -118,6 +127,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
         {
             id: 'inventory',
             label: t('onboarding.checklist.items.inventory'),
+            // complete_when: inventory_min_items (>= 3) OR import completed
             completed: hasInventory || !!progress?.step_inventory_completed_at,
             href: '/provider/inventory',
             icon: Package,
@@ -132,22 +142,31 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
             required: true,
         },
         {
-            id: 'terms',
-            label: t('onboarding.checklist.items.terms'),
-            completed: !!progress?.checklist_terms_configured,
-            href: '/provider/settings',
+            id: 'issue',
+            label: t('ssot.onboarding.steps.issue.title'),
+            // complete_when: issue_completed signal
+            completed: hasIssued,
+            href: '/provider/dashboard',
             icon: FileText,
             required: false,
         },
         {
-            id: 'team',
-            label: t('onboarding.checklist.items.team'),
-            completed: !!progress?.checklist_team_invited,
-            href: '/provider/settings#team',
+            id: 'overview',
+            label: t('ssot.onboarding.steps.overview.title'),
+            // complete_when: dashboard_viewed (always true once checklist renders)
+            // Deviation: ops_digest_seen signal does not exist – using dashboard_viewed
+            completed: true,
+            href: '/provider/dashboard',
             icon: Users,
             required: false,
         },
     ];
+
+    // Find first incomplete step from registry for "Next Best Action" display
+    const firstIncomplete = onboardingSteps.find(step => {
+        const match = items.find(i => i.id === step.id);
+        return match && !match.completed;
+    });
 
     const completedCount = items.filter(item => item.completed).length;
     const totalCount = items.length;
@@ -196,6 +215,25 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                     value={progressPercent}
                     className="h-2 mb-4 bg-status-success/20"
                 />
+
+                {/* Next Best Action section (SSOT pilot) */}
+                {firstIncomplete && !allDone && (
+                    <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                            {t('ssot.onboarding.header.title')}
+                        </p>
+                        <p className="text-sm font-medium text-foreground">{t(firstIncomplete.titleKey)}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t(firstIncomplete.bodyKey)}</p>
+                        {firstIncomplete.ctaHref && (
+                            <Link
+                                to={firstIncomplete.ctaHref}
+                                className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-primary hover:underline"
+                            >
+                                {t(firstIncomplete.ctaLabelKey)} <ArrowRight className="w-3 h-3" />
+                            </Link>
+                        )}
+                    </div>
+                )}
 
                 {allDone ? (
                     <div className="text-center py-4">

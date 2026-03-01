@@ -98,7 +98,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
 
                     if (insertError) throw insertError;
                     setItems(prev => [...prev, { id: asset.id, status: asset.status as ItemState['status'] }]);
-                    toast.success(`Auto-assigned: ${asset.asset_tag || asset.id}`);
+                    toast.success(t('operations.issueFlow.scan.autoAssigned', { tag: asset.asset_tag || asset.id }));
                     return;
                 }
             }
@@ -109,7 +109,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         } finally {
             setAutoAssigning(false);
         }
-    }, []);
+    }, [t]);
 
     const fetchReservation = useCallback(async () => {
         if (!open || !reservation.id) return;

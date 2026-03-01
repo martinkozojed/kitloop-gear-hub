@@ -31,6 +31,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { track } from '@/lib/telemetry';
 import { logEvent } from '@/lib/app-events';
+import { ContextTip } from '@/components/ui/context-tip';
+import { getTip } from '@/content/microcopy.registry';
 
 interface Reservation {
   id: string;
@@ -356,6 +358,15 @@ const ProviderReservations = () => {
             </>
           }
         />
+
+        {/* Context Tip: pilot tip_no_reservation_24h — shown when loaded with 0 reservations */}
+        {!loading && reservations.length === 0 && provider?.user_id && (
+          <ContextTip
+            key="tip_no_reservation_24h"
+            tip={getTip('tip_no_reservation_24h')}
+            userId={provider.user_id}
+          />
+        )}
 
         <Tabs defaultValue="list" className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">

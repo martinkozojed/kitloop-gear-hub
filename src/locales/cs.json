@@ -1296,6 +1296,9 @@
         "descSuffix": "Nelze vydat, dokud není uhrazeno.",
         "override": "Admin override (zapíše událost)"
       },
+      "scan": {
+        "autoAssigned": "Přiřazeno: {{tag}}"
+      },
       "ready": "Připraveno k výdeji. Ověřena identita?",
       "overrideActive": "⚠️ Override aktivní - akce bude zaznamenána.",
       "cancel": "Zrušit",
@@ -1473,6 +1476,150 @@
         "team": "Pozvi člena týmu"
       },
       "allDone": "🎉 Skvělá práce! Vše je připraveno."
+    }
+  },
+  "ssot": {
+    "tip": {
+      "ariaLabel": "Tip",
+      "dismiss": "Skrýt tip"
+    },
+    "onboarding": {
+      "header": {
+        "title": "Dokončete nastavení",
+        "subtitle": "Postupujte krok za krokem – trvá to jen pár minut."
+      },
+      "steps": {
+        "workspace": {
+          "title": "Nastavte pracovní prostor",
+          "body": "Zadejte název půjčovny, kontaktní údaje, měnu a časové pásmo.",
+          "cta": "Přejít do nastavení"
+        },
+        "location": {
+          "title": "Přidejte výdejní místo",
+          "body": "Zákazníci uvidí adresu a otevírací dobu na potvrzení.",
+          "cta": "Nastavit lokaci"
+        },
+        "inventory": {
+          "title": "Přidejte první položky do Inventáře",
+          "body": "Přidejte alespoň 3 položky nebo importujte CSV. Pro plné využití doporučujeme 10+.",
+          "cta": "Otevřít inventář"
+        },
+        "reservation": {
+          "title": "Vytvořte první Rezervaci",
+          "body": "Vyzkoušejte celý průběh od Rezervace po Výdej a Vratku.",
+          "cta": "Nová rezervace"
+        },
+        "issue": {
+          "title": "Vydejte první Rezervaci (Výdej)",
+          "body": "Na dashboardu najdete dnešní výdeje. Klikněte na Vydat a dokončete předání.",
+          "cta": "Přejít na dashboard"
+        },
+        "overview": {
+          "title": "Prohlédněte si Přehled",
+          "body": "Dashboard zobrazuje klíčové metriky, frontu výdejů a vratek i přehled výjimek.",
+          "cta": "Otevřít přehled"
+        }
+      }
+    },
+    "emptyStates": {
+      "inventory": {
+        "title": "Inventář je zatím prázdný",
+        "body": "Přidejte první položku nebo importujte CSV – pak můžete začít půjčovat.",
+        "primaryCta": "Přidat položku",
+        "secondaryCta": "Importovat CSV"
+      },
+      "reservations": {
+        "title": "Zatím žádné Rezervace",
+        "body": "Vytvořte první Rezervaci pro zákazníka nebo sdílejte odkaz pro poptávky.",
+        "primaryCta": "Nová rezervace"
+      },
+      "maintenance": {
+        "title": "Vše v pořádku",
+        "body": "Žádné položky nejsou v servisu. Poškozené vybavení nahlaste při zpracování Vratky.",
+        "primaryCta": "Otevřít inventář"
+      },
+      "exports": {
+        "title": "Zatím žádná data k exportu",
+        "body": "Exporty jsou dostupné po vytvoření prvních Rezervací nebo položek Inventáře.",
+        "primaryCta": "Přejít na rezervace",
+        "secondaryCta": "Přejít na inventář"
+      }
+    },
+    "tips": {
+      "inventory_empty": {
+        "text": "Váš Inventář je prázdný. Přidejte alespoň 3 položky, abyste mohli vytvořit první Rezervaci.",
+        "cta": "Přidat položku"
+      },
+      "no_reservation_24h": {
+        "text": "Máte nastavený Inventář, ale zatím žádnou Rezervaci. Vytvořte první ještě dnes.",
+        "cta": "Nová rezervace"
+      },
+      "unassigned_assets": {
+        "text": "Rezervace nemá přiřazené konkrétní vybavení. Přiřaďte položky v detailu Rezervace.",
+        "cta": "Zobrazit rezervace"
+      },
+      "export_after_48h": {
+        "text": "Věděli jste, že můžete exportovat seznam Rezervací nebo Inventáře do CSV? Šetří čas při fakturaci.",
+        "cta": "Exportovat rezervace"
+      },
+      "scanner": {
+        "text": "Máte hodně Rezervací? Skener QR kódů urychlí Výdej a Vratku vybavení.",
+        "cta": "Vyzkoušet skener"
+      },
+      "collision": {
+        "text": "Opakovaně dochází ke Kolizím Rezervací. Zkontrolujte dostupnost v Přehledu.",
+        "cta": "Zobrazit rezervace"
+      },
+      "condition": {
+        "text": "Při posledních Vratkách chybí stav vybavení. Zaznamenejte ho pro lepší Přehled.",
+        "cta": "Přejít na dashboard"
+      },
+      "feedback": {
+        "text": "Jak se vám Kitloop zatím líbí? Vaše zpětná vazba nám pomáhá vylepšovat aplikaci."
+      }
+    },
+    "toasts": {
+      "workspace_completed": {
+        "title": "Pracovní prostor nastaven"
+      },
+      "location_completed": {
+        "title": "Lokace nastavena"
+      },
+      "inventory_ready": {
+        "title": "Inventář připraven"
+      },
+      "reservation_created": {
+        "title": "Rezervace vytvořena",
+        "desc": "Zákazník byl informován o rezervaci."
+      },
+      "issue_completed": {
+        "title": "Výdej byl dokončen",
+        "desc": "Rezervace je nyní aktivní."
+      },
+      "return_completed": {
+        "title": "Vratka byla zpracována",
+        "desc": "Vybavení se vrátilo do Inventáře."
+      },
+      "return_with_damage": {
+        "title": "Vratka dokončena – nahlášeno poškození",
+        "desc": "Poškozené položky jsou v servisu."
+      },
+      "inventory_item_created": {
+        "title": "Položka přidána do Inventáře",
+        "desc": "Inventář byl aktualizován."
+      },
+      "inventory_import_completed": {
+        "title": "Import dokončen",
+        "desc": "Položky byly přidány do Inventáře."
+      },
+      "export_generated": {
+        "title": "Export připraven",
+        "desc": "Soubor byl stažen do vašeho zařízení."
+      },
+      "print_generated": {
+        "title": "Tisk připraven",
+        "desc": "Předávací protokol byl vygenerován."
+      }
     }
   }
 }

@@ -56,6 +56,9 @@ export type TelemetryEventName =
     | 'onboarding.checklist_dismissed'
     | 'onboarding.completed'
     | 'onboarding.demo_deleted'
+    // Tip domain (INSTRUMENTED - pilot)
+    | 'tip.dismissed'
+    | 'tip.clicked'
     // Errors domain (INSTRUMENTED)
     | 'error.shown';
 

@@ -123,8 +123,8 @@ const DashboardOverview = () => {
     // We only add success feedback here
     await issueReservation({ id, isOverride });
 
-    toast.success('Item issued successfully', {
-      description: 'Reservation is now active'
+    toast.success(t('ssot.toasts.issue_completed.title'), {
+      description: t('ssot.toasts.issue_completed.desc')
     });
     setIssueOpen(false);
   };
@@ -134,8 +134,9 @@ const DashboardOverview = () => {
     // We only add success feedback here
     await returnReservation({ id, damage });
 
-    toast.success('Item returned successfully', {
-      description: damage ? 'Damage report recorded' : 'All items in good condition'
+    const toastKey = damage ? 'ssot.toasts.return_with_damage' : 'ssot.toasts.return_completed';
+    toast.success(t(`${toastKey}.title`), {
+      description: t(`${toastKey}.desc`)
     });
     setReturnOpen(false);
   };
