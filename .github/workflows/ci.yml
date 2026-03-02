@@ -35,13 +35,14 @@ jobs:
       - uses: actions/checkout@v6
       - name: UI Drift Scan
         id: drift
-        # continue-on-error: true means valid exit 0 even if violations found,
-        # but we also want the script to potentially exit 0 or handling it.
-        # The user requested WARNING (continue-on-error).
-        continue-on-error: true
+        # Enforce UI Drift hard fail!
+        continue-on-error: false
         run: |
           chmod +x scripts/ui-drift-scan.sh
           bash scripts/ui-drift-scan.sh
+
+          # Run the new microcopy scan on specific files
+          npx tsx scripts/microcopy-drift-scan.ts
       - name: Upload Drift Report
         uses: actions/upload-artifact@v6
         with:
