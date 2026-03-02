@@ -156,7 +156,7 @@ function GlowLayer({ className }: { className?: string }) {
       />
       {/* Left Orb (Zone 1) - Free roaming on the left side of the screen */}
       <motion.div
-        className="absolute top-20 -left-20 w-[310px] h-[310px] rounded-full bg-emerald-400/[0.14] blur-[100px]"
+        className="absolute top-20 -left-20 w-[310px] h-[310px] rounded-full bg-emerald-400/[0.19] blur-[100px]"
         animate={{
           x: [0, 100, 250, 50, 0],
           y: [0, 200, 350, 100, 0],
@@ -620,9 +620,9 @@ export default function Onboarding() {
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
-          {/* Single unbounded orb roaming everywhere with +5% strength (0.20 instead of 0.15) */}
+          {/* Single unbounded orb roaming everywhere with adjusted strength (0.15 instead of 0.20) and size (475px instead of 500px) */}
           <motion.div
-            className="absolute -top-10 -left-10 w-[500px] h-[500px] rounded-full bg-emerald-400/[0.20] blur-[100px]"
+            className="absolute -top-10 -left-10 w-[475px] h-[475px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
             animate={{
               x: [0, 300, -50, 200, 0],
               y: [0, 150, -20, 100, 0],
