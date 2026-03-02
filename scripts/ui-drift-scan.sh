@@ -52,3 +52,12 @@ echo "Total Potential Drift Violations: $TOTAL_VIOLATIONS" >> "$REPORT_FILE"
 
 echo "✅ Scan complete. Raw report saved to $REPORT_FILE"
 cat "$REPORT_FILE"
+
+if [ "$TOTAL_VIOLATIONS" -gt 0 ]; then
+  echo ""
+  echo "❌ UI Drift Scan FAILED due to violations."
+  echo "Fix the hardcoded values (e.g. text-[...], shadow-[...]) to use Design System tokens."
+  exit 1
+else
+  exit 0
+fi

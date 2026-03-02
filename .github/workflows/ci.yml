@@ -29,19 +29,35 @@ jobs:
           echo "Linting against base: $BASE_REF"
           bash ./scripts/lint_changed.sh "$BASE_REF"
 
+  migration_guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Needed for git diff to main
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref || 'main' }} --depth=1
+      - name: Data-loss Guard Linter
+        run: |
+          chmod +x scripts/prevent-data-loss.sh
+          BASE_REF="origin/${{ github.event.pull_request.base.ref || 'main' }}"
+          bash scripts/prevent-data-loss.sh "$BASE_REF"
+
   drift_scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: UI Drift Scan
         id: drift
-        # continue-on-error: true means valid exit 0 even if violations found,
-        # but we also want the script to potentially exit 0 or handling it.
-        # The user requested WARNING (continue-on-error).
-        continue-on-error: true
+        # Enforce UI Drift hard fail!
+        continue-on-error: false
         run: |
           chmod +x scripts/ui-drift-scan.sh
           bash scripts/ui-drift-scan.sh
+
+          # Run the new microcopy scan on specific files
+          npx tsx scripts/microcopy-drift-scan.ts
       - name: Upload Drift Report
         uses: actions/upload-artifact@v6
         with:

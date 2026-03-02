@@ -128,7 +128,7 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                 </div>
 
                 {result && (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                    <div className="space-y-4">
                         {/* Asset Card */}
                         <div className="p-4 border rounded-lg bg-slate-50 space-y-2">
                             <div className="flex justify-between items-start">
