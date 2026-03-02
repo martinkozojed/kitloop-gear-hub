@@ -48,6 +48,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Install ripgrep
+        run: sudo apt-get install -y ripgrep
       - name: UI Drift Scan
         id: drift
         # Enforce UI Drift hard fail!
@@ -58,6 +60,9 @@ jobs:
 
           # Run the new microcopy scan on specific files
           npx tsx scripts/microcopy-drift-scan.ts
+      - name: Print Drift Report
+        if: always()
+        run: cat docs/ui_drift_raw.txt || echo "No report found"
       - name: Upload Drift Report
         uses: actions/upload-artifact@v6
         with:
