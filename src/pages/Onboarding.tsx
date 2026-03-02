@@ -156,10 +156,10 @@ function GlowLayer({ className }: { className?: string }) {
       />
       {/* Left Orb (Zone 1) - Free roaming on the left side of the screen */}
       <motion.div
-        className="absolute bottom-10 -left-20 w-[475px] h-[475px] rounded-full bg-emerald-300/[0.10] blur-[100px]"
+        className="absolute top-20 -left-20 w-[475px] h-[475px] rounded-full bg-emerald-400/[0.14] blur-[100px]"
         animate={{
           x: [0, 100, 250, 50, 0],
-          y: [0, -200, -400, -100, 0],
+          y: [0, 200, 350, 100, 0],
           scale: [1, 0.9, 1.2, 0.95, 1]
         }}
         transition={{
