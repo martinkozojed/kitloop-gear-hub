@@ -139,16 +139,21 @@ function GlowLayer() {
   const shouldReduce = useReducedMotion();
   if (shouldReduce) return null;
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10" aria-hidden="true">
       <motion.div
-        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-300/[0.10] blur-3xl"
-        animate={{ x: [0, 35, 0], y: [0, -25, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-32 -right-20 w-[600px] h-[600px] rounded-full bg-emerald-400/[0.25] blur-[100px] mix-blend-multiply dark:mix-blend-screen"
+        animate={{ x: [0, 50, 0], y: [0, -40, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-400/[0.05] blur-3xl"
-        animate={{ x: [0, -25, 0], y: [0, 30, 0] }}
-        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        className="absolute top-[40%] -left-32 w-[500px] h-[500px] rounded-full bg-primary/[0.20] blur-[120px] mix-blend-multiply dark:mix-blend-screen"
+        animate={{ x: [0, -40, 0], y: [0, 50, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+      />
+      <motion.div
+        className="absolute bottom-0 right-[10%] w-[550px] h-[550px] rounded-full bg-emerald-300/[0.20] blur-[110px] mix-blend-multiply dark:mix-blend-screen"
+        animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 0.9, 1] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 4 }}
       />
     </div>
   );
