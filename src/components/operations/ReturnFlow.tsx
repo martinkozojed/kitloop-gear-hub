@@ -325,7 +325,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                     </div>
 
                                     {asset.isDamaged && (
-                                        <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                        <div className="mt-4 space-y-3">
                                             <div className="space-y-1">
                                                 <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
                                                 <Textarea
@@ -442,7 +442,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                         </div>
 
                                         {asset.isDamaged && (
-                                            <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                            <div className="mt-4 space-y-3">
                                                 <div className="space-y-1">
                                                     <Label className="text-xs">{t('operations.returnFlow.describeIssue')}</Label>
                                                     <Textarea

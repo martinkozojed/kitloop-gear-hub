@@ -273,7 +273,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     const StatusDisplay = () => {
         if (!hasAssets && !overrideMode) {
             return (
-                <div data-testid="issue-no-assets-warning" className="flex flex-col items-center justify-center p-6 text-center bg-muted/50 rounded-token-lg animate-in fade-in zoom-in duration-300 border border-dashed border-border mt-4">
+                <div data-testid="issue-no-assets-warning" className="flex flex-col items-center justify-center p-6 text-center bg-muted/50 rounded-token-lg border border-dashed border-border mt-4">
                     <ScannerModal
                         open={scanning}
                         onOpenChange={setScanning}
@@ -300,7 +300,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
             );
         }
         return (
-            <div className="flex flex-col items-center justify-center p-8 text-center bg-status-success/10 text-status-success rounded-token-lg border border-status-success/20 animate-in fade-in zoom-in duration-300 mt-4">
+            <div className="flex flex-col items-center justify-center p-8 text-center bg-status-success/10 text-status-success rounded-token-lg border border-status-success/20 mt-4">
                 <div className="w-12 h-12 bg-status-success/20 rounded-full flex items-center justify-center mb-3">
                     <Check className="w-6 h-6 text-status-success" />
                 </div>
