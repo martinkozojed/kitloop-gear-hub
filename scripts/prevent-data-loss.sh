@@ -9,7 +9,7 @@ echo "--------------------------------------------------------"
 
 # Find lines added in supabase/migrations/
 # We only care about lines added (+) in .sql files in that dir
-ADDED_LINES=$(git diff --unified=0 "$BASE_REF...HEAD" -- "supabase/migrations/*.sql" 2>/dev/null | grep -E "^\+" | grep -v "^\+\+\+")
+ADDED_LINES=$(git diff --unified=0 "$BASE_REF...HEAD" -- "supabase/migrations/*.sql" 2>/dev/null | grep "^+" | grep -v "^+++")
 
 if [ -z "$ADDED_LINES" ]; then
   echo "✅ No new migration lines found."
@@ -21,7 +21,7 @@ fi
 # DROP COLUMN
 # TRUNCATE
 # DELETE FROM without WHERE (simple naive check)
-PATTERN="(?i)\b(DROP\s+TABLE|DROP\s+COLUMN|TRUNCATE|DELETE\s+FROM[\sA-Za-z0-9_]+;$|DELETE\s+FROM\s+[A-Za-z0-9_]+\s*$)\b"
+PATTERN="\b(DROP\s+TABLE|DROP\s+COLUMN|TRUNCATE|DELETE\s+FROM[\sA-Za-z0-9_]+;$|DELETE\s+FROM\s+[A-Za-z0-9_]+\s*$)\b"
 
 # Check if the migration author provided an override tag
 OVERRIDE_TAG="-- data-loss-approved: ADR-"

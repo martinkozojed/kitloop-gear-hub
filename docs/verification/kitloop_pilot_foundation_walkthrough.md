@@ -1,59 +1,102 @@
-# Kitloop Pilot Foundation - Implementation Walkthrough
+# Kitloop Pilot Foundation – Implementation Walkthrough
 
-Tento dokument slouží jako rekapitulace 5 "low-regret" funkčních vylepšení repozitáře před začátkem Kitloop Pilot fáze. Každý krok má definované ověřovací postupy napříč lokálním prostředím, CI a produkcí.
+Na základě `kitloop_foundation_audit.md` a `implementation_plan.md` bylo do repozitáře implementováno 5 “low-regret” bodů nutných pro pilotní fázi. Změny jsou připravené k mergi (branch: `feature/onboarding-proof-assets-p2`).
 
-## 1. UI Drift Scan (CI hard fail)
+## Přehled
 
-- **Co to dělá**: Vynucuje textovou a designovou konzistenci. Zabraňuje vložení hardcoded textů (místo použití repozitáře microcopy.registry.ts) a zakázaných CSS/Tailwind utilit (`text-[...]`, `shadow-[...]`) do klíčových komponent.
-- **Kde to je**:
-  - `scripts/microcopy-drift-scan.ts`
-  - `scripts/ui-drift-scan.sh`
-  - Začleněno v `.github/workflows/ci.yml` s `continue-on-error: false` (zajišťuje hard fail buildu).
-- **Lokální ověření**:
-  - Vložte slovo `Vydat` přímo do JSX v `src/components/dashboard/OnboardingChecklist.tsx`.
-  - Spusťte běh `npx tsx scripts/microcopy-drift-scan.ts`. Výstup musí končit kódem 1 (Chyba) a vypsat řádek s textem `❌ Violation in src/components/...`.
-- **CI ověření**: Udělejte push nevalidních řetězců do Pull Requestu. Workflow `ci.yml` failne v jobu `drift_scan`.
-- **Post-deploy ověření**: N/A (čistě build-time check).
-- **Escape hatch (Bypass)**: Komentář nad daný řádek: `// drift-scan:allow Bypassing pro pilot - urgent hotfix.`
+1) Hard Fail na UI Drift Scan (CI)
+2) Data-loss Guard Linter (CI)
+3) DB Audit Logy (Triggers)
+4) Lightweight ADR struktura
+5) Pilot Metric View v DB
 
-## 2. Data-loss Guard Linter (CI)
+## Předpoklady
 
-- **Co to dělá**: Blokuje provedení destruktivních operací v migracích, čímž chrání produkční databázi před neúmyslným smazáním schématu nebo dat.
-- **Kde to je**:
-  - `scripts/prevent-data-loss.sh` (Při porovnávání využívá `git diff origin/main` a hledá změny s + flagem v migracích).
-  - `.github/workflows/ci.yml` v jobu `migration_guard` před spuštěním samotných testů. Pro správné fungování diffu využívá nastavení `fetch-depth: 0` a explicitní `git fetch origin main`.
-- **Blokované sekvence**: `DROP TABLE`, `DROP COLUMN`, `TRUNCATE`, `DELETE FROM` (bez WHERE klauzule).
-- **Lokální ověření**: Přidejte do nové migrace např. `DROP TABLE test_table;` a spusťte `bash scripts/prevent-data-loss.sh origin/main`. Očekávaný výsledek je `exit 1` a error log.
-- **CI ověření**: Linter zastaví PR, které podobné příkazy obsahuje, pokud u nich není explicitní souhlas.
-- **Post-deploy ověření**: N/A
-- **Override tag**: Pro schválený zásah je nutné vložit na začátek SQL migrace explicitní referenční komentář na ADR: `-- data-loss-approved: ADR-0003`.
+- Node/TS runtime pro lokální běh skriptů (např. `npx tsx ...`).
+- Přístup k DB (Supabase) pro nasazení migrací a spuštění ověřovacích SQL.
+- CI je GitHub Actions, workflow: `.github/workflows/ci.yml`.
 
-## 3. DB Audit Logy (Triggers)
+## 1) Hard Fail na UI Drift Scan (CI)
 
-- **Co to dělá**: Zajišťuje immutable sledování historie (Append-only log) klíčových entit v tabulkách `reservations` a `gear_items` pomocí PostgreSQL Triggerů, odolné vůči úpravám v aplikační vrstvě.
-- **Kde to je**:
-  - Migrace: `supabase/migrations/20260302122254_pr2_provider_audit_logs.sql` (obsahuje table, indexy, RLS, a trigger `fn_audit_trigger`).
-  - Skript: `docs/verification/verify_audit_logs.sql`
-- **Lokální ověření**: Zavolat `supabase db reset`, čímž se spustí seed i testování. (Pokud Docker není dostupný lokálně, test přes vzdálené staging prostředí).
-- **CI ověření**: Proběhne spuštění db pgTAP testů při pull requestu.
-- **Post-deploy ověření**:
-  - Přes SQL editor spusťte `docs/verification/verify_audit_logs.sql`.
-  - **Očekávaný výstup**: Dotaz vrátí tabulku akcí (INSERT, UPDATE) provedených na entitách. Každá operace musí mít `actor_id` vyplněno `uuid` stringem (nesmí se objevit `null` pro operace přihlášených uživatelů) a odpovídající `provider_id`. Sloupce `old_data` a `new_data` musí obsahovat korektní JSON objekt se stavem dané entity.
+### Co to dělá
 
-## 4. Lightweight ADR struktura
+Detekuje hardcoded user-facing texty v definovaném scope (Dashboard, Onboarding) a failne CI, pokud se objeví nepovolený text. Na rozdíl od návrhu, tento skript *nehlídá* zakázané design utility (jako `text-*`), soustředí se čistě na `microcopy`. Pro utility se používá paralelní bash script.
 
-- **Co to dělá**: Poskytuje repozitář pro trvalá technická rozhodnutí ovlivňující business logiku, datový model a třetí strany. Slouží k prevenci ztráty kontextu.
-- **Kde to je**: Adresář `docs/adr/`, kde leží `README.md`, `0000-template.md` a historické modely `0001` (UI Drift), `0002` (Audits) a `0003` (Data-loss Guard).
-- **Post-deploy ověření**: Provést audit existence odpovídajících ADR ke všem merge pull requestům, jež obsahují override data-loss tag. Každý dokument musí vysvětlovat kontext a dopady.
+### Kde to je
 
-## 5. Pilot Metric View v DB
+- Skript: `scripts/microcopy-drift-scan.ts` (kontroluje texty) a `scripts/ui-drift-scan.sh` (kontroluje css classes).
+- CI workflow: `.github/workflows/ci.yml` (hard fail via `continue-on-error: false`)
 
-- **Co to dělá**: Vytváří standardizovaný pre-kalkulovaný datový pohled pro dashboard foundera. Omezuje se pouze na metriky pro aktuálního poskytovatele za pomoci RLS izolace přes trigger-invoker model.
-- **Kde to je**:
-  - Migrace: `supabase/migrations/20260302122902_pr5_pilot_metrics_view.sql` (definuje view `vw_pilot_daily_metrics`).
-  - Queries: `docs/verification/check_pilot_traction.sql`
-- **Lokální ověření**: Nahlédnutí do view definice v migracích, ověření keywordu `security_invoker = true`.
-- **CI ověření**: N/A
-- **Post-deploy ověření**:
-  - Přihlásit se jako standardní operátor/admin daného providera na Staging/Prod a spustit `SELECT * FROM vw_pilot_daily_metrics;`.
-  - **Očekávaný výstup**: Ochrana RLS musí zajistit, že vrácené řádky obsahují VÝHRADNĚ `provider_id` tohoto přihlášeného uživatele a zamezí leaku metrik ostatních půjčoven. Kód `docs/verification/check_pilot_traction.sql` by měl vrátit souhrnnou statistiku po dnech pro ověření korektní agregace stavů.
+### Lokální ověření (pass/fail)
+
+1. Do `src/components/dashboard/OnboardingChecklist.tsx` vlož schválně hardcoded text (např. `Vydat`) do JSX.
+2. Spusť: `npx tsx scripts/microcopy-drift-scan.ts`
+3. Očekávané chování: skript vypíše `❌ Violation in src/components/...` a skončí s exit code 1.
+
+### Bypass (jen výjimečně)
+
+Nad konkrétní chybující řádek přidej komentář: `// drift-scan:allow`
+
+### Ověření v CI
+
+- CI spadne při detekci hardcoded textu během jobu `drift_scan`.
+
+## 2) Data-loss Guard Linter (CI)
+
+### Co to dělá
+
+Chrání migrace proti destruktivním operacím bez explicitního schválení. Kontroluje nově přidané řádky v `.sql` souborech vůči větvi origin/main.
+
+### Kde to je
+
+- Skript: `scripts/prevent-data-loss.sh`
+- CI workflow: `.github/workflows/ci.yml` v jobu `migration_guard`. Step používá `fetch-depth: 0` a explicitní `git fetch` base větve.
+
+### Blokované direktivy (bez override tagu)
+
+- `DROP TABLE`, `DROP COLUMN`, `TRUNCATE`, plošný `DELETE FROM` (bez WHERE)
+
+### Lokální ověření
+
+1. Přidej novou migraci např. s obsahem `DROP TABLE providers;`
+2. Spusť `bash scripts/prevent-data-loss.sh origin/main`
+3. Očekávané chování: Skript napíše `❌ FATAL: Operations that drop tables/columns...` a vrátí exit code 1.
+
+### Override
+
+Bypass lze aktivovat obsažením komentáře v migraci, který se fixuje na ADR: `-- data-loss-approved: ADR-0003`
+
+## 3) DB Audit Logy (Triggers)
+
+### Kde to je
+
+- Migrace: `supabase/migrations/20260302122254_pr2_provider_audit_logs.sql`
+- Verify SQL: `docs/verification/verify_audit_logs.sql`
+- Tabulka: `provider_audit_logs` (ukládá `provider_id`, `actor_id`, `old_data`, `new_data`)
+- Trigger: `fn_audit_trigger` pověšený na `reservations` a `gear_items` pro `INSERT`, `UPDATE`, `DELETE`.
+
+### Ověření
+
+1. Aplikuj migrace do DB: `supabase db push`
+2. Spusť ověřovací skript: `psql -f docs/verification/verify_audit_logs.sql` (nebo spustit v Supabase SQL editoru).
+3. Očekávané chování: Query vrátí 4 záznamy akcí simulující chování, kde `actor_id` dává smysl (nesmí mít null při volání authenticated userem) a json payload ukazuje diff.
+
+## 4) Lightweight ADR struktura
+
+- Dokumenty slouží k udržení kontextu závažných architektonických rozhodnutí, obzvláště těch obcházející data-loss guard.
+- Kde to je: `docs/adr/README.md`, `docs/adr/0000-template.md`, `docs/adr/0001-ui-drift-prevention.md`, `docs/adr/0002-append-only-audit-log.md`, `docs/adr/0003-data-loss-guard.md`.
+
+## 5) Pilot Metric View v DB
+
+### Kde to je
+
+- Migrace: `supabase/migrations/20260302122902_pr5_pilot_metrics_view.sql` (vytváří globální view `vw_pilot_daily_metrics`).
+- Verify SQL: `docs/verification/check_pilot_traction.sql`
+
+### Kritické
+
+View zohledňuje `security_invoker = true`, díky čemuž filtruje výsledek automaticky na základě provider_id volajícího.
+
+### Ověření
+
+Spusť `docs/verification/check_pilot_traction.sql` na produkci/staging; view musí vracet správně agregované statistiky daného sessionu (např. počet vydaných rezervací / den). Zkus z obou stran izolace (Superadmin vs. Běžný Provider).
