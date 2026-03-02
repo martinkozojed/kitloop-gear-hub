@@ -142,23 +142,31 @@ function GlowLayer({ className }: { className?: string }) {
     <div className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className || ""}`} aria-hidden="true">
       {/* Right Orb (Zone 2) - Free roaming on the right side of the screen */}
       <motion.div
-        className="absolute top-10 -right-20 w-[600px] h-[600px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
+        className="absolute top-10 -right-20 w-[570px] h-[570px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
         animate={{
-          x: [0, -100, -250, -50, 0], // Stays on the right side (moving left towards center but bounded)
-          y: [0, 200, 400, 100, 0],   // Roams top to bottom freely
+          x: [0, -100, -250, -50, 0],
+          y: [0, 200, 400, 100, 0],
           scale: [1, 1.2, 0.9, 1.1, 1]
         }}
-        transition={{ duration: 35, repeat: Infinity, ease: "easeInOut" }}
+        transition={{
+          x: { duration: 37, repeat: Infinity, ease: "easeInOut" },
+          y: { duration: 43, repeat: Infinity, ease: "easeInOut" },
+          scale: { duration: 47, repeat: Infinity, ease: "easeInOut" }
+        }}
       />
       {/* Left Orb (Zone 1) - Free roaming on the left side of the screen */}
       <motion.div
-        className="absolute bottom-10 -left-20 w-[500px] h-[500px] rounded-full bg-emerald-300/[0.10] blur-[100px]"
+        className="absolute bottom-10 -left-20 w-[475px] h-[475px] rounded-full bg-emerald-300/[0.10] blur-[100px]"
         animate={{
-          x: [0, 100, 250, 50, 0],  // Stays on the left side (moving right towards center but bounded)
-          y: [0, -200, -400, -100, 0], // Roams bottom to top freely
+          x: [0, 100, 250, 50, 0],
+          y: [0, -200, -400, -100, 0],
           scale: [1, 0.9, 1.2, 0.95, 1]
         }}
-        transition={{ duration: 40, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        transition={{
+          x: { duration: 41, repeat: Infinity, ease: "easeInOut", delay: 3 },
+          y: { duration: 53, repeat: Infinity, ease: "easeInOut", delay: 3 },
+          scale: { duration: 59, repeat: Infinity, ease: "easeInOut", delay: 3 }
+        }}
       />
     </div>
   );
