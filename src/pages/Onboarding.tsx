@@ -434,7 +434,7 @@ export default function Onboarding() {
       <Section className="bg-slate-50/50 py-10">
         <div className="mx-auto max-w-5xl px-6">
           <div className="grid gap-5 md:grid-cols-2">
-            <Card className="rounded-xl border border-emerald-100 bg-emerald-50/50 shadow-sm backdrop-blur-sm">
+            <Card className="rounded-xl border border-emerald-200 bg-emerald-50/80 shadow-sm backdrop-blur-sm">
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
