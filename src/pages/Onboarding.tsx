@@ -140,23 +140,25 @@ function GlowLayer({ className }: { className?: string }) {
   if (shouldReduce) return null;
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className || ""}`} aria-hidden="true">
+      {/* Top Right Orb - strictly moves Right (positive X) and Up (negative Y) */}
       <motion.div
         className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-400/[0.15] blur-3xl"
         animate={{
-          x: [0, 77, -33, 0],
-          y: [0, -55, 44, 0],
-          scale: [1, 1.1, 0.9, 1]
+          x: [0, 80, 20, 120, 0],
+          y: [0, -80, -20, -120, 0],
+          scale: [1, 1.1, 0.95, 1.05, 1]
         }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
       />
+      {/* Bottom Left Orb - strictly moves Left (negative X) and Down (positive Y) */}
       <motion.div
         className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-300/[0.10] blur-3xl"
         animate={{
-          x: [0, -66, 44, 0],
-          y: [0, 55, -33, 0],
-          scale: [1, 0.9, 1.1, 1]
+          x: [0, -100, -30, -140, 0],
+          y: [0, 100, 30, 140, 0],
+          scale: [1, 0.95, 1.1, 0.9, 1]
         }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
     </div>
   );
@@ -609,7 +611,7 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6 relative overflow-hidden">
-        <GlowLayer className="opacity-90" />
+        <GlowLayer className="opacity-80" />
         <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-slate-200 backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
           <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
           <p className="text-slate-600 text-sm">{t("onboarding.finalSub")}</p>
