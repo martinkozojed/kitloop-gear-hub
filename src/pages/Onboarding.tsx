@@ -349,27 +349,14 @@ export default function Onboarding() {
             {/* Right — static UI preview */}
             <div className="lg:pl-6">
               <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
-                {/* Real proof asset placeholder */}
-                <video
-                  autoPlay={!shouldReduce}
-                  loop
-                  muted
-                  playsInline
-                  preload="none"
-                  aria-label="Kitloop operations interface preview"
+                <img
+                  src="/onboarding/hero-loop-poster.png"
+                  alt="Kitloop operational dashboard — KPI strip, today's operations agenda, active rentals overview"
                   className="absolute inset-0 w-full h-full object-cover"
-                  poster="/onboarding/hero-loop-poster.jpg"
-                >
-                  <source src="/onboarding/hero-loop-proof.mp4" type="video/mp4" />
-                  <img
-                    src="/onboarding/hero-loop-poster.jpg"
-                    alt="Kitloop operations interface preview fallback"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </video>
-                {/* Fallback container if video fails */}
+                  loading="eager"
+                />
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-                  <p className="text-sm font-medium text-slate-500">Video Proof Loading...</p>
+                  <p className="text-sm font-medium text-slate-500">Loading…</p>
                 </div>
               </div>
             </div>
@@ -510,26 +497,14 @@ export default function Onboarding() {
 
             {/* Right: Media Proof */}
             <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
-              {/* Real proof asset placeholder */}
-              <video
-                autoPlay={!shouldReduce}
-                loop
-                muted
-                playsInline
-                preload="none"
-                aria-label="Timeline operations proof"
+              <img
+                src="/onboarding/timeline-loop-poster.png"
+                alt="Kitloop inventory management — item list with status badges, search, and asset tracking"
                 className="absolute inset-0 w-full h-full object-cover"
-                poster="/onboarding/timeline-loop-poster.jpg"
-              >
-                <source src="/onboarding/timeline-loop-proof.mp4" type="video/mp4" />
-                <img
-                  src="/onboarding/timeline-loop-poster.jpg"
-                  alt="Timeline operations proof fallback"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </video>
+                loading="lazy"
+              />
               <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-                <p className="text-sm font-medium text-slate-500">Timeline Proof Loading...</p>
+                <p className="text-sm font-medium text-slate-500">Loading…</p>
               </div>
             </div>
           </div>
@@ -548,13 +523,13 @@ export default function Onboarding() {
             {/* Left: Feature Screenshot */}
             <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center order-2 lg:order-1">
               <img
-                src="/onboarding/features-proof-screenshot.jpg"
-                alt="Kitloop Interface Screenshot"
+                src="/onboarding/features-proof-screenshot.png"
+                alt="Kitloop reservation detail — customer info, reserved items, pricing, issue and print actions"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-                <p className="text-sm font-medium text-slate-500">Screenshot Proof Loading...</p>
+                <p className="text-sm font-medium text-slate-500">Loading…</p>
               </div>
             </div>
 
