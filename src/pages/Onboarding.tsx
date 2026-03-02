@@ -135,25 +135,28 @@ function Section({
 
 // ─── Ambient glow layer ───────────────────────────────────────────────────────
 
-function GlowLayer() {
+function GlowLayer({ className }: { className?: string }) {
   const shouldReduce = useReducedMotion();
   if (shouldReduce) return null;
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10" aria-hidden="true">
+    <div className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className || ""}`} aria-hidden="true">
       <motion.div
-        className="absolute -top-32 -right-20 w-[600px] h-[600px] rounded-full bg-emerald-400/[0.25] blur-[100px] mix-blend-multiply dark:mix-blend-screen"
-        animate={{ x: [0, 50, 0], y: [0, -40, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-400/[0.15] blur-3xl"
+        animate={{
+          x: [0, 77, -33, 0],
+          y: [0, -55, 44, 0],
+          scale: [1, 1.1, 0.9, 1]
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute top-[40%] -left-32 w-[500px] h-[500px] rounded-full bg-primary/[0.20] blur-[120px] mix-blend-multiply dark:mix-blend-screen"
-        animate={{ x: [0, -40, 0], y: [0, 50, 0], scale: [1, 1.2, 1] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-      />
-      <motion.div
-        className="absolute bottom-0 right-[10%] w-[550px] h-[550px] rounded-full bg-emerald-300/[0.20] blur-[110px] mix-blend-multiply dark:mix-blend-screen"
-        animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 0.9, 1] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-300/[0.10] blur-3xl"
+        animate={{
+          x: [0, -66, 44, 0],
+          y: [0, 55, -33, 0],
+          scale: [1, 0.9, 1.1, 1]
+        }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
     </div>
   );
@@ -606,7 +609,7 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6 relative overflow-hidden">
-        <GlowLayer />
+        <GlowLayer className="opacity-90" />
         <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-slate-200 backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
           <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
           <p className="text-slate-600 text-sm">{t("onboarding.finalSub")}</p>

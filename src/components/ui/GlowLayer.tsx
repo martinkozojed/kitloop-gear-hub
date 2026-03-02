@@ -7,62 +7,42 @@ interface GlowLayerProps {
 
 export function GlowLayer({ className = '' }: GlowLayerProps) {
     return (
-        <div className={`fixed inset-0 overflow-hidden pointer-events-none -z-10 ${className}`}>
+        <div className={`fixed inset-0 overflow-hidden pointer-events-none z-0 ${className}`}>
             {/* Primary Glow */}
             <motion.div
-                className="absolute w-[700px] h-[700px] rounded-full bg-primary/30 blur-[120px] opacity-80 mix-blend-multiply dark:mix-blend-screen"
+                className="absolute w-[600px] h-[600px] rounded-full bg-primary/20 blur-[100px] opacity-65 mix-blend-multiply dark:mix-blend-screen"
                 animate={{
-                    x: ['-20%', '20%', '40%', '-10%', '-20%'],
-                    y: ['-20%', '10%', '-30%', '20%', '-20%'],
-                    scale: [1, 1.2, 0.9, 1.1, 1],
+                    x: ['-28%', '28%', '55%', '-18%', '-28%'],
+                    y: ['-28%', '18%', '-44%', '28%', '-28%'],
+                    scale: [1, 1.25, 0.75, 1.15, 1],
                 }}
                 transition={{
-                    duration: 15,
+                    duration: 25,
                     repeat: Infinity,
                     ease: "easeInOut",
                 }}
                 style={{
-                    top: '5%',
-                    left: '5%',
+                    top: '10%',
+                    left: '10%',
                 }}
             />
 
             {/* Secondary Glow */}
             <motion.div
-                className="absolute w-[600px] h-[600px] rounded-full bg-emerald-400/25 blur-[140px] opacity-70 mix-blend-multiply dark:mix-blend-screen"
+                className="absolute w-[500px] h-[500px] rounded-full bg-emerald-300/20 blur-[120px] opacity-55 mix-blend-multiply dark:mix-blend-screen"
                 animate={{
-                    x: ['20%', '-30%', '-10%', '30%', '20%'],
-                    y: ['10%', '30%', '-20%', '-10%', '10%'],
-                    scale: [1, 0.85, 1.25, 0.9, 1],
+                    x: ['28%', '-38%', '-18%', '38%', '28%'],
+                    y: ['18%', '38%', '-28%', '-18%', '18%'],
+                    scale: [1, 0.75, 1.3, 0.85, 1],
                 }}
                 transition={{
-                    duration: 18,
+                    duration: 30,
                     repeat: Infinity,
                     ease: "easeInOut",
                 }}
                 style={{
-                    bottom: '5%',
-                    right: '10%',
-                }}
-            />
-
-            {/* Tertiary Action Glow */}
-            <motion.div
-                className="absolute w-[500px] h-[500px] rounded-full bg-emerald-200/20 blur-[130px] opacity-60 mix-blend-multiply dark:mix-blend-screen"
-                animate={{
-                    x: ['-10%', '30%', '-20%', '10%', '-10%'],
-                    y: ['30%', '-10%', '20%', '-30%', '30%'],
-                    scale: [1, 1.1, 0.8, 1.2, 1],
-                }}
-                transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 2,
-                }}
-                style={{
-                    top: '40%',
-                    left: '40%',
+                    bottom: '10%',
+                    right: '5%',
                 }}
             />
         </div>
