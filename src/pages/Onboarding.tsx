@@ -156,7 +156,7 @@ function GlowLayer({ className }: { className?: string }) {
       />
       {/* Left Orb (Zone 1) - Free roaming on the left side of the screen */}
       <motion.div
-        className="absolute top-20 -left-20 w-[240px] h-[240px] rounded-full bg-emerald-400/[0.14] blur-[100px]"
+        className="absolute top-20 -left-20 w-[310px] h-[310px] rounded-full bg-emerald-400/[0.14] blur-[100px]"
         animate={{
           x: [0, 100, 250, 50, 0],
           y: [0, 200, 350, 100, 0],
@@ -619,7 +619,22 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6 relative overflow-hidden">
-        <GlowLayer className="opacity-70" />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+          {/* Single unbounded orb roaming everywhere with +5% strength (0.20 instead of 0.15) */}
+          <motion.div
+            className="absolute -top-10 -left-10 w-[500px] h-[500px] rounded-full bg-emerald-400/[0.20] blur-[100px]"
+            animate={{
+              x: [0, 300, -50, 200, 0],
+              y: [0, 150, -20, 100, 0],
+              scale: [1, 1.2, 0.85, 1.1, 1]
+            }}
+            transition={{
+              x: { duration: 37, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 43, repeat: Infinity, ease: "easeInOut" },
+              scale: { duration: 47, repeat: Infinity, ease: "easeInOut" }
+            }}
+          />
+        </div>
         <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-slate-200 backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
           <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
           <p className="text-slate-600 text-sm">{t("onboarding.finalSub")}</p>
