@@ -140,25 +140,25 @@ function GlowLayer({ className }: { className?: string }) {
   if (shouldReduce) return null;
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className || ""}`} aria-hidden="true">
-      {/* Top Right Orb - strictly moves Right (positive X) and Up (negative Y) */}
+      {/* Right Orb (Zone 2) - Free roaming on the right side of the screen */}
       <motion.div
-        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-400/[0.15] blur-3xl"
+        className="absolute top-10 -right-20 w-[600px] h-[600px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
         animate={{
-          x: [0, 80, 20, 120, 0],
-          y: [0, -80, -20, -120, 0],
-          scale: [1, 1.1, 0.95, 1.05, 1]
+          x: [0, -100, -250, -50, 0], // Stays on the right side (moving left towards center but bounded)
+          y: [0, 200, 400, 100, 0],   // Roams top to bottom freely
+          scale: [1, 1.2, 0.9, 1.1, 1]
         }}
-        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 35, repeat: Infinity, ease: "easeInOut" }}
       />
-      {/* Bottom Left Orb - strictly moves Left (negative X) and Down (positive Y) */}
+      {/* Left Orb (Zone 1) - Free roaming on the left side of the screen */}
       <motion.div
-        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-300/[0.10] blur-3xl"
+        className="absolute bottom-10 -left-20 w-[500px] h-[500px] rounded-full bg-emerald-300/[0.10] blur-[100px]"
         animate={{
-          x: [0, -100, -30, -140, 0],
-          y: [0, 100, 30, 140, 0],
-          scale: [1, 0.95, 1.1, 0.9, 1]
+          x: [0, 100, 250, 50, 0],  // Stays on the left side (moving right towards center but bounded)
+          y: [0, -200, -400, -100, 0], // Roams bottom to top freely
+          scale: [1, 0.9, 1.2, 0.95, 1]
         }}
-        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        transition={{ duration: 40, repeat: Infinity, ease: "easeInOut", delay: 3 }}
       />
     </div>
   );
@@ -611,7 +611,7 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6 relative overflow-hidden">
-        <GlowLayer className="opacity-80" />
+        <GlowLayer className="opacity-70" />
         <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-slate-200 backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
           <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
           <p className="text-slate-600 text-sm">{t("onboarding.finalSub")}</p>
