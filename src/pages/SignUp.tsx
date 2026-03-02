@@ -129,7 +129,7 @@ const SignUp = () => {
                   <span className={cn("text-xs font-medium", role === 'customer' ? "text-emerald-700" : "text-slate-500")}>
                     {t('signup.account_type.customer')}
                   </span>
-                  <span className="text-[10px] text-center leading-tight text-slate-400">
+                  <span className="text-xxs text-center leading-tight text-slate-400">
                     Not used in MVP
                   </span>
                 </div>
@@ -184,7 +184,7 @@ const SignUp = () => {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                <p className="text-[10px] text-muted-foreground ml-1">
+                <p className="text-xxs text-muted-foreground ml-1">
                   {t('signup.password_weak') || 'Must be at least 6 characters'}
                 </p>
               </div>
@@ -214,7 +214,7 @@ const SignUp = () => {
                 {t('signup.sign_in')}
               </Link>
             </div>
-            <div className="text-[10px] text-center text-slate-400 px-8">
+            <div className="text-xxs text-center text-slate-400 px-8">
               By clicking continue, you agree to our{' '}
               <Link to="/terms" className="underline hover:text-slate-600 transition-colors">Terms of Service</Link>
               {' '}and{' '}

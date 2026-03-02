@@ -2,7 +2,7 @@
 // This script checks for hardcoded Czech/English words inside text nodes of specific components.
 // It fails the build if it finds any, forcing the use of microcopy.registry.ts.
 
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { globSync } from 'glob';
 import { parse } from '@typescript-eslint/parser';
 import * as tseslint from '@typescript-eslint/utils';

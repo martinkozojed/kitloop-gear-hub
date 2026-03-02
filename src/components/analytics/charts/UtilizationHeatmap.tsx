@@ -73,7 +73,7 @@ export const UtilizationHeatmap = memo(function UtilizationHeatmap({
                 <span className="font-semibold text-slate-700">
                   {new Date(point.date).getDate()}
                 </span>
-                <span className="text-[10px] text-slate-600">
+                <span className="text-xxs text-slate-600">
                   {Math.round(point.ratio * 100)}%
                 </span>
               </div>

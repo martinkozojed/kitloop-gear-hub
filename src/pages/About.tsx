@@ -54,7 +54,7 @@ const About = () => {
   return (
     <div className="bg-background pb-36">
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
-        <div className="absolute inset-0 opacity-30 bg-[image:var(--hero-glow)]" />
+        <div className="absolute inset-0 opacity-30 bg-hero-glow" />
         <div className="relative container mx-auto px-6 py-20">
           <div className="mx-auto max-w-3xl text-center space-y-6">
             <span className="inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2 text-sm uppercase tracking-[0.35em] text-emerald-100">

@@ -306,7 +306,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                 </div>
                 <h4 className="text-lg font-bold text-foreground">{t('operations.issueFlow.readyTitle', { defaultValue: 'Připraveno k vydání' })}</h4>
                 <p className="text-sm text-muted-foreground mt-1">{t('operations.issueFlow.readyDesc', { defaultValue: 'Správné vybavení bylo přiřazeno.' })}</p>
-                {overrideMode && <span className="text-status-warning bg-status-warning/10 mt-2 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold">Override Active</span>}
+                {overrideMode && <span className="text-status-warning bg-status-warning/10 mt-2 px-2 py-0.5 rounded-full text-xxs uppercase font-bold">Override Active</span>}
             </div>
         );
     };

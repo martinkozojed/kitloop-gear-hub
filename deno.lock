@@ -51,6 +51,8 @@
     "npm:@types/pg@^8.16.0": "8.16.0",
     "npm:@types/react-dom@^18.3.7": "18.3.7_@types+react@18.3.27",
     "npm:@types/react@^18.3.23": "18.3.27",
+    "npm:@typescript-eslint/parser@^8.56.1": "8.56.1_eslint@9.39.2_typescript@5.9.3",
+    "npm:@typescript-eslint/utils@^8.56.1": "8.56.1_eslint@9.39.2_typescript@5.9.3",
     "npm:@vitejs/plugin-react-swc@^3.5.0": "3.11.0_vite@5.4.21__@types+node@20.19.35__terser@5.46.0_@types+node@20.19.35_terser@5.46.0",
     "npm:@vitest/ui@^4.0.18": "4.0.18_vitest@4.0.17__@types+node@20.19.35__@vitest+ui@4.0.18__happy-dom@20.7.0__vite@7.3.1___@types+node@20.19.35___terser@5.46.0___picomatch@4.0.3__terser@5.46.0_@types+node@20.19.35_happy-dom@20.7.0_terser@5.46.0",
     "npm:autoprefixer@^10.4.27": "10.4.27_postcss@8.5.6",
@@ -64,6 +66,7 @@
     "npm:eslint-plugin-react-refresh@~0.5.2": "0.5.2_eslint@9.39.2",
     "npm:eslint@^9.9.0": "9.39.2",
     "npm:framer-motion@^12.34.3": "12.34.3_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:glob@^13.0.6": "13.0.6",
     "npm:globals@^15.9.0": "15.15.0",
     "npm:happy-dom@^20.7.0": "20.7.0",
     "npm:html5-qrcode@^2.3.8": "2.3.8",
@@ -4660,6 +4663,14 @@
       "deprecated": true,
       "bin": true
     },
+    "glob@13.0.6": {
+      "integrity": "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==",
+      "dependencies": [
+        "minimatch@10.2.4",
+        "minipass",
+        "path-scurry"
+      ]
+    },
     "globals@14.0.0": {
       "integrity": "sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ=="
     },
@@ -6664,7 +6675,7 @@
         "common-tags",
         "fast-json-stable-stringify",
         "fs-extra",
-        "glob",
+        "glob@11.1.0",
         "lodash",
         "pretty-bytes@5.6.0",
         "rollup@2.80.0",
@@ -7161,6 +7172,8 @@
         "npm:@types/pg@^8.16.0",
         "npm:@types/react-dom@^18.3.7",
         "npm:@types/react@^18.3.23",
+        "npm:@typescript-eslint/parser@^8.56.1",
+        "npm:@typescript-eslint/utils@^8.56.1",
         "npm:@vitejs/plugin-react-swc@^3.5.0",
         "npm:@vitest/ui@^4.0.18",
         "npm:autoprefixer@^10.4.27",
@@ -7174,6 +7187,7 @@
         "npm:eslint-plugin-react-refresh@~0.5.2",
         "npm:eslint@^9.9.0",
         "npm:framer-motion@^12.34.3",
+        "npm:glob@^13.0.6",
         "npm:globals@^15.9.0",
         "npm:happy-dom@^20.7.0",
         "npm:html5-qrcode@^2.3.8",

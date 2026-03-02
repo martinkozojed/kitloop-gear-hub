@@ -25,7 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_entity ON public.provider_audit_logs(entity
 ALTER TABLE public.provider_audit_logs ENABLE ROW LEVEL SECURITY;
 -- Deny all by default (Append-only by triggers, read-only by providers)
 -- Providers can only read their own logs. No one can update/delete.
-CREATE POLICY "Providers can view own audit logs" ON public.provider_audit_logs FOR
+CREATE POLICY "Providers can view own provider_audit_logs" ON public.provider_audit_logs FOR
 SELECT TO authenticated USING (
         provider_id IN (
             SELECT provider_id

@@ -150,7 +150,7 @@ const HowItWorks = () => {
       <JsonLd data={jsonLd} />
 
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
-        <div className="absolute inset-0 opacity-30 bg-[image:var(--hero-glow)]" />
+        <div className="absolute inset-0 opacity-30 bg-hero-glow" />
         <div className="relative container mx-auto px-6 py-20">
           <div className="mx-auto max-w-4xl space-y-10">
             <div className="space-y-6">
