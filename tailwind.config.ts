@@ -114,6 +114,7 @@ export default {
 				'brand': 'var(--shadow-brand)',  // MARKETING CTA ONLY
 				'hero': 'var(--shadow-hero)',
 				'hero-hover': 'var(--shadow-hero-hover)',
+				'premium': '0 20px 45px -25px rgba(28,86,52,0.45)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -134,22 +135,18 @@ export default {
 				},
 				'fade-in': {
 					'0%': {
-						opacity: '0',
-						transform: 'translateY(10px)'
+						opacity: '0'
 					},
 					'100%': {
-						opacity: '1',
-						transform: 'translateY(0)'
+						opacity: '1'
 					}
 				},
 				'fade-out': {
 					'0%': {
-						opacity: '1',
-						transform: 'translateY(0)'
+						opacity: '1'
 					},
 					'100%': {
-						opacity: '0',
-						transform: 'translateY(10px)'
+						opacity: '0'
 					}
 				}
 			},
@@ -158,6 +155,12 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.4s ease-out',
 				'fade-out': 'fade-out 0.4s ease-out'
+			},
+			fontSize: {
+				xxs: ['10px', { lineHeight: '1rem' }],
+			},
+			backgroundImage: {
+				'hero-glow': 'var(--hero-glow)',
 			},
 			fontFamily: {
 				sans: ["Inter", ...fontFamily.sans],

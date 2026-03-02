@@ -611,7 +611,7 @@ const InventoryForm = () => {
                       <X className="w-4 h-4" />
                     </button>
                     {index === 0 && deletedImageIds.length === 0 && (
-                      <div className="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
+                      <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xxs px-1.5 py-0.5 rounded">
                         Main
                       </div>
                     )}
@@ -634,7 +634,7 @@ const InventoryForm = () => {
                     >
                       <X className="w-4 h-4" />
                     </button>
-                    <div className="absolute bottom-1 right-1 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                    <div className="absolute bottom-1 right-1 bg-blue-500 text-white text-xxs px-1.5 py-0.5 rounded">
                       New
                     </div>
                   </div>

@@ -53,7 +53,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 bg-background shadow-sm border-b border-border fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+    <header className="py-4 px-6 md:px-10 bg-background shadow-sm border-b border-border fixed top-0 left-0 right-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* Logo */}

@@ -315,7 +315,7 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                 {/* View Options / Bulk actions */}
                 <div className="flex gap-2 flex-wrap">
                     {selectedIds.length > 0 ? (
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-2 mr-0 sm:mr-4 bg-primary/10 p-2 sm:p-1 rounded-md px-2 sm:px-3 animate-in fade-in max-sm:w-full max-sm:gap-1.5">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-2 mr-0 sm:mr-4 bg-primary/10 p-2 sm:p-1 rounded-md px-2 sm:px-3 max-sm:w-full max-sm:gap-1.5">
                             <span className="text-xs sm:text-sm font-medium text-primary shrink-0">
                                 {t('provider.inventory.grid.selected', { count: selectedIds.length })}
                             </span>
@@ -401,94 +401,94 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                         ))
                     ) : table.getRowModel().rows?.length ? (
                         <>
-                        <div className="flex items-center justify-between gap-2 py-2 px-1 border-b border-border/60">
-                            <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground select-none">
-                                <Checkbox
-                                    checked={table.getIsAllPageRowsSelected()}
-                                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                                    aria-label={t('provider.inventory.grid.actions.selectAllPage', { defaultValue: 'Select all on this page' })}
-                                />
-                                <span>{t('provider.inventory.grid.actions.selectAllPage', { defaultValue: 'Select all on this page' })}</span>
-                            </label>
-                            {selectedIds.length > 0 && (
-                                <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => table.resetRowSelection()}>
-                                    {t('provider.inventory.grid.actions.clearSelection', { defaultValue: 'Clear selection' })}
-                                </Button>
-                            )}
-                        </div>
-                        {table.getRowModel().rows.map((row) => {
-                            const asset = row.original;
-                            return (
-                                <Card key={row.id} className={row.getIsSelected() ? 'ring-2 ring-ring' : ''}>
-                                    <CardContent className="p-4">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div className="flex items-start gap-3 min-w-0 flex-1">
-                                                <Checkbox
-                                                    checked={row.getIsSelected()}
-                                                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                                                    aria-label={t('provider.inventory.grid.actions.selectRow', { tag: asset.asset_tag, defaultValue: `Select ${asset.asset_tag}` })}
-                                                    className="mt-0.5 shrink-0"
-                                                />
-                                                <div className="min-w-0 flex-1">
-                                                <p className="font-medium truncate">{asset.product.name}</p>
-                                                <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">{asset.variant.name} · {asset.product.category}</p>
-                                                <div className="mt-2">
-                                                    <StatusBadge status={asset.status} size="sm" />
-                                                    {asset.condition_score != null && (
-                                                        <span className={`ml-2 text-xs font-medium ${asset.condition_score < 70 ? 'text-status-danger' : 'text-status-success'}`}>
-                                                            {asset.condition_score}%
-                                                        </span>
+                            <div className="flex items-center justify-between gap-2 py-2 px-1 border-b border-border/60">
+                                <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground select-none">
+                                    <Checkbox
+                                        checked={table.getIsAllPageRowsSelected()}
+                                        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                                        aria-label={t('provider.inventory.grid.actions.selectAllPage', { defaultValue: 'Select all on this page' })}
+                                    />
+                                    <span>{t('provider.inventory.grid.actions.selectAllPage', { defaultValue: 'Select all on this page' })}</span>
+                                </label>
+                                {selectedIds.length > 0 && (
+                                    <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => table.resetRowSelection()}>
+                                        {t('provider.inventory.grid.actions.clearSelection', { defaultValue: 'Clear selection' })}
+                                    </Button>
+                                )}
+                            </div>
+                            {table.getRowModel().rows.map((row) => {
+                                const asset = row.original;
+                                return (
+                                    <Card key={row.id} className={row.getIsSelected() ? 'ring-2 ring-ring' : ''}>
+                                        <CardContent className="p-4">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="flex items-start gap-3 min-w-0 flex-1">
+                                                    <Checkbox
+                                                        checked={row.getIsSelected()}
+                                                        onCheckedChange={(value) => row.toggleSelected(!!value)}
+                                                        aria-label={t('provider.inventory.grid.actions.selectRow', { tag: asset.asset_tag, defaultValue: `Select ${asset.asset_tag}` })}
+                                                        className="mt-0.5 shrink-0"
+                                                    />
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="font-medium truncate">{asset.product.name}</p>
+                                                        <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
+                                                        <p className="text-xs text-muted-foreground mt-0.5">{asset.variant.name} · {asset.product.category}</p>
+                                                        <div className="mt-2">
+                                                            <StatusBadge status={asset.status} size="sm" />
+                                                            {asset.condition_score != null && (
+                                                                <span className={`ml-2 text-xs font-medium ${asset.condition_score < 70 ? 'text-status-danger' : 'text-status-success'}`}>
+                                                                    {asset.condition_score}%
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">{t('provider.inventory.grid.actions.openMenu')}</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>{t('provider.inventory.grid.actions.label')}</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(asset.asset_tag)}>
+                                                            {t('provider.inventory.grid.actions.copyTag')}
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onClick={() => onEdit(asset)}>{t('provider.inventory.grid.actions.edit')}</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => { setMaintenanceIds([asset.id]); setShowMaintenance(true); }}>
+                                                            <Wrench className="w-4 h-4 mr-2" />
+                                                            {t('provider.inventory.grid.actions.logMaintenance')}
+                                                        </DropdownMenuItem>
+                                                        {canDelete && (
+                                                            <>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onClick={() => onDelete([asset.id])} className="text-status-danger">
+                                                                    {t('provider.inventory.grid.delete')}
+                                                                </DropdownMenuItem>
+                                                            </>
+                                                        )}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                            {row.getIsSelected() && (
+                                                <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
+                                                    <Button size="sm" variant="secondary" className="h-9" onClick={() => { setMaintenanceIds([asset.id]); setShowMaintenance(true); }}>
+                                                        <Wrench className="w-3.5 h-3.5 mr-2" />
+                                                        {t('provider.inventory.grid.maintenance')}
+                                                    </Button>
+                                                    {canDelete && (
+                                                        <Button size="sm" variant="destructive" className="h-9" onClick={() => onDelete([asset.id])}>
+                                                            {t('provider.inventory.grid.delete')}
+                                                        </Button>
                                                     )}
                                                 </div>
-                                            </div>
-                                            </div>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">{t('provider.inventory.grid.actions.openMenu')}</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>{t('provider.inventory.grid.actions.label')}</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(asset.asset_tag)}>
-                                                        {t('provider.inventory.grid.actions.copyTag')}
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onClick={() => onEdit(asset)}>{t('provider.inventory.grid.actions.edit')}</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => { setMaintenanceIds([asset.id]); setShowMaintenance(true); }}>
-                                                        <Wrench className="w-4 h-4 mr-2" />
-                                                        {t('provider.inventory.grid.actions.logMaintenance')}
-                                                    </DropdownMenuItem>
-                                                    {canDelete && (
-                                                        <>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem onClick={() => onDelete([asset.id])} className="text-status-danger">
-                                                                {t('provider.inventory.grid.delete')}
-                                                            </DropdownMenuItem>
-                                                        </>
-                                                    )}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                        {row.getIsSelected() && (
-                                            <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
-                                                <Button size="sm" variant="secondary" className="h-9" onClick={() => { setMaintenanceIds([asset.id]); setShowMaintenance(true); }}>
-                                                    <Wrench className="w-3.5 h-3.5 mr-2" />
-                                                    {t('provider.inventory.grid.maintenance')}
-                                                </Button>
-                                                {canDelete && (
-                                                    <Button size="sm" variant="destructive" className="h-9" onClick={() => onDelete([asset.id])}>
-                                                        {t('provider.inventory.grid.delete')}
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
                         </>
                     ) : (
                         <Card>
@@ -516,80 +516,80 @@ export function InventoryGrid({ data, loading, onRefresh, onEdit, onDelete, onSt
                     )}
                 </div>
             ) : (
-            <div className="rounded-md border border-border bg-card overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    );
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            Array.from({ length: 5 }).map((_, idx) => (
-                                <TableRow key={`skeleton-${idx}`}>
-                                    {table.getVisibleFlatColumns().map((col, colIdx) => (
-                                        <TableCell key={`${col.id}-${colIdx}`}>
-                                            <Skeleton className="h-4 w-24" />
-                                        </TableCell>
-                                    ))}
+                <div className="rounded-md border border-border bg-card overflow-hidden">
+                    <Table>
+                        <TableHeader>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )}
+                                            </TableHead>
+                                        );
+                                    })}
                                 </TableRow>
-                            ))
-                        ) : table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, idx) => (
+                                    <TableRow key={`skeleton-${idx}`}>
+                                        {table.getVisibleFlatColumns().map((col, colIdx) => (
+                                            <TableCell key={`${col.id}-${colIdx}`}>
+                                                <Skeleton className="h-4 w-24" />
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={columns.length}
+                                        className="h-24 text-center text-muted-foreground"
+                                    >
+                                        {t('provider.inventory.grid.emptyCta')}
+                                        <div className="mt-3 flex justify-center gap-2">
+                                            {onAddAsset && (
+                                                <Button size="sm" onClick={onAddAsset}>
+                                                    {t('provider.inventory.actions.addAsset')}
+                                                </Button>
+                                            )}
+                                            {onImport && (
+                                                <Button size="sm" variant="outline" onClick={onImport}>
+                                                    {t('provider.inventory.actions.import')}
+                                                </Button>
+                                            )}
+                                            {!onAddAsset && !onImport && (
+                                                <Button size="sm" variant="outline" onClick={onRefresh}>
+                                                    {t('provider.inventory.grid.reset')}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </TableCell>
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center text-muted-foreground"
-                                >
-                                    {t('provider.inventory.grid.emptyCta')}
-                                    <div className="mt-3 flex justify-center gap-2">
-                                        {onAddAsset && (
-                                            <Button size="sm" onClick={onAddAsset}>
-                                                {t('provider.inventory.actions.addAsset')}
-                                            </Button>
-                                        )}
-                                        {onImport && (
-                                            <Button size="sm" variant="outline" onClick={onImport}>
-                                                {t('provider.inventory.actions.import')}
-                                            </Button>
-                                        )}
-                                        {!onAddAsset && !onImport && (
-                                            <Button size="sm" variant="outline" onClick={onRefresh}>
-                                                {t('provider.inventory.grid.reset')}
-                                            </Button>
-                                        )}
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             )}
 
             <div className="flex items-center justify-between py-4">

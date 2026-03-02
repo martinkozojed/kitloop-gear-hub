@@ -143,7 +143,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
                             </div>
 
                             {selectedProduct && (
-                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                                <div className="space-y-2">
                                     <Label>{t('provider.inventory.assetForm.selectVariant')}</Label>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                         {selectedProduct.variants.map(v => (
@@ -162,7 +162,7 @@ export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
                     )}
 
                     {step === 2 && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                        <div className="space-y-4">
                             <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted">
                                 {selectedProduct?.image_url ? (
                                     <img src={selectedProduct.image_url} className="w-12 h-12 rounded object-cover" />

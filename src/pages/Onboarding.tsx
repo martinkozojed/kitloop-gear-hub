@@ -135,20 +135,38 @@ function Section({
 
 // ─── Ambient glow layer ───────────────────────────────────────────────────────
 
-function GlowLayer() {
+function GlowLayer({ className }: { className?: string }) {
   const shouldReduce = useReducedMotion();
   if (shouldReduce) return null;
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className || ""}`} aria-hidden="true">
+      {/* Right Orb (Zone 2) - Free roaming on the right side of the screen */}
       <motion.div
-        className="absolute -top-32 -right-20 w-[500px] h-[500px] rounded-full bg-emerald-300/[0.10] blur-3xl"
-        animate={{ x: [0, 35, 0], y: [0, -25, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-10 -right-20 w-[570px] h-[570px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
+        animate={{
+          x: [0, -100, -250, -50, 0],
+          y: [0, 200, 400, 100, 0],
+          scale: [1, 1.2, 0.9, 1.1, 1]
+        }}
+        transition={{
+          x: { duration: 37, repeat: Infinity, ease: "easeInOut" },
+          y: { duration: 43, repeat: Infinity, ease: "easeInOut" },
+          scale: { duration: 47, repeat: Infinity, ease: "easeInOut" }
+        }}
       />
+      {/* Left Orb (Zone 1) - Free roaming on the left side of the screen */}
       <motion.div
-        className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full bg-emerald-400/[0.05] blur-3xl"
-        animate={{ x: [0, -25, 0], y: [0, 30, 0] }}
-        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        className="absolute top-20 -left-20 w-[310px] h-[310px] rounded-full bg-emerald-400/[0.19] blur-[100px]"
+        animate={{
+          x: [0, 100, 250, 50, 0],
+          y: [0, 200, 350, 100, 0],
+          scale: [1, 0.9, 1.2, 0.95, 1]
+        }}
+        transition={{
+          x: { duration: 41, repeat: Infinity, ease: "easeInOut", delay: 3 },
+          y: { duration: 53, repeat: Infinity, ease: "easeInOut", delay: 3 },
+          scale: { duration: 59, repeat: Infinity, ease: "easeInOut", delay: 3 }
+        }}
       />
     </div>
   );
@@ -331,27 +349,14 @@ export default function Onboarding() {
             {/* Right — static UI preview */}
             <div className="lg:pl-6">
               <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
-                {/* Real proof asset placeholder */}
-                <video
-                  autoPlay={!shouldReduce}
-                  loop
-                  muted
-                  playsInline
-                  preload="none"
-                  aria-label="Kitloop operations interface preview"
+                <img
+                  src="/onboarding/hero-loop-poster.png"
+                  alt="Kitloop operational dashboard — KPI strip, today's operations agenda, active rentals overview"
                   className="absolute inset-0 w-full h-full object-cover"
-                  poster="/onboarding/hero-loop-poster.jpg"
-                >
-                  <source src="/onboarding/hero-loop-proof.mp4" type="video/mp4" />
-                  <img
-                    src="/onboarding/hero-loop-poster.jpg"
-                    alt="Kitloop operations interface preview fallback"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </video>
-                {/* Fallback container if video fails */}
+                  loading="eager"
+                />
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-                  <p className="text-sm font-medium text-slate-500">Video Proof Loading...</p>
+                  <p className="text-sm font-medium text-slate-500">Loading…</p>
                 </div>
               </div>
             </div>
@@ -424,7 +429,7 @@ export default function Onboarding() {
       <Section className="bg-slate-50/50 py-10">
         <div className="mx-auto max-w-5xl px-6">
           <div className="grid gap-5 md:grid-cols-2">
-            <Card className="rounded-xl border border-emerald-100 bg-emerald-50/50 shadow-sm backdrop-blur-sm">
+            <Card className="rounded-xl border border-emerald-200 bg-emerald-50/80 shadow-sm backdrop-blur-sm">
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
@@ -492,26 +497,14 @@ export default function Onboarding() {
 
             {/* Right: Media Proof */}
             <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
-              {/* Real proof asset placeholder */}
-              <video
-                autoPlay={!shouldReduce}
-                loop
-                muted
-                playsInline
-                preload="none"
-                aria-label="Timeline operations proof"
+              <img
+                src="/onboarding/timeline-loop-poster.png"
+                alt="Kitloop inventory management — item list with status badges, search, and asset tracking"
                 className="absolute inset-0 w-full h-full object-cover"
-                poster="/onboarding/timeline-loop-poster.jpg"
-              >
-                <source src="/onboarding/timeline-loop-proof.mp4" type="video/mp4" />
-                <img
-                  src="/onboarding/timeline-loop-poster.jpg"
-                  alt="Timeline operations proof fallback"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </video>
+                loading="lazy"
+              />
               <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-                <p className="text-sm font-medium text-slate-500">Timeline Proof Loading...</p>
+                <p className="text-sm font-medium text-slate-500">Loading…</p>
               </div>
             </div>
           </div>
@@ -530,13 +523,13 @@ export default function Onboarding() {
             {/* Left: Feature Screenshot */}
             <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center order-2 lg:order-1">
               <img
-                src="/onboarding/features-proof-screenshot.jpg"
-                alt="Kitloop Interface Screenshot"
+                src="/onboarding/features-proof-screenshot.png"
+                alt="Kitloop reservation detail — customer info, reserved items, pricing, issue and print actions"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-                <p className="text-sm font-medium text-slate-500">Screenshot Proof Loading...</p>
+                <p className="text-sm font-medium text-slate-500">Loading…</p>
               </div>
             </div>
 
@@ -601,7 +594,22 @@ export default function Onboarding() {
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
       <section className="py-14 px-6 relative overflow-hidden">
-        <GlowLayer />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+          {/* Single unbounded orb roaming everywhere with adjusted strength (0.15 instead of 0.20) and size (475px instead of 500px) */}
+          <motion.div
+            className="absolute -top-10 -left-10 w-[475px] h-[475px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
+            animate={{
+              x: [0, 300, -50, 200, 0],
+              y: [0, 150, -20, 100, 0],
+              scale: [1, 1.2, 0.85, 1.1, 1]
+            }}
+            transition={{
+              x: { duration: 37, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 43, repeat: Infinity, ease: "easeInOut" },
+              scale: { duration: 47, repeat: Infinity, ease: "easeInOut" }
+            }}
+          />
+        </div>
         <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-slate-200 backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
           <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
           <p className="text-slate-600 text-sm">{t("onboarding.finalSub")}</p>

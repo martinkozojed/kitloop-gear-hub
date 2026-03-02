@@ -7,19 +7,19 @@ interface GlowLayerProps {
 
 export function GlowLayer({ className = '' }: GlowLayerProps) {
     return (
-        <div className={`fixed inset-0 overflow-hidden pointer-events-none -z-10 ${className}`}>
-            {/* Primary Glow */}
+        <div className={`fixed inset-0 overflow-hidden pointer-events-none z-0 ${className}`}>
+            {/* Primary Glow (Top Left - strictly moves Left & Up) */}
             <motion.div
-                className="absolute w-[600px] h-[600px] rounded-full bg-primary/20 blur-[100px] opacity-60 mix-blend-multiply dark:mix-blend-screen"
+                className="absolute w-[570px] h-[570px] rounded-full bg-primary/20 blur-[100px] opacity-65 mix-blend-multiply dark:mix-blend-screen"
                 animate={{
-                    x: ['-20%', '20%', '40%', '-10%', '-20%'],
-                    y: ['-20%', '10%', '-30%', '20%', '-20%'],
-                    scale: [1, 1.2, 0.8, 1.1, 1],
+                    x: ['0%', '-15%', '-5%', '-25%', '0%'],
+                    y: ['0%', '-25%', '-10%', '-15%', '0%'],
+                    scale: [1, 1.15, 0.85, 1.1, 1],
                 }}
                 transition={{
-                    duration: 15,
-                    repeat: Infinity,
-                    ease: "easeInOut",
+                    x: { duration: 37, repeat: Infinity, ease: "easeInOut" },
+                    y: { duration: 43, repeat: Infinity, ease: "easeInOut" },
+                    scale: { duration: 47, repeat: Infinity, ease: "easeInOut" }
                 }}
                 style={{
                     top: '10%',
@@ -27,18 +27,18 @@ export function GlowLayer({ className = '' }: GlowLayerProps) {
                 }}
             />
 
-            {/* Secondary Glow */}
+            {/* Secondary Glow (Bottom Right - strictly moves Right & Down) */}
             <motion.div
-                className="absolute w-[500px] h-[500px] rounded-full bg-emerald-300/20 blur-[120px] opacity-50 mix-blend-multiply dark:mix-blend-screen"
+                className="absolute w-[475px] h-[475px] rounded-full bg-emerald-300/20 blur-[120px] opacity-55 mix-blend-multiply dark:mix-blend-screen"
                 animate={{
-                    x: ['20%', '-30%', '-10%', '30%', '20%'],
-                    y: ['10%', '30%', '-20%', '-10%', '10%'],
-                    scale: [1, 0.8, 1.2, 0.9, 1],
+                    x: ['0%', '25%', '10%', '35%', '0%'],
+                    y: ['0%', '35%', '20%', '15%', '0%'],
+                    scale: [1, 0.85, 1.2, 0.9, 1],
                 }}
                 transition={{
-                    duration: 18,
-                    repeat: Infinity,
-                    ease: "easeInOut",
+                    x: { duration: 41, repeat: Infinity, ease: "easeInOut" },
+                    y: { duration: 53, repeat: Infinity, ease: "easeInOut" },
+                    scale: { duration: 59, repeat: Infinity, ease: "easeInOut" }
                 }}
                 style={{
                     bottom: '10%',
