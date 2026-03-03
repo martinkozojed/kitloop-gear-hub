@@ -440,7 +440,7 @@ const ProviderSettings = () => {
                     value={formData.website}
                     onChange={(e) => updateField('website', e.target.value)}
                     onBlur={(e) => updateField('website', normalizeWebsite(e.target.value))}
-                    placeholder="https://kitloop.cz"
+                    placeholder="https://kitloop.co"
                     disabled={!canEdit}
                   />
                   {errors.website && <p className="text-xs text-status-danger">{errors.website}</p>}
