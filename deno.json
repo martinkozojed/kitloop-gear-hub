@@ -1,13 +1,13 @@
 {
   "lock": "deno.lock",
-  "nodeModulesDir": "auto",
+  "nodeModulesDir": "none",
   "imports": {
     "https://esm.sh/v135/buffer@6.0.3/esnext/buffer.mjs": "./vendor/esm.sh/buffer.mjs",
     "https://esm.sh/v135/buffer@6.0.3/esnext/buffer.bundle.mjs": "./vendor/esm.sh/buffer.bundle.mjs"
   },
   "tasks": {
-    "lock": "deno cache --lock=deno.lock supabase/functions/**/*.ts scripts/**/*.ts",
-    "deno:cache": "deno cache --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock supabase/functions/**/*.ts scripts/**/*.ts",
+    "lock": "deno cache --no-npm --lock=deno.lock supabase/functions/reserve_gear/index.ts supabase/functions/confirm_reservation/index.ts supabase/functions/cleanup_reservation_holds/index.ts supabase/functions/create_payment_intent/index.ts supabase/functions/stripe_webhook/index.ts supabase/functions/notify-dispatcher/index.ts supabase/functions/admin_action/index.ts supabase/functions/submit_request/index.ts supabase/functions/submit_pilot_request/index.ts supabase/functions/e2e_harness/index.ts supabase/functions/upload_ticket/index.ts supabase/functions/upload_ticket/handler.ts supabase/functions/tests/hold_cleanup_test.ts",
+    "deno:cache": "deno cache --no-npm --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock supabase/functions/reserve_gear/index.ts supabase/functions/confirm_reservation/index.ts supabase/functions/cleanup_reservation_holds/index.ts supabase/functions/create_payment_intent/index.ts supabase/functions/stripe_webhook/index.ts supabase/functions/notify-dispatcher/index.ts supabase/functions/admin_action/index.ts supabase/functions/submit_request/index.ts supabase/functions/submit_pilot_request/index.ts supabase/functions/e2e_harness/index.ts supabase/functions/upload_ticket/index.ts supabase/functions/upload_ticket/handler.ts supabase/functions/tests/hold_cleanup_test.ts",
     "deno:test": "deno test --allow-env --allow-read --allow-import=deno.land,esm.sh,legacy.esm.sh --lock=deno.lock supabase/functions"
   }
 }

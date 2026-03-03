@@ -57,7 +57,14 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i/3: npm ci"
+            npm ci && break
+            if [ $i -eq 3 ]; then exit 1; fi
+            echo "Retrying in $((i * 10))s..."
+            sleep $((i * 10))
+          done
 
       - name: Security audit (supply chain)
         run: |
