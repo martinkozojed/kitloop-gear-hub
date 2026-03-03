@@ -97,12 +97,17 @@ jobs:
       - uses: actions/checkout@v6
       - name: "Install npm deps for Deno npm: resolution"
         run: npm ci
+      - name: "Verify node_modules layout (Deno npm resolution)"
+        run: |
+          test -f node_modules/@radix-ui/react-slider/package.json || (echo "Missing @radix-ui/react-slider; list node_modules/@radix-ui:"; ls node_modules/@radix-ui 2>/dev/null || true; exit 1)
       - uses: denoland/setup-deno@v2
         with:
           # Pin to a Deno version that supports lockfile version 5
           deno-version: "v2.5.6"
       - name: Deno version
         run: deno --version
+      - name: Clear Deno npm mirror (avoid stale node_modules/.deno resolution)
+        run: rm -rf node_modules/.deno
       - name: Cache dependencies (frozen lock)
         run: deno task deno:cache
       - name: Run reserve_gear unit tests
