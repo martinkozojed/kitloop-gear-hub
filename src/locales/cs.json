@@ -1151,7 +1151,7 @@
         "required": "Toto pole je povinné",
         "phone": "Zadejte platné číslo ve formátu +420…",
         "email": "Zadejte platný e-mail",
-        "website": "Zadejte platnou URL (např. https://kitloop.cz)",
+        "website": "Zadejte platnou URL (např. https://kitloop.co)",
         "termsLength": "Maximálně 1000 znaků"
       },
       "preview": {

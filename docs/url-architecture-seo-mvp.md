@@ -1,4 +1,6 @@
-# URL architektura a SEO – MVP/pilot (kitloop.cz)
+# URL architektura a SEO – MVP/pilot (kitloop.co)
+
+**Hlavní doména:** `https://kitloop.co`. Ostatní domény (kitloop.cz, www.kitloop.cz, www.kitloop.co, HTTP varianty) přesměrovávají na ni (301) – viz `netlify.toml`.
 
 **Cíl:** Oddělit indexovatelný marketing web od neindexovatelné aplikace bez zpomalení vývoje. Žádné marketingové modaly v aplikaci.
 
@@ -8,15 +10,16 @@
 
 | URL | Status | Redirect | Indexability |
 |-----|--------|----------|--------------|
-| `https://kitloop.cz/` | **200** | Žádný (server vrací `index.html`) | **Indexovatelné** – stejný HTML jako ostatní |
-| `https://kitloop.cz/onboarding` | **200** | Žádný | **Indexovatelné** |
-| `https://kitloop.cz/login` | **200** | Žádný | **Indexovatelné** |
-| `https://kitloop.cz/provider/dashboard` | **200** | Žádný | **Indexovatelné** |
-| `https://kitloop.cz/app` | **200** (SPA) | Žádný; v Reactu není route → **NotFound** | **Indexovatelné** (stejný shell) |
+| `https://kitloop.co/` | **200** | Žádný (server vrací `index.html`) | **Indexovatelné** – stejný HTML jako ostatní |
+| `https://kitloop.co/onboarding` | **200** | Žádný | **Indexovatelné** |
+| `https://kitloop.co/login` | **200** | Žádný | **Indexovatelné** |
+| `https://kitloop.co/provider/dashboard` | **200** | Žádný | **Indexovatelné** |
+| `https://kitloop.co/app` | **200** (SPA) | Žádný; v Reactu není route → **NotFound** | **Indexovatelné** (stejný shell) |
+| `https://kitloop.cz/*` | **301** | → `https://kitloop.co/:splat` | — |
 | `https://app.kitloop.cz/` | **N/A** (DNS neexistuje / connection failed) | — | — |
 
 **Proč se root „chová jako zavřený“:**  
-Na serveru je vždy **200** a stejný `index.html`. „Zavřenost“ je jen **client-side**: React Router má `<Route path="/" element={<Navigate to="/onboarding" replace />} />`, takže v prohlížeči uživatel okamžitě končí na `/onboarding`. Pro crawler je `/` i `/onboarding` stejný HTML (bez meta robots, bez canonical) → **vše se může indexovat**.
+Na serveru je vždy **200** a stejný `index.html`. „Zavřenost“ je jen **client-side**: React Router má `<Route path="/" element={<Navigate to="/onboarding" replace />} />`, takže v prohlížeči uživatel okamžitě končí na `/onboarding`. Pro crawler je `/` i `/onboarding` stejný HTML (canonical odkazuje na kitloop.co) → **vše se může indexovat**.
 
 **Konfigurace v repu:**
 
@@ -24,7 +27,7 @@ Na serveru je vždy **200** a stejný `index.html`. „Zavřenost“ je jen **cl
 - **Redirects:** `public/_redirects` obsahuje jen `/* /index.html 200` → SPA fallback pro všechny cesty.  
 - **Headers:** `netlify.toml` [[headers]] for `/*` – CSP, Referrer-Policy, X-Frame-Options atd. **Žádný X-Robots-Tag.**  
 - **React Router:** Žádný `basename`. Route `/` → `<Navigate to="/onboarding" replace />`. `/app` nemá vlastní route → padá na `*` → `<NotFound />`.  
-- **HTML:** `index.html` – jeden title/description pro celou SPA, **žádný `<meta name="robots">`**, žádný canonical.  
+- **HTML:** `index.html` – jeden title/description pro celou SPA, **žádný `<meta name="robots">`**, žádný canonical (SPA má více rout; canonical/og:url až per-route při jasné SEO architektuře).  
 - **robots.txt / sitemap.xml:** V repu **nejsou**.
 
 ---
@@ -103,10 +106,10 @@ Tím **nezískáte** URL pod `/app`, ale **získáte** oddělení indexace a fun
 | Soubor | Změna |
 |--------|--------|
 | `netlify.toml` | Přidat [[headers]] pro app path: např. `for = "/onboarding"`, `for = "/login"`, `for = "/provider/*"`, `for = "/admin/*"`, `for = "/signup"`, `for = "/forgot-password"`, `for = "/reset-password"`, `for = "/demo/*"`, `for = "/book/*"` s `X-Robots-Tag: noindex, nofollow`. (Netlify neumí „vše kromě …“, takže vyjmenovat app prefixy.) Nebo jeden blok `for = "/*"` s noindex a druhý blok pro každou marketing path s přepsáním (např. `for = "/"` bez noindex – viz Netlify docs). |
-| `public/robots.txt` | Nový soubor: User-agent: * / Disallow: /onboarding /login /provider /admin /signup /forgot-password /reset-password /demo /book /my-reservations /dashboard / Sitemap: https://kitloop.cz/sitemap.xml (Allow: / pro root; Disallow pro zbytek dle výběru). |
+| `public/robots.txt` | Nový soubor: User-agent: * / Disallow: /onboarding /login /provider /admin /signup /forgot-password /reset-password /demo /book /my-reservations /dashboard / Sitemap: https://kitloop.co/sitemap.xml (Allow: / pro root; Disallow pro zbytek dle výběru). |
 | `public/sitemap.xml` | Nový soubor: seznam pouze /, /how-it-works, /about, /terms, /privacy. |
 | `src/App.tsx` | Změnit `<Route path="/" element={<Navigate to="/onboarding" replace />} />` na `<Route path="/" element={<Index />} />` (nebo novou lehkou landing komponentu). V Index.tsx upravit CTA: primární „Požádat o pilot“ (např. mailto nebo /request-link), sekundární „Otevřít aplikaci“ → `/onboarding`. |
-| `index.html` | Pro marketing: canonical může zůstat ne nebo přidat `<link rel="canonical" href="https://kitloop.cz/">` pro root. Title/description už jsou. |
+| `index.html` | Pro marketing: canonical/og:url zatím ne (nekanonizovat vše na /). Title/description jsou. Per-route canonical až při SEO architektuře. |
 
 ### Varianta B – s prefixem /app (plná)
 
@@ -155,25 +158,25 @@ Tím **nezískáte** URL pod `/app`, ale **získáte** oddělení indexace a fun
 ### 1) Realita v produkci (curl)
 
 ```bash
-curl -sI https://kitloop.cz/robots.txt
+curl -sI https://kitloop.co/robots.txt
 ```
 - Status: 200  
 - Content-Type: `text/plain; charset=UTF-8` ✓  
 - (robots.txt nezačíná `<!doctype html` ✓)
 
 ```bash
-curl -s https://kitloop.cz/robots.txt | head -n 10
+curl -s https://kitloop.co/robots.txt | head -n 10
 ```
-- Obsah: více řádků `User-agent: Googlebot`, `User-agent: Bingbot`, `User-agent: Twitterbot`, `User-agent: facebookexternalhit`, `Allow: /` — **bez řádku `Sitemap: https://kitloop.cz/sitemap.xml`** v prvních 10 řádcích (produkce = starší/odlišný deploy).
+- Obsah: více řádků `User-agent: Googlebot`, `User-agent: Bingbot`, `User-agent: Twitterbot`, `User-agent: facebookexternalhit`, `Allow: /` — **bez řádku `Sitemap: https://kitloop.co/sitemap.xml`** v prvních 10 řádcích (produkce = starší/odlišný deploy).
 
 ```bash
-curl -sI https://kitloop.cz/sitemap.xml
+curl -sI https://kitloop.co/sitemap.xml
 ```
 - Status: 200  
 - Content-Type: **`text/html; charset=UTF-8`** ✗ (mělo by být application/xml nebo text/xml)
 
 ```bash
-curl -s https://kitloop.cz/sitemap.xml | head -n 10
+curl -s https://kitloop.co/sitemap.xml | head -n 10
 ```
 - Obsah: **`<!DOCTYPE html>`** … (SPA shell) ✗ — sitemap.xml v produkci **není XML**.
 
@@ -183,10 +186,10 @@ curl -s https://kitloop.cz/sitemap.xml | head -n 10
 
 | URL | Content-Type | Očekávání |
 |-----|--------------|-----------|
-| `https://kitloop.cz/robots.txt` | text/plain; charset=UTF-8 | ✓ |
-| `https://kitloop.cz/sitemap.xml` | **text/html** | ✗ (application/xml nebo text/xml) |
-| `https://kitloop.cz/onboarding` | text/html | — |
-| `https://kitloop.cz/login` | text/html | — |
+| `https://kitloop.co/robots.txt` | text/plain; charset=UTF-8 | ✓ |
+| `https://kitloop.co/sitemap.xml` | **text/html** | ✗ (application/xml nebo text/xml) |
+| `https://kitloop.co/onboarding` | text/html | — |
+| `https://kitloop.co/login` | text/html | — |
 
 **Závěr:** robots.txt je text, ale bez řádku Sitemap (podle aktuálního deploye). sitemap.xml vrací SPA rewrite (index.html) → **root cause: v _redirects vyhrává catch-all `/*` před servírováním statického souboru, nebo deploy nemá aktuální _redirects.**
 
@@ -208,7 +211,7 @@ curl -s https://kitloop.cz/sitemap.xml | head -n 10
 ### Provedené opravy (PR)
 
 1. **`public/_redirects`** – explicitní pravidla nad catch-all: `/robots.txt` a `/sitemap.xml` → servírovat statický soubor (200); potom `/*` → `/index.html` 200. Netlify vyhodnocuje shora dolů, první match vyhrává.
-2. **`public/robots.txt`** – odstraněny všechny `Disallow`. Ponecháno pouze: `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.cz/sitemap.xml`. Důvod: pokud robots.txt blokuje URL, Google je nemusí crawlovat a neuvidí `X-Robots-Tag: noindex` → riziko „URL-only indexed though blocked by robots“.
+2. **`public/robots.txt`** – odstraněny všechny `Disallow`. Ponecháno pouze: `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.co/sitemap.xml`. Důvod: pokud robots.txt blokuje URL, Google je nemusí crawlovat a neuvidí `X-Robots-Tag: noindex` → riziko „URL-only indexed though blocked by robots“.
 3. **`public/_headers`** – beze změny: na marketing routách (/, /how-it-works, /about, /terms, /privacy) není X-Robots-Tag; na app routách je `X-Robots-Tag: noindex, nofollow`.
 4. **`public/sitemap.xml`** – beze změny: pouze marketing URL (/, /how-it-works, /about, /terms, /privacy), žádné app routy.
 
@@ -238,22 +241,22 @@ Vite kopíruje `public/` do kořene `dist/`, takže všechny čtyři soubory jso
    - `/robots.txt    /robots.txt    200`
    - `/sitemap.xml   /sitemap.xml   200`
    - `/*             /index.html    200`
-2. **`public/robots.txt`** – minimální obsah: `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.cz/sitemap.xml`. Žádné extra User-agent řádky.
+2. **`public/robots.txt`** – minimální obsah: `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.co/sitemap.xml`. Žádné extra User-agent řádky.
 
 **How to verify (po redeployi na Netlify)**
 
 Spustit znovu curl z bodu 1):
 
 ```bash
-curl -sI https://kitloop.cz/robots.txt
-curl -s  https://kitloop.cz/robots.txt | head -n 10
-curl -sI https://kitloop.cz/sitemap.xml
-curl -s  https://kitloop.cz/sitemap.xml | head -n 10
+curl -sI https://kitloop.co/robots.txt
+curl -s  https://kitloop.co/robots.txt | head -n 10
+curl -sI https://kitloop.co/sitemap.xml
+curl -s  https://kitloop.co/sitemap.xml | head -n 10
 ```
 
 **Acceptance checklist (sitemap + robots)**
 
-- **A)** `/robots.txt` = `Content-Type: text/plain`, obsah **nezačíná** `<!doctype html`, **obsahuje** řádek `Sitemap: https://kitloop.cz/sitemap.xml`.
+- **A)** `/robots.txt` = `Content-Type: text/plain`, obsah **nezačíná** `<!doctype html`, **obsahuje** řádek `Sitemap: https://kitloop.co/sitemap.xml`.
 - **B)** `/sitemap.xml` = `Content-Type: application/xml` nebo `text/xml`, obsah **začíná** `<?xml` a **není** HTML.
 
 Pokud po deployi `/sitemap.xml` stále vrací HTML: zkontrolovat, že v Netlify se deployuje správný artifact (publish = `dist`) a že `dist/_redirects` obsahuje tyto 3 řádky v tomto pořadí.
@@ -272,14 +275,14 @@ Pokud po deployi `/sitemap.xml` stále vrací HTML: zkontrolovat, že v Netlify 
 **Příkazy pro ověření po deployi:**
 
 ```bash
-curl -sI https://kitloop.cz/robots.txt    # očekáván content-type: text/plain
-curl -sI https://kitloop.cz/sitemap.xml   # očekáván content-type: application/xml nebo text/xml
-curl -s https://kitloop.cz/robots.txt | head -5   # nesmí začínat <!doctype, musí obsahovat Sitemap:
-curl -s https://kitloop.cz/sitemap.xml | head -5 # musí začínat <?xml, ne <!doctype
-curl -sI https://kitloop.cz/              # bez X-Robots-Tag
-curl -sI https://kitloop.cz/onboarding    # X-Robots-Tag: noindex, nofollow
-curl -sI https://kitloop.cz/login         # X-Robots-Tag: noindex, nofollow
-curl -sI https://kitloop.cz/how-it-works  # bez X-Robots-Tag
+curl -sI https://kitloop.co/robots.txt    # očekáván content-type: text/plain
+curl -sI https://kitloop.co/sitemap.xml   # očekáván content-type: application/xml nebo text/xml
+curl -s https://kitloop.co/robots.txt | head -5   # nesmí začínat <!doctype, musí obsahovat Sitemap:
+curl -s https://kitloop.co/sitemap.xml | head -5 # musí začínat <?xml, ne <!doctype
+curl -sI https://kitloop.co/              # bez X-Robots-Tag
+curl -sI https://kitloop.co/onboarding    # X-Robots-Tag: noindex, nofollow
+curl -sI https://kitloop.co/login         # X-Robots-Tag: noindex, nofollow
+curl -sI https://kitloop.co/how-it-works  # bez X-Robots-Tag
 ```
 
 ---
@@ -301,7 +304,7 @@ curl -sI https://kitloop.cz/how-it-works  # bez X-Robots-Tag
 
 - **Landing copy:** Pokud chcete na root jen „1 věta + CTA Požádat o pilot + Otevřít aplikaci“, nahraďte na `/` komponentu `Index` novou lehkou `Landing.tsx` nebo zkraťte obsah `Index` a upravte CTA v i18n (hero.primaryCta → /request-link, hero.secondaryCta → /onboarding).  
 - **/request-link:** V aktuálním robots.txt už nejsou žádné Disallow. Pro indexovatelnou stránku „Požádat o pilot“ není třeba měnit.  
-- **Canonical:** V `index.html` lze přidat `<link rel="canonical" href="https://kitloop.cz/">` pro root (SPA má jeden HTML; pro více marketing stránek by bylo potřeba dynamické canonical v komponentách).
+- **Canonical:** V `index.html` zatím není (hardcodovat na / by kanonizovalo všechny cesty na homepage). Až bude jasná SEO architektura, řešit per-route (head management).
 
 ---
 
@@ -316,16 +319,16 @@ curl -sI https://kitloop.cz/how-it-works  # bez X-Robots-Tag
 
 **Co je opravené**
 - `_redirects`: explicitní pravidla `/robots.txt` → `/robots.txt` 200 a `/sitemap.xml` → `/sitemap.xml` 200 **nad** catch-all `/*` → `/index.html` 200. Netlify bere první match.
-- `robots.txt`: pouze `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.cz/sitemap.xml` (odstraněny všechny Disallow).
+- `robots.txt`: pouze `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.co/sitemap.xml` (odstraněny všechny Disallow).
 - `_headers` a `sitemap.xml` beze změny (noindex jen na app routách, sitemap jen marketing URL).
 
 **Jak ověřit po deployi**
 ```bash
-curl -sI https://kitloop.cz/robots.txt    # Content-Type: text/plain
-curl -sI https://kitloop.cz/sitemap.xml   # Content-Type: application/xml nebo text/xml
-curl -s https://kitloop.cz/sitemap.xml | head -3   # <?xml ...>, ne <!DOCTYPE html>
-curl -sI https://kitloop.cz/onboarding     # X-Robots-Tag: noindex, nofollow
-curl -sI https://kitloop.cz/              # bez X-Robots-Tag (indexovatelné)
+curl -sI https://kitloop.co/robots.txt    # Content-Type: text/plain
+curl -sI https://kitloop.co/sitemap.xml   # Content-Type: application/xml nebo text/xml
+curl -s https://kitloop.co/sitemap.xml | head -3   # <?xml ...>, ne <!DOCTYPE html>
+curl -sI https://kitloop.co/onboarding     # X-Robots-Tag: noindex, nofollow
+curl -sI https://kitloop.co/              # bez X-Robots-Tag (indexovatelné)
 ```
 
 ---
@@ -338,10 +341,10 @@ curl -sI https://kitloop.cz/              # bez X-Robots-Tag (indexovatelné)
 
 | Co | Výsledek |
 |----|----------|
-| `curl -sI https://kitloop.cz/sitemap.xml` | `content-type: text/html; charset=UTF-8` ✗ |
-| `curl -s https://kitloop.cz/sitemap.xml \| head -3` | `<!DOCTYPE html>`, `<html lang="en">` ✗ |
-| `curl -sI https://kitloop.cz/robots.txt` | `content-type: text/plain; charset=UTF-8` ✓ |
-| `curl -s https://kitloop.cz/robots.txt \| head -5` | `User-agent: Googlebot`, `Allow: /`, `User-agent: Bingbot`… — bez řádku `Sitemap:` v prvních 5 ✗ |
+| `curl -sI https://kitloop.co/sitemap.xml` | `content-type: text/html; charset=UTF-8` ✗ |
+| `curl -s https://kitloop.co/sitemap.xml \| head -3` | `<!DOCTYPE html>`, `<html lang="en">` ✗ |
+| `curl -sI https://kitloop.co/robots.txt` | `content-type: text/plain; charset=UTF-8` ✓ |
+| `curl -s https://kitloop.co/robots.txt \| head -5` | `User-agent: Googlebot`, `Allow: /`, `User-agent: Bingbot`… — bez řádku `Sitemap:` v prvních 5 ✗ |
 
 **Změny v tomto PR:**
 
@@ -349,7 +352,7 @@ curl -sI https://kitloop.cz/              # bez X-Robots-Tag (indexovatelné)
   - `/robots.txt   /robots.txt   200!`
   - `/sitemap.xml  /sitemap.xml  200!`
   - `/*            /index.html   200`
-- **`public/robots.txt`** – přesně 3 řádky: `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.cz/sitemap.xml`.
+- **`public/robots.txt`** – přesně 3 řádky: `User-agent: *`, `Allow: /`, `Sitemap: https://kitloop.co/sitemap.xml`.
 
 **Build output (ověření multi-line):**
 
@@ -363,10 +366,10 @@ file dist/sitemap.xml            # XML 1.0 document text
 **Po deployi – ověření:**
 
 ```bash
-curl -sI https://kitloop.cz/sitemap.xml
-curl -s https://kitloop.cz/sitemap.xml | head -n 3
-curl -sI https://kitloop.cz/robots.txt
-curl -s https://kitloop.cz/robots.txt | head -n 5
+curl -sI https://kitloop.co/sitemap.xml
+curl -s https://kitloop.co/sitemap.xml | head -n 3
+curl -sI https://kitloop.co/robots.txt
+curl -s https://kitloop.co/robots.txt | head -n 5
 ```
 
 Acceptance: sitemap.xml = Content-Type text/xml nebo application/xml, obsah začíná `<?xml`. robots.txt = text/plain, obsahuje řádek `Sitemap: …`.

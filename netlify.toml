@@ -18,7 +18,67 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# All redirects live here. Do not add public/_redirects (Netlify merges it first and would override domain 301s; _redirects also does not support comments).
+# Order: domain 301s first (force = true), then static rewrites, then SPA fallback.
 
+# 1) Domain redirects — must run before any path-based rule so kitloop.cz etc. 301 to kitloop.co
+[[redirects]]
+  from = "https://kitloop.cz/*"
+  to = "https://kitloop.co/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "https://www.kitloop.cz/*"
+  to = "https://kitloop.co/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "http://kitloop.cz/*"
+  to = "https://kitloop.co/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "http://www.kitloop.cz/*"
+  to = "https://kitloop.co/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "https://www.kitloop.co/*"
+  to = "https://kitloop.co/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "http://kitloop.co/*"
+  to = "https://kitloop.co/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "http://www.kitloop.co/*"
+  to = "https://kitloop.co/:splat"
+  status = 301
+  force = true
+
+# 2) Static rewrites (200 = serve file; no force — only needed for redirects overriding existing routes)
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemap.xml"
+  status = 200
+
+# 3) /.well-known/* — Apple/Google verifications, security.txt, etc.; must not be eaten by SPA fallback
+[[redirects]]
+  from = "/.well-known/*"
+  to = "/.well-known/:splat"
+  status = 200
+
+# 4) SPA fallback — last
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
 for = "/*"
@@ -28,6 +88,23 @@ for = "/*"
   Permissions-Policy = "geolocation=(), camera=(), microphone=()"
   X-Content-Type-Options = "nosniff"
   X-Frame-Options = "SAMEORIGIN"
+
+# /.well-known/* — avoid caching so Apple/Google verifications and security.txt are picked up quickly
+[[headers]]
+  for = "/.well-known/*"
+  [headers.values]
+  Cache-Control = "no-store"
+  # Content-Type is inferred by Netlify from file extension; override per file in Netlify UI if needed
+
+# Optional: cache for robots/sitemap (tune if you change them often — lower max-age or drop these blocks)
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+  Cache-Control = "public, max-age=3600"
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+  Cache-Control = "public, max-age=3600"
 
 # Context: Protect outbound requests to Supabase, Stripe, and Sentry (M1 hardening).
 # To enable Stripe Elements later, extend script-src/frame-src with https://js.stripe.com

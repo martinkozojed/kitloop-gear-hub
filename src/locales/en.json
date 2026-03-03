@@ -1024,7 +1024,7 @@
         "required": "This field is required",
         "phone": "Enter a valid phone number in +420 format",
         "email": "Enter a valid email",
-        "website": "Enter a valid URL (e.g. https://kitloop.cz)",
+        "website": "Enter a valid URL (e.g. https://kitloop.co)",
         "termsLength": "Max 1000 characters"
       },
       "preview": {
