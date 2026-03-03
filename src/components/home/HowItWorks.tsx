@@ -79,7 +79,7 @@ const HowItWorks = () => {
         
         <div className="text-center">
           <Button asChild variant="primary">
-            <Link to="/how-it-works">{t('how_it_works.learn_more')}</Link>
+            <Link to="/">{t('how_it_works.learn_more')}</Link>
           </Button>
         </div>
       </div>

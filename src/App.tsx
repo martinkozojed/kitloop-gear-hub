@@ -78,7 +78,7 @@ const AppRoutes = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
-  const isOnboardingRoute = location.pathname.startsWith("/onboarding");
+  const isOnboardingRoute = location.pathname === "/" || location.pathname.startsWith("/onboarding");
   const isAuthRoute =
     location.pathname === "/login" ||
     location.pathname === "/signup" ||
@@ -111,7 +111,8 @@ const AppRoutes = () => {
       >
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Onboarding />} />
+            <Route path="/landing" element={<Navigate to="/" replace />} />
             <Route
               path="/demo/dashboard"
               element={
@@ -120,7 +121,7 @@ const AppRoutes = () => {
                   : <Navigate to="/" replace />
               }
             />
-            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/how-it-works" element={<Navigate to="/" replace />} />
             {/* Marketplace - gated by VITE_ENABLE_MARKETPLACE */}
             <Route
               path="/browse"
@@ -144,7 +145,7 @@ const AppRoutes = () => {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/about" element={<Navigate to="/" replace />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/onboarding/*" element={<Onboarding />} />

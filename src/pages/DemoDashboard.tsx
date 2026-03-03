@@ -281,7 +281,7 @@ const DemoDashboard = () => {
             <div className="text-center py-8 border-t mt-8">
                 <p className="text-muted-foreground mb-4">Ready to streamline your rental operations?</p>
                 <div className="flex justify-center gap-3">
-                    <Button variant="secondary" asChild><Link to="/about">Learn More</Link></Button>
+                    <Button variant="secondary" asChild><Link to="/">Learn More</Link></Button>
                     <Button variant="cta" asChild><Link to="/signup">Start Free Trial <ArrowRight className="w-4 h-4 ml-2" /></Link></Button>
                 </div>
             </div>

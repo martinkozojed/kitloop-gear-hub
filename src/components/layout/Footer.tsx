@@ -53,7 +53,7 @@ const Footer = () => {
                 </button>
               </li>
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-green-600 transition-colors">
+                <Link to="/" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.contact')}
                 </Link>
               </li>
@@ -65,7 +65,7 @@ const Footer = () => {
             <h3 className="font-bold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-green-600 transition-colors">
+                <Link to="/" className="text-muted-foreground hover:text-green-600 transition-colors">
                   {t('footer.contact')}
                 </Link>
               </li>

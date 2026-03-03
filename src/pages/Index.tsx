@@ -71,7 +71,7 @@ const Index = () => {
                                 <Link to="/demo/dashboard">{t('hero.secondaryCta')} <ArrowRight className="ml-2 h-5 w-5" /></Link>
                             </Button>
                             <Button size="lg" variant="secondary" className="h-14 px-8 text-lg rounded-full" asChild>
-                                <Link to="/about">{t('hero.primaryCta')}</Link>
+                                <Link to="/">{t('hero.primaryCta')}</Link>
                             </Button>
                         </motion.div>
 
@@ -577,7 +577,7 @@ const Index = () => {
                                         className="h-14 px-10 text-lg font-semibold"
                                         asChild
                                     >
-                                        <Link to="/about">
+                                        <Link to="/">
                                             {t('product.cta.primaryCta')} <ArrowRight className="ml-2 h-5 w-5" />
                                         </Link>
                                     </Button>
@@ -736,7 +736,7 @@ const Index = () => {
                                 </AccordionTrigger>
                                 <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">
                                     {t('faq.a8_prefix')}{" "}
-                                    <Link to="/about" className="text-emerald-600 hover:underline font-medium">
+                                    <Link to="/" className="text-emerald-600 hover:underline font-medium">
                                         {t('faq.a8_link')}
                                     </Link>.
                                 </AccordionContent>
@@ -753,7 +753,7 @@ const Index = () => {
                     >
                         <p className="text-muted-foreground mb-4">{t('faq.more_questions')}</p>
                         <Button variant="outline" size="lg" asChild>
-                            <Link to="/about">
+                            <Link to="/">
                                 {t('faq.contact_cta')}
                             </Link>
                         </Button>
@@ -813,7 +813,7 @@ const Index = () => {
                         {/* CTA */}
                         <div className="flex gap-3 pt-2">
                             <Button variant="default" size="lg" className="flex-1" asChild>
-                                <Link to="/about" onClick={() => setAnnouncementOpen(false)}>
+                                <Link to="/" onClick={() => setAnnouncementOpen(false)}>
                                     {t('announcement.cta')} <ArrowRight className="ml-2 h-4 w-4" />
                                 </Link>
                             </Button>
