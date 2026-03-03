@@ -1,0 +1,46 @@
+# App paths: noindex so GSC does not index app URLs (SEO MVP).
+# Marketing paths (/, /how-it-works, /about, /terms, /privacy) have no entry here = indexable.
+/onboarding
+  X-Robots-Tag: noindex, nofollow
+/onboarding/*
+  X-Robots-Tag: noindex, nofollow
+/login
+  X-Robots-Tag: noindex, nofollow
+/signup
+  X-Robots-Tag: noindex, nofollow
+/forgot-password
+  X-Robots-Tag: noindex, nofollow
+/reset-password
+  X-Robots-Tag: noindex, nofollow
+/provider
+  X-Robots-Tag: noindex, nofollow
+/provider/*
+  X-Robots-Tag: noindex, nofollow
+/admin
+  X-Robots-Tag: noindex, nofollow
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+/demo
+  X-Robots-Tag: noindex, nofollow
+/demo/*
+  X-Robots-Tag: noindex, nofollow
+/book
+  X-Robots-Tag: noindex, nofollow
+/book/*
+  X-Robots-Tag: noindex, nofollow
+/dashboard
+  X-Robots-Tag: noindex, nofollow
+/dashboard/*
+  X-Robots-Tag: noindex, nofollow
+/my-reservations
+  X-Robots-Tag: noindex, nofollow
+/approvals
+  X-Robots-Tag: noindex, nofollow
+/admin/approvals
+  X-Robots-Tag: noindex, nofollow
+/marketplace
+  X-Robots-Tag: noindex, nofollow
+/add-rental
+  X-Robots-Tag: noindex, nofollow
+/browse
+  X-Robots-Tag: noindex, nofollow
