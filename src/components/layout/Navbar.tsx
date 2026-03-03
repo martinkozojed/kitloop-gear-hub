@@ -75,7 +75,7 @@ const Navbar = () => {
               >
                 {t('navbar.product')}
               </button>
-              <Link to="/about" className="hover:underline transition-colors duration-200">
+              <Link to="/" className="hover:underline transition-colors duration-200">
                 {t('navbar.about_us')}
               </Link>
               <button
@@ -157,9 +157,9 @@ const Navbar = () => {
             </DrawerTrigger>
             <DrawerContent className="p-6 space-y-6">
               <nav className="flex flex-col space-y-4 text-center text-text">
-                <Link to="/how-it-works">{t('navbar.how_it_works')}</Link>
+                <Link to="/">{t('navbar.how_it_works')}</Link>
                 {/* <Link to="/browse">{t('navbar.browse_gear')}</Link> */}
-                <Link to="/about">{t('navbar.about_us')}</Link>
+                <Link to="/">{t('navbar.about_us')}</Link>
                 <button onClick={() => scrollToSection('faq')}>{t('navbar.faq')}</button>
               </nav>
 
@@ -202,7 +202,7 @@ const Navbar = () => {
 
           {!isAuthenticated && (
             <Button variant="primary" className="md:hidden" asChild>
-              <Link to="/about">{t('navbar.contact')}</Link>
+              <Link to="/">{t('navbar.contact')}</Link>
             </Button>
           )}
 
