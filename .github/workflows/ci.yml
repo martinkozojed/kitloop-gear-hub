@@ -101,7 +101,9 @@ jobs:
       - name: Deno version
         run: deno --version
       - name: Cache dependencies (frozen lock; nodeModulesDir none = fetch npm from registry)
-        run: deno task deno:cache
+        run: |
+          rm -rf ~/.cache/deno
+          deno task deno:cache
       - name: Run reserve_gear unit tests
         env:
           SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
