@@ -5,7 +5,7 @@
 -- =====================================================================================
 CREATE OR REPLACE VIEW public.vw_pilot_daily_metrics AS
 SELECT r.provider_id,
-    p.business_name,
+    p.rental_name,
     DATE(r.created_at) AS metric_date,
     COUNT(*) AS total_created_reservations,
     COUNT(*) FILTER (
@@ -20,7 +20,7 @@ SELECT r.provider_id,
 FROM public.reservations r
     JOIN public.providers p ON p.id = r.provider_id
 GROUP BY r.provider_id,
-    p.business_name,
+    p.rental_name,
     DATE(r.created_at);
 -- RLS equivalent for Views: we GRANT access, but since it queries `reservations` and `providers`
 -- underlying RLS on those tables applies *IF* we use security_invoker.

@@ -35,7 +35,7 @@ SELECT TO authenticated USING (
         OR auth.uid() IN (
             SELECT user_id
             FROM public.user_roles
-            WHERE role = 'superadmin'
+            WHERE role = 'admin'
         )
     );
 -- 4. Trigger Function
@@ -134,13 +134,8 @@ INSERT
     OR
 UPDATE
     OR DELETE ON public.reservations FOR EACH ROW EXECUTE FUNCTION public.fn_audit_trigger();
-DROP TRIGGER IF EXISTS trg_audit_gear_items ON public.gear_items;
-CREATE TRIGGER trg_audit_gear_items
-AFTER
-INSERT
-    OR
-UPDATE
-    OR DELETE ON public.gear_items FOR EACH ROW EXECUTE FUNCTION public.fn_audit_trigger();
+-- gear_items is a VIEW, not a table. Views cannot have row-level triggers.
+-- Audit for inventory changes should be attached to the underlying 'assets' table instead.
 -- Grants
 GRANT SELECT ON public.provider_audit_logs TO authenticated;
 -- Do not grant insert/update/delete to authenticated directly
