@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
+import { getProviderTodayDates } from "@/lib/provider-dates";
 import { AgendaItemProps, KpiData } from "@/types/dashboard";
 import { ExceptionItem } from "@/types/dashboard";
 import { toast } from "sonner";
@@ -36,13 +37,9 @@ export const useDashboardData = () => {
     const queryClient = useQueryClient();
 
     // DATE columns in reservations are Postgres DATE type.
-    // Use YYYY-MM-DD strings → no timezone shift, no implicit cast.
-    // F1 pilot: operator's local date (front-desk clock) is the source of truth.
-    const now = new Date();
-    const todayDate = format(now, 'yyyy-MM-dd');      // e.g. "2026-03-06"
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = format(tomorrow, 'yyyy-MM-dd'); // e.g. "2026-03-07"
+    // Use provider timezone to compute correct "today" boundary.
+    // Fallback: operator's local clock (F1 pilot default).
+    const { todayDate, tomorrowDate } = getProviderTodayDates(provider?.time_zone);
 
     // --- QUERIES ---
 

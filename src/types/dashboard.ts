@@ -31,10 +31,10 @@ export interface KpiData {
 
 export interface AgendaItemProps {
     time: string;
-    type: 'pickup' | 'return';
+    type: 'pickup' | 'return' | 'overdue';
     customerName: string;
     itemCount: number;
-    status: 'ready' | 'conflict' | 'unpaid' | 'active' | 'completed'; // UI state for the agenda row
+    status: 'ready' | 'conflict' | 'unpaid' | 'active' | 'completed' | 'overdue'; // UI state for the agenda row
     reservationId: string;
     startDate?: string;
     endDate?: string;
