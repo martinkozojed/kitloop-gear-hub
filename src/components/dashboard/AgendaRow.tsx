@@ -24,7 +24,8 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
     const { t } = useTranslation();
     // Determine actionable state
     const isPickup = data.type === 'pickup';
-    const isBlocker = data.status === 'unpaid' || data.status === 'conflict';
+    const isOverdue = data.type === 'overdue';
+    const isBlocker = data.status === 'unpaid' || data.status === 'conflict' || isOverdue;
 
     // Status Pill via StatusBadge component
     const renderStatusBadge = () => {
@@ -47,9 +48,9 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                 <span className="text-xl font-bold font-mono tracking-tight text-foreground group-hover:text-primary transition-colors">{data.time}</span>
                 <span className={cn(
                     "text-xs uppercase font-bold tracking-wide mt-0.5",
-                    isPickup ? "text-status-success" : "text-status-success"
+                    isPickup ? "text-status-success" : isOverdue ? "text-status-danger" : "text-status-success"
                 )}>
-                    {isPickup ? t('dashboard.agenda.pickupLabel') : t('dashboard.agenda.returnLabel')}
+                    {isPickup ? t('dashboard.agenda.pickupLabel') : isOverdue ? 'ZPOŽDĚNÍ' : t('dashboard.agenda.returnLabel')}
                 </span>
             </div>
 
@@ -90,6 +91,15 @@ export function AgendaRow({ data, onIssue, onReturn, onCustomerClick }: { data: 
                         ) : (
                             <span className="flex items-center gap-2">{t('dashboard.agenda.issue')} <Icon icon={ArrowRight} /></span>
                         )}
+                    </Button>
+                ) : isOverdue ? (
+                    <Button
+                        variant="destructive"
+                        className="font-semibold transition-all h-9 px-4"
+                        size="sm"
+                        onClick={() => onReturn?.(data)}
+                    >
+                        <span className="flex items-center gap-2">{t('dashboard.agenda.return')} <Icon icon={AlertTriangle} /></span>
                     </Button>
                 ) : (
                     <Button

@@ -88,7 +88,7 @@ export const useDashboardData = () => {
                 `)
                 .eq('provider_id', provider.id)
                 .in('status', ['hold', 'confirmed', 'active', 'completed'])
-                .or(`start_date.gte.${todayIso},end_date.gte.${todayIso}`)
+                .or(`start_date.gte.${todayIso},end_date.gte.${todayIso},status.eq.active`)
                 .limit(50);
 
             if (error) throw error;
@@ -153,9 +153,31 @@ export const useDashboardData = () => {
                         paymentStatus
                     });
                 }
+
+                // Overdue Agenda
+                if (r.status === 'active' && eDate < today) {
+                    const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
+                    mappedAgenda.push({
+                        time: format(eDate, 'd.M.'),
+                        type: 'overdue',
+                        customerName: r.customer_name || 'Unknown',
+                        itemCount: 1, // Placeholder
+                        status: 'overdue',
+                        reservationId: r.id,
+                        startDate: r.start_date,
+                        endDate: r.end_date,
+                        paymentStatus,
+                        crmCustomerId: r.crm_customer_id || undefined,
+                        customerRiskStatus: riskStatus
+                    });
+                }
             });
 
-            return mappedAgenda.sort((a, b) => a.time.localeCompare(b.time));
+            return mappedAgenda.sort((a, b) => {
+                const dateA = new Date(a.endDate || new Date());
+                const dateB = new Date(b.endDate || new Date());
+                return dateA.getTime() - dateB.getTime();
+            });
         },
         enabled: !!provider?.id,
         staleTime: 1000 * 60 * 5, // 5 minutes stale for agenda
