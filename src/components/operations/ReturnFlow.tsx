@@ -30,7 +30,6 @@ import { requestUploadTicket, uploadWithTicket, UploadTicketError } from "@/lib/
 import { rulesForUseCase } from "@/lib/upload/validation";
 import { logEvent } from '@/lib/app-events';
 import { ScannerModal } from './ScannerModal';
-import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
 
 interface ReturnFlowProps {
     open: boolean;
@@ -286,11 +285,6 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
         }
     };
 
-    const { handleKeyDown } = useBarcodeScanner({
-        onScan: handleScanAsset,
-        enabled: import.meta.env.VITE_ENABLE_SCAN_FIRST === 'true' && !scanning && open
-    });
-
     const bodyContent = (
         <>
             <div className="py-4 space-y-6">
@@ -333,14 +327,14 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                         <div className="flex items-center space-x-2">
                                             <Select
                                                 value={asset.healthState}
-                                                onValueChange={(val: 'ok' | 'cleaning' | 'repair' | 'retired') => setHealthState(asset.id, val)}
+                                                onValueChange={(val: any) => setHealthState(asset.id, val)}
                                             >
                                                 <SelectTrigger className="w-[140px] h-8 text-xs bg-background">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="ok">Stav: OK</SelectItem>
-                                                    <SelectItem value="cleaning">Čištění</SelectItem>
+                                                    <SelectItem value="cleaning">Cíštění</SelectItem>
                                                     <SelectItem value="repair">Na opravu</SelectItem>
                                                     <SelectItem value="retired">Vyřadit</SelectItem>
                                                 </SelectContent>
@@ -406,7 +400,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
     if (isMobile) {
         return (
             <Sheet open={open} onOpenChange={onOpenChange}>
-                <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-token-lg" onKeyDown={handleKeyDown}>
+                <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-token-lg">
                     <SheetHeader>
                         <SheetTitle className="flex items-center gap-2">
                             <PackageCheck className="w-5 h-5 text-status-success" />
@@ -424,7 +418,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" onKeyDown={handleKeyDown}>
+            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <PackageCheck className="w-5 h-5 text-status-success" />
@@ -456,7 +450,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                             <div className="flex items-center space-x-2">
                                                 <Select
                                                     value={asset.healthState}
-                                                    onValueChange={(val: 'ok' | 'cleaning' | 'repair' | 'retired') => setHealthState(asset.id, val)}
+                                                    onValueChange={(val: any) => setHealthState(asset.id, val)}
                                                 >
                                                     <SelectTrigger className="w-[140px] h-8 text-xs bg-background">
                                                         <SelectValue />
