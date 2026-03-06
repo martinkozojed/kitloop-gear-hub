@@ -23,6 +23,7 @@ import { PackageCheck, AlertOctagon, Upload, Loader2, Camera } from "lucide-reac
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from '@/context/AuthContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { requestUploadTicket, uploadWithTicket, UploadTicketError } from "@/lib/upload/client";
@@ -44,6 +45,7 @@ interface AssetReturnState {
     isDamaged: boolean;
     note: string;
     photoFile: File | null;
+    healthState: 'ok' | 'cleaning' | 'repair' | 'retired';
 }
 
 export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: ReturnFlowProps) {
@@ -91,7 +93,8 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                 product_name: item.assets?.product_variants?.products?.name || 'Item',
                 isDamaged: false,
                 note: '',
-                photoFile: null
+                photoFile: null,
+                healthState: 'ok'
             }));
             setAssets(mapped);
         } catch (err) {
@@ -110,6 +113,14 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
 
     const handleFileChange = (assetId: string, file: File | null) => {
         setAssets(prev => prev.map(a => a.id === assetId ? { ...a, photoFile: file } : a));
+    };
+
+    const setHealthState = (assetId: string, state: 'ok' | 'cleaning' | 'repair' | 'retired') => {
+        setAssets(prev => prev.map(a => a.id === assetId ? {
+            ...a,
+            healthState: state,
+            isDamaged: state === 'repair' || state === 'retired'
+        } : a));
     };
 
     const toggleDamage = (assetId: string, checked: boolean) => {
@@ -134,7 +145,8 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                 const damagePayload = assets.map(a => ({
                     asset_id: a.id,
                     damaged: a.isDamaged,
-                    note: a.note || ''
+                    note: a.note || '',
+                    health_state: a.healthState
                 }));
 
                 // 2. Create Report (Phase 1 - Transactional)
@@ -313,14 +325,20 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                             <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={`dmg-${asset.id}`}
-                                                checked={asset.isDamaged}
-                                                onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
-                                            />
-                                            <Label htmlFor={`dmg-${asset.id}`} className="text-sm cursor-pointer">
-                                                {t('operations.returnFlow.reportDamage')}
-                                            </Label>
+                                            <Select
+                                                value={asset.healthState}
+                                                onValueChange={(val: any) => setHealthState(asset.id, val)}
+                                            >
+                                                <SelectTrigger className="w-[140px] h-8 text-xs bg-background">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="ok">Stav: OK</SelectItem>
+                                                    <SelectItem value="cleaning">Cíštění</SelectItem>
+                                                    <SelectItem value="repair">Na opravu</SelectItem>
+                                                    <SelectItem value="retired">Vyřadit</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
 
@@ -430,14 +448,20 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                                                 <p className="text-xs text-muted-foreground font-mono">{asset.asset_tag}</p>
                                             </div>
                                             <div className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`dmg-d-${asset.id}`}
-                                                    checked={asset.isDamaged}
-                                                    onCheckedChange={(c) => toggleDamage(asset.id, c as boolean)}
-                                                />
-                                                <Label htmlFor={`dmg-d-${asset.id}`} className="text-sm cursor-pointer">
-                                                    {t('operations.returnFlow.reportDamage')}
-                                                </Label>
+                                                <Select
+                                                    value={asset.healthState}
+                                                    onValueChange={(val: any) => setHealthState(asset.id, val)}
+                                                >
+                                                    <SelectTrigger className="w-[140px] h-8 text-xs bg-background">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="ok">Stav: OK</SelectItem>
+                                                        <SelectItem value="cleaning">Čištění</SelectItem>
+                                                        <SelectItem value="repair">Na opravu</SelectItem>
+                                                        <SelectItem value="retired">Vyřadit</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
                                         </div>
 
