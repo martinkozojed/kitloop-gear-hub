@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import { cs, enUS } from 'date-fns/locale';
+import { logEvent } from '@/lib/app-events';
 import { track, trackError } from '@/lib/telemetry';
 
 interface Variant {
@@ -428,6 +429,7 @@ const ReservationForm = () => {
 
       const reservationId = reservationResult.reservation_id;
       track('reservations.created', { reservation_id: reservationId, status: reservationResult.status }, 'ReservationForm');
+      await logEvent('reservation_created', { providerId: provider.id, entity: { type: 'reservation', id: reservationId } });
 
       // If this was spawned from a booking request, mark the request as converted
       if (fromRequestId && fromRequest?.id) {

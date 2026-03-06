@@ -7,6 +7,7 @@ export type AppEventName =
   | 'print_handover'
   | 'reservation_issue'
   | 'reservation_return'
+  | 'reservation_created'
   | 'feedback_submitted';
 
 type EventMetadata = Record<string, Json | undefined>;
