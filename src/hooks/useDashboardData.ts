@@ -88,7 +88,7 @@ export const useDashboardData = () => {
                 `)
                 .eq('provider_id', provider.id)
                 .in('status', ['hold', 'confirmed', 'active', 'completed'])
-                .or(`start_date.gte.${todayIso},end_date.gte.${todayIso},status.eq.active`)
+                .or(`and(start_date.gte.${todayIso},start_date.lt.${tomorrowIso}),and(end_date.gte.${todayIso},end_date.lt.${tomorrowIso}),and(status.eq.active,end_date.lt.${todayIso})`)
                 .limit(50);
 
             if (error) throw error;

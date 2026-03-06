@@ -5,8 +5,8 @@ export type AppEventName =
   | 'export_inventory'
   | 'export_reservations'
   | 'print_handover'
-  | 'reservation_issue'
-  | 'reservation_return'
+  | 'issue_completed'
+  | 'return_completed'
   | 'reservation_created'
   | 'feedback_submitted';
 
