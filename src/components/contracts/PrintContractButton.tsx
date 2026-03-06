@@ -67,7 +67,7 @@ export function PrintContractButton({ reservationId, variant = "outline", size =
             })) || [];
 
             if (typeof res.provider_id === 'string') {
-                await logEvent('print_handover', {
+                await logEvent('print_document', {
                     providerId: res.provider_id,
                     entity: { type: 'reservation', id: reservationId },
                 });

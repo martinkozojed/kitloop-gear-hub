@@ -15,13 +15,19 @@ export const useDashboardData = () => {
     const { provider, logout } = useAuth();
     const queryClient = useQueryClient();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayIso = today.toISOString();
-
-    const tomorrow = new Date(today);
+    // DATE columns: use YYYY-MM-DD strings (no timezone shift).
+    // Uses operator's local date (front-desk clock) — correct for F1 pilot.
+    const now = new Date();
+    const todayDate = format(now, 'yyyy-MM-dd');      // e.g. "2026-03-06"
+    const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowIso = tomorrow.toISOString();
+    const tomorrowDate = format(tomorrow, 'yyyy-MM-dd'); // e.g. "2026-03-07"
+
+    // Keep Date objects for client-side comparisons in agenda mapping
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setDate(tomorrowStart.getDate() + 1);
 
     // --- QUERIES ---
 
@@ -42,8 +48,8 @@ export const useDashboardData = () => {
                 .select('*', { count: 'exact', head: true })
                 .eq('provider_id', provider.id)
                 .eq('status', 'active')
-                .gte('end_date', todayIso)
-                .lt('end_date', tomorrowIso);
+                .gte('end_date', todayDate)
+                .lt('end_date', tomorrowDate);
 
             // Calculate daily revenue from active reservations
             const { data: activeReservations } = await supabase
@@ -87,8 +93,8 @@ export const useDashboardData = () => {
                     crm_customer:customers ( risk_status )
                 `)
                 .eq('provider_id', provider.id)
-                .in('status', ['hold', 'confirmed', 'active', 'completed'])
-                .or(`start_date.gte.${todayIso},end_date.gte.${todayIso}`)
+                .in('status', ['hold', 'confirmed', 'pending', 'active', 'completed'])
+                .or(`and(start_date.gte.${todayDate},start_date.lt.${tomorrowDate}),and(end_date.gte.${todayDate},end_date.lt.${tomorrowDate}),and(status.eq.active,end_date.lt.${todayDate})`)
                 .limit(50);
 
             if (error) throw error;
@@ -112,13 +118,13 @@ export const useDashboardData = () => {
             (rawAgenda as unknown as RawAgendaItem[])?.forEach((r) => {
                 const sDate = new Date(r.start_date);
                 const eDate = new Date(r.end_date);
-                const isTodayStart = sDate >= today && sDate < tomorrow;
-                const isTodayEnd = eDate >= today && eDate < tomorrow;
+                const isTodayStart = sDate >= todayStart && sDate < tomorrowStart;
+                const isTodayEnd = eDate >= todayStart && eDate < tomorrowStart;
 
                 const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
 
                 // Pickup Agenda
-                if (isTodayStart && (r.status === 'confirmed' || r.status === 'hold')) {
+                if (isTodayStart && (r.status === 'confirmed' || r.status === 'pending' || r.status === 'hold')) {
                     const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
                     const uiStatus = ['paid', 'deposit_paid'].includes(paymentStatus) ? 'ready' : 'unpaid';
 
@@ -153,9 +159,31 @@ export const useDashboardData = () => {
                         paymentStatus
                     });
                 }
+
+                // Overdue Agenda
+                if (r.status === 'active' && eDate < todayStart) {
+                    const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
+                    mappedAgenda.push({
+                        time: format(eDate, 'd.M.'),
+                        type: 'overdue',
+                        customerName: r.customer_name || 'Unknown',
+                        itemCount: 1, // Placeholder
+                        status: 'overdue',
+                        reservationId: r.id,
+                        startDate: r.start_date,
+                        endDate: r.end_date,
+                        paymentStatus,
+                        crmCustomerId: r.crm_customer_id || undefined,
+                        customerRiskStatus: riskStatus
+                    });
+                }
             });
 
-            return mappedAgenda.sort((a, b) => a.time.localeCompare(b.time));
+            return mappedAgenda.sort((a, b) => {
+                const dateA = new Date(a.endDate || new Date());
+                const dateB = new Date(b.endDate || new Date());
+                return dateA.getTime() - dateB.getTime();
+            });
         },
         enabled: !!provider?.id,
         staleTime: 1000 * 60 * 5, // 5 minutes stale for agenda
@@ -173,7 +201,7 @@ export const useDashboardData = () => {
                 .select('id, end_date, customer_name')
                 .eq('provider_id', provider.id)
                 .in('status', ['active']) // only active items can be overdue
-                .lt('end_date', todayIso);
+                .lt('end_date', todayDate);
 
             // Query 2: Unpaid pickups scheduled for today
             const { data: unpaidData } = await supabase
@@ -182,8 +210,8 @@ export const useDashboardData = () => {
                 .eq('provider_id', provider.id)
                 .in('status', ['confirmed', 'hold'])
                 .eq('payment_status', 'unpaid')
-                .gte('start_date', todayIso)
-                .lt('start_date', tomorrowIso);
+                .gte('start_date', todayDate)
+                .lt('start_date', tomorrowDate);
 
             interface RawException {
                 id: string;

@@ -2,12 +2,11 @@ import { supabase } from '@/lib/supabase';
 import type { Json } from '@/integrations/supabase/types';
 
 export type AppEventName =
-  | 'export_inventory'
-  | 'export_reservations'
-  | 'print_handover'
-  | 'reservation_issue'
-  | 'reservation_return'
   | 'reservation_created'
+  | 'issue_completed'
+  | 'return_completed'
+  | 'print_document'
+  | 'export_list'
   | 'feedback_submitted';
 
 type EventMetadata = Record<string, Json | undefined>;

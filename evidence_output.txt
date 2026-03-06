@@ -1,0 +1,29 @@
+=== FINAL EVIDENCE REPORT ===
+
+1) Apex (https://kitloop.co)
+HTTP/2 200 
+
+2) Redirects (http://kitloop.cz)
+HTTP/1.1 301 Moved Permanently
+Location: https://kitloop.cz/
+HTTP/2 301 
+location: https://kitloop.co/
+
+3) Robots.txt
+HTTP/2 200 
+content-type: text/plain; charset=UTF-8
+x-content-type-options: nosniff
+
+4) Sitemap
+HTTP/2 200 
+content-type: application/xml
+x-content-type-options: nosniff
+
+5) Security.txt
+HTTP/2 200 
+content-type: text/plain; charset=UTF-8
+x-content-type-options: nosniff
+
+6) Protected path (https://kitloop.co/onboarding) - Should have noindex
+HTTP/2 200 
+x-robots-tag: noindex, nofollow

@@ -242,7 +242,7 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                 toast.success(t('operations.returnFlow.success'));
             }
 
-            await logEvent('reservation_return', {
+            await logEvent('return_completed', {
                 providerId: provider.id,
                 entity: { type: 'reservation', id: reservation.id },
                 metadata: { has_damage: assets.some(a => a.isDamaged) },

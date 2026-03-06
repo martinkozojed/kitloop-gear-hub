@@ -35,7 +35,7 @@ SELECT TO authenticated USING (
         OR auth.uid() IN (
             SELECT user_id
             FROM public.user_roles
-            WHERE role = 'superadmin'
+            WHERE role = 'admin'
         )
     );
 -- 4. Trigger Function
@@ -47,7 +47,7 @@ v_entity_id text;
 BEGIN -- 4a. Find provider_id depending on the table
 IF TG_TABLE_NAME = 'reservations' THEN v_provider_id := COALESCE(NEW.provider_id, OLD.provider_id);
 v_entity_id := COALESCE(NEW.id, OLD.id);
-ELSIF TG_TABLE_NAME = 'gear_items' THEN v_provider_id := COALESCE(NEW.provider_id, OLD.provider_id);
+ELSIF TG_TABLE_NAME = 'assets' THEN v_provider_id := COALESCE(NEW.provider_id, OLD.provider_id);
 v_entity_id := COALESCE(NEW.id, OLD.id);
 ELSE -- Fallback if used on other tables later
 BEGIN EXECUTE 'SELECT provider_id FROM ' || quote_ident(TG_TABLE_NAME) || ' WHERE id = $1' INTO v_provider_id USING COALESCE(NEW.id, OLD.id);
@@ -134,13 +134,13 @@ INSERT
     OR
 UPDATE
     OR DELETE ON public.reservations FOR EACH ROW EXECUTE FUNCTION public.fn_audit_trigger();
-DROP TRIGGER IF EXISTS trg_audit_gear_items ON public.gear_items;
-CREATE TRIGGER trg_audit_gear_items
+DROP TRIGGER IF EXISTS trg_audit_assets ON public.assets;
+CREATE TRIGGER trg_audit_assets
 AFTER
 INSERT
     OR
 UPDATE
-    OR DELETE ON public.gear_items FOR EACH ROW EXECUTE FUNCTION public.fn_audit_trigger();
+    OR DELETE ON public.assets FOR EACH ROW EXECUTE FUNCTION public.fn_audit_trigger();
 -- Grants
 GRANT SELECT ON public.provider_audit_logs TO authenticated;
 -- Do not grant insert/update/delete to authenticated directly

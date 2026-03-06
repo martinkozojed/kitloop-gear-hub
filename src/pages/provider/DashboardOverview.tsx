@@ -79,18 +79,20 @@ const DashboardOverview = () => {
   };
 
   // --- Agenda Tab State ---
-  const [agendaTab, setAgendaTab] = useState<'all' | 'pickups' | 'returns'>('all');
+  const [agendaTab, setAgendaTab] = useState<'all' | 'pickups' | 'returns' | 'overdue'>('all');
 
   // Filter agenda items based on selected tab
   const filteredAgendaItems = useMemo(() => {
     if (agendaTab === 'all') return agendaItems;
     if (agendaTab === 'pickups') return agendaItems.filter(item => item.type === 'pickup');
-    return agendaItems.filter(item => item.type === 'return');
+    if (agendaTab === 'returns') return agendaItems.filter(item => item.type === 'return');
+    return agendaItems.filter(item => item.type === 'overdue');
   }, [agendaItems, agendaTab]);
 
   // Count pickups and returns for tab labels
   const pickupsCount = useMemo(() => agendaItems.filter(item => item.type === 'pickup').length, [agendaItems]);
   const returnsCount = useMemo(() => agendaItems.filter(item => item.type === 'return').length, [agendaItems]);
+  const overdueCount = useMemo(() => agendaItems.filter(item => item.type === 'overdue').length, [agendaItems]);
 
   // Memoize greeting to avoid recalculating on every render
   const greeting = useMemo(() => {
@@ -283,6 +285,14 @@ const DashboardOverview = () => {
                     onClick={() => setAgendaTab('returns')}
                   >
                     {t('dashboard.agenda.tabs.returns')} <span className="ml-1 opacity-50">({returnsCount})</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-8 text-xs ${agendaTab === 'overdue' ? 'font-semibold shadow-sm bg-background text-status-danger' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setAgendaTab('overdue')}
+                  >
+                    {!i18n.language.startsWith('cs') ? 'Overdue' : 'Po termínu'} <span className="ml-1 text-status-danger">({overdueCount})</span>
                   </Button>
                 </div>
               </div>

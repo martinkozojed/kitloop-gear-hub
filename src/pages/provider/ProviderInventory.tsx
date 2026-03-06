@@ -229,7 +229,7 @@ const ProviderInventory = () => {
       }))
     );
     if (provider?.id) {
-      void logEvent('export_inventory', {
+      void logEvent('export_list', {
         providerId: provider.id,
         metadata: { rows: data.length },
       });

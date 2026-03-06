@@ -320,7 +320,7 @@ const ProviderReservations = () => {
       }))
     );
     if (provider?.id) {
-      void logEvent('export_reservations', {
+      void logEvent('export_list', {
         providerId: provider.id,
         metadata: { rows: reservations.length },
       });
