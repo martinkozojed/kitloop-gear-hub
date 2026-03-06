@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
-import { AgendaItemProps, DashboardReservation, KpiData } from "@/types/dashboard";
+import { AgendaItemProps, KpiData } from "@/types/dashboard";
 import { ExceptionItem } from "@/types/dashboard";
 import { toast } from "sonner";
 
@@ -11,17 +11,38 @@ interface RpcResponse {
     error?: string;
 }
 
+/** Shared select columns for agenda reservation queries */
+const AGENDA_SELECT = `
+    id, start_date, end_date, status, customer_name, customer_phone, payment_status, crm_customer_id,
+    gear:gear_id ( name ),
+    crm_customer:customers ( risk_status )
+` as const;
+
+interface RawAgendaItem {
+    id: string;
+    start_date: string;
+    end_date: string;
+    status: string;
+    customer_name: string | null;
+    customer_phone: string | null;
+    payment_status: string;
+    crm_customer_id: string | null;
+    gear: { name: string } | null;
+    crm_customer: { risk_status: string } | null;
+}
+
 export const useDashboardData = () => {
     const { provider, logout } = useAuth();
     const queryClient = useQueryClient();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayIso = today.toISOString();
-
-    const tomorrow = new Date(today);
+    // DATE columns in reservations are Postgres DATE type.
+    // Use YYYY-MM-DD strings → no timezone shift, no implicit cast.
+    // F1 pilot: operator's local date (front-desk clock) is the source of truth.
+    const now = new Date();
+    const todayDate = format(now, 'yyyy-MM-dd');      // e.g. "2026-03-06"
+    const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowIso = tomorrow.toISOString();
+    const tomorrowDate = format(tomorrow, 'yyyy-MM-dd'); // e.g. "2026-03-07"
 
     // --- QUERIES ---
 
@@ -42,10 +63,9 @@ export const useDashboardData = () => {
                 .select('*', { count: 'exact', head: true })
                 .eq('provider_id', provider.id)
                 .eq('status', 'active')
-                .gte('end_date', todayIso)
-                .lt('end_date', tomorrowIso);
+                .gte('end_date', todayDate)
+                .lt('end_date', tomorrowDate);
 
-            // Calculate daily revenue from active reservations
             const { data: activeReservations } = await supabase
                 .from('reservations')
                 .select('total_price')
@@ -70,110 +90,133 @@ export const useDashboardData = () => {
             };
         },
         enabled: !!provider?.id,
-        staleTime: 1000 * 60 * 1, // 1 minute stale
+        staleTime: 1000 * 60 * 1,
     });
 
-    // 2. Agenda Query
+    // 2. Agenda Query — 3 SEPARATE server-side queries (no .or(), no client-side filtering)
     const agendaQuery = useQuery({
-        queryKey: ['dashboard', 'agenda', provider?.id],
+        queryKey: ['dashboard', 'agenda', provider?.id, todayDate],
         queryFn: async (): Promise<AgendaItemProps[]> => {
             if (!provider?.id) throw new Error("No provider");
 
-            const { data: rawAgenda, error } = await supabase
-                .from('reservations')
-                .select(`
-                    id, start_date, end_date, status, customer_name, customer_phone, payment_status, crm_customer_id,
-                    gear:gear_id ( name ),
-                    crm_customer:customers ( risk_status )
-                `)
-                .eq('provider_id', provider.id)
-                .in('status', ['hold', 'confirmed', 'active', 'completed'])
-                .or(`start_date.gte.${todayIso},end_date.gte.${todayIso}`)
-                .limit(50);
+            // Fire all 3 queries in parallel
+            const [pickupsRes, returnsRes, overdueRes] = await Promise.all([
+                // PICKUPS TODAY: start_date in [today, tomorrow) AND pre-issue status
+                supabase
+                    .from('reservations')
+                    .select(AGENDA_SELECT)
+                    .eq('provider_id', provider.id)
+                    .in('status', ['pending', 'confirmed', 'hold'])
+                    .gte('start_date', todayDate)
+                    .lt('start_date', tomorrowDate)
+                    .limit(50),
 
-            if (error) throw error;
+                // RETURNS TODAY: end_date in [today, tomorrow) AND active
+                supabase
+                    .from('reservations')
+                    .select(AGENDA_SELECT)
+                    .eq('provider_id', provider.id)
+                    .eq('status', 'active')
+                    .gte('end_date', todayDate)
+                    .lt('end_date', tomorrowDate)
+                    .limit(50),
 
-            // Define specific type for the raw query result
-            interface RawAgendaItem {
-                id: string;
-                start_date: string;
-                end_date: string;
-                status: string;
-                customer_name: string | null;
-                customer_phone: string | null;
-                payment_status: string;
-                crm_customer_id: string | null;
-                gear: { name: string } | null;
-                crm_customer: { risk_status: string } | null;
-            }
+                // OVERDUE: end_date < today AND still active (not returned)
+                supabase
+                    .from('reservations')
+                    .select(AGENDA_SELECT)
+                    .eq('provider_id', provider.id)
+                    .eq('status', 'active')
+                    .lt('end_date', todayDate)
+                    .limit(50),
+            ]);
 
-            const mappedAgenda: AgendaItemProps[] = [];
+            if (pickupsRes.error) throw pickupsRes.error;
+            if (returnsRes.error) throw returnsRes.error;
+            if (overdueRes.error) throw overdueRes.error;
 
-            (rawAgenda as unknown as RawAgendaItem[])?.forEach((r) => {
-                const sDate = new Date(r.start_date);
-                const eDate = new Date(r.end_date);
-                const isTodayStart = sDate >= today && sDate < tomorrow;
-                const isTodayEnd = eDate >= today && eDate < tomorrow;
+            const items: AgendaItemProps[] = [];
 
+            // --- Map pickups (server already filtered: correct status + date range) ---
+            (pickupsRes.data as unknown as RawAgendaItem[] || []).forEach(r => {
                 const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
+                const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
+                const uiStatus = ['paid', 'deposit_paid'].includes(paymentStatus) ? 'ready' : 'unpaid';
 
-                // Pickup Agenda
-                if (isTodayStart && (r.status === 'confirmed' || r.status === 'hold')) {
-                    const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
-                    const uiStatus = ['paid', 'deposit_paid'].includes(paymentStatus) ? 'ready' : 'unpaid';
-
-                    mappedAgenda.push({
-                        time: format(sDate, 'HH:mm'),
-                        type: 'pickup',
-                        customerName: r.customer_name || 'Unknown',
-                        itemCount: 1, // Placeholder
-                        status: uiStatus as 'ready' | 'unpaid',
-                        reservationId: r.id,
-                        startDate: r.start_date,
-                        endDate: r.end_date,
-                        paymentStatus,
-                        crmCustomerId: r.crm_customer_id || undefined,
-                        customerRiskStatus: riskStatus
-                    });
-                }
-
-                // Return Agenda
-                if (isTodayEnd && ['active', 'completed'].includes(r.status)) {
-                    const isReturned = r.status === 'completed';
-                    const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
-                    mappedAgenda.push({
-                        time: format(eDate, 'HH:mm'),
-                        type: 'return',
-                        customerName: r.customer_name || 'Unknown',
-                        itemCount: 1, // Placeholder
-                        status: isReturned ? 'completed' : 'active',
-                        reservationId: r.id,
-                        startDate: r.start_date,
-                        endDate: r.end_date,
-                        paymentStatus
-                    });
-                }
+                items.push({
+                    time: format(new Date(r.start_date + 'T00:00:00'), 'HH:mm'),
+                    type: 'pickup',
+                    customerName: r.customer_name || 'Unknown',
+                    itemCount: 1,
+                    status: uiStatus as 'ready' | 'unpaid',
+                    reservationId: r.id,
+                    startDate: r.start_date,
+                    endDate: r.end_date,
+                    paymentStatus,
+                    crmCustomerId: r.crm_customer_id || undefined,
+                    customerRiskStatus: riskStatus,
+                });
             });
 
-            return mappedAgenda.sort((a, b) => a.time.localeCompare(b.time));
+            // --- Map returns (server already filtered: active + end_date today) ---
+            (returnsRes.data as unknown as RawAgendaItem[] || []).forEach(r => {
+                const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
+                items.push({
+                    time: format(new Date(r.end_date + 'T00:00:00'), 'HH:mm'),
+                    type: 'return',
+                    customerName: r.customer_name || 'Unknown',
+                    itemCount: 1,
+                    status: 'active',
+                    reservationId: r.id,
+                    startDate: r.start_date,
+                    endDate: r.end_date,
+                    paymentStatus,
+                });
+            });
+
+            // --- Map overdue (server already filtered: active + end_date < today) ---
+            (overdueRes.data as unknown as RawAgendaItem[] || []).forEach(r => {
+                const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
+                const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
+                items.push({
+                    time: format(new Date(r.end_date + 'T00:00:00'), 'd.M.'),
+                    type: 'overdue',
+                    customerName: r.customer_name || 'Unknown',
+                    itemCount: 1,
+                    status: 'overdue',
+                    reservationId: r.id,
+                    startDate: r.start_date,
+                    endDate: r.end_date,
+                    paymentStatus,
+                    crmCustomerId: r.crm_customer_id || undefined,
+                    customerRiskStatus: riskStatus,
+                });
+            });
+
+            // Sort: overdue first (by end_date asc), then today items by time
+            return items.sort((a, b) => {
+                if (a.type === 'overdue' && b.type !== 'overdue') return -1;
+                if (a.type !== 'overdue' && b.type === 'overdue') return 1;
+                return a.time.localeCompare(b.time);
+            });
         },
         enabled: !!provider?.id,
-        staleTime: 1000 * 60 * 5, // 5 minutes stale for agenda
+        staleTime: 1000 * 60 * 5,
     });
 
-    // 3. Exceptions Query
+    // 3. Exceptions Query (already server-side, no changes needed)
     const exceptionsQuery = useQuery({
-        queryKey: ['dashboard', 'exceptions', provider?.id],
+        queryKey: ['dashboard', 'exceptions', provider?.id, todayDate],
         queryFn: async (): Promise<ExceptionItem[]> => {
             if (!provider?.id) throw new Error("No provider");
 
-            // Query 1: Overdue returns
+            // Query 1: Overdue returns (active + past end_date)
             const { data: overdueData } = await supabase
                 .from('reservations')
                 .select('id, end_date, customer_name')
                 .eq('provider_id', provider.id)
-                .in('status', ['active']) // only active items can be overdue
-                .lt('end_date', todayIso);
+                .eq('status', 'active')
+                .lt('end_date', todayDate);
 
             // Query 2: Unpaid pickups scheduled for today
             const { data: unpaidData } = await supabase
@@ -182,8 +225,8 @@ export const useDashboardData = () => {
                 .eq('provider_id', provider.id)
                 .in('status', ['confirmed', 'hold'])
                 .eq('payment_status', 'unpaid')
-                .gte('start_date', todayIso)
-                .lt('start_date', tomorrowIso);
+                .gte('start_date', todayDate)
+                .lt('start_date', tomorrowDate);
 
             interface RawException {
                 id: string;
@@ -195,7 +238,6 @@ export const useDashboardData = () => {
 
             const exceptions: ExceptionItem[] = [];
 
-            // Add overdue items (high priority)
             (overdueData as unknown as RawException[] || []).forEach((o) => {
                 exceptions.push({
                     id: o.id,
@@ -206,7 +248,6 @@ export const useDashboardData = () => {
                 });
             });
 
-            // Add unpaid items (medium priority)
             (unpaidData as unknown as RawException[] || []).forEach((u) => {
                 exceptions.push({
                     id: u.id,
@@ -246,26 +287,17 @@ export const useDashboardData = () => {
         },
         onMutate: async ({ id }) => {
             await queryClient.cancelQueries({ queryKey: ['dashboard', 'agenda', provider?.id] });
-            const previousAgenda = queryClient.getQueryData<AgendaItemProps[]>(['dashboard', 'agenda', provider?.id]);
+            const previousAgenda = queryClient.getQueryData<AgendaItemProps[]>(['dashboard', 'agenda', provider?.id, todayDate]);
 
-            // Optimistically update
-            queryClient.setQueryData(['dashboard', 'agenda', provider?.id], (old: AgendaItemProps[] | undefined) => {
+            queryClient.setQueryData(['dashboard', 'agenda', provider?.id, todayDate], (old: AgendaItemProps[] | undefined) => {
                 if (!old) return [];
-                // Find the item and remove it from 'pickup' lists if it was a pickup, 
-                // OR technically it doesn't disappear if its a return day same day.
-                // For "Today's Agenda", a Pickup becomes Active. 
-                // However, our Agenda logic only shows pickups if 'confirmed'/'unpaid'.
-                // So if we change status to 'checked_out', it should DISAPPEAR from Pickup view.
-                // If it's returning today, it should APPEAR in Return view.
-
-                // Simplified Optimistic Logic: Remove from list to simulate "Done"
                 return old.filter(item => item.reservationId !== id);
             });
 
             return { previousAgenda };
         },
         onError: (err, newTodo, context) => {
-            queryClient.setQueryData(['dashboard', 'agenda', provider?.id], context?.previousAgenda);
+            queryClient.setQueryData(['dashboard', 'agenda', provider?.id, todayDate], context?.previousAgenda);
             toast.error("Issue failed - reverting");
         },
         onSettled: () => {
@@ -289,11 +321,10 @@ export const useDashboardData = () => {
         },
         onMutate: async ({ id }) => {
             await queryClient.cancelQueries({ queryKey: ['dashboard', 'agenda', provider?.id] });
-            const previousAgenda = queryClient.getQueryData<AgendaItemProps[]>(['dashboard', 'agenda', provider?.id]);
+            const previousAgenda = queryClient.getQueryData<AgendaItemProps[]>(['dashboard', 'agenda', provider?.id, todayDate]);
 
-            queryClient.setQueryData(['dashboard', 'agenda', provider?.id], (old: AgendaItemProps[] | undefined) => {
+            queryClient.setQueryData(['dashboard', 'agenda', provider?.id, todayDate], (old: AgendaItemProps[] | undefined) => {
                 if (!old) return [];
-                // Update the item status to 'completed' so the pill changes color instantly
                 return old.map(item =>
                     item.reservationId === id ? { ...item, status: 'completed' } : item
                 );
@@ -302,7 +333,7 @@ export const useDashboardData = () => {
             return { previousAgenda };
         },
         onError: (err, variables, context) => {
-            queryClient.setQueryData(['dashboard', 'agenda', provider?.id], context?.previousAgenda);
+            queryClient.setQueryData(['dashboard', 'agenda', provider?.id, todayDate], context?.previousAgenda);
             toast.error("Return failed");
         },
         onSettled: () => {
