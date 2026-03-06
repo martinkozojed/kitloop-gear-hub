@@ -18,6 +18,8 @@ import { PrintContractButton } from '@/components/contracts/PrintContractButton'
 import { useTranslation } from 'react-i18next';
 import { logEvent } from '@/lib/app-events';
 import { ScannerModal } from './ScannerModal';
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface IssueFlowProps {
     open: boolean;
@@ -33,6 +35,8 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     const [items, setItems] = useState<ItemState[]>([]);
     const [fetchingItems, setFetchingItems] = useState(false);
     const [overrideMode, setOverrideMode] = useState(false);
+    const [overrideReason, setOverrideReason] = useState("");
+    const [hardGateError, setHardGateError] = useState<string | null>(null);
     const [autoAssigning, setAutoAssigning] = useState(false);
     const [autoAssignError, setAutoAssignError] = useState<string | null>(null);
     const [reservationRecord, setReservationRecord] = useState<{
@@ -173,6 +177,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     const handleConfirm = async () => {
         if (!reservationRecord?.provider_id) return;
         setLoading(true);
+        setHardGateError(null);
         try {
             const userResult = await supabase.auth.getUser();
             const userId = userResult.data.user?.id;
@@ -181,20 +186,31 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
 
             // Strict RPC Call
 
-            const { data, error } = await supabase.rpc('issue_reservation', {
+            const { error: rpcError } = await supabase.rpc('issue_reservation', {
                 p_reservation_id: reservation.id,
                 p_provider_id: reservationRecord.provider_id,
                 p_user_id: userId,
                 p_override: overrideMode,
-                p_override_reason: overrideMode ? 'Manual override by provider' : undefined
+                p_override_reason: overrideReason || undefined
             });
 
-            if (error) throw error;
+            if (rpcError) {
+                if (rpcError.message?.includes('HARD_GATE_FAILED')) {
+                    setOverrideMode(true);
+                    setHardGateError(rpcError.message.split(': ')[1] || rpcError.message);
+                    return;
+                }
+                if (rpcError.message?.includes('HARD_GATE_MISSING_REASON')) {
+                    setHardGateError(t('operations.issueFlow.hardGate.missingReason', 'Uveďte prosím důvod pro override do auditní stopy.'));
+                    return;
+                }
+                throw rpcError;
+            }
 
             await logEvent('reservation_issue', {
                 providerId: reservationRecord.provider_id,
                 entity: { type: 'reservation', id: reservation.id },
-                metadata: { override: overrideMode },
+                metadata: { override: overrideMode, override_reason: overrideReason },
             });
             toast.success(t('operations.issueFlow.success', 'Reservation Issued'));
             await onConfirm(reservation.id, overrideMode); // Refresh parent
@@ -306,7 +322,34 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                 </div>
                 <h4 className="text-lg font-bold text-foreground">{t('operations.issueFlow.readyTitle', { defaultValue: 'Připraveno k vydání' })}</h4>
                 <p className="text-sm text-muted-foreground mt-1">{t('operations.issueFlow.readyDesc', { defaultValue: 'Správné vybavení bylo přiřazeno.' })}</p>
-                {overrideMode && <span className="text-status-warning bg-status-warning/10 mt-2 px-2 py-0.5 rounded-full text-xxs uppercase font-bold">Override Active</span>}
+            </div>
+        );
+    };
+
+    const OverrideDisplay = () => {
+        if (!overrideMode) return null;
+        return (
+            <div className="mt-4 p-4 border border-status-warning rounded-token-md bg-status-warning/5 text-left transition-all animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center gap-2 text-status-warning font-bold mb-2">
+                    <AlertTriangle className="w-5 h-5" />
+                    <span>Hard Gate Zablokováno (Override Režim)</span>
+                </div>
+                <p className="text-sm text-status-warning/80 font-medium mb-3">
+                    {hardGateError || "Záznam nesplňuje podmínky (např. chybí přiřazené vybavení nebo není v pořádku). Opravdu chcete zapsat force override do auditu?"}
+                </p>
+                <div className="space-y-2">
+                    <Label htmlFor="override_reason" className="text-xs font-semibold">Důvod pro auditní stopu *</Label>
+                    <Textarea
+                        id="override_reason"
+                        className="bg-background min-h-[80px]"
+                        placeholder="Zákazník např. souhlasil s chybějícím příslušenstvím..."
+                        value={overrideReason}
+                        onChange={(e) => {
+                            setOverrideReason(e.target.value);
+                            setHardGateError(null); // clear error when typing
+                        }}
+                    />
+                </div>
             </div>
         );
     };
@@ -327,7 +370,10 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                     <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading details...
                 </div>
             ) : (
-                <StatusDisplay />
+                <>
+                    <StatusDisplay />
+                    <OverrideDisplay />
+                </>
             )}
         </div>
     );
