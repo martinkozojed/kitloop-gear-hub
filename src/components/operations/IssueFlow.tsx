@@ -20,6 +20,7 @@ import { logEvent } from '@/lib/app-events';
 import { ScannerModal } from './ScannerModal';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
 
 interface IssueFlowProps {
     open: boolean;
@@ -286,6 +287,11 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
         }
     };
 
+    const { handleKeyDown } = useBarcodeScanner({
+        onScan: handleScanAsset,
+        enabled: import.meta.env.VITE_ENABLE_SCAN_FIRST === 'true' && !scanning && open
+    });
+
     const StatusDisplay = () => {
         if (!hasAssets && !overrideMode) {
             return (
@@ -401,7 +407,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
     if (isMobile) {
         return (
             <Sheet open={open} onOpenChange={onOpenChange}>
-                <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-token-lg p-0 gap-0 border-0">
+                <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-token-lg p-0 gap-0 border-0" onKeyDown={handleKeyDown}>
                     {headerBlock}
                     {bodyBlock}
                     {footerBlock}
@@ -412,7 +418,7 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md p-0 overflow-hidden gap-0">
+            <DialogContent className="sm:max-w-md p-0 overflow-hidden gap-0" onKeyDown={handleKeyDown}>
                 <div className="flex items-center justify-between px-6 pt-6">
                     <div>
                         <DialogTitle className="text-xl">{reservation.customerName}</DialogTitle>
