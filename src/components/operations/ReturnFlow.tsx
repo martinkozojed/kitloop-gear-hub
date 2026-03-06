@@ -238,15 +238,16 @@ export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: Retur
                 toast.warning(t('operations.returnFlow.errors.uploadFailed'));
                 // Don't close dialog if uploads failed, let user retry
                 return;
-            } else {
-                toast.success(t('operations.returnFlow.success'));
             }
+            toast.success(t('operations.returnFlow.success'));
 
-            await logEvent('reservation_return', {
+            // Telemetry: F1 Must-Have target "return_completed"
+            await logEvent('return_completed', {
                 providerId: provider.id,
                 entity: { type: 'reservation', id: reservation.id },
                 metadata: { has_damage: assets.some(a => a.isDamaged) },
             });
+
             await onConfirm(reservation.id, assets.some(a => a.isDamaged));
             onOpenChange(false);
             setSuccessfullyReturnedReportId(null); // Reset

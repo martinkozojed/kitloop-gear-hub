@@ -204,10 +204,9 @@ export function IssueFlow({ open, onOpenChange, reservation, onConfirm }: IssueF
                     setHardGateError(t('operations.issueFlow.hardGate.missingReason', 'Uveďte prosím důvod pro override do auditní stopy.'));
                     return;
                 }
-                throw rpcError;
             }
 
-            await logEvent('reservation_issue', {
+            await logEvent('issue_completed', {
                 providerId: reservationRecord.provider_id,
                 entity: { type: 'reservation', id: reservation.id },
                 metadata: { override: overrideMode, override_reason: overrideReason },
