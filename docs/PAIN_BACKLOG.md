@@ -4,7 +4,9 @@
 
 | ID | Kategorie | Popis | Frekvence | Půjčovny | Dopad | Stav |
 |----|-----------|-------|-----------|----------|-------|------|
-| _P-001_ | _speed/error/ux/data/blocker_ | _Co se stalo_ | _1×/opakovaně/vždy_ | _1_ | _blocker/high/medium/low_ | _open_ |
+| P-001 | data | Reservation form nabízí vybavení (produkty), i když inventář je prázdný — nemělo by nic nabídnout | vždy | 1 | high | open |
+| P-002 | ux | Date pickery ve formuláři rezervace vypadají zastarale, nezapadají do UI systému | vždy | 1 | medium | open |
+| P-003 | ux | Glow efekty na stránkách jsou useknuté (oříznuté overflow) | vždy | 1 | low | open |
 
 ## Jak přidávat
 
