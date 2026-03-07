@@ -127,6 +127,7 @@ const ReservationForm = () => {
       }
 
       try {
+        // 1) Fetch products with active variants
         const { data, error } = await supabase
           .from('products')
           .select(`
@@ -141,12 +142,27 @@ const ReservationForm = () => {
 
         if (error) throw error;
 
-        // Filter and organize
+        // 2) Fetch variant IDs that have at least one asset in inventory
+        const { data: assetVariants, error: assetError } = await supabase
+          .from('assets')
+          .select('variant_id')
+          .eq('provider_id', provider.id)
+          .is('deleted_at', null);
+
+        if (assetError) throw assetError;
+
+        const stockedVariantIds = new Set(
+          (assetVariants || []).map((a: { variant_id: string }) => a.variant_id)
+        );
+
+        // 3) Filter: only active variants that have physical assets
         const validProducts = (data || []).map((p: unknown) => ({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ...(p as any),
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          product_variants: ((p as any).product_variants || []).filter((v: Variant) => v.is_active !== false)
+          product_variants: ((p as any).product_variants || []).filter(
+            (v: Variant) => v.is_active !== false && stockedVariantIds.has(v.id)
+          )
         })).filter((p: Product) => p.product_variants.length > 0);
 
         setProducts(validProducts);

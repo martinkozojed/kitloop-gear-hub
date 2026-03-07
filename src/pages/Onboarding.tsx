@@ -281,7 +281,7 @@ export default function Onboarding() {
       )}
 
       {/* ── A) Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-white">
+      <section className="relative bg-white">
         <GlowLayer />
         <div className="relative mx-auto max-w-5xl px-6 py-12 md:py-16">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
@@ -593,7 +593,7 @@ export default function Onboarding() {
       </Section>
 
       {/* ── H) Final CTA panel ──────────────────────────────────────────────── */}
-      <section className="py-14 px-6 relative overflow-hidden">
+      <section className="py-14 px-6 relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
           {/* Single unbounded orb roaming everywhere with adjusted strength (0.15 instead of 0.20) and size (475px instead of 500px) */}
           <motion.div
