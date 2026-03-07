@@ -590,161 +590,181 @@ const ReservationForm = () => {
           <Card>
             <CardHeader><CardTitle>{t('provider.reservationForm.sections.itemSelection')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label>{t('provider.reservationForm.labels.product')} *</Label>
-                <Select
-                  value={formData.product_id}
-                  onValueChange={v => {
-                    handleInputChange('product_id', v);
-                    handleInputChange('variant_id', ''); // Reset variant
-                  }}
-                >
-                  <SelectTrigger
-                    className={errors.product_id && touched.product_id ? 'border-status-danger' : ''}
-                    data-testid="reservation-product-select"
-                  >
-                    <SelectValue placeholder={t('provider.reservationForm.placeholders.product')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(productsByCategory).map(([cat, prods]) => (
-                      <SelectGroup key={cat}>
-                        <SelectLabel>{cat}</SelectLabel>
-                        {prods.map(p => (
-                          <SelectItem
-                            key={p.id}
-                            value={p.id}
-                            data-testid={`reservation-product-option-${p.id}`}
-                          >
-                            {p.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {selectedProduct && (
-                <div>
-                  <Label>{t('provider.reservationForm.labels.variant')} *</Label>
-                  <Select
-                    value={formData.variant_id}
-                    onValueChange={v => handleInputChange('variant_id', v)}
-                  >
-                    <SelectTrigger
-                      className={errors.variant_id && touched.variant_id ? 'border-status-danger' : ''}
-                      data-testid="reservation-variant-select"
+              {!loading && products.length === 0 ? (
+                <div className="p-4 rounded-lg border border-status-warning/30 bg-status-warning/10 text-status-warning flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 shrink-0" />
+                  <div>
+                    <p className="font-medium">{i18n.language.startsWith('cs') ? 'Žádné vybavení na skladě' : 'No equipment in stock'}</p>
+                    <p className="text-sm mt-1">
+                      {i18n.language.startsWith('cs')
+                        ? 'Nejprve přidejte vybavení do inventáře, aby šlo vytvořit rezervaci.'
+                        : 'Add equipment to your inventory first to create a reservation.'}
+                      {' '}
+                      <a href="/provider/inventory/new" className="underline font-medium">
+                        {i18n.language.startsWith('cs') ? 'Přidat vybavení →' : 'Add equipment →'}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Label>{t('provider.reservationForm.labels.product')} *</Label>
+                    <Select
+                      value={formData.product_id}
+                      onValueChange={v => {
+                        handleInputChange('product_id', v);
+                        handleInputChange('variant_id', ''); // Reset variant
+                      }}
                     >
-                      <SelectValue placeholder={t('provider.reservationForm.placeholders.variant')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedProduct.product_variants.map(v => (
-                        <SelectItem
-                          key={v.id}
-                          value={v.id}
-                          data-testid={`reservation-variant-option-${v.id}`}
+                      <SelectTrigger
+                        className={errors.product_id && touched.product_id ? 'border-status-danger' : ''}
+                        data-testid="reservation-product-select"
+                      >
+                        <SelectValue placeholder={t('provider.reservationForm.placeholders.product')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(productsByCategory).map(([cat, prods]) => (
+                          <SelectGroup key={cat}>
+                            <SelectLabel>{cat}</SelectLabel>
+                            {prods.map(p => (
+                              <SelectItem
+                                key={p.id}
+                                value={p.id}
+                                data-testid={`reservation-product-option-${p.id}`}
+                              >
+                                {p.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedProduct && (
+                    <div>
+                      <Label>{t('provider.reservationForm.labels.variant')} *</Label>
+                      <Select
+                        value={formData.variant_id}
+                        onValueChange={v => handleInputChange('variant_id', v)}
+                      >
+                        <SelectTrigger
+                          className={errors.variant_id && touched.variant_id ? 'border-status-danger' : ''}
+                          data-testid="reservation-variant-select"
                         >
-                          {v.name}
-                          {v.price_override_cents
-                            ? ` (${formatPrice(v.price_override_cents / 100)}/den)`
-                            : ` (${formatPrice((selectedProduct.base_price_cents || 0) / 100)}/den)`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.variant_id && <p className="text-sm text-status-danger mt-1">{errors.variant_id}</p>}
-                </div>
-              )}
+                          <SelectValue placeholder={t('provider.reservationForm.placeholders.variant')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedProduct.product_variants.map(v => (
+                            <SelectItem
+                              key={v.id}
+                              value={v.id}
+                              data-testid={`reservation-variant-option-${v.id}`}
+                            >
+                              {v.name}
+                              {v.price_override_cents
+                                ? ` (${formatPrice(v.price_override_cents / 100)}/den)`
+                                : ` (${formatPrice((selectedProduct.base_price_cents || 0) / 100)}/den)`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.variant_id && <p className="text-sm text-status-danger mt-1">{errors.variant_id}</p>}
+                    </div>
+                  )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>{t('provider.reservationForm.labels.start')} *</Label>
-                  <div className="relative">
-                    <Input
-                      type="datetime-local"
-                      value={formData.start_date}
-                      onChange={e => handleInputChange('start_date', e.target.value)}
-                      data-testid="reservation-start"
-                      onBlur={() => setTouched(prev => ({ ...prev, start_date: true }))}
-                      className={errors.start_date && touched.start_date ? 'border-status-danger' : ''}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>{t('provider.reservationForm.labels.start')} *</Label>
+                      <div className="relative">
+                        <Input
+                          type="datetime-local"
+                          value={formData.start_date}
+                          onChange={e => handleInputChange('start_date', e.target.value)}
+                          data-testid="reservation-start"
+                          onBlur={() => setTouched(prev => ({ ...prev, start_date: true }))}
+                          className={errors.start_date && touched.start_date ? 'border-status-danger' : ''}
+                        />
+                      </div>
+                      {errors.start_date && touched.start_date && <p className="text-sm text-status-danger mt-1">{errors.start_date}</p>}
+                    </div>
+                    <div>
+                      <Label>{t('provider.reservationForm.labels.end')} *</Label>
+                      <div className="relative">
+                        <Input
+                          type="datetime-local"
+                          value={formData.end_date}
+                          onChange={e => handleInputChange('end_date', e.target.value)}
+                          data-testid="reservation-end"
+                          onBlur={() => setTouched(prev => ({ ...prev, end_date: true }))}
+                          className={errors.end_date && touched.end_date ? 'border-status-danger' : ''}
+                        />
+                      </div>
+                      {errors.end_date && touched.end_date && <p className="text-sm text-status-danger mt-1">{errors.end_date}</p>}
+                    </div>
+                  </div>
+
+                  {/* Availability Status */}
+                  {formData.variant_id && formData.start_date && formData.end_date && (
+                    <div className={`p-4 border rounded-lg flex items-center gap-2 ${availability.checking ? 'text-muted-foreground' :
+                      availability.result?.isAvailable ? 'text-status-success bg-status-success/10 border border-status-success/20' : 'text-status-danger bg-status-danger/10 border border-status-danger/20'
+                      }`}>
+                      {availability.checking ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> {t('provider.reservationForm.availability.checking')}</>
+                      ) : availability.result ? (
+                        <>
+                          {availability.result.isAvailable ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+                          <span className="font-medium">{availability.result.message}</span>
+                        </>
+                      ) : null}
+                    </div>
+                  )}
+
+                  {/* Price Summary */}
+                  {selectedVariant && rentalDays > 0 && (
+                    <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>{t('provider.reservationForm.pricing.rate')}</span>
+                        <span className="font-medium">{formatPrice(pricePerDay)} / {t('provider.reservationForm.pricing.perDay')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t('provider.reservationForm.pricing.duration')}</span>
+                        <span className="font-medium">{rentalDays} {t('provider.reservationForm.pricing.days')}</span>
+                      </div>
+                      <div className="border-t pt-2 flex justify-between text-lg font-bold">
+                        <span>{t('provider.reservationForm.pricing.total')}</span>
+                        <span>{formatPrice(totalPrice)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <Label htmlFor="notes">{t('provider.reservationForm.labels.notes')}</Label>
+                    <Textarea
+                      id="notes"
+                      value={formData.notes}
+                      onChange={e => handleInputChange('notes', e.target.value)}
+                      maxLength={1000}
                     />
+                    {formData.notes.length > 800 && (
+                      <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-status-warning font-medium' : 'text-muted-foreground'
+                        }`}>
+                        {formData.notes.length}/1000 {t('provider.reservationForm.notes.chars')}
+                      </p>
+                    )}
                   </div>
-                  {errors.start_date && touched.start_date && <p className="text-sm text-status-danger mt-1">{errors.start_date}</p>}
-                </div>
-                <div>
-                  <Label>{t('provider.reservationForm.labels.end')} *</Label>
-                  <div className="relative">
-                    <Input
-                      type="datetime-local"
-                      value={formData.end_date}
-                      onChange={e => handleInputChange('end_date', e.target.value)}
-                      data-testid="reservation-end"
-                      onBlur={() => setTouched(prev => ({ ...prev, end_date: true }))}
-                      className={errors.end_date && touched.end_date ? 'border-status-danger' : ''}
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="deposit_paid"
+                      checked={formData.deposit_paid}
+                      onCheckedChange={c => handleInputChange('deposit_paid', c)}
                     />
+                    <Label htmlFor="deposit_paid">{t('provider.reservationForm.labels.depositPaid')}</Label>
                   </div>
-                  {errors.end_date && touched.end_date && <p className="text-sm text-status-danger mt-1">{errors.end_date}</p>}
-                </div>
-              </div>
-
-              {/* Availability Status */}
-              {formData.variant_id && formData.start_date && formData.end_date && (
-                <div className={`p-4 border rounded-lg flex items-center gap-2 ${availability.checking ? 'text-muted-foreground' :
-                  availability.result?.isAvailable ? 'text-status-success bg-status-success/10 border border-status-success/20' : 'text-status-danger bg-status-danger/10 border border-status-danger/20'
-                  }`}>
-                  {availability.checking ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> {t('provider.reservationForm.availability.checking')}</>
-                  ) : availability.result ? (
-                    <>
-                      {availability.result.isAvailable ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-                      <span className="font-medium">{availability.result.message}</span>
-                    </>
-                  ) : null}
-                </div>
+                </>
               )}
-
-              {/* Price Summary */}
-              {selectedVariant && rentalDays > 0 && (
-                <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>{t('provider.reservationForm.pricing.rate')}</span>
-                    <span className="font-medium">{formatPrice(pricePerDay)} / {t('provider.reservationForm.pricing.perDay')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t('provider.reservationForm.pricing.duration')}</span>
-                    <span className="font-medium">{rentalDays} {t('provider.reservationForm.pricing.days')}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                    <span>{t('provider.reservationForm.pricing.total')}</span>
-                    <span>{formatPrice(totalPrice)}</span>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <Label htmlFor="notes">{t('provider.reservationForm.labels.notes')}</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={e => handleInputChange('notes', e.target.value)}
-                  maxLength={1000}
-                />
-                {formData.notes.length > 800 && (
-                  <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-status-warning font-medium' : 'text-muted-foreground'
-                    }`}>
-                    {formData.notes.length}/1000 {t('provider.reservationForm.notes.chars')}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="deposit_paid"
-                  checked={formData.deposit_paid}
-                  onCheckedChange={c => handleInputChange('deposit_paid', c)}
-                />
-                <Label htmlFor="deposit_paid">{t('provider.reservationForm.labels.depositPaid')}</Label>
-              </div>
             </CardContent>
           </Card>
 
