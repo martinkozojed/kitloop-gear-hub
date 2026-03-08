@@ -252,34 +252,42 @@ export const createKitReservation = async (
         (input.endDate.getTime() - input.startDate.getTime()) / (1000 * 60 * 60 * 24)
     ));
 
-    for (const item of expandedItems) {
-        const pricePerDay = priceMap.get(item.variantId) || 0;
-        const totalPrice = pricePerDay * rentalDays;
+    try {
+        for (const item of expandedItems) {
+            const pricePerDay = priceMap.get(item.variantId) || 0;
+            const totalPrice = pricePerDay * rentalDays;
 
-        const result = await createReservationHold({
-            providerId: input.providerId,
-            productVariantId: item.variantId,
-            startDate: input.startDate,
-            endDate: input.endDate,
-            totalPrice,
-            depositPaid: input.depositPaid,
-            notes: input.notes || null,
-            customer: input.customer,
-            rentalDays,
-            pricePerDay,
-            customerUserId: null,
-        });
+            const result = await createReservationHold({
+                providerId: input.providerId,
+                productVariantId: item.variantId,
+                startDate: input.startDate,
+                endDate: input.endDate,
+                totalPrice,
+                depositPaid: input.depositPaid,
+                notes: input.notes || null,
+                customer: input.customer,
+                rentalDays,
+                pricePerDay,
+                customerUserId: null,
+            });
 
-        // Patch group_id and kit_template_id onto the created reservation
-        await supabase
-            .from('reservations')
-            .update({ group_id: groupId, kit_template_id: input.kitId })
-            .eq('id', result.reservation_id);
+            // Patch group_id and kit_template_id onto the created reservation
+            await supabase
+                .from('reservations')
+                .update({ group_id: groupId, kit_template_id: input.kitId })
+                .eq('id', result.reservation_id);
 
-        reservations.push(result);
+            reservations.push(result);
+        }
+
+        return { groupId, reservations, warnings };
+    } catch (e: unknown) {
+        logger.error('createKitReservation transaction failed. Rolling back.', { groupId, error: e });
+        for (const res of reservations) {
+            await supabase.from('reservations').delete().eq('id', res.reservation_id);
+        }
+        throw new Error(`Kit reservation failed; no items created. Reason: ${getErrorMessage(e)}`);
     }
-
-    return { groupId, reservations, warnings };
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════

@@ -152,39 +152,25 @@ export const useDashboardData = () => {
                 const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
                 const timeStr = timeOverride || format(new Date((type === 'pickup' ? r.start_date : r.end_date) + 'T00:00:00'), timeFormatStr);
 
-                if (r.group_id) {
-                    const existing = groupsMap.get(r.group_id);
-                    if (existing) {
-                        existing.itemCount += 1;
-                    } else {
-                        groupsMap.set(r.group_id, {
-                            time: timeStr,
-                            type,
-                            customerName: r.customer_name || 'Unknown',
-                            itemCount: 1,
-                            status: uiStatus,
-                            reservationId: r.id, // using first item's ID, operations will use groupId if present
-                            startDate: r.start_date,
-                            endDate: r.end_date,
-                            paymentStatus,
-                            crmCustomerId: r.crm_customer_id || undefined,
-                            customerRiskStatus: riskStatus,
-                            groupId: r.group_id,
-                        });
-                    }
+                const groupKey = r.group_id || r.id;
+                const existing = groupsMap.get(groupKey);
+
+                if (existing) {
+                    existing.itemCount += 1;
                 } else {
-                    items.push({
+                    groupsMap.set(groupKey, {
                         time: timeStr,
                         type,
                         customerName: r.customer_name || 'Unknown',
                         itemCount: 1,
                         status: uiStatus,
-                        reservationId: r.id,
+                        reservationId: r.id, // using first item's ID, operations will use groupId if present
                         startDate: r.start_date,
                         endDate: r.end_date,
                         paymentStatus,
                         crmCustomerId: r.crm_customer_id || undefined,
                         customerRiskStatus: riskStatus,
+                        groupId: r.group_id || undefined,
                     });
                 }
             };
