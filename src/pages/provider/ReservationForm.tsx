@@ -12,6 +12,8 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { checkVariantAvailability, calculatePrice, calculateDays, validatePhone, validateEmail, formatPrice } from "@/lib/availability";
 import { createReservationHold, ReservationError } from "@/services/reservations";
+import { fetchKits, createKitReservation, type KitWithItems } from "@/services/kits";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { CalendarIcon, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
@@ -96,6 +98,12 @@ const ReservationForm = () => {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Kit mode
+  const [reservationMode, setReservationMode] = useState<'single' | 'kit'>('single');
+  const [kits, setKits] = useState<KitWithItems[]>([]);
+  const [selectedKitId, setSelectedKitId] = useState('');
+  const selectedKit = kits.find(k => k.id === selectedKitId) ?? null;
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -346,8 +354,10 @@ const ReservationForm = () => {
     if (!validatePhone(formData.customer_phone)) {
       newErrors.customer_phone = t('provider.reservationForm.errors.phoneInvalid');
     }
-    if (!formData.product_id) newErrors.product_id = t('provider.reservationForm.errors.productRequired');
-    if (!formData.variant_id) newErrors.variant_id = t('provider.reservationForm.errors.variantRequired');
+    if (reservationMode === 'single') {
+      if (!formData.product_id) newErrors.product_id = t('provider.reservationForm.errors.productRequired');
+      if (!formData.variant_id) newErrors.variant_id = t('provider.reservationForm.errors.variantRequired');
+    }
 
     if (!formData.start_date) {
       newErrors.start_date = t('provider.reservationForm.errors.startRequired');
@@ -398,19 +408,53 @@ const ReservationForm = () => {
     }
 
     setSubmitting(true);
-    track('reservations.create_started', { variant_id: formData.variant_id }, 'ReservationForm');
+    track('reservations.create_started', { variant_id: formData.variant_id, mode: reservationMode }, 'ReservationForm');
+
     try {
       const startLocal = new Date(formData.start_date);
       const endLocal = new Date(formData.end_date);
-
-      // Preserve wall time to avoid timezone date shift
       const normalizeToUtc = (d: Date) =>
         new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()));
-
       const start = normalizeToUtc(startLocal);
       const end = normalizeToUtc(endLocal);
 
-      // Re-check availability
+      // ── Kit submit path ──────────────────────────────────────────────────
+      if (reservationMode === 'kit' && selectedKitId && provider?.id) {
+        const kitResult = await createKitReservation({
+          providerId: provider.id,
+          kitId: selectedKitId,
+          startDate: start,
+          endDate: end,
+          customer: {
+            name: formData.customer_name.trim(),
+            email: formData.customer_email.trim() || null,
+            phone: formData.customer_phone.trim(),
+          },
+          notes: formData.notes.trim() || null,
+          depositPaid: formData.deposit_paid,
+        });
+
+        // Show warnings if any
+        if (kitResult.warnings.length > 0) {
+          kitResult.warnings.forEach(w => toast.warning(w));
+        }
+
+        track('reservations.kit_created', {
+          group_id: kitResult.groupId,
+          kit_id: selectedKitId,
+          count: kitResult.reservations.length,
+        }, 'ReservationForm');
+
+        toast.success(
+          i18n.language.startsWith('cs')
+            ? `Kit rezervace vytvořena (${kitResult.reservations.length} položek)`
+            : `Kit reservation created (${kitResult.reservations.length} items)`
+        );
+        navigate('/provider/reservations');
+        return;
+      }
+
+      // ── Single-item submit path (original) ───────────────────────────────
 
       const availCheck = await checkVariantAvailability(formData.variant_id, start, end);
 
@@ -586,184 +630,266 @@ const ReservationForm = () => {
             </CardContent>
           </Card>
 
-          {/* Product Selection */}
+          {/* Product / Kit Selection */}
           <Card>
-            <CardHeader><CardTitle>{t('provider.reservationForm.sections.itemSelection')}</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              {!loading && products.length === 0 ? (
-                <div className="p-4 rounded-lg border border-status-warning/30 bg-status-warning/10 text-status-warning flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 shrink-0" />
-                  <div>
-                    <p className="font-medium">{i18n.language.startsWith('cs') ? 'Žádné vybavení na skladě' : 'No equipment in stock'}</p>
-                    <p className="text-sm mt-1">
-                      {i18n.language.startsWith('cs')
-                        ? 'Nejprve přidejte vybavení do inventáře, aby šlo vytvořit rezervaci.'
-                        : 'Add equipment to your inventory first to create a reservation.'}
-                      {' '}
-                      <a href="/provider/inventory/new" className="underline font-medium">
-                        {i18n.language.startsWith('cs') ? 'Přidat vybavení →' : 'Add equipment →'}
-                      </a>
-                    </p>
-                  </div>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>{t('provider.reservationForm.sections.itemSelection')}</CardTitle>
+                <div className="flex gap-1 bg-muted rounded-lg p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => { setReservationMode('single'); setSelectedKitId(''); }}
+                    className={`px-3 py-1 text-sm rounded-md transition-colors ${reservationMode === 'single' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                  >
+                    {i18n.language.startsWith('cs') ? 'Položka' : 'Single'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReservationMode('kit');
+                      handleInputChange('product_id', '');
+                      handleInputChange('variant_id', '');
+                      if (kits.length === 0 && provider?.id) {
+                        fetchKits(provider.id).then(setKits).catch(() => { });
+                      }
+                    }}
+                    className={`px-3 py-1 text-sm rounded-md transition-colors ${reservationMode === 'kit' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                  >
+                    {i18n.language.startsWith('cs') ? 'Set (kit)' : 'Kit'}
+                  </button>
                 </div>
-              ) : (
-                <>
-                  <div>
-                    <Label>{t('provider.reservationForm.labels.product')} *</Label>
-                    <Select
-                      value={formData.product_id}
-                      onValueChange={v => {
-                        handleInputChange('product_id', v);
-                        handleInputChange('variant_id', ''); // Reset variant
-                      }}
-                    >
-                      <SelectTrigger
-                        className={errors.product_id && touched.product_id ? 'border-status-danger' : ''}
-                        data-testid="reservation-product-select"
-                      >
-                        <SelectValue placeholder={t('provider.reservationForm.placeholders.product')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(productsByCategory).map(([cat, prods]) => (
-                          <SelectGroup key={cat}>
-                            <SelectLabel>{cat}</SelectLabel>
-                            {prods.map(p => (
-                              <SelectItem
-                                key={p.id}
-                                value={p.id}
-                                data-testid={`reservation-product-option-${p.id}`}
-                              >
-                                {p.name}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedProduct && (
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {reservationMode === 'kit' ? (
+                /* ── Kit mode ───────────────────────────────── */
+                kits.length === 0 ? (
+                  <div className="p-4 rounded-lg border border-status-warning/30 bg-status-warning/10 text-status-warning flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 shrink-0" />
                     <div>
-                      <Label>{t('provider.reservationForm.labels.variant')} *</Label>
-                      <Select
-                        value={formData.variant_id}
-                        onValueChange={v => handleInputChange('variant_id', v)}
-                      >
-                        <SelectTrigger
-                          className={errors.variant_id && touched.variant_id ? 'border-status-danger' : ''}
-                          data-testid="reservation-variant-select"
-                        >
-                          <SelectValue placeholder={t('provider.reservationForm.placeholders.variant')} />
+                      <p className="font-medium">{i18n.language.startsWith('cs') ? 'Žádné sety' : 'No kits yet'}</p>
+                      <p className="text-sm mt-1">
+                        <a href="/provider/kits" className="underline font-medium">
+                          {i18n.language.startsWith('cs') ? 'Vytvořit set →' : 'Create kit →'}
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <Label>{i18n.language.startsWith('cs') ? 'Vyberte set' : 'Select kit'} *</Label>
+                      <Select value={selectedKitId} onValueChange={setSelectedKitId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={i18n.language.startsWith('cs') ? 'Vyberte set...' : 'Select kit...'} />
                         </SelectTrigger>
                         <SelectContent>
-                          {selectedProduct.product_variants.map(v => (
-                            <SelectItem
-                              key={v.id}
-                              value={v.id}
-                              data-testid={`reservation-variant-option-${v.id}`}
-                            >
-                              {v.name}
-                              {v.price_override_cents
-                                ? ` (${formatPrice(v.price_override_cents / 100)}/den)`
-                                : ` (${formatPrice((selectedProduct.base_price_cents || 0) / 100)}/den)`}
+                          {kits.map(kit => (
+                            <SelectItem key={kit.id} value={kit.id}>
+                              {kit.name} ({kit.kit_items.reduce((s, i) => s + i.quantity, 0)} ks)
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      {errors.variant_id && <p className="text-sm text-status-danger mt-1">{errors.variant_id}</p>}
                     </div>
-                  )}
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>{t('provider.reservationForm.labels.start')} *</Label>
-                      <div className="relative">
-                        <Input
-                          type="datetime-local"
-                          value={formData.start_date}
-                          onChange={e => handleInputChange('start_date', e.target.value)}
-                          data-testid="reservation-start"
-                          onBlur={() => setTouched(prev => ({ ...prev, start_date: true }))}
-                          className={errors.start_date && touched.start_date ? 'border-status-danger' : ''}
-                        />
+                    {selectedKit && (
+                      <div className="border rounded-lg p-3 space-y-2 bg-muted/30">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-sm">{i18n.language.startsWith('cs') ? 'Obsah setu' : 'Kit contents'}</span>
+                          <Badge variant="secondary">
+                            {selectedKit.kit_items.reduce((s, i) => s + i.quantity, 0)} {i18n.language.startsWith('cs') ? 'ks' : 'pcs'}
+                          </Badge>
+                        </div>
+                        {selectedKit.kit_items.map(item => (
+                          <div key={item.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span className="w-5 text-right font-mono text-xs">{item.quantity}×</span>
+                            <span>{item.product_name} / {item.variant_name}</span>
+                          </div>
+                        ))}
+                        <p className="text-xs text-amber-600 mt-2">⚠ {i18n.language.startsWith('cs') ? 'Dostupnost se ověří při vydání (ne teď).' : 'Availability checked at issue time (not now).'}</p>
                       </div>
-                      {errors.start_date && touched.start_date && <p className="text-sm text-status-danger mt-1">{errors.start_date}</p>}
-                    </div>
-                    <div>
-                      <Label>{t('provider.reservationForm.labels.end')} *</Label>
-                      <div className="relative">
-                        <Input
-                          type="datetime-local"
-                          value={formData.end_date}
-                          onChange={e => handleInputChange('end_date', e.target.value)}
-                          data-testid="reservation-end"
-                          onBlur={() => setTouched(prev => ({ ...prev, end_date: true }))}
-                          className={errors.end_date && touched.end_date ? 'border-status-danger' : ''}
-                        />
-                      </div>
-                      {errors.end_date && touched.end_date && <p className="text-sm text-status-danger mt-1">{errors.end_date}</p>}
-                    </div>
-                  </div>
-
-                  {/* Availability Status */}
-                  {formData.variant_id && formData.start_date && formData.end_date && (
-                    <div className={`p-4 border rounded-lg flex items-center gap-2 ${availability.checking ? 'text-muted-foreground' :
-                      availability.result?.isAvailable ? 'text-status-success bg-status-success/10 border border-status-success/20' : 'text-status-danger bg-status-danger/10 border border-status-danger/20'
-                      }`}>
-                      {availability.checking ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> {t('provider.reservationForm.availability.checking')}</>
-                      ) : availability.result ? (
-                        <>
-                          {availability.result.isAvailable ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-                          <span className="font-medium">{availability.result.message}</span>
-                        </>
-                      ) : null}
-                    </div>
-                  )}
-
-                  {/* Price Summary */}
-                  {selectedVariant && rentalDays > 0 && (
-                    <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>{t('provider.reservationForm.pricing.rate')}</span>
-                        <span className="font-medium">{formatPrice(pricePerDay)} / {t('provider.reservationForm.pricing.perDay')}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>{t('provider.reservationForm.pricing.duration')}</span>
-                        <span className="font-medium">{rentalDays} {t('provider.reservationForm.pricing.days')}</span>
-                      </div>
-                      <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                        <span>{t('provider.reservationForm.pricing.total')}</span>
-                        <span>{formatPrice(totalPrice)}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <Label htmlFor="notes">{t('provider.reservationForm.labels.notes')}</Label>
-                    <Textarea
-                      id="notes"
-                      value={formData.notes}
-                      onChange={e => handleInputChange('notes', e.target.value)}
-                      maxLength={1000}
-                    />
-                    {formData.notes.length > 800 && (
-                      <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-status-warning font-medium' : 'text-muted-foreground'
-                        }`}>
-                        {formData.notes.length}/1000 {t('provider.reservationForm.notes.chars')}
-                      </p>
                     )}
+                  </>
+                )
+              ) : (
+                /* ── Single-item mode (original) ─────────────── */
+                !loading && products.length === 0 ? (
+                  <div className="p-4 rounded-lg border border-status-warning/30 bg-status-warning/10 text-status-warning flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 shrink-0" />
+                    <div>
+                      <p className="font-medium">{i18n.language.startsWith('cs') ? 'Žádné vybavení na skladě' : 'No equipment in stock'}</p>
+                      <p className="text-sm mt-1">
+                        {i18n.language.startsWith('cs')
+                          ? 'Nejprve přidejte vybavení do inventáře, aby šlo vytvořit rezervaci.'
+                          : 'Add equipment to your inventory first to create a reservation.'}
+                        {' '}
+                        <a href="/provider/inventory/new" className="underline font-medium">
+                          {i18n.language.startsWith('cs') ? 'Přidat vybavení →' : 'Add equipment →'}
+                        </a>
+                      </p>
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    <div>
+                      <Label>{t('provider.reservationForm.labels.product')} *</Label>
+                      <Select
+                        value={formData.product_id}
+                        onValueChange={v => {
+                          handleInputChange('product_id', v);
+                          handleInputChange('variant_id', ''); // Reset variant
+                        }}
+                      >
+                        <SelectTrigger
+                          className={errors.product_id && touched.product_id ? 'border-status-danger' : ''}
+                          data-testid="reservation-product-select"
+                        >
+                          <SelectValue placeholder={t('provider.reservationForm.placeholders.product')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(productsByCategory).map(([cat, prods]) => (
+                            <SelectGroup key={cat}>
+                              <SelectLabel>{cat}</SelectLabel>
+                              {prods.map(p => (
+                                <SelectItem
+                                  key={p.id}
+                                  value={p.id}
+                                  data-testid={`reservation-product-option-${p.id}`}
+                                >
+                                  {p.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="deposit_paid"
-                      checked={formData.deposit_paid}
-                      onCheckedChange={c => handleInputChange('deposit_paid', c)}
-                    />
-                    <Label htmlFor="deposit_paid">{t('provider.reservationForm.labels.depositPaid')}</Label>
-                  </div>
-                </>
+                    {selectedProduct && (
+                      <div>
+                        <Label>{t('provider.reservationForm.labels.variant')} *</Label>
+                        <Select
+                          value={formData.variant_id}
+                          onValueChange={v => handleInputChange('variant_id', v)}
+                        >
+                          <SelectTrigger
+                            className={errors.variant_id && touched.variant_id ? 'border-status-danger' : ''}
+                            data-testid="reservation-variant-select"
+                          >
+                            <SelectValue placeholder={t('provider.reservationForm.placeholders.variant')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedProduct.product_variants.map(v => (
+                              <SelectItem
+                                key={v.id}
+                                value={v.id}
+                                data-testid={`reservation-variant-option-${v.id}`}
+                              >
+                                {v.name}
+                                {v.price_override_cents
+                                  ? ` (${formatPrice(v.price_override_cents / 100)}/den)`
+                                  : ` (${formatPrice((selectedProduct.base_price_cents || 0) / 100)}/den)`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.variant_id && <p className="text-sm text-status-danger mt-1">{errors.variant_id}</p>}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>{t('provider.reservationForm.labels.start')} *</Label>
+                        <div className="relative">
+                          <Input
+                            type="datetime-local"
+                            value={formData.start_date}
+                            onChange={e => handleInputChange('start_date', e.target.value)}
+                            data-testid="reservation-start"
+                            onBlur={() => setTouched(prev => ({ ...prev, start_date: true }))}
+                            className={errors.start_date && touched.start_date ? 'border-status-danger' : ''}
+                          />
+                        </div>
+                        {errors.start_date && touched.start_date && <p className="text-sm text-status-danger mt-1">{errors.start_date}</p>}
+                      </div>
+                      <div>
+                        <Label>{t('provider.reservationForm.labels.end')} *</Label>
+                        <div className="relative">
+                          <Input
+                            type="datetime-local"
+                            value={formData.end_date}
+                            onChange={e => handleInputChange('end_date', e.target.value)}
+                            data-testid="reservation-end"
+                            onBlur={() => setTouched(prev => ({ ...prev, end_date: true }))}
+                            className={errors.end_date && touched.end_date ? 'border-status-danger' : ''}
+                          />
+                        </div>
+                        {errors.end_date && touched.end_date && <p className="text-sm text-status-danger mt-1">{errors.end_date}</p>}
+                      </div>
+                    </div>
+
+                    {/* Availability Status */}
+                    {formData.variant_id && formData.start_date && formData.end_date && (
+                      <div className={`p-4 border rounded-lg flex items-center gap-2 ${availability.checking ? 'text-muted-foreground' :
+                        availability.result?.isAvailable ? 'text-status-success bg-status-success/10 border border-status-success/20' : 'text-status-danger bg-status-danger/10 border border-status-danger/20'
+                        }`}>
+                        {availability.checking ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> {t('provider.reservationForm.availability.checking')}</>
+                        ) : availability.result ? (
+                          <>
+                            {availability.result.isAvailable ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+                            <span className="font-medium">{availability.result.message}</span>
+                          </>
+                        ) : null}
+                      </div>
+                    )}
+
+                    {/* Price Summary */}
+                    {selectedVariant && rentalDays > 0 && (
+                      <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>{t('provider.reservationForm.pricing.rate')}</span>
+                          <span className="font-medium">{formatPrice(pricePerDay)} / {t('provider.reservationForm.pricing.perDay')}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>{t('provider.reservationForm.pricing.duration')}</span>
+                          <span className="font-medium">{rentalDays} {t('provider.reservationForm.pricing.days')}</span>
+                        </div>
+                        <div className="border-t pt-2 flex justify-between text-lg font-bold">
+                          <span>{t('provider.reservationForm.pricing.total')}</span>
+                          <span>{formatPrice(totalPrice)}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <Label htmlFor="notes">{t('provider.reservationForm.labels.notes')}</Label>
+                      <Textarea
+                        id="notes"
+                        value={formData.notes}
+                        onChange={e => handleInputChange('notes', e.target.value)}
+                        maxLength={1000}
+                      />
+                      {formData.notes.length > 800 && (
+                        <p className={`text-sm mt-1 ${formData.notes.length > 950 ? 'text-status-warning font-medium' : 'text-muted-foreground'
+                          }`}>
+                          {formData.notes.length}/1000 {t('provider.reservationForm.notes.chars')}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="deposit_paid"
+                        checked={formData.deposit_paid}
+                        onCheckedChange={c => handleInputChange('deposit_paid', c)}
+                      />
+                      <Label htmlFor="deposit_paid">{t('provider.reservationForm.labels.depositPaid')}</Label>
+                    </div>
+                  </>
+                )
               )}
             </CardContent>
           </Card>

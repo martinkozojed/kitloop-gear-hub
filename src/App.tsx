@@ -58,6 +58,7 @@ const ProviderAnalytics = lazy(() => import("./pages/provider/ProviderAnalytics"
 const ProviderCalendar = lazy(() => import("./pages/provider/ProviderCalendar"));
 const ProviderCustomers = lazy(() => import("./pages/provider/ProviderCustomers"));
 const ProviderAccounts = lazy(() => import("./pages/provider/ProviderAccounts"));
+const ProviderKits = lazy(() => import("./pages/provider/ProviderKits"));
 
 // Admin pages
 const Observability = lazy(() => import("./pages/admin/Observability"));
@@ -282,6 +283,14 @@ const AppRoutes = () => {
               element={
                 <ProviderRoute>
                   <ReservationForm />
+                </ProviderRoute>
+              }
+            />
+            <Route
+              path="/provider/kits"
+              element={
+                <ProviderRoute>
+                  <ProviderKits />
                 </ProviderRoute>
               }
             />

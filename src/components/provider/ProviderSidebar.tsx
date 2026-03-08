@@ -53,6 +53,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       items: [
         { path: '/provider/reservations', label: 'provider.sidebar.nav.reservations', icon: List },
         { path: '/provider/inventory', label: 'provider.sidebar.nav.inventory', icon: Package },
+        { path: '/provider/kits', label: 'provider.sidebar.nav.kits', icon: Package },
         // Only show Maintenance if feature enabled
         ...(import.meta.env.VITE_ENABLE_MAINTENANCE === 'true'
           ? [{ path: '/provider/maintenance', label: 'provider.sidebar.nav.maintenance', icon: Wrench }]

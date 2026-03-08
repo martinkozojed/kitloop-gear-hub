@@ -121,7 +121,11 @@ const DashboardOverview = () => {
   const executeIssue = async (id: string, isOverride: boolean) => {
     // Note: Hook already handles errors with optimistic rollback and error toast
     // We only add success feedback here
-    await issueReservation({ id, isOverride });
+    await issueReservation({
+      id,
+      isOverride,
+      groupId: activeReservation?.groupId
+    });
 
     toast.success(t('ssot.toasts.issue_completed.title'), {
       description: t('ssot.toasts.issue_completed.desc')
@@ -132,7 +136,11 @@ const DashboardOverview = () => {
   const executeReturn = async (id: string, damage: boolean) => {
     // Note: Hook already handles errors with optimistic rollback and error toast
     // We only add success feedback here
-    await returnReservation({ id, damage });
+    await returnReservation({
+      id,
+      damage,
+      groupId: activeReservation?.groupId
+    });
 
     const toastKey = damage ? 'ssot.toasts.return_with_damage' : 'ssot.toasts.return_completed';
     toast.success(t(`${toastKey}.title`), {

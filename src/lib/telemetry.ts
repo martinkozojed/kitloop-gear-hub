@@ -32,6 +32,7 @@ export type TelemetryEventName =
     // Reservations domain (INSTRUMENTED)
     | 'reservations.create_started'
     | 'reservations.created'
+    | 'reservations.kit_created'
     | 'reservations.open_detail'
     | 'reservations.status_change_started'
     | 'reservations.status_change_succeeded'

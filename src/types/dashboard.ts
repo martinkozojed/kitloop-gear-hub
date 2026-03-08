@@ -41,6 +41,7 @@ export interface AgendaItemProps {
     paymentStatus?: 'paid' | 'unpaid' | 'deposit_paid';
     crmCustomerId?: string;
     customerRiskStatus?: 'safe' | 'warning' | 'blacklist';
+    groupId?: string;
 }
 
 export interface ExceptionItem {

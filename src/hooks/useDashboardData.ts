@@ -6,6 +6,7 @@ import { getProviderTodayDates } from "@/lib/provider-dates";
 import { AgendaItemProps, KpiData } from "@/types/dashboard";
 import { ExceptionItem } from "@/types/dashboard";
 import { toast } from "sonner";
+import { issueGroup, returnGroup } from "@/services/kits";
 
 interface RpcResponse {
     success: boolean;
@@ -14,7 +15,7 @@ interface RpcResponse {
 
 /** Shared select columns for agenda reservation queries */
 const AGENDA_SELECT = `
-    id, start_date, end_date, status, customer_name, customer_phone, payment_status, crm_customer_id,
+    id, start_date, end_date, status, customer_name, customer_phone, payment_status, crm_customer_id, group_id,
     gear:gear_id ( name ),
     crm_customer:customers ( risk_status )
 ` as const;
@@ -28,6 +29,7 @@ interface RawAgendaItem {
     customer_phone: string | null;
     payment_status: string;
     crm_customer_id: string | null;
+    group_id: string | null;
     gear: { name: string } | null;
     crm_customer: { risk_status: string } | null;
 }
@@ -133,62 +135,81 @@ export const useDashboardData = () => {
             if (overdueRes.error) throw overdueRes.error;
 
             const items: AgendaItemProps[] = [];
+            const pickupGroups = new Map<string, AgendaItemProps>();
+            const returnGroups = new Map<string, AgendaItemProps>();
+            const overdueGroups = new Map<string, AgendaItemProps>();
+
+            // Helper to handle grouping
+            const processItem = (
+                r: RawAgendaItem,
+                type: 'pickup' | 'return' | 'overdue',
+                timeFormatStr: string,
+                uiStatus: 'ready' | 'unpaid' | 'active' | 'overdue',
+                groupsMap: Map<string, AgendaItemProps>,
+                timeOverride?: string
+            ) => {
+                const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
+                const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
+                const timeStr = timeOverride || format(new Date((type === 'pickup' ? r.start_date : r.end_date) + 'T00:00:00'), timeFormatStr);
+
+                if (r.group_id) {
+                    const existing = groupsMap.get(r.group_id);
+                    if (existing) {
+                        existing.itemCount += 1;
+                    } else {
+                        groupsMap.set(r.group_id, {
+                            time: timeStr,
+                            type,
+                            customerName: r.customer_name || 'Unknown',
+                            itemCount: 1,
+                            status: uiStatus,
+                            reservationId: r.id, // using first item's ID, operations will use groupId if present
+                            startDate: r.start_date,
+                            endDate: r.end_date,
+                            paymentStatus,
+                            crmCustomerId: r.crm_customer_id || undefined,
+                            customerRiskStatus: riskStatus,
+                            groupId: r.group_id,
+                        });
+                    }
+                } else {
+                    items.push({
+                        time: timeStr,
+                        type,
+                        customerName: r.customer_name || 'Unknown',
+                        itemCount: 1,
+                        status: uiStatus,
+                        reservationId: r.id,
+                        startDate: r.start_date,
+                        endDate: r.end_date,
+                        paymentStatus,
+                        crmCustomerId: r.crm_customer_id || undefined,
+                        customerRiskStatus: riskStatus,
+                    });
+                }
+            };
 
             // --- Map pickups (server already filtered: correct status + date range) ---
             (pickupsRes.data as unknown as RawAgendaItem[] || []).forEach(r => {
-                const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
                 const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
                 const uiStatus = ['paid', 'deposit_paid'].includes(paymentStatus) ? 'ready' : 'unpaid';
-
-                items.push({
-                    time: format(new Date(r.start_date + 'T00:00:00'), 'HH:mm'),
-                    type: 'pickup',
-                    customerName: r.customer_name || 'Unknown',
-                    itemCount: 1,
-                    status: uiStatus as 'ready' | 'unpaid',
-                    reservationId: r.id,
-                    startDate: r.start_date,
-                    endDate: r.end_date,
-                    paymentStatus,
-                    crmCustomerId: r.crm_customer_id || undefined,
-                    customerRiskStatus: riskStatus,
-                });
+                processItem(r, 'pickup', 'HH:mm', uiStatus as 'ready' | 'unpaid', pickupGroups);
             });
 
             // --- Map returns (server already filtered: active + end_date today) ---
             (returnsRes.data as unknown as RawAgendaItem[] || []).forEach(r => {
-                const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
-                items.push({
-                    time: format(new Date(r.end_date + 'T00:00:00'), 'HH:mm'),
-                    type: 'return',
-                    customerName: r.customer_name || 'Unknown',
-                    itemCount: 1,
-                    status: 'active',
-                    reservationId: r.id,
-                    startDate: r.start_date,
-                    endDate: r.end_date,
-                    paymentStatus,
-                });
+                processItem(r, 'return', 'HH:mm', 'active', returnGroups);
             });
 
             // --- Map overdue (server already filtered: active + end_date < today) ---
             (overdueRes.data as unknown as RawAgendaItem[] || []).forEach(r => {
-                const riskStatus = r.crm_customer?.risk_status as 'safe' | 'warning' | 'blacklist' | undefined;
-                const paymentStatus = (r.payment_status as 'paid' | 'unpaid' | 'deposit_paid') || 'unpaid';
-                items.push({
-                    time: format(new Date(r.end_date + 'T00:00:00'), 'd.M.'),
-                    type: 'overdue',
-                    customerName: r.customer_name || 'Unknown',
-                    itemCount: 1,
-                    status: 'overdue',
-                    reservationId: r.id,
-                    startDate: r.start_date,
-                    endDate: r.end_date,
-                    paymentStatus,
-                    crmCustomerId: r.crm_customer_id || undefined,
-                    customerRiskStatus: riskStatus,
-                });
+                processItem(r, 'overdue', 'd.M.', 'overdue', overdueGroups);
             });
+
+            // Add grouped items to the main items array
+            pickupGroups.forEach(g => items.push(g));
+            returnGroups.forEach(g => items.push(g));
+            overdueGroups.forEach(g => items.push(g));
 
             // Sort: overdue first (by end_date asc), then today items by time
             return items.sort((a, b) => {
@@ -264,11 +285,18 @@ export const useDashboardData = () => {
     // --- MUTATIONS (Optimistic UI) ---
 
     const issueMutation = useMutation({
-        mutationFn: async ({ id, isOverride }: { id: string; isOverride: boolean }) => {
+        mutationFn: async ({ id, isOverride, groupId }: { id: string; isOverride: boolean; groupId?: string }) => {
             if (!provider?.id) throw new Error("Missing provider ID");
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("No authenticated user");
 
+            if (groupId) {
+                // Batch operation for kit
+                await issueGroup(groupId, provider.id);
+                return;
+            }
+
+            // Single reservation operation
             const { data, error } = await supabase.rpc('issue_reservation', {
                 p_reservation_id: id,
                 p_provider_id: provider.id,
@@ -282,12 +310,15 @@ export const useDashboardData = () => {
                 throw new Error(res.error || 'Issue failed');
             }
         },
-        onMutate: async ({ id }) => {
+        onMutate: async ({ id, groupId }) => {
             await queryClient.cancelQueries({ queryKey: ['dashboard', 'agenda', provider?.id] });
             const previousAgenda = queryClient.getQueryData<AgendaItemProps[]>(['dashboard', 'agenda', provider?.id, todayDate]);
 
             queryClient.setQueryData(['dashboard', 'agenda', provider?.id, todayDate], (old: AgendaItemProps[] | undefined) => {
                 if (!old) return [];
+                if (groupId) {
+                    return old.filter(item => item.groupId !== groupId);
+                }
                 return old.filter(item => item.reservationId !== id);
             });
 
@@ -303,7 +334,15 @@ export const useDashboardData = () => {
     });
 
     const returnMutation = useMutation({
-        mutationFn: async ({ id, damage }: { id: string; damage: boolean }) => {
+        mutationFn: async ({ id, damage, groupId }: { id: string; damage: boolean; groupId?: string }) => {
+            if (groupId) {
+                if (!provider?.id) throw new Error("Missing provider ID");
+                // Batch operation for kit
+                await returnGroup(groupId, provider.id);
+                return;
+            }
+
+            // Single reservation operation
             const { data, error } = await supabase
                 .rpc('process_return', {
                     p_reservation_id: id,
@@ -316,15 +355,17 @@ export const useDashboardData = () => {
                 throw new Error(res.error || 'Return failed');
             }
         },
-        onMutate: async ({ id }) => {
+        onMutate: async ({ id, groupId }) => {
             await queryClient.cancelQueries({ queryKey: ['dashboard', 'agenda', provider?.id] });
             const previousAgenda = queryClient.getQueryData<AgendaItemProps[]>(['dashboard', 'agenda', provider?.id, todayDate]);
 
             queryClient.setQueryData(['dashboard', 'agenda', provider?.id, todayDate], (old: AgendaItemProps[] | undefined) => {
                 if (!old) return [];
-                return old.map(item =>
-                    item.reservationId === id ? { ...item, status: 'completed' } : item
-                );
+                return old.map(item => {
+                    if (groupId && item.groupId === groupId) return { ...item, status: 'completed' };
+                    if (!groupId && item.reservationId === id) return { ...item, status: 'completed' };
+                    return item;
+                });
             });
 
             return { previousAgenda };
