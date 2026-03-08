@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { getErrorMessage } from "@/lib/error-utils";
 import { createReservationHold, type ReservationCustomerPayload, type ReservationHoldResult } from "./reservations";
+import { type SupabaseClient } from '@supabase/supabase-js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Types
@@ -184,13 +185,16 @@ export const createKitReservation = async (
     input: CreateKitReservationInput
 ): Promise<KitReservationResult> => {
     // 1) Fetch kit items
-    const { data: kitItems, error: kitError } = await supabase
+    const looseSupabase = supabase as unknown as SupabaseClient<unknown, 'public', unknown>;
+    const { data, error: kitError } = await looseSupabase
         .from('kit_items')
         .select('variant_id, quantity')
         .eq('kit_id', input.kitId)
         .order('sort_order');
 
     if (kitError) throw kitError;
+
+    const kitItems = (data as unknown as { variant_id: string; quantity: number }[]) || [];
     if (!kitItems || kitItems.length === 0) {
         throw new Error('Kit has no items');
     }
@@ -234,7 +238,8 @@ export const createKitReservation = async (
     const idempotencyKey = crypto.randomUUID();
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { data, error } = await supabase.rpc('create_kit_reservation', {
+    // Bypass strict type checking for the new RPC until typegen catches up
+    const { data, error } = await looseSupabase.rpc('create_kit_reservation', {
         p_provider_id: input.providerId,
         p_user_id: user?.id,
         p_kit_template_id: input.kitId,
@@ -300,7 +305,8 @@ export const fetchGroupReservations = async (
         .order('created_at');
 
     if (error) throw error;
-    return data || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data as any) || [];
 };
 
 /**
@@ -317,7 +323,8 @@ export const issueGroup = async (
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { error } = await supabase.rpc('issue_reservations_batch', {
+    const looseSupabase = supabase as unknown as SupabaseClient<unknown, 'public', unknown>;
+    const { error } = await looseSupabase.rpc('issue_reservations_batch', {
         p_reservation_ids: reservations.map(r => r.id),
         p_provider_id: providerId,
         p_user_id: user?.id,
@@ -343,7 +350,8 @@ export const returnGroup = async (
     const reservations = await fetchGroupReservations(groupId, providerId);
     if (reservations.length === 0) return { success: true };
 
-    const { error } = await supabase.rpc('process_returns_batch', {
+    const looseSupabase = supabase as unknown as SupabaseClient<unknown, 'public', unknown>;
+    const { error } = await looseSupabase.rpc('process_returns_batch', {
         p_reservation_ids: reservations.map(r => r.id),
         p_has_damage: false
     });
