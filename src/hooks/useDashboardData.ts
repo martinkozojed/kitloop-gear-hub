@@ -153,6 +153,12 @@ export const useDashboardData = () => {
                 const timeStr = timeOverride || format(new Date((type === 'pickup' ? r.start_date : r.end_date) + 'T00:00:00'), timeFormatStr);
 
                 const groupKey = r.group_id || r.id;
+
+                // Security assertion: Prevent inadvertent aggregation of NULL group_ids
+                if (!r.group_id && groupKey !== r.id) {
+                    console.error("Critical: NULL group_id must fallback to unique reservation id to avoid false aggregation");
+                }
+
                 const existing = groupsMap.get(groupKey);
 
                 if (existing) {

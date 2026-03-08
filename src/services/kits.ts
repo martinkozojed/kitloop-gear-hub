@@ -231,63 +231,43 @@ export const createKitReservation = async (
         }
     }
 
-    // 5) Fetch variant pricing info for each unique variant
-    const uniqueVariantIds = [...new Set(expandedItems.map(i => i.variantId))];
-    const { data: variantPrices } = await supabase
-        .from('product_variants')
-        .select('id, price_override_cents, products:product_id(base_price_cents)')
-        .in('id', uniqueVariantIds);
+    const idempotencyKey = crypto.randomUUID();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    const priceMap = new Map<string, number>();
-    for (const v of variantPrices || []) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const baseCents = (v as any).products?.base_price_cents || 0;
-        const cents = v.price_override_cents ?? baseCents;
-        priceMap.set(v.id, cents / 100);
+    const { data, error } = await supabase.rpc('create_kit_reservation', {
+        p_provider_id: input.providerId,
+        p_user_id: user?.id,
+        p_kit_template_id: input.kitId,
+        p_start_date: input.startDate.toISOString(),
+        p_end_date: input.endDate.toISOString(),
+        p_customer_name: input.customer.name,
+        p_customer_email: input.customer.email || null,
+        p_customer_phone: input.customer.phone || null,
+        p_base_idempotency_key: idempotencyKey,
+        p_notes: input.notes || null
+    });
+
+    if (error) {
+        throw new Error(`Kit reservation failed: ${getErrorMessage(error)}`);
     }
 
-    // 6) Create N reservations with same group_id
-    const reservations: ReservationHoldResult[] = [];
-    const rentalDays = Math.max(1, Math.ceil(
-        (input.endDate.getTime() - input.startDate.getTime()) / (1000 * 60 * 60 * 24)
-    ));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rpcRes = data as any;
 
-    try {
-        for (const item of expandedItems) {
-            const pricePerDay = priceMap.get(item.variantId) || 0;
-            const totalPrice = pricePerDay * rentalDays;
+    const { data: reservationsData } = await supabase
+        .from('reservations')
+        .select('id, expires_at, status')
+        .in('id', rpcRes.reservation_ids || []);
 
-            const result = await createReservationHold({
-                providerId: input.providerId,
-                productVariantId: item.variantId,
-                startDate: input.startDate,
-                endDate: input.endDate,
-                totalPrice,
-                depositPaid: input.depositPaid,
-                notes: input.notes || null,
-                customer: input.customer,
-                rentalDays,
-                pricePerDay,
-                customerUserId: null,
-            });
+    const reservations: ReservationHoldResult[] = (reservationsData || []).map(r => ({
+        reservation_id: r.id,
+        expires_at: r.expires_at,
+        status: r.status as "hold" | "active" | "confirmed",
+        idempotent: false,
+        via: "edge" // mocked to match type
+    }));
 
-            // Patch group_id and kit_template_id onto the created reservation
-            await supabase
-                .from('reservations')
-                .update({ group_id: groupId, kit_template_id: input.kitId })
-                .eq('id', result.reservation_id);
-
-            reservations.push(result);
-        }
-
-        return { groupId, reservations, warnings };
-    } catch (e: unknown) {
-        logger.error('createKitReservation transaction failed. Rolling back.', { groupId, error: e });
-        for (const res of reservations) {
-            await supabase.from('reservations').delete().eq('id', res.reservation_id);
-        }
-        throw new Error(`Kit reservation failed; no items created. Reason: ${getErrorMessage(e)}`);
-    }
+    return { groupId: rpcRes.group_id, reservations, warnings };
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -333,64 +313,23 @@ export const issueGroup = async (
     providerId: string
 ): Promise<{ success: boolean; error?: string }> => {
     const reservations = await fetchGroupReservations(groupId, providerId);
-
-    // Pre-check: all must be in issuable state (confirmed or hold)
-    const nonIssuable = reservations.filter(r => !['confirmed', 'hold', 'pending'].includes(r.status));
-    if (nonIssuable.length > 0) {
-        return {
-            success: false,
-            error: `${nonIssuable.length} položek nelze vydat (status: ${nonIssuable.map(r => r.status).join(', ')})`,
-        };
-    }
+    if (reservations.length === 0) return { success: true };
 
     const { data: { user } } = await supabase.auth.getUser();
-    const issuesMade: string[] = [];
 
-    try {
-        for (const res of reservations) {
-            const { data, error } = await supabase.rpc('issue_reservation', {
-                p_reservation_id: res.id,
-                p_provider_id: providerId,
-                p_user_id: user?.id,
-                p_override: false
-            });
+    const { error } = await supabase.rpc('issue_reservations_batch', {
+        p_reservation_ids: reservations.map(r => r.id),
+        p_provider_id: providerId,
+        p_user_id: user?.id,
+        p_override: false
+    });
 
-            if (error) throw error;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const rpcRes = data as any;
-            if (rpcRes && !rpcRes.success) {
-                throw new Error(rpcRes.error || `Issue RPC failed for ${res.id}`);
-            }
-
-            issuesMade.push(res.id);
-        }
-        return { success: true };
-    } catch (error) {
-        logger.error('issueGroup partial failure, attempting rollback', { groupId, error });
-        for (const resId of issuesMade) {
-            // Revert reservation
-            await supabase
-                .from('reservations')
-                .update({ status: 'confirmed', actual_pickup_time: null })
-                .eq('id', resId);
-
-            // Log rollback
-            if (user?.id) {
-                await supabase.from('provider_audit_logs').insert({
-                    provider_id: providerId,
-                    user_id: user.id,
-                    action: 'group_rollback',
-                    entity_type: 'reservation',
-                    entity_id: resId,
-                    details: { status_reverted_to: 'confirmed', reason: getErrorMessage(error) }
-                });
-            }
-        }
-        return {
-            success: false,
-            error: `Skupinový výdej selhal. Proveden rollback. Chyba: ${getErrorMessage(error)}`,
-        };
+    if (error) {
+        logger.error('issueGroup failed', { groupId, error });
+        return { success: false, error: getErrorMessage(error) };
     }
+
+    return { success: true };
 };
 
 /**
@@ -402,61 +341,17 @@ export const returnGroup = async (
     providerId: string
 ): Promise<{ success: boolean; error?: string }> => {
     const reservations = await fetchGroupReservations(groupId, providerId);
+    if (reservations.length === 0) return { success: true };
 
-    // Pre-check: all must be in returnable state (active)
-    const nonReturnable = reservations.filter(r => r.status !== 'active');
-    if (nonReturnable.length > 0) {
-        return {
-            success: false,
-            error: `${nonReturnable.length} položek nelze vrátit (status: ${nonReturnable.map(r => r.status).join(', ')})`,
-        };
+    const { error } = await supabase.rpc('process_returns_batch', {
+        p_reservation_ids: reservations.map(r => r.id),
+        p_has_damage: false
+    });
+
+    if (error) {
+        logger.error('returnGroup failed', { groupId, error });
+        return { success: false, error: getErrorMessage(error) };
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
-    const returnsMade: string[] = [];
-
-    try {
-        for (const res of reservations) {
-            const { data, error } = await supabase.rpc('process_return', {
-                p_reservation_id: res.id,
-                p_has_damage: false // Assumes no damage for fully automated batch return
-            });
-
-            if (error) throw error;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const rpcRes = data as any;
-            if (rpcRes && !rpcRes.success) {
-                throw new Error(rpcRes.error || `Return RPC failed for ${res.id}`);
-            }
-
-            returnsMade.push(res.id);
-        }
-        return { success: true };
-    } catch (error) {
-        logger.error('returnGroup partial failure, attempting rollback', { groupId, error });
-        for (const resId of returnsMade) {
-            // Revert reservation
-            await supabase
-                .from('reservations')
-                .update({ status: 'active', actual_return_time: null })
-                .eq('id', resId);
-
-            // Log rollback
-            if (user?.id) {
-                await supabase.from('provider_audit_logs').insert({
-                    provider_id: providerId,
-                    user_id: user.id,
-                    action: 'group_rollback',
-                    entity_type: 'reservation',
-                    entity_id: resId,
-                    details: { status_reverted_to: 'active', reason: getErrorMessage(error) }
-                });
-            }
-        }
-        return {
-            success: false,
-            error: `Skupinové vrácení selhalo. Proveden rollback. Chyba: ${getErrorMessage(error)}`,
-        };
-    }
+    return { success: true };
 };
-
