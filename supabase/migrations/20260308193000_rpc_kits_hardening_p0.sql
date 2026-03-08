@@ -12,11 +12,11 @@ REVOKE ALL ON FUNCTION public.create_kit_reservation(
     text,
     text
 )
-FROM public;
+FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.issue_reservations_batch(uuid [], uuid, uuid, boolean, text)
-FROM public;
+FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.process_returns_batch(uuid [], boolean, text)
-FROM public;
+FROM PUBLIC;
 -- Standardize expected grants (already existed, but good practice to explicitly define after revoke)
 GRANT EXECUTE ON FUNCTION public.create_kit_reservation(
         uuid,
