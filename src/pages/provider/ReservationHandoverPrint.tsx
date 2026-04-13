@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
@@ -32,7 +33,8 @@ interface HandoverData {
 
 export default function ReservationHandoverPrint() {
   const { id } = useParams<{ id: string }>();
-  const { user, provider, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { provider } = useProvider();
   const [data, setData] = useState<HandoverData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

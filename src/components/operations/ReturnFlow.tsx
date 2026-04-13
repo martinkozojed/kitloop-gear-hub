@@ -23,6 +23,7 @@ import { PackageCheck, AlertOctagon, Upload, Loader2, Camera } from "lucide-reac
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { requestUploadTicket, uploadWithTicket, UploadTicketError } from "@/lib/upload/client";
@@ -48,7 +49,8 @@ interface AssetReturnState {
 
 export function ReturnFlow({ open, onOpenChange, reservation, onConfirm }: ReturnFlowProps) {
     const { t } = useTranslation();
-    const { user, provider } = useAuth();
+    const { user } = useAuth();
+    const { provider } = useProvider();
     const isMobile = useIsMobile();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);

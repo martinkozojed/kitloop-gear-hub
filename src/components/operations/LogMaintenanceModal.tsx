@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -17,7 +18,8 @@ interface LogMaintenanceModalProps {
 }
 
 export function LogMaintenanceModal({ open, onOpenChange, assetIds, onSuccess }: LogMaintenanceModalProps) {
-    const { provider, user } = useAuth();
+    const { user } = useAuth();
+    const { provider } = useProvider();
     const [loading, setLoading] = useState(false);
 
     const [type, setType] = useState<'inspection' | 'cleaning' | 'repair' | 'quality_hold'>('inspection');

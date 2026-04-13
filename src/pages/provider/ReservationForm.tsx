@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { useAuth } from "@/context/AuthContext";
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from "@/lib/supabase";
 import { checkVariantAvailability, calculatePrice, calculateDays, validatePhone, validateEmail, formatPrice } from "@/lib/availability";
 import { createReservationHold, ReservationError } from "@/services/reservations";
@@ -89,7 +89,7 @@ const ReservationForm = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const fromRequestId = searchParams.get('fromRequest');
-  const { provider } = useAuth();
+  const { provider } = useProvider();
   const { t, i18n } = useTranslation();
   const currentLocale = i18n.language.startsWith('cs') ? cs : enUS;
   const fromRequestState = (location.state as { fromRequest?: FromRequestState })?.fromRequest;

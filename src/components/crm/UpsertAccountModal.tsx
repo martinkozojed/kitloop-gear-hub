@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea"; // Assuming you have this or use standard textarea
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { toast } from "sonner";
 
 interface AccountData {
@@ -29,7 +29,7 @@ export function UpsertAccountModal({ open, onOpenChange, accountToEdit, onSucces
     const [taxId, setTaxId] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [notes, setNotes] = useState('');
-    const { provider } = useAuth();
+    const { provider } = useProvider();
 
     useEffect(() => {
         if (open) {

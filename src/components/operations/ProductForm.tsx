@@ -10,7 +10,7 @@ import { GEAR_CATEGORIES } from '@/lib/categories';
 import { Plus, Trash2, Loader2, Save, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { useTranslation } from 'react-i18next';
 
 interface ProductFormProps {
@@ -27,7 +27,7 @@ interface VariantDraft {
 }
 
 export function ProductForm({ open, onOpenChange, onSuccess, productId }: ProductFormProps) {
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
 

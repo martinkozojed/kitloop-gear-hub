@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { submitFeedback } from '@/lib/app-events';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 export function FeedbackModal() {
-  const { provider } = useAuth();
+  const { provider } = useProvider();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);

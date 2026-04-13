@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import { useAuth } from "@/context/AuthContext";
+import { useProvider } from "@/context/ProviderContext";
 import { supabase } from "@/lib/supabase";
 import { Loader2, ShieldCheck, Link2, Copy } from "lucide-react";
 import { getErrorMessage } from '@/lib/error-utils';
@@ -26,7 +27,8 @@ import { useTranslation } from 'react-i18next';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 
 const ProviderSettings = () => {
-  const { provider, profile, isAdmin, refreshProfile } = useAuth();
+  const { profile, isAdmin, refreshProfile } = useAuth();
+  const { provider } = useProvider();
   const { t } = useTranslation();
   const [requestLinkLoading, setRequestLinkLoading] = useState(false);
   const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false);

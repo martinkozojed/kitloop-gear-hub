@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import ProviderLayout from '@/components/provider/ProviderLayout';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Download, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -36,7 +36,7 @@ interface ImportProgress {
 }
 
 const InventoryImport = () => {
-  const { provider } = useAuth();
+  const { provider } = useProvider();
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<CsvRow[]>([]);

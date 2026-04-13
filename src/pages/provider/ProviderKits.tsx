@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import ProviderLayout from '@/components/provider/ProviderLayout';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import { Plus, Package, Trash2, Pencil, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
@@ -44,7 +44,7 @@ interface KitItemDraft {
 // ──────────────────────────────────────────────────────────────────────────────
 
 const ProviderKits = () => {
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t, i18n } = useTranslation();
     const cs = i18n.language.startsWith('cs');
 

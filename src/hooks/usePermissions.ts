@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 
 export type MemberRole = 'owner' | 'staff' | 'viewer';
@@ -14,7 +15,8 @@ interface Permissions {
 }
 
 export const usePermissions = () => {
-    const { user, provider } = useAuth();
+    const { user } = useAuth();
+    const { provider } = useProvider();
     const [role, setRole] = useState<MemberRole | null>(null);
     const [loading, setLoading] = useState(true);
 

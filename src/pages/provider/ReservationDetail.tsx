@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from "@/context/AuthContext";
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import ProviderLayout from "@/components/provider/ProviderLayout";
@@ -19,7 +19,7 @@ import { ReservationLineItems } from "@/components/reservations/ReservationLineI
 export default function ReservationDetail() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

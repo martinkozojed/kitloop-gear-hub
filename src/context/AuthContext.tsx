@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useCallback, useRef, useMemo } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { supabase, UserRole, Profile, Provider } from '../lib/supabase';
-import { ensureProviderMembership } from '@/services/providerMembership';
+import { supabase, UserRole, Profile } from '../lib/supabase';
 import { logger } from '@/lib/logger';
 
 interface User {
@@ -9,15 +8,12 @@ interface User {
   email: string;
   role?: UserRole;
   profile?: Profile;
-  provider?: Provider;
 }
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
-  provider: Provider | null;
   isAuthenticated: boolean;
-  isProvider: boolean;
   isAdmin: boolean;
   isVerified: boolean;
   loading: boolean;
@@ -30,16 +26,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
-  provider: null,
   isAuthenticated: false,
-  isProvider: false,
   isAdmin: false,
   isVerified: false,
   loading: true,
-  login: async () => { },
-  signUp: async () => { },
-  logout: async () => { },
-  refreshProfile: async () => { },
+  login: async () => {},
+  signUp: async () => {},
+  logout: async () => {},
+  refreshProfile: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -47,7 +41,7 @@ export const useAuth = () => useContext(AuthContext);
 const withTimeout = async <T,>(
   promise: PromiseLike<T>,
   timeoutMs: number,
-  timeoutMessage: string
+  timeoutMessage: string,
 ): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
@@ -71,10 +65,7 @@ interface ErrorDetails {
 }
 
 const stringifyUnknown = (value: unknown): string => {
-  if (typeof value === 'string') {
-    return value;
-  }
-
+  if (typeof value === 'string') return value;
   try {
     return JSON.stringify(value);
   } catch {
@@ -85,21 +76,17 @@ const stringifyUnknown = (value: unknown): string => {
 const extractStringCode = (value: unknown): string | undefined => {
   if (typeof value === 'object' && value !== null) {
     const maybeCode = (value as Record<string, unknown>).code;
-    if (typeof maybeCode === 'string') {
-      return maybeCode;
-    }
+    if (typeof maybeCode === 'string') return maybeCode;
   }
   return undefined;
 };
 
 const getErrorDetails = (error: unknown): ErrorDetails => {
   if (error instanceof Error) {
-    const code = extractStringCode(error);
-
     return {
       message: error.message,
       stack: error.stack,
-      code,
+      code: extractStringCode(error),
     };
   }
 
@@ -108,10 +95,7 @@ const getErrorDetails = (error: unknown): ErrorDetails => {
       'message' in error && typeof (error as { message?: unknown }).message === 'string'
         ? (error as { message: string }).message
         : stringifyUnknown(error);
-
-    const code = extractStringCode(error);
-
-    return { message, code };
+    return { message, code: extractStringCode(error) };
   }
 
   return { message: stringifyUnknown(error) };
@@ -120,11 +104,9 @@ const getErrorDetails = (error: unknown): ErrorDetails => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [provider, setProvider] = useState<Provider | null>(null);
   const [authStatus, setAuthStatus] = useState<'loading' | 'signed_out' | 'signed_in'>('loading');
   const isMountedRef = useRef(true);
   const profileRef = useRef<Profile | null>(null);
-  const providerRef = useRef<Provider | null>(null);
 
   useEffect(() => {
     return () => {
@@ -136,11 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     profileRef.current = profile;
   }, [profile]);
 
-  useEffect(() => {
-    providerRef.current = provider;
-  }, [provider]);
-
-  // Fetch user profile from database
+  // Fetch user profile from database (identity only — no provider logic)
   const fetchUserProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     if (!userId) return null;
 
@@ -169,60 +147,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(typedProfileData);
       profileRef.current = typedProfileData;
 
-      // If user is an operator/owner/admin, fetch provider data.
-      if (typedProfileData?.role && ['provider', 'operator', 'manager', 'admin'].includes(typedProfileData.role)) {
-        // Primary: ownership via providers.user_id (owner)
-        const { data: ownedProvider, error: ownedError } = await supabase
-          .from('providers')
-          .select('*')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        if (ownedError) {
-          logger.warn('Owned provider fetch error', ownedError);
-        }
-
-        let providerData = ownedProvider as Provider | null;
-
-        // Fallback: membership mapping (for legacy/staff)
-        if (!providerData) {
-          const { data: membershipData, error: membershipError } = await supabase
-            .from('user_provider_memberships')
-            .select('provider:providers!inner(*)')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-          if (membershipError) logger.warn('Membership fetch error', membershipError);
-          providerData = membershipData?.provider as unknown as Provider | null;
-        }
-
-        if (providerData) {
-          // Only enforce membership when the user owns this provider record.
-          if (providerData.user_id === userId) {
-            await ensureProviderMembership(userId, providerData.id, 'owner');
-          }
-        }
-        if (isMountedRef.current) {
-          setProvider(providerData || null);
-          providerRef.current = providerData || null;
-        }
-      } else {
-        if (isMountedRef.current) {
-          setProvider(null);
-          providerRef.current = null;
-        }
-      }
-
       return typedProfileData;
     } catch (error) {
       const details = getErrorDetails(error);
       logger.error('Error fetching user profile', error);
 
-      // Check if it's a RLS policy error
-      if (
-        details.message.includes('policy') ||
-        details.code === '42501'
-      ) {
+      if (details.message.includes('policy') || details.code === '42501') {
         logger.error('RLS POLICY ERROR - User cannot read profiles table');
       }
 
@@ -238,9 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!isMountedRef.current) return;
       setUser(null);
       setProfile(null);
-      setProvider(null);
       profileRef.current = null;
-      providerRef.current = null;
     };
 
     const applySession = async (session: Session | null, options?: { forceProfile?: boolean }) => {
@@ -262,8 +190,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (profileRef.current && profileRef.current.user_id !== session.user.id) {
         setProfile(null);
         profileRef.current = null;
-        setProvider(null);
-        providerRef.current = null;
       }
 
       let profileData: Profile | null = profileRef.current;
@@ -273,8 +199,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!profileData) {
           setProfile(null);
           profileRef.current = null;
-          setProvider(null);
-          providerRef.current = null;
         }
       }
 
@@ -316,7 +240,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logger.debug('Auth state change', event);
 
       if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-        // execute asynchronously to not block the auth flow
         applySession(session).catch(err => logger.error('Error applying session', err));
       } else if (event === 'SIGNED_OUT') {
         clearAuthState();
@@ -336,15 +259,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [fetchUserProfile]);
 
-  // Login with email and password
   const login = useCallback(async (email: string, password: string): Promise<void> => {
-    logger.sensitive('Login attempt for', email); // Only logged in DEV with explicit flag
+    logger.sensitive('Login attempt for', email);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         logger.error('Auth error', error);
@@ -358,9 +277,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       logger.success('Login successful');
-
-      // DO NOT fetch profile here - let onAuthStateChange handle it
-      // This prevents duplicate profile fetching and race conditions
     } catch (error) {
       const details = getErrorDetails(error);
       logger.error('Login failed', error);
@@ -368,19 +284,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Sign up with email, password and role
   const signUp = useCallback(async (email: string, password: string, role: UserRole): Promise<void> => {
-    logger.sensitive('Sign up attempt for', { email, role }); // Only DEV + explicit flag
+    logger.sensitive('Sign up attempt for', { email, role });
 
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            role: role, // This will be used by the database trigger
-          },
-        },
+        options: { data: { role } },
       });
 
       if (error) {
@@ -390,15 +301,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data.user && data.session) {
         logger.info('Waiting for database trigger to create profile');
-        // Profile will be created automatically by database trigger
-        // Wait a bit for the trigger to complete
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         logger.debug('Fetching newly created profile');
         const profileData = await fetchUserProfile(data.user.id);
-        if (!isMountedRef.current) {
-          return;
-        }
+        if (!isMountedRef.current) return;
         setUser({
           id: data.user.id,
           email: data.user.email!,
@@ -418,7 +325,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [fetchUserProfile]);
 
-  // Logout
   const logout = useCallback(async (): Promise<void> => {
     logger.info('Logout attempt');
 
@@ -432,9 +338,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logger.success('Logout successful');
       setUser(null);
       setProfile(null);
-      setProvider(null);
       profileRef.current = null;
-      providerRef.current = null;
       setAuthStatus('signed_out');
     } catch (error) {
       const details = getErrorDetails(error);
@@ -443,7 +347,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Refresh profile and provider data
   const refreshProfile = useCallback(async (): Promise<void> => {
     logger.info('Refreshing profile data');
 
@@ -468,9 +371,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: AuthContextType = useMemo(() => ({
     user,
     profile,
-    provider,
     isAuthenticated,
-    isProvider: profile?.role === 'provider' || profile?.role === 'operator' || profile?.role === 'manager' || profile?.role === 'admin' || profile?.is_admin === true,
     isAdmin: profile?.role === 'admin' || profile?.is_admin === true,
     isVerified: profile?.is_verified === true,
     loading,
@@ -478,7 +379,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     logout,
     refreshProfile,
-  }), [user, profile, provider, isAuthenticated, loading, login, signUp, logout, refreshProfile]);
+  }), [user, profile, isAuthenticated, loading, login, signUp, logout, refreshProfile]);
 
   return (
     <AuthContext.Provider value={value}>

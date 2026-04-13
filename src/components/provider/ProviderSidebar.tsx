@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +32,8 @@ interface ProviderSidebarProps {
 const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps) => {
   const location = useLocation();
   const { t } = useTranslation();
-  const { user, provider, isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const { provider } = useProvider();
   const { canViewFinancials, canEditSettings } = usePermissions();
 
   // Use Desktop Density by default for Sidebar

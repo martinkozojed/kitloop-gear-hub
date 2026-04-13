@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { logger } from '@/lib/logger';
 
 interface Props {
@@ -9,16 +10,18 @@ interface Props {
 }
 
 const ProviderRoute = ({ children, allowUnverified = false }: Props) => {
-  const { isAuthenticated, isProvider, provider, loading, refreshProfile } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { provider, isProvider, loading: providerLoading, refreshProvider } = useProvider();
+  const loading = authLoading || providerLoading;
   const location = useLocation();
 
   // Refresh provider data when navigating to provider routes
   useEffect(() => {
     if (isAuthenticated && isProvider && !provider && !loading) {
       logger.debug('ProviderRoute: No provider data, refreshing...');
-      refreshProfile();
+      refreshProvider();
     }
-  }, [isAuthenticated, isProvider, provider, loading, refreshProfile]);
+  }, [isAuthenticated, isProvider, provider, loading, refreshProvider]);
 
   // Show nothing while loading auth state
   if (loading) {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { Loader2, AlertTriangle, Mail } from 'lucide-react';
 import { Button } from '../ui/button';
 import { logger } from '@/lib/logger';
@@ -43,7 +44,9 @@ const PendingOverlay = () => (
 );
 
 const ProviderRoute = ({ children }: ProviderRouteProps) => {
-  const { user, profile, provider, loading, isProvider, isAdmin } = useAuth();
+  const { user, profile, loading: authLoading, isAdmin } = useAuth();
+  const { provider, isProvider, loading: providerLoading } = useProvider();
+  const loading = authLoading || providerLoading;
   const location = useLocation();
   const demoEnabled = import.meta.env.VITE_ENABLE_DEMO === "true";
 

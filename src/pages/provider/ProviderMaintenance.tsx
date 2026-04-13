@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import ProviderLayout from '@/components/provider/ProviderLayout';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import { Wrench, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -29,7 +29,7 @@ interface MaintenanceItem {
 }
 
 const ProviderMaintenance = () => {
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
     const [items, setItems] = useState<MaintenanceItem[]>([]);
     const [loading, setLoading] = useState(true);

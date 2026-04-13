@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/ui/page-header';
 import { FilterBar, SearchInput } from '@/components/ui/filter-bar';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { CustomerDetailSheet } from '@/components/crm/CustomerDetailSheet';
 import { formatDistanceToNow } from 'date-fns';
 import { UpsertCustomerModal } from '@/components/crm/UpsertCustomerModal';
@@ -33,7 +33,7 @@ const ProviderCustomers = () => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
     const [createOpen, setCreateOpen] = useState(false);
 

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { exportReservationsCsv } from '@/lib/csv-export';
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { useAuth } from "@/context/AuthContext";
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from "@/lib/supabase";
 import { getErrorMessage } from "@/lib/error-utils";
 import { formatDateRange, formatPrice } from "@/lib/availability";
@@ -74,7 +74,7 @@ interface ReservationRequestRow {
 }
 
 const ProviderReservations = () => {
-  const { provider } = useAuth();
+  const { provider } = useProvider();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [reservations, setReservations] = useState<Reservation[]>([]);

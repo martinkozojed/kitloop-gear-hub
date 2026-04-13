@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ProviderProvider, useProvider } from "./context/ProviderContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
@@ -75,7 +76,8 @@ const PageLoader = () => (
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
-  const { isAuthenticated, isProvider } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { isProvider } = useProvider();
   const location = useLocation();
   const navigate = useNavigate(); // Add navigate
   const isProviderRoute = location.pathname.startsWith("/provider");
@@ -367,6 +369,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <ProviderProvider>
         <CommandProvider>
           <TooltipProvider>
             <Sonner />
@@ -375,6 +378,7 @@ const App = () => {
             </BrowserRouter>
           </TooltipProvider>
         </CommandProvider>
+        </ProviderProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

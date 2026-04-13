@@ -3,13 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/context/AuthContext";
+import { useProvider } from "@/context/ProviderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 
 export function NotificationSettings({ isEditEnabled }: { isEditEnabled: boolean }) {
-    const { provider, user } = useAuth();
+    const { user } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

@@ -17,6 +17,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { useProvider } from "@/context/ProviderContext";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { GlowLayer as GlobalGlowLayer } from "@/components/ui/GlowLayer";
 import {
@@ -180,7 +181,8 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [pain, setPain] = usePain();
   const shouldReduce = useReducedMotion();
-  const { isAuthenticated, isProvider, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
+  const { isProvider } = useProvider();
 
   // Derive lang from i18next (normalise to cs | en)
   const lang: Lang = i18n.language?.startsWith("cs") ? "cs" : "en";

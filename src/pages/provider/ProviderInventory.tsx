@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import ProviderLayout from '@/components/provider/ProviderLayout';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import { Plus, Package, QrCode, Upload, Download } from 'lucide-react';
 import { toast } from 'sonner';
@@ -28,7 +28,7 @@ import { generateDemoData } from '@/lib/demo-data';
 import { usePermissions } from '@/hooks/usePermissions';
 
 const ProviderInventory = () => {
-  const { provider } = useAuth();
+  const { provider } = useProvider();
   const { canDeleteAssets } = usePermissions();
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();

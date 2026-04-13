@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/ui/page-header';
 import { FilterBar, SearchInput } from '@/components/ui/filter-bar';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { UpsertAccountModal } from '@/components/crm/UpsertAccountModal';
 import { formatDistanceToNow } from 'date-fns';
 import {
@@ -47,7 +47,7 @@ const ProviderAccounts = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
 
     // Modal State

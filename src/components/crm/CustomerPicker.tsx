@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/context/AuthContext";
+import { useProvider } from '@/context/ProviderContext';
 import { useTranslation } from "react-i18next";
 
 export interface CustomerOption {
@@ -35,7 +35,7 @@ interface CustomerPickerProps {
 export function CustomerPicker({ value, onSelect }: CustomerPickerProps) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
 
     const { data: customers = [], isLoading } = useQuery({

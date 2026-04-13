@@ -30,7 +30,7 @@ import { BookingRequestsWidget } from "@/components/dashboard/BookingRequestsWid
 import { toast } from "sonner";
 import { PageLoadingSkeleton } from "@/components/ui/loading-state";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/context/AuthContext";
+import { useProvider } from '@/context/ProviderContext';
 import { enUS } from "date-fns/locale";
 
 const numberFormatter = new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: 0 });
@@ -44,7 +44,7 @@ const DashboardOverview = () => {
   const navigate = useNavigate();
   const { canViewFinancials } = usePermissions();
   const { t, i18n } = useTranslation();
-  const { provider } = useAuth();
+  const { provider } = useProvider();
 
   // Use Custom Hook for Data & Mutations
   const {

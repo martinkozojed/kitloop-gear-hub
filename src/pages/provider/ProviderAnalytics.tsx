@@ -22,7 +22,7 @@ import { useDeadInventory } from "@/hooks/analytics/useDeadInventory";
 import { useActivityFeed } from "@/hooks/analytics/useActivityFeed";
 import { useUtilizationHeatmap } from "@/hooks/analytics/useUtilizationHeatmap";
 import { useCustomerKpis } from "@/hooks/analytics/useCustomerKpis";
-import { useAuth } from "@/context/AuthContext";
+import { useProvider } from '@/context/ProviderContext';
 import {
   formatInteger,
   formatLongDate,
@@ -46,7 +46,7 @@ import { useTranslation } from "react-i18next";
 const todayLabel = formatLongDate(new Date());
 
 const ProviderAnalytics = () => {
-  const { provider } = useAuth();
+  const { provider } = useProvider();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<AnalyticsPeriod>("thisMonth");

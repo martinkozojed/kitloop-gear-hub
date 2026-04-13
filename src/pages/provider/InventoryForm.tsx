@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ProviderLayout from '@/components/provider/ProviderLayout';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import { GEAR_CATEGORIES, CONDITIONS } from '@/lib/categories';
 import { ArrowLeft, Upload, X, Loader2 } from 'lucide-react';
@@ -49,7 +49,7 @@ interface GearImage {
 
 const InventoryForm = () => {
   const { id } = useParams();
-  const { provider } = useAuth();
+  const { provider } = useProvider();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 

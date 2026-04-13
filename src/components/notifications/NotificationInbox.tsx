@@ -58,15 +58,20 @@ export function NotificationInbox() {
 
             setNotifications(formatted);
             setUnreadCount(formatted.filter(n => n.read_at === null).length);
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
+        } catch (err: unknown) {
+            const e = err as { code?: string; message?: string };
+            if (e?.code === 'PGRST205') {
+                console.warn('Notifications: table notification_outbox not found. Run Supabase migrations on this project.');
+            } else {
+                console.error('Error fetching notifications:', e);
+            }
         }
     }, [user, profile]);
 
     useEffect(() => {
         fetchNotifications();
 
-        // Set up realtime subscription
+        // Set up realtime subscription (best-effort; may fail if CSP blocks wss://)
         if (user?.id) {
             const channel = supabase
                 .channel('notification_changes')
@@ -79,12 +84,16 @@ export function NotificationInbox() {
                         filter: `user_id=eq.${user.id}`,
                     },
                     (payload) => {
-                        if (payload.new.channel === 'inapp') {
+                        if (payload.new?.channel === 'inapp') {
                             fetchNotifications();
                         }
                     }
                 )
-                .subscribe();
+                .subscribe((status, err) => {
+                    if (err) {
+                        console.warn('Notifications realtime unavailable (CSP or network):', err.message);
+                    }
+                });
 
             return () => {
                 supabase.removeChannel(channel);

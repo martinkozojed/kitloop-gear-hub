@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { useCommand } from "@/context/CommandContext";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -26,7 +27,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const Navbar = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, profile, provider, isAuthenticated, logout, isAdmin, isProvider } = useAuth();
+  const { user, profile, isAuthenticated, logout, isAdmin } = useAuth();
+  const { provider, isProvider } = useProvider();
   const { setOpen } = useCommand();
 
   const scrollToSection = (sectionId: string) => {

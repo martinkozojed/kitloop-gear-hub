@@ -8,7 +8,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { supabase } from '@/lib/supabase';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
@@ -44,7 +44,7 @@ interface PreviewRow extends CsvRow {
 }
 
 export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModalProps) {
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [previewData, setPreviewData] = useState<PreviewRow[]>([]);

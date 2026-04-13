@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Box, ArrowRight, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { useTranslation } from 'react-i18next';
 import { track, trackError } from '@/lib/telemetry';
 
@@ -28,7 +28,7 @@ type ProductOption = {
 };
 
 export function AssetForm({ open, onOpenChange, onSuccess }: AssetFormProps) {
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const { t } = useTranslation();
     const [step, setStep] = useState<1 | 2>(1);
     const [loading, setLoading] = useState(false);

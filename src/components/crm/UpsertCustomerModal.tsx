@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
+import { useProvider } from '@/context/ProviderContext';
 import { toast } from "sonner";
 import { logger } from '@/lib/logger';
 
@@ -22,7 +22,7 @@ interface AccountOption {
 }
 
 export function UpsertCustomerModal({ open, onOpenChange, onSuccess }: UpsertCustomerModalProps) {
-    const { provider } = useAuth();
+    const { provider } = useProvider();
     const [loading, setLoading] = useState(false);
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
