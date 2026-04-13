@@ -12,7 +12,7 @@ INSERT INTO auth.users (
     '00000000-0000-0000-0000-000000000000',
     '00000000-0000-0000-0000-000000000000',
     'authenticated', 'authenticated', 'demo@kitloop.cz',
-    crypt('password123', gen_salt('bf')),
+    extensions.crypt('password123', extensions.gen_salt('bf')),
     now(), now(), now(),
     '{"provider":"email","providers":["email"]}', '{"role": "provider"}',
     now(), now(), '', '', '', ''
@@ -123,7 +123,7 @@ ON CONFLICT DO NOTHING;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 UPDATE auth.users
-SET encrypted_password = crypt('password123', gen_salt('bf')),
+SET encrypted_password = extensions.crypt('password123', extensions.gen_salt('bf')),
     updated_at = now(),
     email_confirmed_at = now(),
     last_sign_in_at = NULL,
