@@ -545,7 +545,7 @@ const ProviderSettings = () => {
 
         {canEdit && isDirty && (
           <div className="fixed bottom-4 left-1/2 z-20 w-full max-w-4xl -translate-x-1/2">
-            <Card className="border-emerald-200 shadow-lg">
+            <Card className="border-brand-200 shadow-lg">
               <CardContent className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 py-3 px-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">{t('provider.settings.cta.title')}</p>

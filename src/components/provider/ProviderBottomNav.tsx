@@ -34,7 +34,7 @@ const ProviderBottomNav = () => {
                   onClick={() => setIsScanOpen(true)}
                   className="flex flex-col items-center justify-center -mt-6 group"
                 >
-                  <div className="p-3.5 bg-primary rounded-full shadow-lg shadow-primary/30 text-primary-foreground transform group-active:scale-95 transition-all group-hover:bg-primary/90">
+                  <div className="p-3.5 bg-primary rounded-full shadow-brand text-primary-foreground transform transition-all duration-fast ease-spring group-hover:shadow-elevated group-active:scale-95 group-active:shadow-sm">
                     <UiIcon icon={QrCode} size="lg" />
                   </div>
                   <span className="text-xs font-medium mt-1 tracking-tight text-foreground/80">{t(item.label, 'Scan')}</span>
@@ -48,15 +48,15 @@ const ProviderBottomNav = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center justify-center w-full h-full transition-all duration-200 active:scale-95 ${isActive
-                  ? 'text-primary'
+                className={`flex flex-col items-center justify-center w-full h-full transition-all duration-fast active:scale-95 ${isActive
+                  ? 'text-brand-600 font-medium'
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
-                <div className={`relative p-1.5 rounded-xl transition-all ${isActive ? 'bg-primary/10' : 'bg-transparent'}`}>
+                <div className={`relative p-1.5 rounded-xl transition-all duration-fast ${isActive ? 'bg-brand-50' : 'bg-transparent'}`}>
                   <UiIcon icon={item.icon} size="md" className={isActive ? 'stroke-[2.5px]' : 'stroke-2'} />
                   {isActive && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-brand-500" />
                   )}
                 </div>
                 <span className="text-xs font-medium mt-0.5 tracking-tight">{t(item.label)}</span>

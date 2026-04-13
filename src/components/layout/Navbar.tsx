@@ -55,34 +55,33 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 bg-background shadow-sm border-b border-border fixed top-0 left-0 right-0 z-50 transition-colors duration-300">
+    <header className="py-4 px-6 md:px-10 bg-background/80 backdrop-blur-xl border-b border-border fixed top-0 left-0 right-0 z-50 transition-colors duration-fast">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* Logo */}
         <div className="flex-shrink-0">
-          <Link to="/" className="text-2xl font-bold flex items-center">
-            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
-            <span className="text-foreground tracking-wide">loop</span>
+          <Link to="/" className="font-heading text-2xl font-bold flex items-center tracking-tight">
+            <span className="text-brand-600 dark:text-brand-400 pr-0.5">Kit</span>
+            <span className="text-foreground dark:text-white">loop</span>
           </Link>
         </div>
 
         {/* Navigation */}
-        {/* Navigation */}
         <div className="flex-1 hidden md:flex justify-center items-center px-4">
           {!isAuthenticated && (
-            <nav className="flex justify-center items-center gap-8 text-text">
+            <nav className="flex justify-center items-center gap-8">
               <button
                 onClick={() => scrollToSection('product')}
-                className="hover:underline transition-colors duration-200"
+                className="text-muted-foreground hover:text-brand-600 transition-colors duration-fast"
               >
                 {t('navbar.product')}
               </button>
-              <Link to="/" className="hover:underline transition-colors duration-200">
+              <Link to="/" className="text-muted-foreground hover:text-brand-600 transition-colors duration-fast">
                 {t('navbar.about_us')}
               </Link>
               <button
                 onClick={() => scrollToSection('faq')}
-                className="hover:underline transition-colors duration-200"
+                className="text-muted-foreground hover:text-brand-600 transition-colors duration-fast"
               >
                 {t('navbar.faq')}
               </button>
@@ -141,7 +140,7 @@ const Navbar = () => {
             </div>
           ) : (
             <>
-              <Button variant="outline" className="hidden md:flex" asChild>
+              <Button variant="ghost" className="hidden md:flex" asChild>
                 <Link to="/login">{t('navbar.sign_in')}</Link>
               </Button>
               <Button variant="primary" className="hidden md:flex" asChild>
@@ -158,16 +157,15 @@ const Navbar = () => {
               </Button>
             </DrawerTrigger>
             <DrawerContent className="p-6 space-y-6">
-              <nav className="flex flex-col space-y-4 text-center text-text">
-                <Link to="/">{t('navbar.how_it_works')}</Link>
-                {/* <Link to="/browse">{t('navbar.browse_gear')}</Link> */}
-                <Link to="/">{t('navbar.about_us')}</Link>
-                <button onClick={() => scrollToSection('faq')}>{t('navbar.faq')}</button>
+              <nav className="flex flex-col space-y-4 text-center">
+                <Link to="/" className="text-muted-foreground hover:text-brand-600 transition-colors duration-fast">{t('navbar.how_it_works')}</Link>
+                <Link to="/" className="text-muted-foreground hover:text-brand-600 transition-colors duration-fast">{t('navbar.about_us')}</Link>
+                <button onClick={() => scrollToSection('faq')} className="text-muted-foreground hover:text-brand-600 transition-colors duration-fast">{t('navbar.faq')}</button>
               </nav>
 
               {isAuthenticated ? (
                 <div className="flex flex-col gap-3">
-                  <div className="text-center py-2 border-b">
+                  <div className="text-center py-2 border-b border-border">
                     <p className="text-sm font-medium">
                       {provider?.rental_name || user?.email}
                     </p>
@@ -191,7 +189,7 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  <Button variant="outline" asChild className="w-full">
+                  <Button variant="ghost" asChild className="w-full">
                     <Link to="/login">{t('navbar.sign_in')}</Link>
                   </Button>
                   <Button variant="primary" asChild className="w-full">

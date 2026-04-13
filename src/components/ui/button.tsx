@@ -6,12 +6,12 @@ import { cn } from "@/lib/utils"
 
 /**
  * Button Variant Hierarchy (SSOT)
- * 
+ *
  * | Variant     | Color           | Usage                                      |
  * |-------------|-----------------|---------------------------------------------|
- * | cta         | Emerald gradient| Marketing CTA + 1 global CTA in app (sidebar)|
- * | primary     | Slate-900       | In-app primary actions (page-level)         |
- * | secondary   | Slate outline   | Row actions (Issue), secondary actions      |
+ * | cta         | Teal gradient   | Marketing CTA + 1 global CTA in app (sidebar)|
+ * | primary     | Brand-500 teal  | In-app primary actions (page-level)         |
+ * | secondary   | Border + teal   | Row actions (Issue), secondary actions      |
  * | success     | status-success  | Completing actions (Complete return)        |
  * | warning     | status-warning  | Attention actions (Resolve)                 |
  * | destructive | destructive     | Dangerous/delete actions (design token)     |
@@ -20,50 +20,49 @@ import { cn } from "@/lib/utils"
  */
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-token-md text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-token-md text-sm font-semibold ring-offset-background transition-all duration-fast ease-spring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         // CTA - Marketing & 1 global in-app (sidebar "New Reservation")
-        // Gradient defined in index.css .gradient-cta — use sparingly
         cta:
-          "gradient-cta text-white focus-visible:ring-[#3FA467]",
+          "gradient-cta text-white focus-visible:ring-brand-500 hover:-translate-y-0.5 active:scale-[0.97]",
 
-        // MARKETING - Public-only CTA (SSOT: allowed only on public pages; lint fails in provider)
+        // MARKETING - Public-only CTA
         marketing:
-          "gradient-cta text-white focus-visible:ring-[#3FA467]",
+          "gradient-cta text-white focus-visible:ring-brand-500 hover:-translate-y-0.5 active:scale-[0.97]",
 
-        // PRIMARY - In-app main actions (page-level); uses design tokens
+        // PRIMARY - In-app main actions; brand teal + shadow-brand
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/95 focus-visible:ring-ring",
+          "bg-primary text-primary-foreground shadow-brand hover:bg-brand-400 hover:shadow-elevated hover:-translate-y-0.5 active:bg-brand-700 active:scale-[0.97] active:shadow-sm",
         primary:
-          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/95 focus-visible:ring-ring",
+          "bg-primary text-primary-foreground shadow-brand hover:bg-brand-400 hover:shadow-elevated hover:-translate-y-0.5 active:bg-brand-700 active:scale-[0.97] active:shadow-sm",
 
-        // SECONDARY - Row actions (Issue), secondary buttons; tokens only
+        // SECONDARY - Row actions, secondary buttons
         secondary:
-          "border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
+          "border border-border bg-background text-foreground hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 active:bg-brand-100",
 
-        // SUCCESS - Completing actions (Complete return, Ready); uses status token
+        // SUCCESS - Completing actions; uses status token
         success:
-          "bg-status-success text-status-success-foreground shadow-sm hover:opacity-90 focus-visible:ring-status-success focus-visible:ring-offset-2",
+          "bg-status-success text-status-success-foreground shadow-sm hover:bg-green-400 hover:shadow-md hover:-translate-y-0.5 active:bg-green-700 active:scale-[0.97] focus-visible:ring-status-success",
 
-        // WARNING - Attention actions (Resolve exception); uses status token
+        // WARNING - Attention actions; uses status token
         warning:
-          "bg-status-warning text-status-warning-foreground shadow-sm hover:opacity-90 focus-visible:ring-status-warning focus-visible:ring-offset-2",
+          "bg-status-warning text-status-warning-foreground shadow-sm hover:bg-amber-400 hover:shadow-md hover:-translate-y-0.5 active:bg-amber-700 active:scale-[0.97] focus-visible:ring-status-warning",
 
-        // DESTRUCTIVE - Dangerous actions (Delete, Cancel); uses design token
+        // DESTRUCTIVE - Dangerous actions
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:opacity-90 focus-visible:ring-destructive focus-visible:ring-offset-2",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-red-600 hover:shadow-md hover:-translate-y-0.5 active:bg-red-800 active:scale-[0.97]",
 
-        // OUTLINE - Alternative secondary; tokens only
+        // OUTLINE - Alternative secondary
         outline:
-          "border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
+          "border border-border bg-transparent text-foreground hover:border-brand-300 hover:text-brand-600 active:bg-brand-50",
 
         // GHOST - Tertiary, tabs, minimal footprint
         ghost:
-          "text-muted-foreground hover:text-foreground hover:bg-accent",
+          "text-muted-foreground hover:text-foreground hover:bg-accent active:bg-accent/80",
 
-        // LINK - Text link style (brand hint via ring on focus)
+        // LINK - Text link style
         link:
           "text-foreground underline-offset-4 hover:underline",
       },

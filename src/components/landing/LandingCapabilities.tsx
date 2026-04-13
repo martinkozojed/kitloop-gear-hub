@@ -20,7 +20,7 @@ export function LandingCapabilities() {
             <motion.div
                 animate={{ rotate: [0, 360], scale: [1, 1.1, 1] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-emerald-500/5 via-transparent to-green-500/5 rounded-full blur-3xl pointer-events-none"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-brand-500/5 via-transparent to-brand-500/5 rounded-full blur-3xl pointer-events-none"
             />
 
             <motion.h2
@@ -43,7 +43,7 @@ export function LandingCapabilities() {
                         className="group relative p-8 bg-white rounded-2xl border border-border/60 hover:border-primary/30 shadow-card hover:shadow-hero-hover transition-all duration-300 hover:-translate-y-2"
                     >
                         <div className="relative flex flex-col gap-4">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-110 transition-all">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 shadow-lg shadow-brand-500/30 group-hover:shadow-brand-500/50 group-hover:scale-110 transition-all">
                                 <Icon className="h-7 w-7 text-white" />
                             </div>
                             <div className="space-y-2">

@@ -1,8 +1,8 @@
 ---
-verze: 2.0
+verze: 2.1
 datum: 2026-04-13
-autor: Antigravity
-změna: Kompletně přepsán — originální audit priority jsou hotové, dokument aktualizován na post-cleanup stav
+autor: Antigravity + Claude Code
+změna: Sekce "Co zbývá" zarovnána s SSOT vrstvou B (white-label intake) místo předčasných odkazů na vrstvu C/D
 nadřazený dokument: strategy/ssot_v1.1.md
 ---
 
@@ -55,12 +55,13 @@ Projekt prošel kompletním architekturním cleanup sprintem realizovaným dual-
 
 ## Co zbývá (dle strategického SSOT)
 
-Aktuálně jsme na přechodu **Ops OS → White-label Intake (Vrstva B)**. Dle `ssot_v1.1.md` Section 9 (Roadmap framing) jsou dalšími kroky:
+Aktuálně jsme na přechodu **Ops OS → White-label Intake (Vrstva B)**. Dle `ssot_v1.1.md` Section 3 a 9 jsou dalšími kroky:
 
-1. **Geolokace půjčoven** — základ pro budoucí discovery/directory vrstvu
-2. **Veřejný profil půjčovny** — viditelný bez přihlášení
-3. **Globální vyhledávač dostupnosti** — datum + lokalita napříč providery
+1. **Request link (poptávka)** — veřejný formulář na straně půjčovny pro příjem poptávek
+2. **Hosted booking portal** — white-label stránka půjčovny s dostupností a request flow
+3. **Schvalovací flow** — provider approve/decline → vznik interní rezervace
 
+Vrstvy C (Directory) a D (Marketplace) přijdou až po stabilizaci vrstvy B.
 Před každou novou funkcí zkontroluj **Decision checklist** v `ssot_v1.1.md` Section 11.
 
 ---

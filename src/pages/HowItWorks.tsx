@@ -149,18 +149,18 @@ const HowItWorks = () => {
     <div className="light bg-background pb-36">
       <JsonLd data={jsonLd} />
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 text-white">
         <div className="absolute inset-0 opacity-30 bg-hero-glow" />
         <div className="relative container mx-auto px-6 py-20">
           <div className="mx-auto max-w-4xl space-y-10">
             <div className="space-y-6">
-              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm uppercase tracking-widest text-emerald-100">
+              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm uppercase tracking-widest text-brand-100">
                 {t("howItWorks.hero.badge")}
               </span>
               <h1 className="text-balance text-4xl font-bold leading-tight md:text-5xl">
                 {t("howItWorks.hero.title")}
               </h1>
-              <p className="text-lg text-emerald-100/90">{t("howItWorks.hero.subtitle")}</p>
+              <p className="text-lg text-brand-100/90">{t("howItWorks.hero.subtitle")}</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 {marketplaceEnabled && (
                   <Button asChild variant="cta" size="cta">
@@ -195,7 +195,7 @@ const HowItWorks = () => {
                     </span>
                     <p className="text-sm font-semibold">{title}</p>
                   </div>
-                  <p className="mt-2 text-sm text-emerald-100/85">{description}</p>
+                  <p className="mt-2 text-sm text-brand-100/85">{description}</p>
                 </div>
               ))}
             </div>
@@ -221,23 +221,23 @@ const HowItWorks = () => {
               <AccordionItem key={step.key} value={step.key} className="overflow-hidden rounded-2xl border border-muted-foreground/15">
                 <AccordionTrigger className="px-4 py-3 text-left text-base font-semibold text-foreground">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
                       {String(step.position).padStart(2, "0")}
                     </span>
                     <span>{step.title}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-5">
-                  <div className="flex items-center gap-3 text-emerald-700">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50" role="img" aria-label={step.iconLabel}>
+                  <div className="flex items-center gap-3 text-brand-700">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50" role="img" aria-label={step.iconLabel}>
                       <step.Icon aria-hidden="true" className="h-5 w-5" />
                     </span>
-                    <span className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-brand-700">
                       {t("howItWorks.steps.stepLabel", { index: step.position })}
                     </span>
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground">{step.description}</p>
-                  <span className="mt-4 inline-flex w-full items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-medium text-emerald-800">
+                  <span className="mt-4 inline-flex w-full items-center gap-2 rounded-full bg-brand-100 px-4 py-2 text-xs font-medium text-brand-800">
                     <Sparkles aria-hidden="true" className="h-4 w-4" />
                     {step.tip}
                   </span>
@@ -252,11 +252,11 @@ const HowItWorks = () => {
           role="list"
           aria-label={t("howItWorks.steps.ariaLabel")}
         >
-          <div className="absolute left-[23px] top-6 h-[calc(100%-3rem)] w-px bg-gradient-to-b from-emerald-400 via-emerald-200 to-transparent" aria-hidden="true" />
+          <div className="absolute left-[23px] top-6 h-[calc(100%-3rem)] w-px bg-gradient-to-b from-brand-400 via-brand-200 to-transparent" aria-hidden="true" />
           {steps.map((step, index) => (
             <div key={step.key} className="relative pl-20" role="listitem">
               <div
-                className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white shadow-lg ring-4 ring-emerald-200/60"
+                className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white shadow-lg ring-4 ring-brand-200/60"
                 role="text"
                 aria-label={t("howItWorks.steps.stepLabel", { index: step.position })}
               >
@@ -264,19 +264,19 @@ const HowItWorks = () => {
               </div>
               {index < steps.length - 1 && (
                 <div
-                  className="absolute left-[23px] top-12 h-[calc(100%-2.5rem)] w-px bg-gradient-to-b from-emerald-400/80 via-emerald-200/70 to-emerald-100/0"
+                  className="absolute left-[23px] top-12 h-[calc(100%-2.5rem)] w-px bg-gradient-to-b from-brand-400/80 via-brand-200/70 to-brand-100/0"
                   aria-hidden="true"
                 />
               )}
               <div className="rounded-2xl border border-muted-foreground/10 bg-white/95 p-6 shadow-sm backdrop-blur transition hover:-translate-y-1 hover:shadow-lg">
-                <div className="flex flex-wrap items-center gap-3 text-emerald-700">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50" role="img" aria-label={step.iconLabel}>
+                <div className="flex flex-wrap items-center gap-3 text-brand-700">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50" role="img" aria-label={step.iconLabel}>
                     <step.Icon aria-hidden="true" className="h-5 w-5" />
                   </span>
-                  <span className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-brand-700">
                     {t("howItWorks.steps.stepLabel", { index: step.position })}
                   </span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-800">
                     <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
                     {step.tip}
                   </span>
@@ -299,10 +299,10 @@ const HowItWorks = () => {
             {behindScenes.map(({ key, title, description, Icon, iconLabel }) => (
               <div
                 key={key}
-                className="group relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-2xl border border-brand-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-300 opacity-0 transition group-hover:opacity-100" aria-hidden="true" />
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700" role="img" aria-label={iconLabel}>
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 via-brand-400 to-brand-300 opacity-0 transition group-hover:opacity-100" aria-hidden="true" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700" role="img" aria-label={iconLabel}>
                   <Icon aria-hidden="true" className="h-6 w-6" />
                 </div>
                 <h3 className="mt-5 text-xl font-semibold text-foreground">{title}</h3>
@@ -317,7 +317,7 @@ const HowItWorks = () => {
         <div className="container mx-auto max-w-6xl px-6">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div>
-              <span className="inline-flex items-center rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-700">
+              <span className="inline-flex items-center rounded-full bg-brand-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-brand-700">
                 {t("howItWorks.pilot.badge")}
               </span>
               <h2 className="mt-5 text-3xl font-bold text-foreground md:text-4xl">{t("howItWorks.pilot.title")}</h2>
@@ -328,7 +328,7 @@ const HowItWorks = () => {
                     key={key}
                     className="flex items-start gap-4 rounded-2xl border border-muted-foreground/15 bg-white p-5 shadow-sm"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700" role="img" aria-label={iconLabel}>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-brand-700" role="img" aria-label={iconLabel}>
                       <Icon aria-hidden="true" className="h-6 w-6" />
                     </div>
                     <div>
@@ -339,7 +339,7 @@ const HowItWorks = () => {
                 ))}
               </div>
             </div>
-            <div className="rounded-3xl border border-emerald-100 bg-white p-8 shadow-xl shadow-emerald-200/40">
+            <div className="rounded-3xl border border-brand-100 bg-white p-8 shadow-xl shadow-brand-200/40">
               <h3 className="text-2xl font-semibold text-foreground">{t("howItWorks.pilot.ctaTitle")}</h3>
               <p className="mt-3 text-muted-foreground">{t("howItWorks.pilot.ctaSubtitle")}</p>
               <div className="mt-8 space-y-3">
@@ -377,10 +377,10 @@ const StickyCta: React.FC<{ scrollToSteps: () => void }> = ({ scrollToSteps }) =
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-4">
       <nav
         aria-label={t("howItWorks.stickyCta.ariaLabel")}
-        className="pointer-events-auto mx-auto max-w-4xl rounded-2xl bg-emerald-900/95 p-4 shadow-2xl ring-1 ring-emerald-500/40 backdrop-blur"
+        className="pointer-events-auto mx-auto max-w-4xl rounded-2xl bg-brand-900/95 p-4 shadow-2xl ring-1 ring-brand-500/40 backdrop-blur"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm font-medium text-emerald-50">{t("howItWorks.stickyCta.message")}</p>
+          <p className="text-sm font-medium text-brand-50">{t("howItWorks.stickyCta.message")}</p>
           <div className="flex flex-col gap-2 sm:flex-row">
             {marketplaceEnabled && (
               <Button asChild variant="cta" size="cta">

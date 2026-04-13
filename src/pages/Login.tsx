@@ -31,8 +31,6 @@ const Login = () => {
     try {
       await login(email.trim(), password);
       toast.success(t('login.success'));
-      // The ProviderRoute will handle the final redirection (either Setup, Pending, or Dashboard)
-      // We just send them to the dashboard entry point.
       navigate('/provider/dashboard');
     } catch (error) {
       const errorMessage = getErrorMessage(error) || '';
@@ -54,24 +52,23 @@ const Login = () => {
     <div className="light min-h-screen bg-subtle flex flex-col">
 
       {/* Header */}
-      <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
+      <header className="py-4 px-6 md:px-10 bg-white/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
-            <span className="text-foreground tracking-wide">loop</span>
+          <Link to="/onboarding" className="font-heading text-2xl font-bold flex items-center shrink-0 tracking-tight">
+            <span className="text-brand-600 pr-0.5">Kit</span>
+            <span className="text-foreground">loop</span>
           </Link>
           <div className="flex items-center gap-3">
-            {/* Language toggle — single button showing the other language */}
             <button
               onClick={() => i18n.changeLanguage(lang === "en" ? "cs" : "en")}
               aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
-              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors duration-fast focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 rounded px-0.5"
             >
               {lang === "en" ? "CS" : "EN"}
             </button>
             <Link
               to="/onboarding"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-fast"
             >
               ← Back
             </Link>
@@ -81,7 +78,7 @@ const Login = () => {
 
       {/* Centered card */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
+        <Card className="w-full max-w-[400px] shadow-elevated border-0 bg-white/90 backdrop-blur-xl rounded-token-xl">
           <CardHeader className="text-center space-y-1 pb-6">
             <CardTitle className="text-2xl font-bold tracking-tight">{t('login.welcome')}</CardTitle>
             <CardDescription>{t('login.instructions')}</CardDescription>
@@ -112,7 +109,7 @@ const Login = () => {
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+                    className="text-xs text-brand-600 hover:text-brand-700 transition-colors duration-fast"
                   >
                     {t('login.forgot_password')}
                   </Link>
@@ -146,7 +143,7 @@ const Login = () => {
               {t('login.no_account')}{' '}
               <Link
                 to="/signup"
-                className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+                className="text-brand-600 hover:text-brand-700 font-medium transition-colors duration-fast"
               >
                 {t('login.create_account')}
               </Link>

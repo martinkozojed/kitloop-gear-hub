@@ -26,7 +26,7 @@ export function OnboardingTimeline({ featuresRef }: OnboardingTimelineProps) {
               const StepIcon = timelineIcons[i] || Package;
               return (
                 <div key={i} className="flex flex-row items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100/50">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 border border-brand-100/50">
                     <StepIcon className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div>
@@ -38,15 +38,15 @@ export function OnboardingTimeline({ featuresRef }: OnboardingTimelineProps) {
             })}
           </div>
 
-          <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
+          <div className="relative rounded-xl border border-border shadow-xl overflow-hidden bg-muted aspect-[4/3] flex items-center justify-center">
             <img
               src="/onboarding/timeline-loop-poster.png"
               alt="Kitloop inventory management — item list with status badges, search, and asset tracking"
               className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-              <p className="text-sm font-medium text-slate-500">Loading…</p>
+            <div className="absolute inset-0 flex items-center justify-center bg-muted -z-10">
+              <p className="text-sm font-medium text-muted-foreground">Loading…</p>
             </div>
           </div>
         </div>

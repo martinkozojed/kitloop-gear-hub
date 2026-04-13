@@ -18,28 +18,28 @@ const Footer = () => {
   };
 
   return (
-    <footer className="border-t bg-muted py-12 px-6">
+    <footer className="bg-[hsl(174,8%,11%)] py-12 px-6">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-          
+
           {/* About */}
           <div>
-            <h3 className="font-bold text-xl mb-4">
-              <span className="text-green-600">Kit</span>loop
+            <h3 className="font-heading font-bold text-xl mb-4">
+              <span className="text-brand-400">Kit</span><span className="text-white">loop</span>
             </h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-[hsl(174,3%,62%)] mb-4">
               Kitloop je systém pro provoz půjčoven outdoor vybavení: rezervace, inventář, výdej a vratka.
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h3 className="font-bold mb-4">Product</h3>
+            <h3 className="font-heading font-semibold text-white text-sm uppercase tracking-widest mb-4">Product</h3>
             <ul className="space-y-2">
               <li>
                 <button
                   onClick={() => scrollToSection('product')}
-                  className="text-muted-foreground hover:text-green-600 transition-colors text-left"
+                  className="text-[hsl(174,3%,62%)] hover:text-brand-400 transition-colors duration-fast text-left"
                 >
                   {t('navbar.product')}
                 </button>
@@ -47,13 +47,13 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => scrollToSection('faq')}
-                  className="text-muted-foreground hover:text-green-600 transition-colors text-left"
+                  className="text-[hsl(174,3%,62%)] hover:text-brand-400 transition-colors duration-fast text-left"
                 >
                   {t('footer.faq')}
                 </button>
               </li>
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-green-600 transition-colors">
+                <Link to="/" className="text-[hsl(174,3%,62%)] hover:text-brand-400 transition-colors duration-fast">
                   {t('footer.contact')}
                 </Link>
               </li>
@@ -62,10 +62,10 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h3 className="font-bold mb-4">Support</h3>
+            <h3 className="font-heading font-semibold text-white text-sm uppercase tracking-widest mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-green-600 transition-colors">
+                <Link to="/" className="text-[hsl(174,3%,62%)] hover:text-brand-400 transition-colors duration-fast">
                   {t('footer.contact')}
                 </Link>
               </li>
@@ -74,15 +74,15 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="font-bold mb-4">Legal</h3>
+            <h3 className="font-heading font-semibold text-white text-sm uppercase tracking-widest mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/terms" className="text-muted-foreground hover:text-green-600 transition-colors">
+                <Link to="/terms" className="text-[hsl(174,3%,62%)] hover:text-brand-400 transition-colors duration-fast">
                   {t('footer.terms')}
                 </Link>
               </li>
               <li>
-                <Link to="/privacy" className="text-muted-foreground hover:text-green-600 transition-colors">
+                <Link to="/privacy" className="text-[hsl(174,3%,62%)] hover:text-brand-400 transition-colors duration-fast">
                   {t('footer.privacy')}
                 </Link>
               </li>
@@ -94,12 +94,12 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-muted-foreground text-sm mb-4 md:mb-0">
+        <div className="pt-8 mt-8 border-t border-[hsl(174,5%,22%)] flex flex-col md:flex-row justify-between items-center">
+          <p className="text-[hsl(174,3%,46%)] text-sm mb-4 md:mb-0">
             {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex space-x-6">
-            {/* Social icons beze změny, pokud nejsou potřeba */}
+            {/* Social icons */}
           </div>
         </div>
       </div>

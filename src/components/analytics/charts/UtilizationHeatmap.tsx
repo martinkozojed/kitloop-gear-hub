@@ -70,10 +70,10 @@ export const UtilizationHeatmap = memo(function UtilizationHeatmap({
                 className="flex h-12 flex-col items-center justify-center rounded"
                 style={{ backgroundColor: point.color }}
               >
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-foreground">
                   {new Date(point.date).getDate()}
                 </span>
-                <span className="text-xxs text-slate-600">
+                <span className="text-xxs text-muted-foreground">
                   {Math.round(point.ratio * 100)}%
                 </span>
               </div>

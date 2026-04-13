@@ -130,7 +130,7 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                 {result && (
                     <div className="space-y-4">
                         {/* Asset Card */}
-                        <div className="p-4 border rounded-lg bg-slate-50 space-y-2">
+                        <div className="p-4 border rounded-lg bg-muted space-y-2">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h4 className="font-semibold text-lg">{result.asset.variant?.product?.name}</h4>

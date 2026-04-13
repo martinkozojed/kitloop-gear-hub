@@ -4,12 +4,12 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const cardVariants = cva(
-  "rounded-token-lg border bg-card text-card-foreground transition-all backdrop-blur-sm",
+  "rounded-token-lg border bg-card text-card-foreground transition-all duration-normal ease-out",
   {
     variants: {
       variant: {
         default: "shadow-card border-border/50",
-        elevated: "shadow-elevated border border-border bg-popover",
+        elevated: "rounded-token-xl shadow-elevated border border-border bg-popover",
         outline: "shadow-none border-border bg-transparent",
         ghost: "shadow-none border-none bg-transparent",
       },
@@ -21,7 +21,7 @@ const cardVariants = cva(
     },
     defaultVariants: {
       variant: "default",
-      padding: "none", // Container padding is usually 0, padding is on Content/Header
+      padding: "none",
     },
   }
 )
@@ -60,7 +60,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "font-heading text-xl font-semibold leading-none tracking-tight",
       className
     )}
     {...props}

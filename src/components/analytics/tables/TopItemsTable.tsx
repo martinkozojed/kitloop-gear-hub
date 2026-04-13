@@ -44,7 +44,7 @@ const badgeStyle: Record<PerformanceBadge, string> = {
   hot: "bg-rose-100 text-rose-700",
   good: "bg-status-success/10 text-status-success border border-status-success/20",
   slow: "bg-status-warning/10 text-status-warning border border-status-warning/20",
-  dead: "bg-slate-200 text-slate-600",
+  dead: "bg-muted text-muted-foreground",
 };
 
 export const TopItemsTable = memo(function TopItemsTable({

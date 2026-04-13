@@ -104,7 +104,7 @@ export default function ProviderNotifications() {
         switch (kind) {
             case 'ops.overdue_detected': return <AlertTriangle className="h-5 w-5 text-destructive" />;
             case 'ops.pickups_tomorrow': return <Clock className="h-5 w-5 text-blue-500" />;
-            case 'ops.returns_tomorrow': return <Package className="h-5 w-5 text-emerald-500" />;
+            case 'ops.returns_tomorrow': return <Package className="h-5 w-5 text-brand-500" />;
             default: return <Bell className="h-5 w-5 text-muted-foreground" />;
         }
     };
@@ -142,8 +142,8 @@ export default function ProviderNotifications() {
                         ))
                     ) : notifications.length === 0 ? (
                         <div className="p-12 flex flex-col items-center justify-center text-center">
-                            <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
-                                <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                            <div className="h-12 w-12 rounded-full bg-brand-100 flex items-center justify-center mb-4">
+                                <CheckCircle2 className="h-6 w-6 text-brand-600" />
                             </div>
                             <h3 className="text-lg font-semibold">You're all caught up!</h3>
                             <p className="text-sm text-muted-foreground mt-1 max-w-sm">

@@ -20,7 +20,7 @@ export function FinalCTA({ lang, pain, signupHref, privacyHref }: FinalCTAProps)
       <section className="py-14 px-6 relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
           <motion.div
-            className="absolute -top-10 -left-10 w-[475px] h-[475px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
+            className="absolute -top-10 -left-10 w-[475px] h-[475px] rounded-full bg-brand-400/[0.15] blur-[100px]"
             animate={{ x: [0, 300, -50, 200, 0], y: [0, 150, -20, 100, 0], scale: [1, 1.2, 0.85, 1.1, 1] }}
             transition={{
               x: { duration: 37, repeat: Infinity, ease: "easeInOut" },
@@ -29,9 +29,9 @@ export function FinalCTA({ lang, pain, signupHref, privacyHref }: FinalCTAProps)
             }}
           />
         </div>
-        <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-slate-200 backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
-          <h2 className="text-2xl font-bold md:text-3xl text-slate-900">{t("onboarding.finalTitle")}</h2>
-          <p className="text-slate-600 text-sm">{t("onboarding.finalSub")}</p>
+        <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-border backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
+          <h2 className="text-2xl font-bold md:text-3xl text-foreground">{t("onboarding.finalTitle")}</h2>
+          <p className="text-muted-foreground text-sm">{t("onboarding.finalSub")}</p>
           <Button
             asChild variant="cta" size="cta"
             onClick={() => fireCtaEvent("final", lang, pain)}

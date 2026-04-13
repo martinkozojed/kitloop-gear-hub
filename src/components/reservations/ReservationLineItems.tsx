@@ -23,7 +23,7 @@ export function ReservationLineItems({ reservationId, items, onItemsChange, isEd
 
     const getTypeIcon = (itemType: string) => {
         switch (itemType) {
-            case 'discount': return <Tag className="w-4 h-4 text-emerald-500" />;
+            case 'discount': return <Tag className="w-4 h-4 text-brand-500" />;
             case 'damage': return <AlertTriangle className="w-4 h-4 text-destructive" />;
             case 'fee': return <DollarSign className="w-4 h-4 text-amber-500" />;
             default: return <FileText className="w-4 h-4 text-muted-foreground" />;
@@ -181,7 +181,7 @@ export function ReservationLineItems({ reservationId, items, onItemsChange, isEd
                                 </div>
                             </div>
                             <div className="flex items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0">
-                                <span className={`font-semibold ${item.amount < 0 ? 'text-emerald-600' : ''}`}>
+                                <span className={`font-semibold ${item.amount < 0 ? 'text-brand-600' : ''}`}>
                                     {formatPrice(item.amount)}
                                 </span>
                                 {isEditable && (

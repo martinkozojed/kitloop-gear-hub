@@ -32,30 +32,30 @@ export function PainSelector({ pain, onPainClick }: PainSelectorProps) {
                 onClick={() => onPainClick(key)}
                 className={cn(
                   "group rounded-xl border-2 p-4 text-left transition-all",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2",
                   pain === key
-                    ? "border-emerald-500 bg-emerald-50 shadow-md"
-                    : "border-border bg-card hover:border-emerald-300 hover:bg-emerald-50/50",
+                    ? "border-brand-500 bg-brand-50 shadow-md"
+                    : "border-border bg-card hover:border-brand-300 hover:bg-brand-50/50",
                 )}
               >
                 <div className={cn(
                   "mb-3 flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
                   pain === key
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-700",
+                    ? "bg-brand-100 text-brand-700"
+                    : "bg-muted text-muted-foreground group-hover:bg-brand-100 group-hover:text-brand-700",
                 )}>
                   {Icon && <Icon className="h-4 w-4" aria-hidden="true" />}
                 </div>
                 <p className={cn(
                   "text-sm font-semibold leading-snug whitespace-pre-line",
-                  pain === key ? "text-emerald-800" : "text-foreground",
+                  pain === key ? "text-brand-800" : "text-foreground",
                 )}>
                   {label}
                 </p>
                 <p
                   className={cn(
                     "mt-1.5 text-xs font-medium flex items-center gap-1 transition-opacity",
-                    pain === key ? "text-emerald-600 opacity-100" : "opacity-0",
+                    pain === key ? "text-brand-600 opacity-100" : "opacity-0",
                   )}
                   aria-hidden={pain !== key}
                 >

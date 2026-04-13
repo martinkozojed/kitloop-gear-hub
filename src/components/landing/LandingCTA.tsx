@@ -16,16 +16,16 @@ export function LandingCTA() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="max-w-4xl mx-auto"
         >
-            <div className="relative bg-white rounded-2xl p-12 md:p-16 border border-gray-200 shadow-lg transition-shadow hover:shadow-xl">
+            <div className="relative bg-white rounded-2xl p-12 md:p-16 border border-border shadow-lg transition-shadow hover:shadow-xl">
                 {/* Subtle top accent */}
-                <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
+                <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-transparent via-brand-500 to-transparent" />
 
                 <div className="text-center space-y-6">
-                    <h3 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                    <h3 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
                         {t('product.cta.heading')}
                     </h3>
 
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         {t('product.cta.microcopy')}
                     </p>
 
@@ -38,7 +38,7 @@ export function LandingCTA() {
                         <Button
                             variant="outline"
                             size="lg"
-                            className="h-14 px-10 text-lg font-semibold border-2 border-gray-300 text-gray-700 hover:border-emerald-500 hover:text-emerald-700 transition-all"
+                            className="h-14 px-10 text-lg font-semibold border-2 border-border text-foreground hover:border-brand-500 hover:text-brand-700 transition-all"
                             asChild
                         >
                             <Link to="/demo/dashboard">{t('product.cta.secondaryCta')}</Link>

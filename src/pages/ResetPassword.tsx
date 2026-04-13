@@ -21,7 +21,6 @@ const ResetPassword = () => {
     const lang = i18n.language?.startsWith("cs") ? "cs" : "en";
 
     useEffect(() => {
-        // Check if user has valid session from reset link
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (!session) {
                 toast.error(lang === 'cs' ? 'Neplatný nebo vypršelý odkaz pro resetování' : 'Invalid or expired reset link');
@@ -59,7 +58,6 @@ const ResetPassword = () => {
 
             toast.success(lang === 'cs' ? 'Heslo bylo úspěšně aktualizováno!' : 'Password updated successfully!');
 
-            // Wait a moment then redirect to login
             setTimeout(() => {
                 navigate('/login');
             }, 1500);
@@ -75,17 +73,17 @@ const ResetPassword = () => {
         <div className="light min-h-screen bg-subtle flex flex-col">
 
             {/* Header */}
-            <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
+            <header className="py-4 px-6 md:px-10 bg-white/80 backdrop-blur-xl border-b border-border">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-                        <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
-                        <span className="text-foreground tracking-wide">loop</span>
+                    <Link to="/onboarding" className="font-heading text-2xl font-bold flex items-center shrink-0 tracking-tight">
+                        <span className="text-brand-600 pr-0.5">Kit</span>
+                        <span className="text-foreground">loop</span>
                     </Link>
                 </div>
             </header>
 
             <main className="flex-1 flex items-center justify-center px-4 py-12">
-                <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
+                <Card className="w-full max-w-[400px] shadow-elevated border-0 bg-white/90 backdrop-blur-xl rounded-token-xl">
                     <CardHeader className="space-y-1 text-center">
                         <CardTitle className="text-2xl font-bold">{lang === 'cs' ? 'Nastavit nové heslo' : 'Set new password'}</CardTitle>
                         <CardDescription>
@@ -112,7 +110,7 @@ const ResetPassword = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-fast"
                                     >
                                         {showPassword ? (
                                             <EyeOff className="h-4 w-4" />
@@ -140,7 +138,7 @@ const ResetPassword = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-fast"
                                     >
                                         {showConfirmPassword ? (
                                             <EyeOff className="h-4 w-4" />

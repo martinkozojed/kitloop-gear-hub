@@ -239,7 +239,7 @@ export const createKitReservation = async (
     const { data: { user } } = await supabase.auth.getUser();
 
     // Bypass strict type checking for the new RPC until typegen catches up
-    const { data, error } = await looseSupabase.rpc('create_kit_reservation', {
+    const { data: rpcResult, error } = await looseSupabase.rpc('create_kit_reservation', {
         p_provider_id: input.providerId,
         p_user_id: user?.id,
         p_kit_template_id: input.kitId,
@@ -257,7 +257,7 @@ export const createKitReservation = async (
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rpcRes = data as any;
+    const rpcRes = rpcResult as any;
 
     const { data: reservationsData } = await supabase
         .from('reservations')

@@ -66,7 +66,7 @@ export function GlowLayer({ className }: { className?: string }) {
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className || ""}`} aria-hidden="true">
       <motion.div
-        className="absolute top-10 -right-20 w-[570px] h-[570px] rounded-full bg-emerald-400/[0.15] blur-[100px]"
+        className="absolute top-10 -right-20 w-[570px] h-[570px] rounded-full bg-brand-400/[0.15] blur-[100px]"
         animate={{ x: [0, -100, -250, -50, 0], y: [0, 200, 400, 100, 0], scale: [1, 1.2, 0.9, 1.1, 1] }}
         transition={{
           x: { duration: 37, repeat: Infinity, ease: "easeInOut" },
@@ -75,7 +75,7 @@ export function GlowLayer({ className }: { className?: string }) {
         }}
       />
       <motion.div
-        className="absolute top-20 -left-20 w-[310px] h-[310px] rounded-full bg-emerald-400/[0.19] blur-[100px]"
+        className="absolute top-20 -left-20 w-[310px] h-[310px] rounded-full bg-brand-400/[0.19] blur-[100px]"
         animate={{ x: [0, 100, 250, 50, 0], y: [0, 200, 350, 100, 0], scale: [1, 0.9, 1.2, 0.95, 1] }}
         transition={{
           x: { duration: 41, repeat: Infinity, ease: "easeInOut", delay: 3 },

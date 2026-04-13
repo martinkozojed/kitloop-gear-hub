@@ -147,15 +147,15 @@ export const QuickAddAsset: React.FC<QuickAddAssetProps> = ({
 
     if (isSuccess) {
         return (
-            <Card className="border-emerald-200 bg-emerald-50">
+            <Card className="border-brand-200 bg-brand-50">
                 <CardContent className="py-8 text-center">
-                    <div className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-brand-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                         <Check className="w-8 h-8" />
                     </div>
-                    <h3 className="text-lg font-semibold text-emerald-900">
+                    <h3 className="text-lg font-semibold text-brand-900">
                         Položka přidána!
                     </h3>
-                    <p className="text-emerald-600 mt-1">
+                    <p className="text-brand-600 mt-1">
                         Teď můžete vytvořit první rezervaci.
                     </p>
                 </CardContent>
@@ -167,7 +167,7 @@ export const QuickAddAsset: React.FC<QuickAddAssetProps> = ({
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Package className="w-5 h-5 text-emerald-600" />
+                    <Package className="w-5 h-5 text-brand-600" />
                     Rychlé přidání položky
                 </CardTitle>
                 <CardDescription>

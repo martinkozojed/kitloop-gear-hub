@@ -11,21 +11,21 @@ export function LandingWorkflow() {
             <motion.div
                 animate={{ scale: [1, 1.1, 1], opacity: [0.05, 0.08, 0.05] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-1/4 right-0 w-96 h-96 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full blur-3xl pointer-events-none"
+                className="absolute top-1/4 right-0 w-96 h-96 bg-gradient-to-br from-brand-500 to-brand-500 rounded-full blur-3xl pointer-events-none"
             />
             <motion.div
                 animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.1, 0.05] }}
                 transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute bottom-1/4 left-0 w-96 h-96 bg-gradient-to-tr from-emerald-500 to-green-500 rounded-full blur-3xl pointer-events-none"
+                className="absolute bottom-1/4 left-0 w-96 h-96 bg-gradient-to-tr from-brand-500 to-brand-500 rounded-full blur-3xl pointer-events-none"
             />
 
             {/* Connecting Flow Line (Desktop) */}
-            <div className="hidden md:block absolute left-16 top-48 bottom-48 w-0.5 bg-gradient-to-b from-transparent via-emerald-500/30 to-transparent">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/50 to-transparent blur-sm" />
+            <div className="hidden md:block absolute left-16 top-48 bottom-48 w-0.5 bg-gradient-to-b from-transparent via-brand-500/30 to-transparent">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-500/50 to-transparent blur-sm" />
                 <motion.div
                     animate={{ y: ["0%", "100%"] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/50"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-brand-500 rounded-full shadow-lg shadow-brand-500/50"
                 />
             </div>
 
@@ -34,7 +34,7 @@ export function LandingWorkflow() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-foreground via-foreground to-emerald-600 bg-clip-text"
+                    className="text-3xl md:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-foreground via-foreground to-brand-600 bg-clip-text"
                 >
                     {t('product.workflow.heading')}
                 </motion.h2>
@@ -141,17 +141,17 @@ function WorkflowStep({ step, icon, imageAlt, titleKey, descKey, direction, pill
                     whileInView={{ scale: 1, rotate: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                    className={`absolute -top-6 ${isLeft ? '-left-6' : '-right-6'} z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold text-2xl shadow-2xl shadow-emerald-500/40 border-4 border-white`}
+                    className={`absolute -top-6 ${isLeft ? '-left-6' : '-right-6'} z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white font-bold text-2xl shadow-2xl shadow-brand-500/40 border-4 border-white`}
                 >
                     {step}
                 </motion.div>
 
                 <div className={`relative rounded-2xl overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] ${isLeft ? 'group-hover:-rotate-1' : 'group-hover:rotate-1'}`}>
-                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-${isLeft ? 'br' : 'bl'} from-emerald-500/20 via-transparent to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10`} />
+                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-${isLeft ? 'br' : 'bl'} from-brand-500/20 via-transparent to-brand-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10`} />
 
                     <div className="relative border-2 border-border/60 bg-white shadow-hero rounded-2xl overflow-hidden">
                         <img src="/hero-dashboard.png" alt={imageAlt} className="w-full h-auto" />
-                        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-brand-500/5 via-transparent to-transparent pointer-events-none" />
 
                         {pills.map((pill, i) => (
                             <motion.div
@@ -160,12 +160,12 @@ function WorkflowStep({ step, icon, imageAlt, titleKey, descKey, direction, pill
                                 whileInView={{ opacity: 1, x: 0, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.6 + i * 0.1 }}
-                                className={`absolute ${POSITION_CLASSES[pill.position]} flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-emerald-200/50 rounded-full shadow-lg text-xs font-semibold text-emerald-700`}
+                                className={`absolute ${POSITION_CLASSES[pill.position]} flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border border-brand-200/50 rounded-full shadow-lg text-xs font-semibold text-brand-700`}
                             >
                                 {pill.pulse ? (
                                     <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
                                     </span>
                                 ) : pill.icon}
                                 {pill.label}
@@ -174,12 +174,12 @@ function WorkflowStep({ step, icon, imageAlt, titleKey, descKey, direction, pill
                     </div>
                 </div>
 
-                <div className={`absolute -bottom-4 ${isLeft ? '-right-4' : '-left-4'} w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`} />
+                <div className={`absolute -bottom-4 ${isLeft ? '-right-4' : '-left-4'} w-24 h-24 bg-gradient-to-br from-brand-400/20 to-brand-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`} />
             </div>
 
             {/* Content */}
             <div className={`space-y-6 ${isLeft ? 'md:pl-8' : 'md:order-1 md:pr-8 md:text-right'}`}>
-                <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-200/50 rounded-full text-sm font-semibold text-emerald-700 mb-4">
+                <div className="inline-flex items-center gap-3 px-4 py-2 bg-brand-50 border border-brand-200/50 rounded-full text-sm font-semibold text-brand-700 mb-4">
                     {icon}
                     Step {step}
                 </div>
@@ -200,7 +200,7 @@ function WorkflowStep({ step, icon, imageAlt, titleKey, descKey, direction, pill
                     transition={{ delay: 0.5 }}
                     className="hidden md:block absolute -bottom-20 left-1/2 -translate-x-1/2"
                 >
-                    <ArrowRight className="h-8 w-8 text-emerald-500/40 rotate-90" />
+                    <ArrowRight className="h-8 w-8 text-brand-500/40 rotate-90" />
                 </motion.div>
             )}
         </motion.div>

@@ -34,9 +34,9 @@ ON CONFLICT (user_id) DO UPDATE
 SET role = EXCLUDED.role, is_admin = EXCLUDED.is_admin;
 
 -- 1. Create Provider
-INSERT INTO public.providers (id, name, rental_name, status, email, contact_name, phone, created_at)
-VALUES 
-    ('11111111-1111-1111-1111-111111111111', 'Seed Outdoor Provider', 'Kitloop Basecamp', 'approved', 'demo@kitloop.cz', 'Basecamp Manager', '+420123456789', now())
+INSERT INTO public.providers (id, name, rental_name, status, email, contact_name, phone, created_at, approved_at)
+VALUES
+    ('11111111-1111-1111-1111-111111111111', 'Seed Outdoor Provider', 'Kitloop Basecamp', 'approved', 'demo@kitloop.cz', 'Basecamp Manager', '+420123456789', now(), now())
 ON CONFLICT (id) DO NOTHING;
 
 -- 1.5 Link User to Provider

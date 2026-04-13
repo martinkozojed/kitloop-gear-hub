@@ -55,17 +55,27 @@ export default {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				// Public surfaces: section background and dark accent
+				// Public surfaces
 				subtle: 'hsl(var(--bg-subtle))',
 				inverse: {
 					DEFAULT: 'hsl(var(--bg-inverse))',
 					foreground: 'hsl(var(--text-inverse))',
 				},
 				brand: {
-					DEFAULT: 'hsl(var(--brand) / <alpha-value>)',
-					foreground: 'hsl(var(--brand-foreground) / <alpha-value>)',
+					50: '#E0F2F1',
+					100: '#B2DFDB',
+					200: '#80CBC4',
+					300: '#4DB6AC',
+					400: '#26A69A',
+					500: '#009688',
+					600: '#00897B',
+					700: '#00796B',
+					800: '#00695C',
+					900: '#004D40',
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))',
 				},
-				// Status: semantic tokens (Badge, StatusBadge, getStatusColorClasses)
+				// Status: semantic tokens
 				status: {
 					success: {
 						DEFAULT: 'hsl(var(--status-success) / <alpha-value>)',
@@ -88,33 +98,43 @@ export default {
 						foreground: 'hsl(var(--status-foreground))',
 					},
 				},
-				kitloop: {
-					accent: '#2E7D32',
-					'accent-hover': '#27632A',
-					background: '#FAF9F6',
-					text: '#1F1F1F'
-				}
 			},
 			borderRadius: {
-				// Token-based radius (use these!)
-				'token-sm': 'var(--radius-sm)',  // 6px - badges, chips
-				'token-md': 'var(--radius-md)',  // 10px - buttons, inputs
-				'token-lg': 'var(--radius-lg)',  // 16px - cards, modals
-				'token-xl': 'var(--radius-xl)',  // 24px - MARKETING ONLY
+				// Token-based radius
+				'token-sm': '6px',
+				'token-md': '10px',
+				'token-lg': '16px',
+				'token-xl': '20px',
+				'token-2xl': '24px',
+				'token-full': '9999px',
 				// Legacy shadcn (keep for compatibility)
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			boxShadow: {
-				// Token-based shadows (use these!)
-				'xs': 'var(--shadow-xs)',
+				'sm': 'var(--shadow-sm)',
 				'card': 'var(--shadow-card)',
 				'elevated': 'var(--shadow-elevated)',
-				'brand': 'var(--shadow-brand)',  // MARKETING CTA ONLY
+				'xl': 'var(--shadow-xl)',
+				'brand': 'var(--shadow-brand)',
+				// Legacy compat
+				'xs': 'var(--shadow-xs)',
 				'hero': 'var(--shadow-hero)',
 				'hero-hover': 'var(--shadow-hero-hover)',
 				'premium': '0 20px 45px -25px rgba(28,86,52,0.45)',
+			},
+			transitionDuration: {
+				'instant': 'var(--duration-instant)',
+				'fast': 'var(--duration-fast)',
+				'normal': 'var(--duration-normal)',
+				'slow': 'var(--duration-slow)',
+				'draw': 'var(--duration-draw)',
+			},
+			transitionTimingFunction: {
+				'ease-out': 'var(--ease-out)',
+				'ease-in': 'var(--ease-in)',
+				'ease-spring': 'var(--ease-spring)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -164,7 +184,7 @@ export default {
 			},
 			fontFamily: {
 				sans: ["Inter", ...fontFamily.sans],
-				heading: ["Poppins", "sans-serif"],
+				heading: ["Manrope", "system-ui", "sans-serif"],
 			}
 		}
 	},

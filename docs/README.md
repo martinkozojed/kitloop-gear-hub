@@ -13,6 +13,7 @@
 |--------|-------|----------|
 | [`strategy/ssot_v1.1.md`](strategy/ssot_v1.1.md) | Strategický SSOT — North Star, vrstvy produktu, monetizace, roadmapa, non-negotiables | Vždy před novou funkcí nebo rozhodnutím |
 | [`strategy/MVP_SCOPE.md`](strategy/MVP_SCOPE.md) | Provozní SSOT — co je MVP, hranice produktu, status stroje, security guardrails | Před každou změnou v ops vrstvě |
+| [`strategy/brand_manual_v2.md`](strategy/brand_manual_v2.md) | Brand manual — barvy, typografie, surfaces, motion, komponenty, dark mode, tokeny | Před každou UI/design změnou |
 
 ### Architektonická rozhodnutí (ADR)
 | Soubor | Obsah |

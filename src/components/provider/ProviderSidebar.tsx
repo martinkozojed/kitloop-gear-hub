@@ -92,16 +92,16 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
 
 
   return (
-    <div className="flex h-full flex-col bg-muted border-r border-border">
+    <div className="flex h-full flex-col bg-card border-r border-border">
       {/* Header & Command Trigger */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-center gap-2">
           <button
             onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-background border border-input text-sm text-muted-foreground hover:border-primary/50 transition-colors group"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-token-sm bg-background border border-border text-sm text-muted-foreground hover:border-brand-300 transition-colors duration-fast group"
           >
             <span className="flex items-center gap-2">
-              <Search className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+              <Search className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity duration-fast" />
               <span>Search...</span>
             </span>
             <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-muted px-1.5 font-mono text-xs font-medium opacity-100">
@@ -113,7 +113,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
               variant="ghost"
               size="icon"
               onClick={onToggleCollapse}
-              className="h-9 w-9 hover:bg-accent shrink-0"
+              className="h-9 w-9 shrink-0"
               title="Skrýt menu"
             >
               <PanelLeftClose className="h-4 w-4" />
@@ -126,7 +126,7 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
       <nav className="flex-1 overflow-y-auto px-3 space-y-6">
         {navGroups.map((group, idx) => (
           <div key={idx} className="space-y-1">
-            <h4 className="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+            <h4 className="px-3 text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">
               {group.title}
             </h4>
             {group.items.map((item) => {
@@ -138,12 +138,12 @@ const ProviderSidebar = ({ onToggleCollapse, isCollapsed }: ProviderSidebarProps
                   key={item.path}
                   to={item.path}
                   style={{ height: d.rowHeight, paddingLeft: d.paddingX, paddingRight: d.paddingX }}
-                  className={`group flex items-center gap-3 rounded-md text-sm font-medium transition-all ${isActive
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  className={`group flex items-center gap-3 rounded-md text-sm font-medium transition-all duration-fast ${isActive
+                    ? 'bg-brand-50 text-brand-700 border-l-2 border-brand-500'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                     }`}
                 >
-                  <Icon style={{ width: d.iconSize, height: d.iconSize }} className={isActive ? 'text-primary' : 'opacity-70 group-hover:opacity-100'} />
+                  <Icon style={{ width: d.iconSize, height: d.iconSize }} className={`transition-all duration-fast ${isActive ? 'text-brand-600' : 'opacity-70 group-hover:opacity-100'}`} />
                   {t(item.label)}
                 </Link>
               );

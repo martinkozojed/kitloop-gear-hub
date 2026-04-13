@@ -271,7 +271,7 @@ const DashboardOverview = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`h-8 text-xs font-semibold ${agendaTab === 'all' ? 'shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`h-8 text-xs font-semibold ${agendaTab === 'all' ? 'shadow-sm bg-brand-50 text-brand-700' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('all')}
                   >
                     {t('dashboard.agenda.tabs.all')} <span className="ml-1 opacity-50">({agendaItems.length})</span>
@@ -279,7 +279,7 @@ const DashboardOverview = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`h-8 text-xs ${agendaTab === 'pickups' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`h-8 text-xs ${agendaTab === 'pickups' ? 'font-semibold shadow-sm bg-brand-50 text-brand-700' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('pickups')}
                   >
                     {t('dashboard.agenda.tabs.pickups')} <span className="ml-1 opacity-50">({pickupsCount})</span>
@@ -287,7 +287,7 @@ const DashboardOverview = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`h-8 text-xs ${agendaTab === 'returns' ? 'font-semibold shadow-sm bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`h-8 text-xs ${agendaTab === 'returns' ? 'font-semibold shadow-sm bg-brand-50 text-brand-700' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setAgendaTab('returns')}
                   >
                     {t('dashboard.agenda.tabs.returns')} <span className="ml-1 opacity-50">({returnsCount})</span>
@@ -297,13 +297,18 @@ const DashboardOverview = () => {
 
               <div className="space-y-4 flex-1">
                 {filteredAgendaItems.map((item, idx) => (
-                  <AgendaRow
+                  <div
                     key={idx}
-                    data={item}
-                    onIssue={handleIssueClick}
-                    onReturn={handleReturnClick}
-                    onCustomerClick={handleCustomerClick}
-                  />
+                    className="animate-enter"
+                    style={{ animationDelay: `${Math.min(idx, 4) * 40}ms` }}
+                  >
+                    <AgendaRow
+                      data={item}
+                      onIssue={handleIssueClick}
+                      onReturn={handleReturnClick}
+                      onCustomerClick={handleCustomerClick}
+                    />
+                  </div>
                 ))}
 
                 {filteredAgendaItems.length === 0 && agendaItems.length === 0 && (
@@ -350,14 +355,14 @@ const DashboardOverview = () => {
               </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 bg-status-success/10 rounded-lg border border-status-success/20">
-                  <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.revenue')}</div>
-                  <div className="text-lg font-bold text-status-success">
+                  <div className="text-xs text-muted-foreground uppercase tracking-widest font-medium">{t('dashboard.quickStats.revenue')}</div>
+                  <div className="text-lg font-heading font-bold tabular-nums text-status-success">
                     {currencyFormatter.format(kpiData.dailyRevenue || 0)}
                   </div>
                 </div>
                 <div className="p-3 bg-status-success/10 rounded-lg border border-status-success/20">
-                  <div className="text-xs text-muted-foreground uppercase font-bold">{t('dashboard.quickStats.active')}</div>
-                  <div className="text-lg font-bold text-status-success">
+                  <div className="text-xs text-muted-foreground uppercase tracking-widest font-medium">{t('dashboard.quickStats.active')}</div>
+                  <div className="text-lg font-heading font-bold tabular-nums text-status-success">
                     {numberFormatter.format(kpiData.activeRentals || 0)}
                   </div>
                 </div>

@@ -46,7 +46,7 @@ export const ActivityTimeline = memo(function ActivityTimeline({
             {data.map((event) => {
               const eventTime = event.eventTime ? formatLongDate(event.eventTime) : "";
               const itemStatus = event.status?.toLowerCase() ?? "unknown";
-              const badgeClass = statusTone[itemStatus] ?? "bg-slate-100 text-slate-700";
+              const badgeClass = statusTone[itemStatus] ?? "bg-muted text-foreground";
 
               return (
                 <li key={event.reservationId} className="relative pl-6">

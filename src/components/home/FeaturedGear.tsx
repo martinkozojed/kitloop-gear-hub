@@ -58,7 +58,7 @@ const GearCard = ({ item, onReserve }: { item: FeaturedGearItem; onReserve: (ite
       <CardContent className="p-5 flex-grow">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg line-clamp-2">{item.name}</h3>
-          <p className="font-bold text-green-600 whitespace-nowrap ml-2">
+          <p className="font-bold text-brand-700 whitespace-nowrap ml-2">
             ${item.price}
             <span className="text-sm font-normal text-muted-foreground">/day</span>
           </p>

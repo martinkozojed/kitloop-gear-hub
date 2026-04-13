@@ -63,7 +63,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-[8rem] max-h-[70vh] overflow-y-auto rounded-2xl border border-emerald-100/70 bg-white/90 p-2 text-popover-foreground shadow-premium backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "z-50 min-w-[8rem] max-h-[70vh] overflow-y-auto rounded-2xl border border-brand-100/70 bg-white/90 p-2 text-popover-foreground shadow-premium backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         className
       )}
       {...props}
@@ -81,7 +81,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-emerald-800/90 outline-none transition-colors focus:bg-emerald-50 focus:text-emerald-700 hover:bg-emerald-50/70 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-foreground outline-none transition-colors focus:bg-brand-50 focus:text-brand-700 hover:bg-brand-50/70 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -145,7 +145,7 @@ const DropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-emerald-500",
+      "px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-brand-500",
       inset && "pl-8",
       className
     )}

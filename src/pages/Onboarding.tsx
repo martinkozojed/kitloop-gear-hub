@@ -102,7 +102,7 @@ export default function Onboarding() {
       {/* Skip link */}
       <a
         href="#section-features"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-1/2 focus:-translate-x-1/2 focus:z-[60] focus:bg-background focus:px-5 focus:py-2 focus:rounded-full focus:text-sm focus:font-semibold focus:ring-2 focus:ring-emerald-600 focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-1/2 focus:-translate-x-1/2 focus:z-[60] focus:bg-background focus:px-5 focus:py-2 focus:rounded-full focus:text-sm focus:font-semibold focus:ring-2 focus:ring-brand-600 focus:shadow-lg"
       >
         {t("onboarding.painSkip")}
       </a>
@@ -112,7 +112,7 @@ export default function Onboarding() {
         <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border sticky top-0 left-0 right-0 z-50">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-              <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
+              <span className="text-brand-600 pr-0.5 tracking-tight">Kit</span>
               <span className="text-foreground tracking-wide">loop</span>
             </Link>
             <div className="flex items-center gap-3">

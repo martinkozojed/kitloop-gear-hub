@@ -262,7 +262,7 @@ export default function AddRental() {
             <div
               className={cn(
                 "border border-dashed rounded-lg p-4 text-center cursor-pointer",
-                isDragging ? "bg-green-50 border-green-300" : "border-gray-300"
+                isDragging ? "bg-brand-50 border-brand-300" : "border-border"
               )}
               onDragOver={(e) => {
                 e.preventDefault();

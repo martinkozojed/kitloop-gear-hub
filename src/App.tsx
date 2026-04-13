@@ -2,6 +2,7 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
 import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
@@ -38,6 +39,7 @@ const DemoDashboard = lazy(() => import("./pages/DemoDashboard"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const RequestLink = lazy(() => import("./pages/RequestLink"));
+const ProviderProfile = lazy(() => import("./pages/public/ProviderProfile"));
 
 // Provider pages (heavy)
 const ProviderLayout = lazy(() => import("./components/provider/ProviderLayout"));
@@ -143,6 +145,7 @@ const AppRoutes = () => {
               }
             />
             <Route path="/my-reservations" element={<Navigate to="/login" replace />} />
+            <Route path="/p/:slug" element={<ProviderProfile />} />
             <Route path="/book/:token" element={<PublicBookingRequest />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
@@ -367,6 +370,7 @@ const App = () => {
   }, []);
 
   return (
+    <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ProviderProvider>
@@ -381,6 +385,7 @@ const App = () => {
         </ProviderProvider>
       </AuthProvider>
     </QueryClientProvider>
+    </HelmetProvider>
   );
 };
 

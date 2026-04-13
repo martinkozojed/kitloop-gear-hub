@@ -141,7 +141,7 @@ const RequestLink = () => {
             <button
               onClick={() => i18n.changeLanguage(lang === "en" ? "cs" : "en")}
               aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
-              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 rounded px-0.5"
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded px-0.5"
             >
               {lang === "en" ? "CS" : "EN"}
             </button>
@@ -157,8 +157,8 @@ const RequestLink = () => {
           {pageState === "success" && (
             <>
               <CardHeader className="text-center space-y-2">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-600" aria-hidden />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-100">
+                  <CheckCircle2 className="h-6 w-6 text-brand-600" aria-hidden />
                 </div>
                 <CardTitle className="text-xl">{t("requestLink.successTitle", "Request sent")}</CardTitle>
                 <CardDescription>{t("requestLink.successMessage", "The rental will contact you shortly.")}</CardDescription>

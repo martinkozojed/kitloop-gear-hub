@@ -13,13 +13,13 @@ interface ProviderRouteProps {
 // Extracted outside to prevent re-creation on each render
 const PendingOverlay = () => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25">
-    <div className="absolute inset-0 bg-emerald-900/18 backdrop-blur-[1.35px]" />
+    <div className="absolute inset-0 bg-brand-900/18 backdrop-blur-[1.35px]" />
     <div className="relative max-w-lg w-full">
-      <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/30 via-amber-100/18 to-emerald-200/30 blur-xl opacity-55 pointer-events-none" />
-      <div className="absolute -right-10 bottom-8 h-48 w-48 rounded-full bg-emerald-200/25 blur-3xl pointer-events-none" />
-      <div className="absolute -left-8 top-10 h-40 w-40 rounded-full bg-emerald-100/22 blur-3xl pointer-events-none" />
+      <div className="absolute -inset-2 rounded-3xl bg-gradient-to-b from-amber-200/30 via-amber-100/18 to-brand-200/30 blur-xl opacity-55 pointer-events-none" />
+      <div className="absolute -right-10 bottom-8 h-48 w-48 rounded-full bg-brand-200/25 blur-3xl pointer-events-none" />
+      <div className="absolute -left-8 top-10 h-40 w-40 rounded-full bg-brand-100/22 blur-3xl pointer-events-none" />
       <div className="relative bg-white/85 rounded-2xl p-8 text-center space-y-4 shadow-lg border border-white/70 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-amber-100/15 via-transparent to-emerald-100/18" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-amber-100/15 via-transparent to-brand-100/18" />
         <div className="relative space-y-4">
           <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
             <AlertTriangle className="h-7 w-7" />
@@ -55,7 +55,7 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-green-600" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-600" />
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>

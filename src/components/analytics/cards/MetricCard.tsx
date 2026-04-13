@@ -24,7 +24,7 @@ export interface MetricCardProps {
 const trendToneClasses: Record<NonNullable<TrendProps["tone"]>, string> = {
   positive: "text-status-success bg-status-success/10 border border-status-success/20",
   negative: "text-rose-600 bg-rose-50 border border-rose-100",
-  neutral: "text-slate-600 bg-slate-50 border border-slate-100",
+  neutral: "text-muted-foreground bg-muted border border-border",
 };
 
 export const MetricCard = memo(function MetricCard({

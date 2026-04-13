@@ -44,22 +44,22 @@ const ForgotPassword = () => {
     };
 
     const Header = () => (
-        <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
+        <header className="py-4 px-6 md:px-10 bg-white/80 backdrop-blur-xl border-b border-border">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-                    <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
-                    <span className="text-foreground tracking-wide">loop</span>
+                <Link to="/onboarding" className="font-heading text-2xl font-bold flex items-center shrink-0 tracking-tight">
+                    <span className="text-brand-600 pr-0.5">Kit</span>
+                    <span className="text-foreground">loop</span>
                 </Link>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => i18n.changeLanguage(lang === "en" ? "cs" : "en")}
-                        className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
+                        className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors duration-fast focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 rounded px-0.5"
                     >
                         {lang === "en" ? "CS" : "EN"}
                     </button>
                     <Link
                         to="/login"
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-fast"
                     >
                         {lang === 'cs' ? '← Zpět' : '← Back'}
                     </Link>
@@ -73,9 +73,9 @@ const ForgotPassword = () => {
             <div className="light min-h-screen bg-subtle flex flex-col">
                 <Header />
                 <main className="flex-1 flex items-center justify-center px-4 py-12">
-                    <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
+                    <Card className="w-full max-w-[400px] shadow-elevated border-0 bg-white/90 backdrop-blur-xl rounded-token-xl">
                         <CardHeader className="space-y-1 text-center">
-                            <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                            <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
                                 <Mail className="h-6 w-6" />
                             </div>
                             <CardTitle className="text-2xl font-bold">{lang === 'cs' ? 'Email odeslaný' : 'Email sent'}</CardTitle>
@@ -112,7 +112,7 @@ const ForgotPassword = () => {
         <div className="light min-h-screen bg-subtle flex flex-col">
             <Header />
             <main className="flex-1 flex items-center justify-center px-4 py-12">
-                <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
+                <Card className="w-full max-w-[400px] shadow-elevated border-0 bg-white/90 backdrop-blur-xl rounded-token-xl">
                     <CardHeader className="space-y-1 text-center">
                         <CardTitle className="text-2xl font-bold">{lang === 'cs' ? 'Zapomenuté heslo' : 'Forgot password'}</CardTitle>
                         <CardDescription>
@@ -154,7 +154,7 @@ const ForgotPassword = () => {
                     </CardContent>
                     <CardFooter>
                         <div className="text-center w-full text-sm text-muted-foreground">
-                            <Link to="/login" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors flex items-center justify-center">
+                            <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium transition-colors duration-fast flex items-center justify-center">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 {lang === 'cs' ? 'Zpět na přihlášení' : 'Back to login'}
                             </Link>

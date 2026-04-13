@@ -186,7 +186,7 @@ export default function Observability() {
                                     <TableCell className="font-mono">{log.rpc_name}</TableCell>
                                     <TableCell>
                                         {log.success ? (
-                                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                            <Badge variant="outline" className="bg-brand-50 text-brand-700 border-brand-200">
                                                 <CheckCircle2 className="w-3 h-3 mr-1" /> Success
                                             </Badge>
                                         ) : (

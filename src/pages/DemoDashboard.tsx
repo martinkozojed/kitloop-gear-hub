@@ -260,7 +260,7 @@ const DemoDashboard = () => {
                                         <TableCell className="font-medium">{item.name}</TableCell>
                                         <TableCell><Badge variant="secondary">{item.category}</Badge></TableCell>
                                         <TableCell>
-                                            <Badge variant={item.status === 'available' ? 'default' : item.status === 'low_stock' ? 'destructive' : 'secondary'} className={item.status === 'available' ? 'bg-emerald-100 text-emerald-800' : ''}>
+                                            <Badge variant={item.status === 'available' ? 'default' : item.status === 'low_stock' ? 'destructive' : 'secondary'} className={item.status === 'available' ? 'bg-brand-100 text-brand-800' : ''}>
                                                 {item.status === 'available' ? 'Available' : item.status === 'low_stock' ? 'Low Stock' : 'Maintenance'}
                                             </Badge>
                                         </TableCell>

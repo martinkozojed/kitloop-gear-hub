@@ -84,6 +84,12 @@ Deno.serve(async (req) => {
     }
 
     const rawPayload = await req.json();
+
+    // Honeypot: if 'surname' field is filled, silently accept but don't process
+    if (rawPayload?.surname) {
+      return jsonResponse({ request_id: "ok", message: "Request submitted" }, 201);
+    }
+
     const parseResult = submitRequestSchema.safeParse(rawPayload);
 
     if (!parseResult.success) {

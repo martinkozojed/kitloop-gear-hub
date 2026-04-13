@@ -315,7 +315,7 @@ const BrowseGear = () => {
             {gear.name}
           </h3>
           <div className="flex items-center justify-between mt-3">
-            <p className="text-green-600 font-semibold text-sm">
+            <p className="text-brand-700 font-semibold text-sm">
               {gear.price_per_day} CZK/day
             </p>
             <Button size="sm" className="text-sm px-4 py-1.5" onClick={() => handleReserve(gear)}>
@@ -329,7 +329,7 @@ const BrowseGear = () => {
 
   return (
     <div className="bg-kitloop-background min-h-screen">
-      <section className="bg-gradient-to-br from-green-100 to-white py-24 px-4 border-b border-border">
+      <section className="bg-gradient-to-br from-brand-100 to-white py-24 px-4 border-b border-border">
         {/* ... (Header content irrelevant for this change) */}
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">

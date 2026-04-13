@@ -63,7 +63,7 @@ export function KpiStrip({ data }: { data?: KpiData }) {
                     className="flex flex-col justify-between group relative overflow-hidden h-[150px] transition-all duration-200 hover:-translate-y-1 hover:shadow-elevated"
                 >
                     <div className="flex justify-between items-start">
-                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
                             {metric.label}
                         </span>
                         <div className="p-2 rounded-lg bg-muted border border-border group-hover:bg-accent transition-all duration-200">
@@ -72,7 +72,7 @@ export function KpiStrip({ data }: { data?: KpiData }) {
                     </div>
 
                     <div className="mt-auto flex items-baseline gap-3">
-                        <h2 className="text-4xl font-semibold tracking-tighter text-foreground">
+                        <h2 className="text-4xl font-heading font-bold tracking-tighter text-foreground tabular-nums">
                             {metric.value}
                         </h2>
                         <div className={`flex items-center text-xs font-semibold ${metric.trendDir === 'up' ? 'text-status-success' :

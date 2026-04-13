@@ -33,18 +33,18 @@ export function OnboardingHero({ lang, pain, signupHref, isProvider, isAdmin, on
             transition={{ duration: 0.45, ease: "easeOut" }}
             className="space-y-5"
           >
-            <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-700 border border-emerald-100">
+            <span className="inline-flex items-center rounded-full bg-brand-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-700 border border-brand-100">
               {t("onboarding.heroBadge")}
             </span>
             <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
               {t("onboarding.heroH1")}
             </h1>
-            <p className="text-slate-500 leading-relaxed text-lg">{t("onboarding.heroSub")}</p>
+            <p className="text-muted-foreground leading-relaxed text-lg">{t("onboarding.heroSub")}</p>
 
             <ul className="space-y-2 py-1">
               {heroSteps.map((step) => (
-                <li key={step} className="flex gap-2.5 text-sm font-medium text-slate-700">
-                  <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
+                <li key={step} className="flex gap-2.5 text-sm font-medium text-foreground">
+                  <CheckCircle2 className="h-4 w-4 mt-0.5 text-brand-500 shrink-0" aria-hidden="true" />
                   <span>{step}</span>
                 </li>
               ))}
@@ -68,8 +68,8 @@ export function OnboardingHero({ lang, pain, signupHref, isProvider, isAdmin, on
                 onClick={onScrollToFeatures}
                 className={cn(
                   "self-start px-4 py-2.5 text-sm font-semibold text-muted-foreground",
-                  "transition-colors hover:text-emerald-700",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 rounded",
+                  "transition-colors hover:text-brand-700",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 rounded",
                 )}
               >
                 {t("onboarding.heroCta3")} ↓
@@ -79,15 +79,15 @@ export function OnboardingHero({ lang, pain, signupHref, isProvider, isAdmin, on
 
           {/* Right — static UI preview */}
           <div className="lg:pl-6">
-            <div className="relative rounded-xl border border-slate-200 shadow-xl overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
+            <div className="relative rounded-xl border border-border shadow-xl overflow-hidden bg-muted aspect-[4/3] flex items-center justify-center">
               <img
                 src="/onboarding/hero-loop-poster.png"
                 alt="Kitloop operational dashboard — KPI strip, today's operations agenda, active rentals overview"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="eager"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 -z-10">
-                <p className="text-sm font-medium text-slate-500">Loading…</p>
+              <div className="absolute inset-0 flex items-center justify-center bg-muted -z-10">
+                <p className="text-sm font-medium text-muted-foreground">Loading…</p>
               </div>
             </div>
           </div>

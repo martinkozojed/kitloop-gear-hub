@@ -10,7 +10,7 @@ export interface SubmitRequestPayload {
   requested_gear_text?: string | null;
   notes?: string | null;
   /** Honeypot: must be sent in body; server rejects if non-empty. */
-  _hp?: string;
+  surname?: string;
 }
 
 export interface SubmitRequestResult {

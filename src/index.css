@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,155 +7,193 @@
 
 @layer base {
 
-  /* ========== SURFACES (5-level model) ========== */
   :root {
-    /* Canvas */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* ========== BRAND ========== */
+    --brand-50: 166 41% 91%;    /* #E0F2F1 */
+    --brand-100: 174 44% 78%;   /* #B2DFDB */
+    --brand-200: 174 40% 64%;   /* #80CBC4 */
+    --brand-300: 174 42% 49%;   /* #4DB6AC */
+    --brand-400: 174 63% 40%;   /* #26A69A */
+    --brand-500: 174 100% 29%;  /* #009688 — PRIMARY */
+    --brand-600: 174 100% 27%;  /* #00897B */
+    --brand-700: 174 100% 24%;  /* #00796B */
+    --brand-800: 174 100% 21%;  /* #00695C */
+    --brand-900: 174 100% 15%;  /* #004D40 */
 
-    /* Surface (cards, panels, tables) */
+    /* ========== NEUTRÁLY — teal-saturated, NIKDY flat gray ========== */
+    --background: 174 5% 99%;
+    --foreground: 174 8% 11%;
     --card: 0 0% 100%;
-    --card-foreground: var(--foreground);
-
-    /* Overlay (dialogs, popovers, dropdowns) */
+    --card-foreground: 174 8% 11%;
+    --muted: 174 5% 97%;
+    --muted-foreground: 174 3% 46%;
+    --accent: 174 5% 94%;
+    --accent-foreground: 174 8% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: var(--foreground);
+    --popover-foreground: 174 8% 11%;
 
-    /* Inset (table head, filter bar, secondary blocks) */
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 19% 35%;
+    /* Borders */
+    --border: 174 4% 88%;
+    --input: 174 4% 88%;
+    --ring: 174 100% 29%;   /* brand-500 */
 
-    /* Interactive highlight (hover/selected – NOT status) */
-    --accent: 214 32% 91%;
-    --accent-foreground: var(--foreground);
-
-    /* Secondary (map to muted; keeps shadcn happy) */
-    --secondary: var(--muted);
-    --secondary-foreground: var(--foreground);
-
-    /* Borders & focus (contrast: borders/focus ≥3:1 vs adjacent surface) */
-    --border: 214 32% 91%;
-    --input: 213 27% 84%;
-    --ring: 175 84% 32%;
-
-    /* ========== ACTIONS (ops-first) ========== */
-    --primary: 222 47% 11%;
+    /* Primary = BRAND (ne slate!) */
+    --primary: 174 100% 29%;        /* brand-500 */
     --primary-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    /* Secondary */
+    --secondary: 174 5% 97%;
+    --secondary-foreground: 174 8% 11%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;      /* #EF4444 */
     --destructive-foreground: 0 0% 100%;
 
-    --brand: 175 84% 32%;
-    --brand-foreground: 0 0% 100%;
-
-    /* ========== STATUS (semantic solids; soft via alpha) ========== */
-    --status-success: 142 76% 29%;
-    --status-info: 201 90% 28%;
-    --status-warning: 32 81% 29%;
-    --status-danger: 0 70% 35%;
-    --status-neutral: 215 19% 35%;
+    /* Status */
+    --status-success: 160 84% 39%;  /* #10B981 */
+    --status-warning: 38 92% 50%;   /* #F59E0B */
+    --status-danger: 0 84% 60%;     /* #EF4444 */
+    --status-info: 217 91% 60%;     /* #3B82F6 */
+    --status-neutral: 174 3% 46%;
     --status-foreground: 0 0% 100%;
 
-    /* --- RADIUS SCALE (Design Tokens) --- */
-    --radius: 0.75rem;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
+    /* Legacy compat — map to new values */
+    --brand: 174 100% 29%;
+    --brand-foreground: 0 0% 100%;
 
-    /* --- SHADOW SCALE (Design Tokens) --- */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-    --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
-    --shadow-hero: 0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 25px hsl(175 84% 32% / 0.1);
-    --shadow-hero-hover: 0 12px 32px hsl(175 84% 32% / 0.15);
+    /* ========== RADIUS ========== */
+    --radius: 0.625rem;    /* 10px — buttons (hlavní) */
+    --radius-sm: 6px;      /* inputs */
+    --radius-md: 10px;     /* buttons */
+    --radius-lg: 16px;     /* karty */
+    --radius-xl: 20px;     /* dialogy */
+    --radius-2xl: 24px;    /* elevated overlaye */
+
+    /* ========== SHADOWS ========== */
+    --shadow-sm: 0 2px 6px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-elevated: 0 8px 24px rgba(0,0,0,0.10), 0 3px 8px rgba(0,0,0,0.04);
+    --shadow-xl: 0 16px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-brand: 0 4px 14px rgba(0, 150, 136, 0.35);
+
+    /* Legacy compat */
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-hero: 0 20px 50px rgba(0,0,0,0.15), 0 8px 25px rgba(0,150,136,0.1);
+    --shadow-hero-hover: 0 12px 32px rgba(0,150,136,0.15);
+
+    /* ========== MOTION ========== */
+    --duration-instant: 80ms;
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 350ms;
+    --duration-draw: 500ms;
+    --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
     /* MARKETING GRADIENTS */
-    --hero-glow: radial-gradient(circle at top, hsl(199 89% 60% / 0.18), transparent 60%), radial-gradient(circle at bottom, hsl(175 84% 32% / 0.2), transparent 55%);
+    --hero-glow: radial-gradient(circle at top, hsl(199 89% 60% / 0.18), transparent 60%), radial-gradient(circle at bottom, hsl(174 100% 29% / 0.2), transparent 55%);
 
-    /* Public surfaces: section background and dark accent blocks */
-    --bg-subtle: 210 40% 96%;
-    --bg-inverse: 142 40% 11%;
+    /* Public surfaces */
+    --bg-subtle: 174 5% 97%;
+    --bg-inverse: 174 8% 11%;
     --text-inverse: 0 0% 100%;
   }
 
-  /* Force light-mode CSS variables on marketing/public pages regardless of system theme */
+  /* Force light-mode CSS variables on marketing/public pages */
   .light {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --brand-50: 166 41% 91%;
+    --brand-100: 174 44% 78%;
+    --brand-200: 174 40% 64%;
+    --brand-300: 174 42% 49%;
+    --brand-400: 174 63% 40%;
+    --brand-500: 174 100% 29%;
+    --brand-600: 174 100% 27%;
+    --brand-700: 174 100% 24%;
+    --brand-800: 174 100% 21%;
+    --brand-900: 174 100% 15%;
+
+    --background: 174 5% 99%;
+    --foreground: 174 8% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 174 8% 11%;
+    --muted: 174 5% 97%;
+    --muted-foreground: 174 3% 46%;
+    --accent: 174 5% 94%;
+    --accent-foreground: 174 8% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 19% 35%;
-    --accent: 214 32% 91%;
-    --accent-foreground: 222 47% 11%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --border: 214 32% 91%;
-    --input: 213 27% 84%;
-    --ring: 175 84% 32%;
-    --primary: 222 47% 11%;
+    --popover-foreground: 174 8% 11%;
+    --border: 174 4% 88%;
+    --input: 174 4% 88%;
+    --ring: 174 100% 29%;
+    --primary: 174 100% 29%;
     --primary-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+    --secondary: 174 5% 97%;
+    --secondary-foreground: 174 8% 11%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --brand: 175 84% 32%;
+    --brand: 174 100% 29%;
     --brand-foreground: 0 0% 100%;
-    --status-success: 142 76% 29%;
-    --status-info: 201 90% 28%;
-    --status-warning: 32 81% 29%;
-    --status-danger: 0 70% 35%;
-    --status-neutral: 215 19% 35%;
+    --status-success: 160 84% 39%;
+    --status-warning: 38 92% 50%;
+    --status-danger: 0 84% 60%;
+    --status-info: 217 91% 60%;
+    --status-neutral: 174 3% 46%;
     --status-foreground: 0 0% 100%;
   }
 
   .dark {
     /* Canvas */
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
+    --background: 174 8% 10%;
+    --foreground: 174 5% 96%;
 
     /* Surface */
-    --card: 222 47% 11%;
-    --card-foreground: var(--foreground);
+    --card: 174 7% 13%;
+    --card-foreground: 174 5% 96%;
 
     /* Overlay */
-    --popover: 222 47% 11%;
-    --popover-foreground: var(--foreground);
+    --popover: 174 7% 13%;
+    --popover-foreground: 174 5% 96%;
 
     /* Inset */
-    --muted: 222 35% 13%;
-    --muted-foreground: 215 20% 70%;
+    --muted: 174 6% 17%;
+    --muted-foreground: 174 3% 62%;
 
     /* Interactive highlight */
-    --accent: 222 35% 16%;
-    --accent-foreground: var(--foreground);
+    --accent: 174 5% 22%;
+    --accent-foreground: 174 5% 96%;
 
-    --secondary: var(--muted);
-    --secondary-foreground: var(--foreground);
+    --secondary: 174 6% 17%;
+    --secondary-foreground: 174 5% 96%;
 
     /* Borders & focus */
-    --border: 222 20% 24%;
-    --input: 222 20% 30%;
-    --ring: 175 84% 40%;
+    --border: 174 5% 22%;
+    --input: 174 4% 30%;
+    --ring: 174 100% 40%;
 
-    /* Actions */
-    --primary: 210 40% 98%;
-    --primary-foreground: 222 47% 11%;
+    /* Primary v dark mode = brand-400 */
+    --primary: 174 63% 40%;         /* brand-400 — světlejší pro kontrast */
+    --primary-foreground: 174 8% 11%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 84% 65%;
     --destructive-foreground: 0 0% 100%;
 
-    --brand: 175 84% 40%;
-    --brand-foreground: 222 47% 11%;
+    --brand: 174 100% 40%;
+    --brand-foreground: 174 8% 11%;
 
-    /* Status (keep same hues; alpha handles soft/outline) */
-    --status-success: 142 76% 45%;
-    --status-info: 201 90% 55%;
-    --status-warning: 32 81% 55%;
-    --status-danger: 0 70% 55%;
-    --status-neutral: 215 20% 70%;
-    --status-foreground: 222 47% 11%;
+    /* Status */
+    --status-success: 160 84% 50%;
+    --status-warning: 38 92% 60%;
+    --status-danger: 0 84% 65%;
+    --status-info: 217 91% 65%;
+    --status-neutral: 174 3% 62%;
+    --status-foreground: 174 8% 11%;
+
+    /* Dark shadows */
+    --shadow-sm: 0 0 0 1px hsl(174 5% 22%), 0 2px 6px rgba(0,0,0,0.2);
+    --shadow-card: 0 0 0 1px hsl(174 5% 22%), 0 4px 12px rgba(0,0,0,0.3);
+    --shadow-elevated: 0 0 0 1px hsl(174 5% 22%), 0 8px 24px rgba(0,0,0,0.4);
+    --shadow-brand: 0 4px 20px rgba(0, 150, 136, 0.25);
   }
 
   body {
@@ -163,7 +201,6 @@
     color: hsl(var(--foreground));
     @apply antialiased overflow-x-hidden;
     font-family: 'Inter', system-ui, sans-serif;
-    /* Subtle dot pattern (low saturation) */
     background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
     background-size: 32px 32px;
   }
@@ -172,8 +209,10 @@
   h2,
   h3,
   h4 {
-    @apply tracking-tight text-foreground font-semibold;
-    font-family: 'Poppins', sans-serif;
+    @apply tracking-tight text-foreground;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
   p {
@@ -182,8 +221,6 @@
   }
 
   /* --- BENTO CARD UTILITIES --- */
-  /* --- BENTO CARD UTILITIES --- */
-  /* Aliased to Card default variant styles for consistency */
   .bento-card {
     @apply rounded-token-lg border border-border/50 bg-card text-card-foreground shadow-card transition-all duration-200;
   }
@@ -223,14 +260,14 @@
 
 @layer utilities {
 
-  /* --- MARKETING-ONLY GRADIENT (Single approved variant) — CTA buttons only --- */
+  /* --- CTA GRADIENT — brand teal --- */
   .gradient-cta {
-    background: linear-gradient(to right, #4FCB84, #43B273, #2F8C55);
-    box-shadow: 0 14px 35px -20px rgba(41, 120, 72, 0.65);
+    background: linear-gradient(135deg, #26A69A, #009688, #00796B);
+    box-shadow: var(--shadow-brand);
   }
   .gradient-cta:hover {
-    background: linear-gradient(to right, #47BC79, #3FA467, #297A4B);
-    box-shadow: 0 18px 40px -18px rgba(41, 120, 72, 0.6);
+    background: linear-gradient(135deg, #4DB6AC, #009688, #00695C);
+    box-shadow: 0 6px 20px rgba(0, 150, 136, 0.45);
   }
 }
 
@@ -245,5 +282,13 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

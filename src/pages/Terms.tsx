@@ -34,7 +34,7 @@ const Terms = () => {
             <p>
               You are responsible for keeping your login credentials secure and for all activity
               under your account. Notify us immediately at{' '}
-              <a href="mailto:support@kitloop.cz" className="text-emerald-600 hover:underline">
+              <a href="mailto:support@kitloop.cz" className="text-brand-600 hover:underline">
                 support@kitloop.cz
               </a>{' '}
               if you suspect unauthorised access.
@@ -45,7 +45,7 @@ const Terms = () => {
             <h2 className="text-xl font-semibold text-foreground mb-2">4. Data and privacy</h2>
             <p>
               We collect and process personal data as described in our{' '}
-              <a href="/privacy" className="text-emerald-600 hover:underline">Privacy Policy</a>.
+              <a href="/privacy" className="text-brand-600 hover:underline">Privacy Policy</a>.
               We do not sell your data to third parties.
             </p>
           </section>
@@ -71,7 +71,7 @@ const Terms = () => {
             <h2 className="text-xl font-semibold text-foreground mb-2">7. Contact</h2>
             <p>
               Questions about these terms?{' '}
-              <a href="mailto:support@kitloop.cz" className="text-emerald-600 hover:underline">
+              <a href="mailto:support@kitloop.cz" className="text-brand-600 hover:underline">
                 support@kitloop.cz
               </a>
             </p>

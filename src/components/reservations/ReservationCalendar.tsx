@@ -232,7 +232,7 @@ const ReservationCalendar: React.FC<CalendarProps> = ({ providerId }) => {
                     </div>
 
                     {/* Body Rows */}
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-border">
                         {filteredVariants.map(variant => {
                             let variantReservations = reservations.filter(r => r.product_variant_id === variant.id);
 

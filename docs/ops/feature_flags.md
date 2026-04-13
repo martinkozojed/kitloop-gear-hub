@@ -1,3 +1,11 @@
+---
+verze: 1.1
+datum: 2026-04-13
+autor: Antigravity + Claude Code
+zmena: Doplněny chybějící flagy VITE_ENABLE_SCAN a VITE_ENABLE_DEMO, přidána povinná hlavička
+nadrazeny dokument: strategy/MVP_SCOPE.md
+---
+
 # Feature Flags - MVP Scope Control
 
 ## Overview
@@ -16,6 +24,8 @@ Feature flags control which parts of the application are visible to users. By de
 | `VITE_ENABLE_MAINTENANCE` | `false` | Maintenance Tracking | Sidebar + `/provider/maintenance` route | Set env var to `true` in Netlify |
 | `VITE_ENABLE_CALENDAR` | `false` | Calendar View | Sidebar + `/provider/calendar` route (if implemented) | Set env var to `true` in Netlify |
 | `VITE_ENABLE_MARKETPLACE` | `false` | Public Marketplace | Public routes: `/browse`, `/add-rental` | Set env var to `true` in Netlify |
+| `VITE_ENABLE_SCAN` | `false` | QR/Barcode Scanning | Scanner modal in Inventory module | Set env var to `true` in Netlify |
+| `VITE_ENABLE_DEMO` | `false` | Demo Dashboard & Data | `/demo/dashboard` route + demo data generators | Set env var to `true` in Netlify |
 
 ---
 

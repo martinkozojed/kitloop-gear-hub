@@ -24,7 +24,7 @@ export function AnnouncementModal({ open, onOpenChange }: AnnouncementModalProps
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-green-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600">
                             <Sparkles className="h-5 w-5 text-white" />
                         </div>
                         <div>
@@ -37,20 +37,20 @@ export function AnnouncementModal({ open, onOpenChange }: AnnouncementModalProps
                 <div className="space-y-6 pt-4">
                     <div className="space-y-3">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <span className="text-emerald-600">&#10024;</span>
+                            <span className="text-brand-600">&#10024;</span>
                             {t('announcement.highlightsTitle')}
                         </h3>
                         <ul className="space-y-3 pl-6">
                             {highlights.map((text, i) => (
                                 <li key={i} className="flex items-start gap-3">
-                                    <span className="text-emerald-600 mt-0.5">&#8226;</span>
+                                    <span className="text-brand-600 mt-0.5">&#8226;</span>
                                     <span className="text-muted-foreground">{text}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
 
-                    <div className="bg-muted/50 rounded-lg p-4 border border-emerald-100">
+                    <div className="bg-muted/50 rounded-lg p-4 border border-brand-100">
                         <p className="text-sm text-muted-foreground leading-relaxed">
                             {t('announcement.description')}
                         </p>

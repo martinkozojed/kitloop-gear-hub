@@ -173,7 +173,7 @@ export default function PublicBookingRequest() {
     if (isSuccess) {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 text-center">
-                <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-6" />
+                <CheckCircle2 className="mx-auto h-16 w-16 text-brand-500 mb-6" />
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Request Submitted!</h1>
                 <p className="text-lg text-gray-600 mb-8 max-w-md">
                     Thank you. {provider.rental_name || provider.name} has received your inquiry and will contact you shortly to confirm the details and create a reservation.

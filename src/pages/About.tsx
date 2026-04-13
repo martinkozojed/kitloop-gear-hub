@@ -53,17 +53,17 @@ const About = () => {
 
   return (
     <div className="bg-background pb-36">
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 text-white">
         <div className="absolute inset-0 opacity-30 bg-hero-glow" />
         <div className="relative container mx-auto px-6 py-20">
           <div className="mx-auto max-w-3xl text-center space-y-6">
-            <span className="inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2 text-sm uppercase tracking-[0.35em] text-emerald-100">
+            <span className="inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2 text-sm uppercase tracking-[0.35em] text-brand-100">
               Kitloop
             </span>
             <h1 className="text-balance text-4xl font-bold leading-tight md:text-5xl">
               Kontakt & MVP přístup
             </h1>
-            <p className="text-lg text-emerald-100/90">
+            <p className="text-lg text-brand-100/90">
               Napište nám pár detailů o vaší půjčovně. Ozveme se s dalším postupem.
             </p>
           </div>
@@ -72,10 +72,10 @@ const About = () => {
 
       {/* Contact Form Section */}
       <section className="container mx-auto max-w-2xl px-6 py-20">
-        <div className="rounded-3xl border border-emerald-100 bg-white p-8 md:p-12 shadow-lg shadow-emerald-100/40">
+        <div className="rounded-3xl border border-brand-100 bg-white p-8 md:p-12 shadow-lg shadow-brand-100/40">
           <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mb-4">
-              <Mail className="w-6 h-6 text-emerald-600" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-100 mb-4">
+              <Mail className="w-6 h-6 text-brand-600" />
             </div>
             <h2 className="text-3xl font-bold text-foreground mb-2">
               Připojit se do MVP
@@ -154,7 +154,7 @@ const About = () => {
       {/* Why Kitloop Section */}
       <section className="container mx-auto max-w-5xl px-6 py-12">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-          <div className="rounded-3xl border border-muted-foreground/15 bg-white p-8 shadow-lg shadow-emerald-100/40">
+          <div className="rounded-3xl border border-muted-foreground/15 bg-white p-8 shadow-lg shadow-brand-100/40">
             <h2 className="text-3xl font-semibold text-foreground md:text-4xl">
               {t("about.why_kitloop.title")}
             </h2>
@@ -165,15 +165,15 @@ const About = () => {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-emerald-100 bg-emerald-50 text-emerald-900 shadow-lg shadow-emerald-100/50">
-            <div className="relative h-60 w-full overflow-hidden bg-emerald-200/60">
+          <div className="overflow-hidden rounded-3xl border border-brand-100 bg-brand-50 text-brand-900 shadow-lg shadow-brand-100/50">
+            <div className="relative h-60 w-full overflow-hidden bg-brand-200/60">
               <img
                 src="/lovable-uploads/b1f0a36d-5b99-458c-bae3-638430580400.png"
                 alt={t("about.founder.image_alt")}
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="px-8 py-8 space-y-4 text-emerald-900">
+            <div className="px-8 py-8 space-y-4 text-brand-900">
               <h3 className="text-xl font-semibold">{t("about.founder.title")}</h3>
               {founderParagraphs.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>

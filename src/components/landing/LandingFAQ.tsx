@@ -24,7 +24,7 @@ export function LandingFAQ() {
     const { t } = useTranslation();
 
     return (
-        <section id="faq" className="py-24 bg-gradient-to-b from-white via-emerald-50/10 to-white scroll-mt-20">
+        <section id="faq" className="py-24 bg-gradient-to-b from-white via-brand-50/10 to-white scroll-mt-20">
             <div className="container px-4 md:px-6 mx-auto max-w-3xl">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -50,11 +50,11 @@ export function LandingFAQ() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.4, delay }}
                         >
-                            <AccordionItem value={value} className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                            <AccordionItem value={value} className="group border border-border/60 hover:border-brand-200 rounded-xl px-6 bg-white hover:bg-brand-50/30 transition-all duration-200 data-[state=open]:border-brand-300 data-[state=open]:bg-brand-50/50">
                                 <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
-                                            <Icon className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-100 group-data-[state=open]:bg-brand-500 transition-colors duration-200">
+                                            <Icon className="h-4 w-4 text-brand-600 group-data-[state=open]:text-white transition-colors duration-200" />
                                         </div>
                                         <span>{t(qKey)}</span>
                                     </div>
@@ -73,18 +73,18 @@ export function LandingFAQ() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.4, delay: 0.4 }}
                     >
-                        <AccordionItem value="item-8" className="group border border-gray-200/60 hover:border-emerald-200 rounded-xl px-6 bg-white hover:bg-emerald-50/30 transition-all duration-200 data-[state=open]:border-emerald-300 data-[state=open]:bg-emerald-50/50">
+                        <AccordionItem value="item-8" className="group border border-border/60 hover:border-brand-200 rounded-xl px-6 bg-white hover:bg-brand-50/30 transition-all duration-200 data-[state=open]:border-brand-300 data-[state=open]:bg-brand-50/50">
                             <AccordionTrigger className="text-left font-semibold hover:no-underline py-5">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 group-data-[state=open]:bg-emerald-500 transition-colors duration-200">
-                                        <Laptop className="h-4 w-4 text-emerald-600 group-data-[state=open]:text-white transition-colors duration-200" />
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-100 group-data-[state=open]:bg-brand-500 transition-colors duration-200">
+                                        <Laptop className="h-4 w-4 text-brand-600 group-data-[state=open]:text-white transition-colors duration-200" />
                                     </div>
                                     <span>{t('faq.q8')}</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="text-muted-foreground leading-relaxed pl-11 pb-5">
                                 {t('faq.a8_prefix')}{" "}
-                                <Link to="/" className="text-emerald-600 hover:underline font-medium">
+                                <Link to="/" className="text-brand-600 hover:underline font-medium">
                                     {t('faq.a8_link')}
                                 </Link>.
                             </AccordionContent>

@@ -68,25 +68,24 @@ const SignUp = () => {
   return (
     <div className="light min-h-screen bg-subtle flex flex-col">
 
-      {/* Header — same as Login */}
-      <header className="py-4 px-6 md:px-10 bg-white shadow-sm border-b border-border">
+      {/* Header */}
+      <header className="py-4 px-6 md:px-10 bg-white/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/onboarding" className="text-2xl font-bold flex items-center shrink-0">
-            <span className="text-emerald-600 pr-0.5 tracking-tight">Kit</span>
-            <span className="text-foreground tracking-wide">loop</span>
+          <Link to="/onboarding" className="font-heading text-2xl font-bold flex items-center shrink-0 tracking-tight">
+            <span className="text-brand-600 pr-0.5">Kit</span>
+            <span className="text-foreground">loop</span>
           </Link>
           <div className="flex items-center gap-3">
-            {/* Language toggle — single button showing the other language */}
             <button
               onClick={() => i18n.changeLanguage(lang === "en" ? "cs" : "en")}
               aria-label={lang === "en" ? "Switch to Czech" : "Přepnout do angličtiny"}
-              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 rounded px-0.5"
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors duration-fast focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 rounded px-0.5"
             >
               {lang === "en" ? "CS" : "EN"}
             </button>
             <Link
               to="/onboarding"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-fast"
             >
               ← Back
             </Link>
@@ -96,14 +95,14 @@ const SignUp = () => {
 
       {/* Centered card */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-[400px] shadow-lg border-0 bg-white">
+        <Card className="w-full max-w-[400px] shadow-elevated border-0 bg-white/90 backdrop-blur-xl rounded-token-xl">
           <CardHeader className="text-center space-y-1 pb-6">
             {role === 'provider' && (
-              <div className="mb-3 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg space-y-0.5">
-                <p className="text-xs text-emerald-700 font-semibold">
+              <div className="mb-3 px-3 py-2 bg-brand-50 border border-brand-200 rounded-lg space-y-0.5">
+                <p className="text-xs text-brand-700 font-semibold">
                   MVP Access — Free for outdoor rental providers
                 </p>
-                <p className="text-xs text-emerald-700/80">
+                <p className="text-xs text-brand-700/80">
                   Access is enabled after manual approval. / Přístup je aktivován po ručním schválení.
                 </p>
               </div>
@@ -119,17 +118,17 @@ const SignUp = () => {
                 <div
                   onClick={() => setRole('customer')}
                   className={cn(
-                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-subtle",
+                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all duration-fast hover:bg-subtle",
                     role === 'customer'
-                      ? "border-emerald-500 bg-emerald-50/50"
-                      : "border-slate-200"
+                      ? "border-brand-500 bg-brand-50"
+                      : "border-border"
                   )}
                 >
-                  <User className={cn("w-5 h-5", role === 'customer' ? "text-primary" : "text-slate-400")} />
-                  <span className={cn("text-xs font-medium", role === 'customer' ? "text-emerald-700" : "text-slate-500")}>
+                  <User className={cn("w-5 h-5", role === 'customer' ? "text-brand-600" : "text-muted-foreground")} />
+                  <span className={cn("text-xs font-medium", role === 'customer' ? "text-brand-700" : "text-muted-foreground")}>
                     {t('signup.account_type.customer')}
                   </span>
-                  <span className="text-xxs text-center leading-tight text-slate-400">
+                  <span className="text-xxs text-center leading-tight text-muted-foreground">
                     Not used in MVP
                   </span>
                 </div>
@@ -137,14 +136,14 @@ const SignUp = () => {
                 <div
                   onClick={() => setRole('provider')}
                   className={cn(
-                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all hover:bg-subtle",
+                    "cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all duration-fast hover:bg-subtle",
                     role === 'provider'
-                      ? "border-emerald-500 bg-emerald-50/50"
-                      : "border-slate-200"
+                      ? "border-brand-500 bg-brand-50"
+                      : "border-border"
                   )}
                 >
-                  <Warehouse className={cn("w-5 h-5", role === 'provider' ? "text-primary" : "text-slate-400")} />
-                  <span className={cn("text-xs font-medium", role === 'provider' ? "text-emerald-700" : "text-slate-500")}>
+                  <Warehouse className={cn("w-5 h-5", role === 'provider' ? "text-brand-600" : "text-muted-foreground")} />
+                  <span className={cn("text-xs font-medium", role === 'provider' ? "text-brand-700" : "text-muted-foreground")}>
                     {t('signup.account_type.provider')}
                   </span>
                 </div>
@@ -179,7 +178,7 @@ const SignUp = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none transition-colors duration-fast"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -210,15 +209,15 @@ const SignUp = () => {
           <CardFooter className="flex flex-col space-y-3 pt-2">
             <div className="text-center text-sm text-muted-foreground">
               {t('signup.have_account')}{' '}
-              <Link to="/login" className="text-primary hover:opacity-90 font-medium transition-colors">
+              <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium transition-colors duration-fast">
                 {t('signup.sign_in')}
               </Link>
             </div>
-            <div className="text-xxs text-center text-slate-400 px-8">
+            <div className="text-xxs text-center text-muted-foreground px-8">
               By clicking continue, you agree to our{' '}
-              <Link to="/terms" className="underline hover:text-slate-600 transition-colors">Terms of Service</Link>
+              <Link to="/terms" className="underline hover:text-foreground transition-colors duration-fast">Terms of Service</Link>
               {' '}and{' '}
-              <Link to="/privacy" className="underline hover:text-slate-600 transition-colors">Privacy Policy</Link>.
+              <Link to="/privacy" className="underline hover:text-foreground transition-colors duration-fast">Privacy Policy</Link>.
             </div>
           </CardFooter>
         </Card>

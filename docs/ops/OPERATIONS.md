@@ -1,4 +1,12 @@
-# 🚀 Operations Guide - Kitloop Gear Hub
+---
+verze: 1.2
+datum: 2026-04-13
+autor: Antigravity + Claude Code
+zmena: Opraveny mrtvé odkazy do history/, přidána povinná hlavička
+nadrazeny dokument: strategy/MVP_SCOPE.md
+---
+
+# Operations Guide - Kitloop Gear Hub
 
 **Single entry point for production operations**
 
@@ -28,12 +36,11 @@
 | Phase | Document | Time | Use When |
 |-------|----------|------|----------|
 | **Pre-Deploy** | [Release Gate Checklist](../history/RELEASE_GATE_CHECKLIST.md) | 12 min | Before every production deploy |
-| **Post-Deploy** | [24h Monitoring Plan](../history/POST_DEPLOY_MONITORING.md) | 5 min × 4 | After production deploy (24h) |
-| **Incident** | [Rollback Procedure](../history/POST_DEPLOY_MONITORING.md#-gorollback-decision-matrix) | < 15 min | When NO-GO trigger fires |
+| **Post-Deploy** | [24h Monitoring Plan](../history/POST_DEPLOY_MONITORING.md) | 5 min x 4 | After production deploy (24h) |
+| **Incident** | [Rollback Procedure](#-rollback-quick-reference) | < 15 min | When NO-GO trigger fires |
+| **Runbook** | [M1 Runbook](RUNBOOK.md) | Reference | Bootstrap, Stripe, incident, migrations |
+| **Feature Flags** | [Feature Flags](feature_flags.md) | Reference | MVP scope control via env vars |
 | **CI/CD** | [CI Verification Report](../history/CI_VERIFICATION_REPORT.md) | Reference | Understanding automated checks |
-| **Process** | [Production Hardening Report](../history/PRODUCTION_HARDENING_FINAL.md) | Reference | Gap analysis & lessons learned |
-| **Setup** | [Branch Protection Setup](../history/GITHUB_BRANCH_PROTECTION.md) | 2 min | One-time repository setup |
-| **Verification** | [Branch Protection Tests](../history/BRANCH_PROTECTION_VERIFICATION.md) | 5 min | Verify protection works |
 
 ---
 
@@ -144,7 +151,7 @@ curl test → expect 400 (not 5xx)
 # - Next steps
 ```
 
-**Full details:** [POST_DEPLOY_MONITORING.md](../history/POST_DEPLOY_MONITORING.md#-gorollback-decision-matrix)
+**Full details:** [POST_DEPLOY_MONITORING.md (archive)](../history/POST_DEPLOY_MONITORING.md)
 
 ---
 
@@ -161,21 +168,21 @@ curl test → expect 400 (not 5xx)
 - Concurrency control (cancels old builds)
 - Node 22 (matches local environment)
 
-**Details:** [CI_VERIFICATION_REPORT.md](CI_VERIFICATION_REPORT.md)
+**Details:** [CI_VERIFICATION_REPORT.md](../history/CI_VERIFICATION_REPORT.md)
 
 ---
 
 ## 📖 ADDITIONAL RESOURCES
 
-### Core Documentation
-- [Release Gate Checklist](../history/RELEASE_GATE_CHECKLIST.md) - Pre-deploy verification (12 min)
-- [24h Monitoring Plan](../history/POST_DEPLOY_MONITORING.md) - Post-deploy checks (5 min × 4)
-- [CI Verification Report](../history/CI_VERIFICATION_REPORT.md) - Automated checks explained
-- [Production Hardening](../history/PRODUCTION_HARDENING_FINAL.md) - Gap analysis & lessons
+### Live Documents
+- [M1 Runbook](RUNBOOK.md) - Bootstrap, Stripe, incident, migrations
+- [Feature Flags](feature_flags.md) - MVP scope control
+- [Pain Backlog](PAIN_BACKLOG.md) - Tracked pilot issues
 
-### Historical Context
-- [P0 Verification Complete](../P0_VERIFICATION_COMPLETE.md) - Security audit
-- [Production Deployment Success](../PRODUCTION_DEPLOYMENT_SUCCESS.md) - Timeline
+### Archive (historical context)
+- [Release Gate Checklist](../history/RELEASE_GATE_CHECKLIST.md) - Pre-deploy verification
+- [24h Monitoring Plan](../history/POST_DEPLOY_MONITORING.md) - Post-deploy checks
+- [CI Verification Report](../history/CI_VERIFICATION_REPORT.md) - Automated checks explained
 
 ---
 
@@ -212,6 +219,6 @@ curl test → expect 400 (not 5xx)
 
 ---
 
-**Last Updated:** 2026-01-11  
-**Version:** 1.1 (Streamlined)  
+**Last Updated:** 2026-04-13  
+**Version:** 1.2  
 **Owner:** Engineering Team

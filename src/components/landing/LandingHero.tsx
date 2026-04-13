@@ -22,9 +22,9 @@ export function LandingHero({ onAnnouncementClick }: LandingHeroProps) {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                         onClick={onAnnouncementClick}
-                        className="group inline-flex items-center rounded-full border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-green-500/10 px-4 py-1.5 text-sm font-medium text-emerald-700 backdrop-blur-sm mb-4 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/20 transition-all cursor-pointer"
+                        className="group inline-flex items-center rounded-full border border-brand-500/30 bg-gradient-to-r from-brand-500/10 to-brand-500/10 px-4 py-1.5 text-sm font-medium text-brand-700 backdrop-blur-sm mb-4 hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-500/20 transition-all cursor-pointer"
                     >
-                        <Sparkles className="h-3.5 w-3.5 mr-2 text-emerald-600" />
+                        <Sparkles className="h-3.5 w-3.5 mr-2 text-brand-600" />
                         <span>{t('hero.announcement')}</span>
                         <ArrowRight className="h-3 w-3 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                     </motion.button>
@@ -38,7 +38,7 @@ export function LandingHero({ onAnnouncementClick }: LandingHeroProps) {
                     >
                         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-foreground leading-[1.1]">
                             {t('hero.headline.part1')}{' '}
-                            <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-brand-600 to-brand-500 bg-clip-text text-transparent">
                                 {t('hero.headline.part2')}
                             </span>{' '}
                             {t('hero.headline.part3')}

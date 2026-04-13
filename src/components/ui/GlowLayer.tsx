@@ -29,7 +29,7 @@ export function GlowLayer({ className = '' }: GlowLayerProps) {
 
             {/* Secondary Glow (Bottom Right - strictly moves Right & Down) */}
             <motion.div
-                className="absolute w-[475px] h-[475px] rounded-full bg-emerald-300/20 blur-[120px] opacity-55 mix-blend-multiply dark:mix-blend-screen"
+                className="absolute w-[475px] h-[475px] rounded-full bg-brand-300/20 blur-[120px] opacity-55 mix-blend-multiply dark:mix-blend-screen"
                 animate={{
                     x: ['0%', '25%', '10%', '35%', '0%'],
                     y: ['0%', '35%', '20%', '15%', '0%'],

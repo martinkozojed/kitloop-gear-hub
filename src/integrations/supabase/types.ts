@@ -1446,10 +1446,13 @@ export type Database = {
           onboarding_step: number | null
           phone: string
           pickup_instructions: string | null
+          public_booking_enabled: boolean
+          public_booking_token: string | null
           rental_name: string
           request_link_created_at: string | null
           request_link_token_hash: string | null
           seasonal_mode: boolean | null
+          slug: string | null
           status: string | null
           tax_id: string | null
           terms_text: string | null
@@ -1484,10 +1487,13 @@ export type Database = {
           onboarding_step?: number | null
           phone: string
           pickup_instructions?: string | null
+          public_booking_enabled?: boolean
+          public_booking_token?: string | null
           rental_name: string
           request_link_created_at?: string | null
           request_link_token_hash?: string | null
           seasonal_mode?: boolean | null
+          slug?: string | null
           status?: string | null
           tax_id?: string | null
           terms_text?: string | null
@@ -1522,10 +1528,13 @@ export type Database = {
           onboarding_step?: number | null
           phone?: string
           pickup_instructions?: string | null
+          public_booking_enabled?: boolean
+          public_booking_token?: string | null
           rental_name?: string
           request_link_created_at?: string | null
           request_link_token_hash?: string | null
           seasonal_mode?: boolean | null
+          slug?: string | null
           status?: string | null
           tax_id?: string | null
           terms_text?: string | null
