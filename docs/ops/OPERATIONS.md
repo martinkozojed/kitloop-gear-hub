@@ -7,12 +7,12 @@
 ## ⚡ QUICK START (3 Steps)
 
 ### Before Deploy
-1. Run [Release Gate Checklist](RELEASE_GATE_CHECKLIST.md) (~12 min)
+1. Run [Release Gate Checklist](../history/RELEASE_GATE_CHECKLIST.md) (~12 min)
 2. All 10/10 checks PASS → Deploy
 3. Any check fails → Fix before deploy
 
 ### After Deploy
-1. Check [24h Monitoring Plan](POST_DEPLOY_MONITORING.md) (5 min × 4 checks)
+1. Check [24h Monitoring Plan](../history/POST_DEPLOY_MONITORING.md) (5 min × 4 checks)
 2. All checks green → Continue monitoring
 3. Any NO-GO trigger → [Rollback](#rollback-quick-reference) (< 15 min)
 
@@ -27,13 +27,13 @@
 
 | Phase | Document | Time | Use When |
 |-------|----------|------|----------|
-| **Pre-Deploy** | [Release Gate Checklist](RELEASE_GATE_CHECKLIST.md) | 12 min | Before every production deploy |
-| **Post-Deploy** | [24h Monitoring Plan](POST_DEPLOY_MONITORING.md) | 5 min × 4 | After production deploy (24h) |
-| **Incident** | [Rollback Procedure](POST_DEPLOY_MONITORING.md#-gorollback-decision-matrix) | < 15 min | When NO-GO trigger fires |
-| **CI/CD** | [CI Verification Report](CI_VERIFICATION_REPORT.md) | Reference | Understanding automated checks |
-| **Process** | [Production Hardening Report](PRODUCTION_HARDENING_FINAL.md) | Reference | Gap analysis & lessons learned |
-| **Setup** | [Branch Protection Setup](GITHUB_BRANCH_PROTECTION.md) | 2 min | One-time repository setup |
-| **Verification** | [Branch Protection Tests](BRANCH_PROTECTION_VERIFICATION.md) | 5 min | Verify protection works |
+| **Pre-Deploy** | [Release Gate Checklist](../history/RELEASE_GATE_CHECKLIST.md) | 12 min | Before every production deploy |
+| **Post-Deploy** | [24h Monitoring Plan](../history/POST_DEPLOY_MONITORING.md) | 5 min × 4 | After production deploy (24h) |
+| **Incident** | [Rollback Procedure](../history/POST_DEPLOY_MONITORING.md#-gorollback-decision-matrix) | < 15 min | When NO-GO trigger fires |
+| **CI/CD** | [CI Verification Report](../history/CI_VERIFICATION_REPORT.md) | Reference | Understanding automated checks |
+| **Process** | [Production Hardening Report](../history/PRODUCTION_HARDENING_FINAL.md) | Reference | Gap analysis & lessons learned |
+| **Setup** | [Branch Protection Setup](../history/GITHUB_BRANCH_PROTECTION.md) | 2 min | One-time repository setup |
+| **Verification** | [Branch Protection Tests](../history/BRANCH_PROTECTION_VERIFICATION.md) | 5 min | Verify protection works |
 
 ---
 
@@ -144,7 +144,7 @@ curl test → expect 400 (not 5xx)
 # - Next steps
 ```
 
-**Full details:** [POST_DEPLOY_MONITORING.md](POST_DEPLOY_MONITORING.md#-gorollback-decision-matrix)
+**Full details:** [POST_DEPLOY_MONITORING.md](../history/POST_DEPLOY_MONITORING.md#-gorollback-decision-matrix)
 
 ---
 
@@ -168,10 +168,10 @@ curl test → expect 400 (not 5xx)
 ## 📖 ADDITIONAL RESOURCES
 
 ### Core Documentation
-- [Release Gate Checklist](RELEASE_GATE_CHECKLIST.md) - Pre-deploy verification (12 min)
-- [24h Monitoring Plan](POST_DEPLOY_MONITORING.md) - Post-deploy checks (5 min × 4)
-- [CI Verification Report](CI_VERIFICATION_REPORT.md) - Automated checks explained
-- [Production Hardening](PRODUCTION_HARDENING_FINAL.md) - Gap analysis & lessons
+- [Release Gate Checklist](../history/RELEASE_GATE_CHECKLIST.md) - Pre-deploy verification (12 min)
+- [24h Monitoring Plan](../history/POST_DEPLOY_MONITORING.md) - Post-deploy checks (5 min × 4)
+- [CI Verification Report](../history/CI_VERIFICATION_REPORT.md) - Automated checks explained
+- [Production Hardening](../history/PRODUCTION_HARDENING_FINAL.md) - Gap analysis & lessons
 
 ### Historical Context
 - [P0 Verification Complete](../P0_VERIFICATION_COMPLETE.md) - Security audit
