@@ -2,6 +2,7 @@
 
 > **Pro agenty:** Čti tento soubor jako první. Obsahuje mapu živých dokumentů.
 > Vše ostatní mimo níže uvedené sekce je historický archiv v `docs/history/`.
+> **Pravidla pro dokumentaci:** [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 ---
 

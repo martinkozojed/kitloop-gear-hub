@@ -1,3 +1,11 @@
+---
+verze: 2.0
+datum: 2026-04-13
+autor: Antigravity
+změna: Kompletně přepsán — originální audit priority jsou hotové, dokument aktualizován na post-cleanup stav
+nadřazený dokument: strategy/ssot_v1.1.md
+---
+
 # Kitloop — Architekturní stav po Cleanup Fázi (Q2 2026)
 
 > **Status:** Aktuální — reflektuje stav po dokončení všech cleanup fází (13. dubna 2026)

@@ -1,3 +1,11 @@
+---
+verze: 1.0
+datum: 2026-04-13
+autor: Antigravity + Martin
+změna: Vytvořeno po strategické diskuzi — přechod z pure SaaS na provider-first marketplace model
+nadřazený dokument: —
+---
+
 # Kitloop — Strategy SSOT v1.1
 
 ## 0) Účel dokumentu
