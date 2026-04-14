@@ -25,6 +25,7 @@ import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
 import { CommandProvider } from "./context/CommandContext";
 import { useAuth } from "./context/AuthContext";
 import { useCommand } from "./context/CommandContext";
+import { useForceTheme } from "./hooks/useForceTheme";
 
 // Lazy-loaded routes for code splitting (reduces initial bundle)
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
@@ -95,6 +96,9 @@ const AppRoutes = () => {
   const isDemoRoute = demoEnabled && location.pathname.startsWith("/demo");
 
   const hideNavAndMenu = isDemoRoute || (isOnboardingRoute && !isAuthenticated) || isAuthRoute || isRequestRoute;
+
+  // Force light theme on public pages, restore on dashboard
+  useForceTheme();
 
   // Global Shortcut: 'c' -> New Reservation
   useKeyboardShortcut(

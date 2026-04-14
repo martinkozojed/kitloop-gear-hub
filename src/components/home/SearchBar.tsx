@@ -27,7 +27,7 @@ const SearchBar = () => {
   return (
     <form
       onSubmit={handleSearch}
-      className="flex flex-col sm:flex-row w-full max-w-3xl mx-auto gap-2 bg-white/90 backdrop-blur-md p-2 rounded-lg shadow-lg"
+      className="flex flex-col sm:flex-row w-full max-w-3xl mx-auto gap-2 bg-white p-2 rounded-lg shadow-lg"
     >
       <div className="relative flex-grow">
         <Input

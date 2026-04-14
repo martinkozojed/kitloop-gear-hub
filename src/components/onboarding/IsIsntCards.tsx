@@ -15,7 +15,7 @@ export function IsIsntCards() {
       <div ref={revealRef} className={`transition-all duration-slow ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="mx-auto max-w-5xl px-6">
         <div className="grid gap-5 md:grid-cols-2">
-          <Card className="rounded-xl border border-brand-200 bg-brand-50/80 shadow-sm backdrop-blur-sm">
+          <Card className="rounded-xl border border-brand-200 bg-brand-50 shadow-sm">
             <CardContent className="p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-brand-600 shrink-0" aria-hidden="true" />

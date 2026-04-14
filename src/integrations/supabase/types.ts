@@ -1,3 +1,4 @@
+Connecting to db 5432
 export type Json =
   | string
   | number
@@ -478,8 +479,8 @@ export type Database = {
           provider_id: string
           risk_notes: string | null
           risk_status:
-          | Database["public"]["Enums"]["customer_risk_status"]
-          | null
+            | Database["public"]["Enums"]["customer_risk_status"]
+            | null
           status: string | null
           tags: string[] | null
           updated_at: string | null
@@ -501,8 +502,8 @@ export type Database = {
           provider_id: string
           risk_notes?: string | null
           risk_status?:
-          | Database["public"]["Enums"]["customer_risk_status"]
-          | null
+            | Database["public"]["Enums"]["customer_risk_status"]
+            | null
           status?: string | null
           tags?: string[] | null
           updated_at?: string | null
@@ -524,8 +525,8 @@ export type Database = {
           provider_id?: string
           risk_notes?: string | null
           risk_status?:
-          | Database["public"]["Enums"]["customer_risk_status"]
-          | null
+            | Database["public"]["Enums"]["customer_risk_status"]
+            | null
           status?: string | null
           tags?: string[] | null
           updated_at?: string | null
@@ -664,6 +665,51 @@ export type Database = {
           },
         ]
       }
+      gear_categories: {
+        Row: {
+          activity_family: string
+          created_at: string | null
+          display_name: string
+          display_name_cs: string
+          gear_category: string
+          id: string
+          is_asset_trackable: boolean
+          requires_condition_tracking: boolean
+          requires_safety_notice: boolean
+          size_system: string
+          sort_order: number
+          subtype: string | null
+        }
+        Insert: {
+          activity_family: string
+          created_at?: string | null
+          display_name: string
+          display_name_cs: string
+          gear_category: string
+          id: string
+          is_asset_trackable?: boolean
+          requires_condition_tracking?: boolean
+          requires_safety_notice?: boolean
+          size_system?: string
+          sort_order?: number
+          subtype?: string | null
+        }
+        Update: {
+          activity_family?: string
+          created_at?: string | null
+          display_name?: string
+          display_name_cs?: string
+          gear_category?: string
+          id?: string
+          is_asset_trackable?: boolean
+          requires_condition_tracking?: boolean
+          requires_safety_notice?: boolean
+          size_system?: string
+          sort_order?: number
+          subtype?: string | null
+        }
+        Relationships: []
+      }
       gear_images: {
         Row: {
           created_at: string
@@ -788,6 +834,269 @@ export type Database = {
         }
         Relationships: []
       }
+      import_decisions: {
+        Row: {
+          affected_draft_ids: string[] | null
+          applied_to_group_key: string | null
+          created_at: string | null
+          created_by: string | null
+          decision_type: string
+          id: string
+          import_job_id: string
+          payload: Json
+          reverted_at: string | null
+        }
+        Insert: {
+          affected_draft_ids?: string[] | null
+          applied_to_group_key?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          decision_type: string
+          id?: string
+          import_job_id: string
+          payload: Json
+          reverted_at?: string | null
+        }
+        Update: {
+          affected_draft_ids?: string[] | null
+          applied_to_group_key?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          decision_type?: string
+          id?: string
+          import_job_id?: string
+          payload?: Json
+          reverted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_decisions_import_job_id_fkey"
+            columns: ["import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_files: {
+        Row: {
+          created_at: string | null
+          file_size: number
+          id: string
+          import_job_id: string
+          mime_type: string
+          original_filename: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_size: number
+          id?: string
+          import_job_id: string
+          mime_type: string
+          original_filename: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string | null
+          file_size?: number
+          id?: string
+          import_job_id?: string
+          mime_type?: string
+          original_filename?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_files_import_job_id_fkey"
+            columns: ["import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          error_message: string | null
+          id: string
+          provider_id: string
+          published_count: number | null
+          ready_count: number | null
+          review_count: number | null
+          selected_sheet_name: string | null
+          skipped_count: number | null
+          source_type: string
+          status: string
+          total_rows: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          provider_id: string
+          published_count?: number | null
+          ready_count?: number | null
+          review_count?: number | null
+          selected_sheet_name?: string | null
+          skipped_count?: number | null
+          source_type: string
+          status?: string
+          total_rows?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          provider_id?: string
+          published_count?: number | null
+          ready_count?: number | null
+          review_count?: number | null
+          selected_sheet_name?: string | null
+          skipped_count?: number | null
+          source_type?: string
+          status?: string
+          total_rows?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_jobs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_rows: {
+        Row: {
+          created_at: string | null
+          id: string
+          import_job_id: string
+          raw_payload: Json
+          raw_text_snapshot: string | null
+          row_index: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          import_job_id: string
+          raw_payload: Json
+          raw_text_snapshot?: string | null
+          row_index: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          import_job_id?: string
+          raw_payload?: Json
+          raw_text_snapshot?: string | null
+          row_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_rows_import_job_id_fkey"
+            columns: ["import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kit_items: {
+        Row: {
+          id: string
+          is_required: boolean
+          kit_id: string
+          quantity: number
+          sort_order: number
+          variant_id: string
+        }
+        Insert: {
+          id?: string
+          is_required?: boolean
+          kit_id: string
+          quantity?: number
+          sort_order?: number
+          variant_id: string
+        }
+        Update: {
+          id?: string
+          is_required?: boolean
+          kit_id?: string
+          quantity?: number
+          sort_order?: number
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kit_items_kit_id_fkey"
+            columns: ["kit_id"]
+            isOneToOne: false
+            referencedRelation: "kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kit_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kit_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kits: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kits_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_log: {
         Row: {
           asset_id: string
@@ -871,6 +1180,88 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      normalized_inventory_drafts: {
+        Row: {
+          created_at: string | null
+          explanation: string | null
+          group_key: string | null
+          id: string
+          import_job_id: string
+          import_row_id: string
+          issue_codes: string[] | null
+          proposed_brand: string | null
+          proposed_category_id: string | null
+          proposed_name: string | null
+          proposed_notes: string | null
+          proposed_price_per_day: number | null
+          proposed_quantity: number | null
+          proposed_size: string | null
+          status: string
+          updated_at: string | null
+          user_confirmed_fields: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          explanation?: string | null
+          group_key?: string | null
+          id?: string
+          import_job_id: string
+          import_row_id: string
+          issue_codes?: string[] | null
+          proposed_brand?: string | null
+          proposed_category_id?: string | null
+          proposed_name?: string | null
+          proposed_notes?: string | null
+          proposed_price_per_day?: number | null
+          proposed_quantity?: number | null
+          proposed_size?: string | null
+          status?: string
+          updated_at?: string | null
+          user_confirmed_fields?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          explanation?: string | null
+          group_key?: string | null
+          id?: string
+          import_job_id?: string
+          import_row_id?: string
+          issue_codes?: string[] | null
+          proposed_brand?: string | null
+          proposed_category_id?: string | null
+          proposed_name?: string | null
+          proposed_notes?: string | null
+          proposed_price_per_day?: number | null
+          proposed_quantity?: number | null
+          proposed_size?: string | null
+          status?: string
+          updated_at?: string | null
+          user_confirmed_fields?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "normalized_inventory_drafts_import_job_id_fkey"
+            columns: ["import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "normalized_inventory_drafts_import_row_id_fkey"
+            columns: ["import_row_id"]
+            isOneToOne: false
+            referencedRelation: "import_rows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "normalized_inventory_drafts_proposed_category_id_fkey"
+            columns: ["proposed_category_id"]
+            isOneToOne: false
+            referencedRelation: "gear_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_deliveries: {
         Row: {
@@ -1016,6 +1407,7 @@ export type Database = {
           payload: Json
           priority: number
           provider_id: string
+          read_at: string | null
           sent_at: string | null
           status: string
           user_id: string
@@ -1032,6 +1424,7 @@ export type Database = {
           payload?: Json
           priority?: number
           provider_id: string
+          read_at?: string | null
           sent_at?: string | null
           status?: string
           user_id: string
@@ -1048,6 +1441,7 @@ export type Database = {
           payload?: Json
           priority?: number
           provider_id?: string
+          read_at?: string | null
           sent_at?: string | null
           status?: string
           user_id?: string
@@ -1385,6 +1779,98 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_alias_rules: {
+        Row: {
+          confidence: string | null
+          created_at: string | null
+          created_from_import_job_id: string | null
+          id: string
+          mapped_value: string
+          provider_id: string
+          rule_type: string
+          source_pattern: string
+        }
+        Insert: {
+          confidence?: string | null
+          created_at?: string | null
+          created_from_import_job_id?: string | null
+          id?: string
+          mapped_value: string
+          provider_id: string
+          rule_type: string
+          source_pattern: string
+        }
+        Update: {
+          confidence?: string | null
+          created_at?: string | null
+          created_from_import_job_id?: string | null
+          id?: string
+          mapped_value?: string
+          provider_id?: string
+          rule_type?: string
+          source_pattern?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_alias_rules_created_from_import_job_id_fkey"
+            columns: ["created_from_import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_alias_rules_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity_id: string
+          entity_table: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          provider_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id: string
+          entity_table: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          provider_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_table?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_audit_logs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_members: {
         Row: {
           created_at: string | null
@@ -1439,15 +1925,18 @@ export type Database = {
           email: string
           external_key: string | null
           id: string
+          latitude: number | null
           location: string | null
+          location_point: unknown
           logo_url: string | null
+          longitude: number | null
           name: string | null
           onboarding_completed: boolean | null
           onboarding_step: number | null
           phone: string
           pickup_instructions: string | null
           public_booking_enabled: boolean
-          public_booking_token: string | null
+          public_booking_token: string
           rental_name: string
           request_link_created_at: string | null
           request_link_token_hash: string | null
@@ -1480,15 +1969,18 @@ export type Database = {
           email: string
           external_key?: string | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          location_point?: unknown
           logo_url?: string | null
+          longitude?: number | null
           name?: string | null
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone: string
           pickup_instructions?: string | null
           public_booking_enabled?: boolean
-          public_booking_token?: string | null
+          public_booking_token?: string
           rental_name: string
           request_link_created_at?: string | null
           request_link_token_hash?: string | null
@@ -1521,15 +2013,18 @@ export type Database = {
           email?: string
           external_key?: string | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          location_point?: unknown
           logo_url?: string | null
+          longitude?: number | null
           name?: string | null
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone?: string
           pickup_instructions?: string | null
           public_booking_enabled?: boolean
-          public_booking_token?: string | null
+          public_booking_token?: string
           rental_name?: string
           request_link_created_at?: string | null
           request_link_token_hash?: string | null
@@ -1858,8 +2353,10 @@ export type Database = {
           expires_at: string | null
           external_key: string | null
           gear_id: string | null
+          group_id: string | null
           id: string
           idempotency_key: string | null
+          kit_template_id: string | null
           notes: string | null
           paid_at: string | null
           payment_intent_id: string | null
@@ -1899,8 +2396,10 @@ export type Database = {
           expires_at?: string | null
           external_key?: string | null
           gear_id?: string | null
+          group_id?: string | null
           id?: string
           idempotency_key?: string | null
+          kit_template_id?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_intent_id?: string | null
@@ -1940,8 +2439,10 @@ export type Database = {
           expires_at?: string | null
           external_key?: string | null
           gear_id?: string | null
+          group_id?: string | null
           id?: string
           idempotency_key?: string | null
+          kit_template_id?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_intent_id?: string | null
@@ -1986,6 +2487,13 @@ export type Database = {
             columns: ["gear_id"]
             isOneToOne: false
             referencedRelation: "gear_items_legacy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_kit_template_id_fkey"
+            columns: ["kit_template_id"]
+            isOneToOne: false
+            referencedRelation: "kits"
             referencedColumns: ["id"]
           },
           {
@@ -2345,6 +2853,26 @@ export type Database = {
         }
         Relationships: []
       }
+      vw_pilot_daily_metrics: {
+        Row: {
+          active_reservations: number | null
+          cancelled_reservations: number | null
+          completed_reservations: number | null
+          metric_date: string | null
+          provider_id: string | null
+          rental_name: string | null
+          total_created_reservations: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _postgis_deprecate: {
@@ -2378,11 +2906,11 @@ export type Database = {
         Returns: boolean
       }
       _st_coveredby:
-      | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+        | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       _st_covers:
-      | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+        | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       _st_crosses: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
@@ -2442,42 +2970,42 @@ export type Database = {
       }
       addauth: { Args: { "": string }; Returns: boolean }
       addgeometrycolumn:
-      | {
-        Args: {
-          catalog_name: string
-          column_name: string
-          new_dim: number
-          new_srid_in: number
-          new_type: string
-          schema_name: string
-          table_name: string
-          use_typmod?: boolean
-        }
-        Returns: string
-      }
-      | {
-        Args: {
-          column_name: string
-          new_dim: number
-          new_srid: number
-          new_type: string
-          schema_name: string
-          table_name: string
-          use_typmod?: boolean
-        }
-        Returns: string
-      }
-      | {
-        Args: {
-          column_name: string
-          new_dim: number
-          new_srid: number
-          new_type: string
-          table_name: string
-          use_typmod?: boolean
-        }
-        Returns: string
-      }
+        | {
+            Args: {
+              catalog_name: string
+              column_name: string
+              new_dim: number
+              new_srid_in: number
+              new_type: string
+              schema_name: string
+              table_name: string
+              use_typmod?: boolean
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              column_name: string
+              new_dim: number
+              new_srid: number
+              new_type: string
+              schema_name: string
+              table_name: string
+              use_typmod?: boolean
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              column_name: string
+              new_dim: number
+              new_srid: number
+              new_type: string
+              table_name: string
+              use_typmod?: boolean
+            }
+            Returns: string
+          }
       admin_approve_provider: {
         Args: { p_admin_id: string; p_reason?: string; p_target_id: string }
         Returns: {
@@ -2519,6 +3047,10 @@ export type Database = {
         Args: { p_provider_id: string; p_user_id: string }
         Returns: boolean
       }
+      check_is_pending_member_safe: {
+        Args: { p_provider_id: string; p_user_id: string }
+        Returns: boolean
+      }
       check_variant_availability: {
         Args: { p_end_date: string; p_start_date: string; p_variant_id: string }
         Returns: boolean
@@ -2544,17 +3076,32 @@ export type Database = {
       }
       create_inventory_item: {
         Args: {
-          p_provider_id: string
-          p_name: string
           p_category: string
-          p_description: string
-          p_price_cents: number
-          p_image_url: string
           p_condition: string
+          p_description: string
+          p_image_url: string
+          p_name: string
+          p_price_cents: number
+          p_provider_id: string
           p_quantity_total: number
           p_sku?: string
         }
         Returns: string
+      }
+      create_kit_reservation: {
+        Args: {
+          p_base_idempotency_key: string
+          p_customer_email: string
+          p_customer_name: string
+          p_customer_phone: string
+          p_end_date: string
+          p_kit_template_id: string
+          p_notes?: string
+          p_provider_id: string
+          p_start_date: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       create_reservation: {
         Args: {
@@ -2584,35 +3131,35 @@ export type Database = {
       }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
-      | {
-        Args: {
-          catalog_name: string
-          column_name: string
-          schema_name: string
-          table_name: string
-        }
-        Returns: string
-      }
-      | {
-        Args: {
-          column_name: string
-          schema_name: string
-          table_name: string
-        }
-        Returns: string
-      }
-      | { Args: { column_name: string; table_name: string }; Returns: string }
+        | {
+            Args: {
+              catalog_name: string
+              column_name: string
+              schema_name: string
+              table_name: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              column_name: string
+              schema_name: string
+              table_name: string
+            }
+            Returns: string
+          }
+        | { Args: { column_name: string; table_name: string }; Returns: string }
       dropgeometrytable:
-      | {
-        Args: {
-          catalog_name: string
-          schema_name: string
-          table_name: string
-        }
-        Returns: string
-      }
-      | { Args: { schema_name: string; table_name: string }; Returns: string }
-      | { Args: { table_name: string }; Returns: string }
+        | {
+            Args: {
+              catalog_name: string
+              schema_name: string
+              table_name: string
+            }
+            Returns: string
+          }
+        | { Args: { schema_name: string; table_name: string }; Returns: string }
+        | { Args: { table_name: string }; Returns: string }
       enablelongtransactions: { Args: never; Returns: string }
       equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       expire_stale_holds: {
@@ -2628,6 +3175,7 @@ export type Database = {
         Args: { p_provider_id: string }
         Returns: string
       }
+      generate_provider_slugs: { Args: never; Returns: undefined }
       generate_tomorrow_pickups_digest: { Args: never; Returns: undefined }
       geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
@@ -2756,19 +3304,19 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_admin_trusted: { Args: never; Returns: boolean }
       is_available:
-      | {
-        Args: {
-          p_end: string
-          p_gear: string
-          p_qty: number
-          p_start: string
-        }
-        Returns: boolean
-      }
-      | {
-        Args: { end_time: string; p_gear_id: string; start_time: string }
-        Returns: boolean
-      }
+        | {
+            Args: {
+              p_end: string
+              p_gear: string
+              p_qty: number
+              p_start: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: { end_time: string; p_gear_id: string; start_time: string }
+            Returns: boolean
+          }
       is_provider_approved: {
         Args: { p_provider_id: string }
         Returns: boolean
@@ -2780,6 +3328,16 @@ export type Database = {
           p_override_reason?: string
           p_provider_id: string
           p_reservation_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      issue_reservations_batch: {
+        Args: {
+          p_override?: boolean
+          p_override_reason?: string
+          p_provider_id: string
+          p_reservation_ids: string[]
           p_user_id: string
         }
         Returns: Json
@@ -2810,8 +3368,8 @@ export type Database = {
         Returns: string
       }
       populate_geometry_columns:
-      | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }
-      | { Args: { use_typmod?: boolean }; Returns: string }
+        | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }
+        | { Args: { use_typmod?: boolean }; Returns: string }
       postgis_constraint_dims: {
         Args: { geomcolumn: string; geomschema: string; geomtable: string }
         Returns: number
@@ -2858,6 +3416,14 @@ export type Database = {
         }
         Returns: Json
       }
+      process_returns_batch: {
+        Args: {
+          p_has_damage?: boolean
+          p_notes?: string
+          p_reservation_ids: string[]
+        }
+        Returns: Json
+      }
       reserve_if_available: {
         Args: {
           p_customer_id: string
@@ -2888,8 +3454,10 @@ export type Database = {
           expires_at: string | null
           external_key: string | null
           gear_id: string | null
+          group_id: string | null
           id: string
           idempotency_key: string | null
+          kit_template_id: string | null
           notes: string | null
           paid_at: string | null
           payment_intent_id: string | null
@@ -2916,6 +3484,7 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      slugify: { Args: { input: string }; Returns: string }
       soft_delete_inventory_item: {
         Args: { p_item_id: string }
         Returns: undefined
@@ -2953,86 +3522,86 @@ export type Database = {
         Returns: unknown
       }
       st_angle:
-      | { Args: { line1: unknown; line2: unknown }; Returns: number }
-      | {
-        Args: { pt1: unknown; pt2: unknown; pt3: unknown; pt4?: unknown }
-        Returns: number
-      }
+        | { Args: { line1: unknown; line2: unknown }; Returns: number }
+        | {
+            Args: { pt1: unknown; pt2: unknown; pt3: unknown; pt4?: unknown }
+            Returns: number
+          }
       st_area:
-      | { Args: { geog: unknown; use_spheroid?: boolean }; Returns: number }
-      | { Args: { "": string }; Returns: number }
+        | { Args: { geog: unknown; use_spheroid?: boolean }; Returns: number }
+        | { Args: { "": string }; Returns: number }
       st_asencodedpolyline: {
         Args: { geom: unknown; nprecision?: number }
         Returns: string
       }
       st_asewkt: { Args: { "": string }; Returns: string }
       st_asgeojson:
-      | {
-        Args: { geog: unknown; maxdecimaldigits?: number; options?: number }
-        Returns: string
-      }
-      | {
-        Args: { geom: unknown; maxdecimaldigits?: number; options?: number }
-        Returns: string
-      }
-      | {
-        Args: {
-          geom_column?: string
-          maxdecimaldigits?: number
-          pretty_bool?: boolean
-          r: Record<string, unknown>
-        }
-        Returns: string
-      }
-      | { Args: { "": string }; Returns: string }
+        | {
+            Args: { geog: unknown; maxdecimaldigits?: number; options?: number }
+            Returns: string
+          }
+        | {
+            Args: { geom: unknown; maxdecimaldigits?: number; options?: number }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom_column?: string
+              maxdecimaldigits?: number
+              pretty_bool?: boolean
+              r: Record<string, unknown>
+            }
+            Returns: string
+          }
+        | { Args: { "": string }; Returns: string }
       st_asgml:
-      | {
-        Args: {
-          geog: unknown
-          id?: string
-          maxdecimaldigits?: number
-          nprefix?: string
-          options?: number
-        }
-        Returns: string
-      }
-      | {
-        Args: { geom: unknown; maxdecimaldigits?: number; options?: number }
-        Returns: string
-      }
-      | { Args: { "": string }; Returns: string }
-      | {
-        Args: {
-          geog: unknown
-          id?: string
-          maxdecimaldigits?: number
-          nprefix?: string
-          options?: number
-          version: number
-        }
-        Returns: string
-      }
-      | {
-        Args: {
-          geom: unknown
-          id?: string
-          maxdecimaldigits?: number
-          nprefix?: string
-          options?: number
-          version: number
-        }
-        Returns: string
-      }
+        | {
+            Args: {
+              geog: unknown
+              id?: string
+              maxdecimaldigits?: number
+              nprefix?: string
+              options?: number
+            }
+            Returns: string
+          }
+        | {
+            Args: { geom: unknown; maxdecimaldigits?: number; options?: number }
+            Returns: string
+          }
+        | { Args: { "": string }; Returns: string }
+        | {
+            Args: {
+              geog: unknown
+              id?: string
+              maxdecimaldigits?: number
+              nprefix?: string
+              options?: number
+              version: number
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown
+              id?: string
+              maxdecimaldigits?: number
+              nprefix?: string
+              options?: number
+              version: number
+            }
+            Returns: string
+          }
       st_askml:
-      | {
-        Args: { geog: unknown; maxdecimaldigits?: number; nprefix?: string }
-        Returns: string
-      }
-      | {
-        Args: { geom: unknown; maxdecimaldigits?: number; nprefix?: string }
-        Returns: string
-      }
-      | { Args: { "": string }; Returns: string }
+        | {
+            Args: { geog: unknown; maxdecimaldigits?: number; nprefix?: string }
+            Returns: string
+          }
+        | {
+            Args: { geom: unknown; maxdecimaldigits?: number; nprefix?: string }
+            Returns: string
+          }
+        | { Args: { "": string }; Returns: string }
       st_aslatlontext: {
         Args: { geom: unknown; tmpl?: string }
         Returns: string
@@ -3049,60 +3618,60 @@ export type Database = {
         Returns: unknown
       }
       st_assvg:
-      | {
-        Args: { geog: unknown; maxdecimaldigits?: number; rel?: number }
-        Returns: string
-      }
-      | {
-        Args: { geom: unknown; maxdecimaldigits?: number; rel?: number }
-        Returns: string
-      }
-      | { Args: { "": string }; Returns: string }
+        | {
+            Args: { geog: unknown; maxdecimaldigits?: number; rel?: number }
+            Returns: string
+          }
+        | {
+            Args: { geom: unknown; maxdecimaldigits?: number; rel?: number }
+            Returns: string
+          }
+        | { Args: { "": string }; Returns: string }
       st_astext: { Args: { "": string }; Returns: string }
       st_astwkb:
-      | {
-        Args: {
-          geom: unknown
-          prec?: number
-          prec_m?: number
-          prec_z?: number
-          with_boxes?: boolean
-          with_sizes?: boolean
-        }
-        Returns: string
-      }
-      | {
-        Args: {
-          geom: unknown[]
-          ids: number[]
-          prec?: number
-          prec_m?: number
-          prec_z?: number
-          with_boxes?: boolean
-          with_sizes?: boolean
-        }
-        Returns: string
-      }
+        | {
+            Args: {
+              geom: unknown
+              prec?: number
+              prec_m?: number
+              prec_z?: number
+              with_boxes?: boolean
+              with_sizes?: boolean
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown[]
+              ids: number[]
+              prec?: number
+              prec_m?: number
+              prec_z?: number
+              with_boxes?: boolean
+              with_sizes?: boolean
+            }
+            Returns: string
+          }
       st_asx3d: {
         Args: { geom: unknown; maxdecimaldigits?: number; options?: number }
         Returns: string
       }
       st_azimuth:
-      | { Args: { geog1: unknown; geog2: unknown }; Returns: number }
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: number }
+        | { Args: { geog1: unknown; geog2: unknown }; Returns: number }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: number }
       st_boundingdiagonal: {
         Args: { fits?: boolean; geom: unknown }
         Returns: unknown
       }
       st_buffer:
-      | {
-        Args: { geom: unknown; options?: string; radius: number }
-        Returns: unknown
-      }
-      | {
-        Args: { geom: unknown; quadsegs: number; radius: number }
-        Returns: unknown
-      }
+        | {
+            Args: { geom: unknown; options?: string; radius: number }
+            Returns: unknown
+          }
+        | {
+            Args: { geom: unknown; quadsegs: number; radius: number }
+            Returns: unknown
+          }
       st_centroid: { Args: { "": string }; Returns: unknown }
       st_clipbybox2d: {
         Args: { box: unknown; geom: unknown }
@@ -3131,11 +3700,11 @@ export type Database = {
       }
       st_coorddim: { Args: { geometry: unknown }; Returns: number }
       st_coveredby:
-      | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+        | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_covers:
-      | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+        | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_crosses: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_curvetoline: {
         Args: { flags?: number; geom: unknown; tol?: number; toltype?: number }
@@ -3154,17 +3723,17 @@ export type Database = {
         Returns: boolean
       }
       st_distance:
-      | {
-        Args: { geog1: unknown; geog2: unknown; use_spheroid?: boolean }
-        Returns: number
-      }
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: number }
+        | {
+            Args: { geog1: unknown; geog2: unknown; use_spheroid?: boolean }
+            Returns: number
+          }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: number }
       st_distancesphere:
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: number }
-      | {
-        Args: { geom1: unknown; geom2: unknown; radius: number }
-        Returns: number
-      }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: number }
+        | {
+            Args: { geom1: unknown; geom2: unknown; radius: number }
+            Returns: number
+          }
       st_distancespheroid: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: number
@@ -3180,21 +3749,21 @@ export type Database = {
       }
       st_equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_expand:
-      | { Args: { box: unknown; dx: number; dy: number }; Returns: unknown }
-      | {
-        Args: { box: unknown; dx: number; dy: number; dz?: number }
-        Returns: unknown
-      }
-      | {
-        Args: {
-          dm?: number
-          dx: number
-          dy: number
-          dz?: number
-          geom: unknown
-        }
-        Returns: unknown
-      }
+        | { Args: { box: unknown; dx: number; dy: number }; Returns: unknown }
+        | {
+            Args: { box: unknown; dx: number; dy: number; dz?: number }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              dm?: number
+              dx: number
+              dy: number
+              dz?: number
+              geom: unknown
+            }
+            Returns: unknown
+          }
       st_force3d: { Args: { geom: unknown; zvalue?: number }; Returns: unknown }
       st_force3dm: {
         Args: { geom: unknown; mvalue?: number }
@@ -3209,16 +3778,16 @@ export type Database = {
         Returns: unknown
       }
       st_generatepoints:
-      | { Args: { area: unknown; npoints: number }; Returns: unknown }
-      | {
-        Args: { area: unknown; npoints: number; seed: number }
-        Returns: unknown
-      }
+        | { Args: { area: unknown; npoints: number }; Returns: unknown }
+        | {
+            Args: { area: unknown; npoints: number; seed: number }
+            Returns: unknown
+          }
       st_geogfromtext: { Args: { "": string }; Returns: unknown }
       st_geographyfromtext: { Args: { "": string }; Returns: unknown }
       st_geohash:
-      | { Args: { geog: unknown; maxchars?: number }; Returns: string }
-      | { Args: { geom: unknown; maxchars?: number }; Returns: string }
+        | { Args: { geog: unknown; maxchars?: number }; Returns: string }
+        | { Args: { geom: unknown; maxchars?: number }; Returns: string }
       st_geomcollfromtext: { Args: { "": string }; Returns: unknown }
       st_geometricmedian: {
         Args: {
@@ -3232,9 +3801,9 @@ export type Database = {
       st_geometryfromtext: { Args: { "": string }; Returns: unknown }
       st_geomfromewkt: { Args: { "": string }; Returns: unknown }
       st_geomfromgeojson:
-      | { Args: { "": Json }; Returns: unknown }
-      | { Args: { "": Json }; Returns: unknown }
-      | { Args: { "": string }; Returns: unknown }
+        | { Args: { "": Json }; Returns: unknown }
+        | { Args: { "": Json }; Returns: unknown }
+        | { Args: { "": string }; Returns: unknown }
       st_geomfromgml: { Args: { "": string }; Returns: unknown }
       st_geomfromkml: { Args: { "": string }; Returns: unknown }
       st_geomfrommarc21: { Args: { marc21xml: string }; Returns: unknown }
@@ -3262,8 +3831,8 @@ export type Database = {
         Returns: unknown
       }
       st_intersects:
-      | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+        | { Args: { geog1: unknown; geog2: unknown }; Returns: boolean }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_isvaliddetail: {
         Args: { flags?: number; geom: unknown }
         Returns: Database["public"]["CompositeTypes"]["valid_detail"]
@@ -3275,8 +3844,8 @@ export type Database = {
         }
       }
       st_length:
-      | { Args: { geog: unknown; use_spheroid?: boolean }; Returns: number }
-      | { Args: { "": string }; Returns: number }
+        | { Args: { geog: unknown; use_spheroid?: boolean }; Returns: number }
+        | { Args: { "": string }; Returns: number }
       st_letters: { Args: { font?: Json; letters: string }; Returns: unknown }
       st_linecrossingdirection: {
         Args: { line1: unknown; line2: unknown }
@@ -3416,8 +3985,8 @@ export type Database = {
         Returns: unknown
       }
       st_setsrid:
-      | { Args: { geog: unknown; srid: number }; Returns: unknown }
-      | { Args: { geom: unknown; srid: number }; Returns: unknown }
+        | { Args: { geog: unknown; srid: number }; Returns: unknown }
+        | { Args: { geom: unknown; srid: number }; Returns: unknown }
       st_sharedpaths: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
@@ -3440,8 +4009,8 @@ export type Database = {
         Returns: Record<string, unknown>[]
       }
       st_srid:
-      | { Args: { geog: unknown }; Returns: number }
-      | { Args: { geom: unknown }; Returns: number }
+        | { Args: { geog: unknown }; Returns: number }
+        | { Args: { geom: unknown }; Returns: number }
       st_subdivide: {
         Args: { geom: unknown; gridsize?: number; maxvertices?: number }
         Returns: unknown[]
@@ -3470,22 +4039,22 @@ export type Database = {
       }
       st_touches: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_transform:
-      | {
-        Args: { from_proj: string; geom: unknown; to_proj: string }
-        Returns: unknown
-      }
-      | {
-        Args: { from_proj: string; geom: unknown; to_srid: number }
-        Returns: unknown
-      }
-      | { Args: { geom: unknown; to_proj: string }; Returns: unknown }
+        | {
+            Args: { from_proj: string; geom: unknown; to_proj: string }
+            Returns: unknown
+          }
+        | {
+            Args: { from_proj: string; geom: unknown; to_srid: number }
+            Returns: unknown
+          }
+        | { Args: { geom: unknown; to_proj: string }; Returns: unknown }
       st_triangulatepolygon: { Args: { g1: unknown }; Returns: unknown }
       st_union:
-      | { Args: { geom1: unknown; geom2: unknown }; Returns: unknown }
-      | {
-        Args: { geom1: unknown; geom2: unknown; gridsize: number }
-        Returns: unknown
-      }
+        | { Args: { geom1: unknown; geom2: unknown }; Returns: unknown }
+        | {
+            Args: { geom1: unknown; geom2: unknown; gridsize: number }
+            Returns: unknown
+          }
       st_voronoilines: {
         Args: { extend_to?: unknown; g1: unknown; tolerance?: number }
         Returns: unknown
@@ -3516,7 +4085,22 @@ export type Database = {
         }
         Returns: Json
       }
+      transliterate_czech: { Args: { input: string }; Returns: string }
       unlockrows: { Args: { "": string }; Returns: number }
+      update_inventory_item: {
+        Args: {
+          p_category: string
+          p_condition: string
+          p_description: string
+          p_image_url: string
+          p_item_id: string
+          p_name: string
+          p_price_cents: number
+          p_quantity_total: number
+          p_sku?: string
+        }
+        Returns: undefined
+      }
       updategeometrysrid: {
         Args: {
           catalogn_name: string
@@ -3526,20 +4110,6 @@ export type Database = {
           table_name: string
         }
         Returns: string
-      }
-      update_inventory_item: {
-        Args: {
-          p_item_id: string
-          p_name: string
-          p_category: string
-          p_description: string
-          p_price_cents: number
-          p_image_url: string
-          p_condition: string
-          p_quantity_total: number
-          p_sku?: string
-        }
-        Returns: undefined
       }
       upsert_crm_customer: {
         Args: {
@@ -3556,34 +4126,34 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "provider" | "customer"
       asset_status_type:
-      | "available"
-      | "reserved"
-      | "active"
-      | "maintenance"
-      | "quarantine"
-      | "retired"
-      | "lost"
+        | "available"
+        | "reserved"
+        | "active"
+        | "maintenance"
+        | "quarantine"
+        | "retired"
+        | "lost"
       customer_risk_status:
-      | "safe"
-      | "warning"
-      | "blacklist"
-      | "trusted"
-      | "verified"
+        | "safe"
+        | "warning"
+        | "blacklist"
+        | "trusted"
+        | "verified"
       maintenance_priority: "critical" | "high" | "normal" | "low" | "cosmetic"
       maintenance_type: "cleaning" | "repair" | "inspection" | "quality_hold"
       notification_status: "pending" | "sent" | "failed"
       notification_type:
-      | "confirmation"
-      | "pickup_reminder"
-      | "return_reminder"
-      | "review_request"
+        | "confirmation"
+        | "pickup_reminder"
+        | "return_reminder"
+        | "review_request"
       payment_status_type:
-      | "unpaid"
-      | "authorized"
-      | "paid"
-      | "refunded"
-      | "partially_refunded"
-      | "failed"
+        | "unpaid"
+        | "authorized"
+        | "paid"
+        | "refunded"
+        | "partially_refunded"
+        | "failed"
     }
     CompositeTypes: {
       geometry_dump: {
@@ -3605,116 +4175,116 @@ type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-  : never = never,
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
-  ? R
-  : never
+    ? R
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])
-  ? (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R
-    }
-  ? R
-  : never
-  : never
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
+      Insert: infer I
+    }
+    ? I
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Update: infer U
-  }
-  ? U
-  : never
+      Update: infer U
+    }
+    ? U
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Update: infer U
-  }
-  ? U
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-  | keyof DefaultSchema["Enums"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-  : never
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-  | keyof DefaultSchema["CompositeTypes"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
 
 export const Constants = {
   graphql_public: {
@@ -3760,3 +4330,5 @@ export const Constants = {
   },
 } as const
 
+A new version of Supabase CLI is available: v2.90.0 (currently installed v2.75.0)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli

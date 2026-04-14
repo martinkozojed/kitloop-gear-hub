@@ -114,7 +114,7 @@ export default function ProviderProfile() {
       });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="light min-h-screen bg-background">
       <Helmet>
         <title>{provider.rental_name} — Kitloop</title>
         <meta name="description" content={ogDescription} />

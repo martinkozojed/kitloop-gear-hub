@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Menu, User, LogOut, Search } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -26,10 +26,13 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { user, profile, isAuthenticated, logout, isAdmin } = useAuth();
   const { provider, isProvider } = useProvider();
   const { setOpen } = useCommand();
+
+  const isDashboard = location.pathname.startsWith('/provider') || location.pathname.startsWith('/admin');
 
   const scrollToSection = (sectionId: string) => {
     if (window.location.pathname !== '/') {
@@ -55,7 +58,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 border-b border-border fixed top-0 left-0 right-0 z-50 transition-colors duration-fast" style={{ background: 'hsla(174, 5%, 99%, 0.80)', backdropFilter: 'blur(20px) saturate(180%)' }}>
+    <header className="py-4 px-6 md:px-10 border-b border-border fixed top-0 left-0 right-0 z-50 transition-colors duration-fast" style={{ background: 'var(--navbar-bg)', backdropFilter: 'blur(20px) saturate(180%)' }}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* Logo */}

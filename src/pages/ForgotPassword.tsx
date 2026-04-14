@@ -111,7 +111,9 @@ const ForgotPassword = () => {
     }
 
     return (
-        <div className="light min-h-screen bg-subtle flex flex-col">
+        <div className="light min-h-screen flex flex-col" style={{
+                background: `radial-gradient(circle at 30% 20%, rgba(0,150,136,0.08), transparent 50%), radial-gradient(circle at 70% 80%, rgba(0,150,136,0.05), transparent 50%), hsl(174, 5%, 97%)`
+            }}>
             <Header />
             <main className="flex-1 flex items-center justify-center px-4 py-12">
                 <Card className="w-full max-w-[400px] shadow-elevated border-0 bg-white/90 backdrop-blur-xl rounded-token-xl">

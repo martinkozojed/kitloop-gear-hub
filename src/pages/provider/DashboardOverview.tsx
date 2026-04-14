@@ -196,9 +196,9 @@ const DashboardOverview = () => {
             <div className="flex items-center gap-2">
 
               {/* VIEW TOGGLE */}
-              <div className="mr-2 border-r pr-2 shadow-sm">
-                <ToggleGroup type="single" value={viewMode} onValueChange={handleViewChange}>
-                  <ToggleGroupItem value="overview" aria-label="Overview Mode">
+              <div className="mr-2 border-r pr-2">
+                <ToggleGroup type="single" value={viewMode} onValueChange={handleViewChange} className="bg-muted rounded-token-lg p-1">
+                  <ToggleGroupItem value="overview" aria-label="Overview Mode" className="data-[state=on]:bg-card data-[state=on]:text-foreground data-[state=on]:shadow-sm rounded-token-md transition-colors duration-fast">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Icon icon={LayoutDashboard} />
@@ -206,7 +206,7 @@ const DashboardOverview = () => {
                       <TooltipContent>{t('dashboard.view.overview')}</TooltipContent>
                     </Tooltip>
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="operations" aria-label="Operations Mode">
+                  <ToggleGroupItem value="operations" aria-label="Operations Mode" className="data-[state=on]:bg-card data-[state=on]:text-foreground data-[state=on]:shadow-sm rounded-token-md transition-colors duration-fast">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Icon icon={ListTodo} />
