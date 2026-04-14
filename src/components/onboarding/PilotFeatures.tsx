@@ -1,15 +1,18 @@
 import { useTranslation } from "react-i18next";
 import { CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Section } from "./shared";
 import type { WhatYouGetItem } from "./shared";
 
 export function PilotFeatures() {
   const { t } = useTranslation();
+  const { ref: revealRef, isVisible } = useScrollReveal();
   const items = t("onboarding.whatYouGetItems", { returnObjects: true }) as WhatYouGetItem[];
 
   return (
     <Section className="bg-subtle py-16 md:py-24 border-y border-muted">
+      <div ref={revealRef} className={`transition-all duration-slow ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="mx-auto max-w-5xl px-6">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.whatYouGetTitle")}</h2>
@@ -31,7 +34,7 @@ export function PilotFeatures() {
 
           <div className="grid gap-4 order-1 lg:order-2">
             {items.map((item, i) => (
-              <Card key={i} className="rounded-xl border shadow-sm bg-white">
+              <Card key={i} className={`rounded-xl border shadow-sm bg-white transition-all ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDuration: '350ms', transitionDelay: isVisible ? `${i * 60}ms` : '0ms' }}>
                 <CardContent className="p-5 space-y-2">
                   <div className="flex items-center gap-2.5 mb-1">
                     <CheckCircle2 className="h-4 w-4 text-brand-500 shrink-0" />
@@ -43,6 +46,7 @@ export function PilotFeatures() {
             ))}
           </div>
         </div>
+      </div>
       </div>
     </Section>
   );

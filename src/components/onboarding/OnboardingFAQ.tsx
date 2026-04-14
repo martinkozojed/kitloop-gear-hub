@@ -2,15 +2,18 @@ import { useTranslation } from "react-i18next";
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Section } from "./shared";
 import type { FAQ } from "./shared";
 
 export function OnboardingFAQ() {
   const { t } = useTranslation();
+  const { ref: revealRef, isVisible } = useScrollReveal();
   const faqs = t("onboarding.faqs", { returnObjects: true }) as FAQ[];
 
   return (
     <Section className="bg-muted/50 py-16 md:py-24">
+      <div ref={revealRef} className={`transition-all duration-slow ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="mx-auto max-w-3xl px-6">
         <h2 className="text-2xl font-bold md:text-3xl mb-6">{t("onboarding.faqTitle")}</h2>
         <Accordion type="single" collapsible className="space-y-2">
@@ -29,6 +32,7 @@ export function OnboardingFAQ() {
             </AccordionItem>
           ))}
         </Accordion>
+      </div>
       </div>
     </Section>
   );

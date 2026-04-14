@@ -355,6 +355,48 @@ button:active:not(:disabled) {
   transition-duration: 50ms !important;
 }
 
+/* ========== SCAN SIGNATURE MOMENT ========== */
+@keyframes scan-flash {
+  0% { box-shadow: 0 0 0 0 rgba(0, 150, 136, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(0, 150, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 150, 136, 0); }
+}
+
+@keyframes scan-checkmark {
+  0% { stroke-dashoffset: 24; opacity: 0; }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes scan-row-flash {
+  0% { background-color: hsl(166, 41%, 91%); }
+  100% { background-color: transparent; }
+}
+
+@keyframes scan-error-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.animate-scan-flash {
+  animation: scan-flash 400ms var(--ease-out) forwards;
+}
+
+.animate-scan-checkmark {
+  animation: scan-checkmark 350ms var(--ease-out) forwards;
+}
+
+.animate-scan-row-flash {
+  animation: scan-row-flash 500ms var(--ease-out) forwards;
+}
+
+.animate-scan-error {
+  animation: scan-error-shake 400ms var(--ease-out);
+}
+
 /* ========== ACCESSIBILITY ========== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

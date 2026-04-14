@@ -45,14 +45,14 @@ export function EmptyState({
                     variant === "subtle" && "p-3 bg-muted"
                 )}>
                     <Icon className={cn(
-                        "text-muted-foreground/60",
-                        variant === "default" && "w-10 h-10",
+                        "text-brand-300",
+                        variant === "default" && "w-12 h-12",
                         variant === "subtle" && "w-8 h-8"
                     )} />
                 </div>
             )}
             <h3 className={cn(
-                "font-semibold tracking-tight text-foreground",
+                "font-heading font-semibold tracking-tight text-foreground",
                 variant === "default" && "text-lg",
                 variant === "subtle" && "text-base"
             )}>

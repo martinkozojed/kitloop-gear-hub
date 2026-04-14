@@ -1,19 +1,30 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Activity, RotateCcw, Euro } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface KpiMetric {
     label: string;
-    value: string;
+    rawValue: number;
+    formattedValue: string;
     trend: string;
     trendDir: 'up' | 'down' | 'neutral';
     icon: React.ElementType;
     color: string;
+    isCurrency: boolean;
 }
 
 import { KpiData } from "@/types/dashboard";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
+
+function AnimatedNumber({ value, isCurrency }: { value: number; isCurrency: boolean }) {
+    const animated = useCountUp(value, 500);
+    const formatter = isCurrency
+        ? new Intl.NumberFormat("cs-CZ", { style: "currency", currency: "CZK", maximumFractionDigits: 0 })
+        : new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: 0 });
+    return <>{formatter.format(animated)}</>;
+}
 
 export function KpiStrip({ data }: { data?: KpiData }) {
     const { t } = useTranslation();
@@ -30,27 +41,33 @@ export function KpiStrip({ data }: { data?: KpiData }) {
     const metrics: KpiMetric[] = [
         {
             label: t("dashboard.kpis.active"),
-            value: formatCount(data?.activeRentals),
+            rawValue: data?.activeRentals ?? 0,
+            formattedValue: formatCount(data?.activeRentals),
             trend: data?.activeTrend || "stable",
             trendDir: data?.activeTrendDir || "neutral",
             icon: Activity,
-            color: "text-status-success"
+            color: "text-status-success",
+            isCurrency: false
         },
         {
             label: t("dashboard.kpis.returns"),
-            value: formatCount(data?.returnsToday),
+            rawValue: data?.returnsToday ?? 0,
+            formattedValue: formatCount(data?.returnsToday),
             trend: data?.returnsTrend || "pending",
             trendDir: data?.returnsTrendDir || "neutral",
             icon: RotateCcw,
-            color: "text-status-success"
+            color: "text-status-success",
+            isCurrency: false
         },
         {
             label: t("dashboard.kpis.revenue"),
-            value: formatCurrency(data?.dailyRevenue),
+            rawValue: data?.dailyRevenue ?? 0,
+            formattedValue: formatCurrency(data?.dailyRevenue),
             trend: data?.revenueTrend || "stable",
             trendDir: data?.revenueTrendDir || "neutral",
             icon: Euro,
-            color: "text-status-success"
+            color: "text-status-success",
+            isCurrency: true
         }
     ];
 
@@ -60,7 +77,8 @@ export function KpiStrip({ data }: { data?: KpiData }) {
                 <Card
                     key={i}
                     padding="default"
-                    className="flex flex-col justify-between group relative overflow-hidden h-[150px] transition-all duration-200 hover:-translate-y-1 hover:shadow-elevated"
+                    className="flex flex-col justify-between group relative overflow-hidden h-[150px] transition-all duration-200 hover:-translate-y-1 hover:shadow-elevated animate-enter"
+                    style={{ animationDelay: `${i * 80}ms` }}
                 >
                     <div className="flex justify-between items-start">
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
@@ -73,7 +91,7 @@ export function KpiStrip({ data }: { data?: KpiData }) {
 
                     <div className="mt-auto flex items-baseline gap-3">
                         <h2 className="text-4xl font-heading font-bold tracking-tighter text-foreground tabular-nums">
-                            {metric.value}
+                            <AnimatedNumber value={metric.rawValue} isCurrency={metric.isCurrency} />
                         </h2>
                         <div className={`flex items-center text-xs font-semibold ${metric.trendDir === 'up' ? 'text-status-success' :
                             metric.trendDir === 'down' ? 'text-status-danger' : 'text-muted-foreground'

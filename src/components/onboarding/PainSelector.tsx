@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Section, painIcons } from "./shared";
 import type { Pain, PainItem } from "./shared";
 
@@ -11,10 +12,12 @@ interface PainSelectorProps {
 
 export function PainSelector({ pain, onPainClick }: PainSelectorProps) {
   const { t } = useTranslation();
+  const { ref: revealRef, isVisible } = useScrollReveal();
   const pains = t("onboarding.pains", { returnObjects: true }) as PainItem[];
 
   return (
     <Section className="bg-white py-16 md:py-24">
+      <div ref={revealRef} className={`transition-all duration-slow ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="mx-auto max-w-5xl px-6">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.painTitle")}</h2>
@@ -22,7 +25,7 @@ export function PainSelector({ pain, onPainClick }: PainSelectorProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="group" aria-label={t("onboarding.painTitle")}>
-          {pains.map(({ key, label }) => {
+          {pains.map(({ key, label }, index) => {
             const Icon = painIcons[key];
             return (
               <button
@@ -31,12 +34,14 @@ export function PainSelector({ pain, onPainClick }: PainSelectorProps) {
                 aria-pressed={pain === key}
                 onClick={() => onPainClick(key)}
                 className={cn(
-                  "group rounded-xl border-2 p-4 text-left transition-all duration-fast ease-spring",
+                  "group rounded-xl border-2 p-4 text-left transition-all ease-spring",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2",
                   pain === key
                     ? "border-brand-500 bg-brand-50 shadow-brand"
                     : "border-border bg-card hover:border-brand-300 hover:bg-brand-50/50 hover:-translate-y-1 hover:shadow-elevated",
+                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
                 )}
+                style={{ transitionDuration: '350ms', transitionDelay: isVisible ? `${index * 60}ms` : '0ms' }}
               >
                 <div className={cn(
                   "mb-3 flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
@@ -66,6 +71,7 @@ export function PainSelector({ pain, onPainClick }: PainSelectorProps) {
             );
           })}
         </div>
+      </div>
       </div>
     </Section>
   );

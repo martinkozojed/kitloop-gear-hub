@@ -38,6 +38,7 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
     const [tag, setTag] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<AssetResult | null>(null);
+    const [scanError, setScanError] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Auto-focus input when opened
@@ -46,6 +47,7 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
             setTimeout(() => inputRef.current?.focus(), 100);
             setTag('');
             setResult(null);
+            setScanError(false);
         }
     }, [open]);
 
@@ -67,6 +69,8 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                 .single();
 
             if (error || !asset) {
+                setScanError(true);
+                setTimeout(() => setScanError(false), 400);
                 toast.error(t('warehouse.scan.notFound', { tag: searchTag }));
                 setLoading(false);
                 return;
@@ -120,7 +124,7 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                         value={tag}
                         onChange={(e) => setTag(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="text-lg font-mono uppercase"
+                        className={`text-lg font-mono uppercase ${scanError ? 'animate-scan-error border-status-danger' : ''}`}
                     />
                     <Button onClick={() => handleScan(tag)} disabled={loading}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
@@ -128,9 +132,9 @@ export function ScanDialog({ open, onOpenChange }: ScanDialogProps) {
                 </div>
 
                 {result && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 animate-enter">
                         {/* Asset Card */}
-                        <div className="p-4 border rounded-lg bg-muted space-y-2">
+                        <div className="p-4 border rounded-lg bg-muted space-y-2 animate-scan-flash">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h4 className="font-semibold text-lg">{result.asset.variant?.product?.name}</h4>

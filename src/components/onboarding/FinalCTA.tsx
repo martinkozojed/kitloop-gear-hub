@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { fireCtaEvent } from "./shared";
 import type { Lang, Pain } from "./shared";
 
@@ -14,6 +15,7 @@ interface FinalCTAProps {
 
 export function FinalCTA({ lang, pain, signupHref, privacyHref }: FinalCTAProps) {
   const { t } = useTranslation();
+  const { ref: revealRef, isVisible } = useScrollReveal();
 
   return (
     <>
@@ -29,6 +31,7 @@ export function FinalCTA({ lang, pain, signupHref, privacyHref }: FinalCTAProps)
             }}
           />
         </div>
+        <div ref={revealRef} className={`transition-all duration-slow ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="relative mx-auto max-w-2xl rounded-2xl bg-white/60 border border-border backdrop-blur-md px-10 py-12 text-center space-y-5 shadow-xl">
           <h2 className="text-2xl font-bold md:text-3xl text-foreground">{t("onboarding.finalTitle")}</h2>
           <p className="text-muted-foreground text-sm">{t("onboarding.finalSub")}</p>
@@ -38,6 +41,7 @@ export function FinalCTA({ lang, pain, signupHref, privacyHref }: FinalCTAProps)
           >
             <Link to={signupHref}>{t("onboarding.finalCta1")}</Link>
           </Button>
+        </div>
         </div>
       </section>
 

@@ -1,15 +1,18 @@
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Section } from "./shared";
 
 export function IsIsntCards() {
   const { t } = useTranslation();
+  const { ref: revealRef, isVisible } = useScrollReveal();
   const isBullets = t("onboarding.isBullets", { returnObjects: true }) as string[];
   const isntBullets = t("onboarding.isntBullets", { returnObjects: true }) as string[];
 
   return (
     <Section className="bg-muted/50 py-16 md:py-24">
+      <div ref={revealRef} className={`transition-all duration-slow ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="mx-auto max-w-5xl px-6">
         <div className="grid gap-5 md:grid-cols-2">
           <Card className="rounded-xl border border-brand-200 bg-brand-50/80 shadow-sm backdrop-blur-sm">
@@ -46,6 +49,7 @@ export function IsIsntCards() {
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
     </Section>
   );

@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import ProfileCatalogCard from "@/components/profile/ProfileCatalogCard";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import type { PublicProduct } from "@/types/profile";
 
 const ALL = "__all__";
@@ -26,12 +27,14 @@ export default function ProfileCatalog({ catalog, currency, onSelect }: Props) {
     [catalog, active],
   );
 
+  const { ref: revealRef, isVisible } = useScrollReveal();
+
   const handleSelect = (product: PublicProduct) => {
     onSelect?.(product);
   };
 
   return (
-    <section className="space-y-5">
+    <section ref={revealRef} className="space-y-5">
       {/* Category filter */}
       {categories.length > 1 && (
         <div className="flex flex-wrap gap-2">
@@ -64,13 +67,18 @@ export default function ProfileCatalog({ catalog, currency, onSelect }: Props) {
       {/* Grid */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {filtered.map((product) => (
-            <ProfileCatalogCard
+          {filtered.map((product, i) => (
+            <div
               key={product.id}
-              product={product}
-              currency={currency}
-              onSelect={handleSelect}
-            />
+              className={`transition-all ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+              style={{ transitionDuration: '350ms', transitionDelay: isVisible ? `${i * 60}ms` : '0ms' }}
+            >
+              <ProfileCatalogCard
+                product={product}
+                currency={currency}
+                onSelect={handleSelect}
+              />
+            </div>
           ))}
         </div>
       ) : (

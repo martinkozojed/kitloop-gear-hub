@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Package } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Section, timelineIcons } from "./shared";
 import type { TimelineStep } from "./shared";
 
@@ -10,10 +11,12 @@ interface OnboardingTimelineProps {
 
 export function OnboardingTimeline({ featuresRef }: OnboardingTimelineProps) {
   const { t } = useTranslation();
+  const { ref: revealRef, isVisible } = useScrollReveal();
   const steps = t("onboarding.timelineSteps", { returnObjects: true }) as TimelineStep[];
 
   return (
     <Section id="section-features" className="bg-white py-16 md:py-24 scroll-mt-24">
+      <div ref={revealRef} className={`transition-all duration-slow ease-spring ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div ref={featuresRef} className="mx-auto max-w-5xl px-6">
         <div className="mb-8 text-center sm:text-left">
           <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.timelineTitle")}</h2>
@@ -50,6 +53,7 @@ export function OnboardingTimeline({ featuresRef }: OnboardingTimelineProps) {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </Section>
   );
