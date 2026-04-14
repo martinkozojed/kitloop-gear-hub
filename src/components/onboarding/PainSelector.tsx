@@ -14,7 +14,7 @@ export function PainSelector({ pain, onPainClick }: PainSelectorProps) {
   const pains = t("onboarding.pains", { returnObjects: true }) as PainItem[];
 
   return (
-    <Section className="bg-white py-10">
+    <Section className="bg-white py-16 md:py-24">
       <div className="mx-auto max-w-5xl px-6">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.painTitle")}</h2>
@@ -31,11 +31,11 @@ export function PainSelector({ pain, onPainClick }: PainSelectorProps) {
                 aria-pressed={pain === key}
                 onClick={() => onPainClick(key)}
                 className={cn(
-                  "group rounded-xl border-2 p-4 text-left transition-all",
+                  "group rounded-xl border-2 p-4 text-left transition-all duration-fast ease-spring",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2",
                   pain === key
-                    ? "border-brand-500 bg-brand-50 shadow-md"
-                    : "border-border bg-card hover:border-brand-300 hover:bg-brand-50/50",
+                    ? "border-brand-500 bg-brand-50 shadow-brand"
+                    : "border-border bg-card hover:border-brand-300 hover:bg-brand-50/50 hover:-translate-y-1 hover:shadow-elevated",
                 )}
               >
                 <div className={cn(

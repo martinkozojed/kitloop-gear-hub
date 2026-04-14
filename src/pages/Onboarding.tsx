@@ -20,6 +20,7 @@ import { OnboardingTimeline } from "@/components/onboarding/OnboardingTimeline";
 import { PilotFeatures } from "@/components/onboarding/PilotFeatures";
 import { TrustBlock } from "@/components/onboarding/TrustBlock";
 import { OnboardingFAQ } from "@/components/onboarding/OnboardingFAQ";
+
 import { FinalCTA } from "@/components/onboarding/FinalCTA";
 
 // ─── URL param hook — pain only ─────────────────────────────────────────────

@@ -18,9 +18,9 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-[hsl(174,8%,11%)] py-12 px-6">
+    <footer className="bg-[hsl(174,8%,11%)] py-16 px-6">
       <div className="container mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 mb-12">
 
           {/* About */}
           <div>
@@ -94,7 +94,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 mt-8 border-t border-[hsl(174,5%,22%)] flex flex-col md:flex-row justify-between items-center">
+        <div className="pt-8 mt-12 border-t border-[hsl(174,5%,22%)] flex flex-col md:flex-row justify-between items-center">
           <p className="text-[hsl(174,3%,46%)] text-sm mb-4 md:mb-0">
             {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>

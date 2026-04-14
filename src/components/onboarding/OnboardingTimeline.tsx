@@ -13,7 +13,7 @@ export function OnboardingTimeline({ featuresRef }: OnboardingTimelineProps) {
   const steps = t("onboarding.timelineSteps", { returnObjects: true }) as TimelineStep[];
 
   return (
-    <Section id="section-features" className="bg-white py-12 scroll-mt-24">
+    <Section id="section-features" className="bg-white py-16 md:py-24 scroll-mt-24">
       <div ref={featuresRef} className="mx-auto max-w-5xl px-6">
         <div className="mb-8 text-center sm:text-left">
           <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.timelineTitle")}</h2>
@@ -25,7 +25,7 @@ export function OnboardingTimeline({ featuresRef }: OnboardingTimelineProps) {
             {steps.map((step, i) => {
               const StepIcon = timelineIcons[i] || Package;
               return (
-                <div key={i} className="flex flex-row items-start gap-4">
+                <div key={i} className="flex flex-row items-start gap-4 animate-enter" style={{ animationDelay: `${i * 60}ms` }}>
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 border border-brand-100/50">
                     <StepIcon className="h-5 w-5" aria-hidden="true" />
                   </div>
@@ -38,7 +38,7 @@ export function OnboardingTimeline({ featuresRef }: OnboardingTimelineProps) {
             })}
           </div>
 
-          <div className="relative rounded-xl border border-border shadow-xl overflow-hidden bg-muted aspect-[4/3] flex items-center justify-center">
+          <div className="relative rounded-token-xl border border-border shadow-xl overflow-hidden bg-muted aspect-[4/3] flex items-center justify-center">
             <img
               src="/onboarding/timeline-loop-poster.png"
               alt="Kitloop inventory management — item list with status badges, search, and asset tracking"

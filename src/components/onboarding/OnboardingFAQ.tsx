@@ -10,7 +10,7 @@ export function OnboardingFAQ() {
   const faqs = t("onboarding.faqs", { returnObjects: true }) as FAQ[];
 
   return (
-    <Section className="bg-muted/50 py-10">
+    <Section className="bg-muted/50 py-16 md:py-24">
       <div className="mx-auto max-w-3xl px-6">
         <h2 className="text-2xl font-bold md:text-3xl mb-6">{t("onboarding.faqTitle")}</h2>
         <Accordion type="single" collapsible className="space-y-2">

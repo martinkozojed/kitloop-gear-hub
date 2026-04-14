@@ -4,6 +4,7 @@ import { LandingWorkflow } from '@/components/landing/LandingWorkflow';
 import { LandingCapabilities } from '@/components/landing/LandingCapabilities';
 import { LandingCTA } from '@/components/landing/LandingCTA';
 import { LandingFAQ } from '@/components/landing/LandingFAQ';
+import { LandingDiscoveryMap } from '@/components/landing/LandingDiscoveryMap';
 import { AnnouncementModal } from '@/components/landing/AnnouncementModal';
 
 const Index = () => {
@@ -23,6 +24,8 @@ const Index = () => {
                     <LandingCTA />
                 </div>
             </section>
+
+            <LandingDiscoveryMap />
 
             <LandingFAQ />
 

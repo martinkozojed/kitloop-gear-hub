@@ -52,20 +52,34 @@ const RentalMap = () => {
     };
   }, []);
 
-  // Geolocation
+  // Geolocation with safe timeout
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     if (navigator.geolocation) {
+      // Force fallback if the user ignores the browser prompt for 3 seconds
+      timeoutId = setTimeout(() => {
+        setPosition(prev => prev || [50.0755, 14.4378]);
+      }, 3000);
+
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          clearTimeout(timeoutId);
           setPosition([pos.coords.latitude, pos.coords.longitude]);
         },
         () => {
+          clearTimeout(timeoutId);
           setPosition([50.0755, 14.4378]); // Prague fallback
-        }
+        },
+        { timeout: 3000 }
       );
     } else {
-      setTimeout(() => setPosition([50.0755, 14.4378]), 0);
+      setPosition([50.0755, 14.4378]);
     }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   // Fetch provider data
@@ -94,7 +108,10 @@ const RentalMap = () => {
         scrollWheelZoom={false}
         className="h-full w-full"
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        />
         {providers.map((p) =>
           p.latitude && p.longitude ? (
             <Marker key={p.id} position={[p.latitude, p.longitude] as [number, number]}>

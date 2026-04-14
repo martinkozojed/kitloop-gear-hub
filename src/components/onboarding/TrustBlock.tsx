@@ -6,7 +6,7 @@ export function TrustBlock() {
   const { t } = useTranslation();
 
   return (
-    <Section className="bg-white py-12">
+    <Section className="bg-white py-16 md:py-24">
       <div className="mx-auto max-w-3xl px-6 text-center">
         <div className="mb-6 flex justify-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-foreground">

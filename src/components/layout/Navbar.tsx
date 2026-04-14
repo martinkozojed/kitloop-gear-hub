@@ -55,12 +55,12 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 px-6 md:px-10 bg-background/80 backdrop-blur-xl border-b border-border fixed top-0 left-0 right-0 z-50 transition-colors duration-fast">
+    <header className="py-4 px-6 md:px-10 border-b border-border fixed top-0 left-0 right-0 z-50 transition-colors duration-fast" style={{ background: 'hsla(174, 5%, 99%, 0.80)', backdropFilter: 'blur(20px) saturate(180%)' }}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* Logo */}
         <div className="flex-shrink-0">
-          <Link to="/" className="font-heading text-2xl font-bold flex items-center tracking-tight">
+          <Link to="/" className="font-heading text-2xl font-bold flex items-center tracking-tight hover:opacity-80 transition-opacity duration-fast">
             <span className="text-brand-600 dark:text-brand-400 pr-0.5">Kit</span>
             <span className="text-foreground dark:text-white">loop</span>
           </Link>

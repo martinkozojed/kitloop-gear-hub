@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useTranslation } from 'react-i18next';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
+import { LocationPickerMap } from '@/components/provider/LocationPickerMap';
 
 const ProviderSettings = () => {
   const { profile, isAdmin, refreshProfile } = useAuth();
@@ -48,6 +49,8 @@ const ProviderSettings = () => {
     time_zone: 'Europe/Prague',
     tax_id: '',
     terms_text: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
   const [initialData, setInitialData] = useState(formData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -76,6 +79,8 @@ const ProviderSettings = () => {
       time_zone: p?.time_zone || 'Europe/Prague',
       tax_id: p?.tax_id || '',
       terms_text: p?.terms_text || '',
+      latitude: p?.latitude || null,
+      longitude: p?.longitude || null,
     });
     setInitialData({
       rental_name: p?.rental_name || '',
@@ -90,6 +95,8 @@ const ProviderSettings = () => {
       time_zone: p?.time_zone || 'Europe/Prague',
       tax_id: p?.tax_id || '',
       terms_text: p?.terms_text || '',
+      latitude: p?.latitude || null,
+      longitude: p?.longitude || null,
     });
   }, []);
 
@@ -396,6 +403,25 @@ const ProviderSettings = () => {
                     />
                     {errors.location && <p className="text-xs text-status-danger">{errors.location}</p>}
                   </div>
+                </div>
+
+                <div className="space-y-2 mt-4 pt-4 border-t">
+                  <div className="flex flex-col gap-1">
+                    <Label>Přesná poloha na mapě (Marketplace)</Label>
+                    <p className="text-xs text-muted-foreground mb-2">Vyberte přesnou lokaci vaší pobočky, aby vás zákazníci našli snadněji.</p>
+                  </div>
+                  <LocationPickerMap 
+                    latitude={formData.latitude} 
+                    longitude={formData.longitude} 
+                    onChange={(lat, lng) => {
+                      updateField('latitude', lat as any);
+                      updateField('longitude', lng as any);
+                    }}
+                    disabled={!canEdit}
+                  />
+                  {(!formData.latitude || !formData.longitude) && (
+                    <p className="text-xs text-status-warning mt-1">Zatím nemáte nastavenou přesnou polohu. Doporučujeme ji nastavit pro lepší viditelnost.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

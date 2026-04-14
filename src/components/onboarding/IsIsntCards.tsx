@@ -9,7 +9,7 @@ export function IsIsntCards() {
   const isntBullets = t("onboarding.isntBullets", { returnObjects: true }) as string[];
 
   return (
-    <Section className="bg-muted/50 py-10">
+    <Section className="bg-muted/50 py-16 md:py-24">
       <div className="mx-auto max-w-5xl px-6">
         <div className="grid gap-5 md:grid-cols-2">
           <Card className="rounded-xl border border-brand-200 bg-brand-50/80 shadow-sm backdrop-blur-sm">

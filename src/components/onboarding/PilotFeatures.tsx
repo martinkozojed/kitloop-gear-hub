@@ -9,7 +9,7 @@ export function PilotFeatures() {
   const items = t("onboarding.whatYouGetItems", { returnObjects: true }) as WhatYouGetItem[];
 
   return (
-    <Section className="bg-subtle py-12 border-y border-muted">
+    <Section className="bg-subtle py-16 md:py-24 border-y border-muted">
       <div className="mx-auto max-w-5xl px-6">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold md:text-3xl">{t("onboarding.whatYouGetTitle")}</h2>

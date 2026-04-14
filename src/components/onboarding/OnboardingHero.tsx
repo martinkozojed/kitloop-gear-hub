@@ -36,21 +36,21 @@ export function OnboardingHero({ lang, pain, signupHref, isProvider, isAdmin, on
             <span className="inline-flex items-center rounded-full bg-brand-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-700 border border-brand-100">
               {t("onboarding.heroBadge")}
             </span>
-            <h1 className="text-4xl font-bold leading-tight md:text-5xl text-foreground">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold tracking-tighter leading-[1.05] text-foreground">
               {t("onboarding.heroH1")}
             </h1>
-            <p className="text-muted-foreground leading-relaxed text-lg">{t("onboarding.heroSub")}</p>
+            <p className="mt-6 text-lg text-muted-foreground max-w-lg leading-relaxed">{t("onboarding.heroSub")}</p>
 
             <ul className="space-y-2 py-1">
-              {heroSteps.map((step) => (
-                <li key={step} className="flex gap-2.5 text-sm font-medium text-foreground">
+              {heroSteps.map((step, i) => (
+                <li key={step} className="flex gap-2.5 text-sm font-medium text-foreground animate-enter" style={{ animationDelay: `${200 + i * 60}ms` }}>
                   <CheckCircle2 className="h-4 w-4 mt-0.5 text-brand-500 shrink-0" aria-hidden="true" />
                   <span>{step}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="flex flex-col gap-3 pt-2">
+            <div className="flex flex-col gap-3 mt-8">
               {(isProvider || isAdmin) ? (
                 <Button asChild variant="cta" size="cta" className="w-full sm:w-auto">
                   <Link to="/provider/dashboard">{lang === "en" ? "Go to Dashboard" : "Přejít do dashboardu"}</Link>
@@ -79,7 +79,7 @@ export function OnboardingHero({ lang, pain, signupHref, isProvider, isAdmin, on
 
           {/* Right — static UI preview */}
           <div className="lg:pl-6">
-            <div className="relative rounded-xl border border-border shadow-xl overflow-hidden bg-muted aspect-[4/3] flex items-center justify-center">
+            <div className="relative rounded-token-xl border border-border shadow-xl overflow-hidden bg-muted aspect-[4/3] flex items-center justify-center">
               <img
                 src="/onboarding/hero-loop-poster.png"
                 alt="Kitloop operational dashboard — KPI strip, today's operations agenda, active rentals overview"

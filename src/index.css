@@ -205,14 +205,28 @@
     background-size: 32px 32px;
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    @apply tracking-tight text-foreground;
+  h1 {
+    @apply text-foreground;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  h2 {
+    @apply text-foreground;
     font-family: 'Manrope', system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  h3, h4 {
+    @apply text-foreground;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
   }
 
   p {
@@ -271,11 +285,11 @@
   }
 }
 
-/* Animations */
+/* ========== ANIMATIONS ========== */
 .animate-enter {
-  animation: enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: enter 0.35s var(--ease-spring) forwards;
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(12px);
 }
 
 @keyframes enter {
@@ -285,7 +299,63 @@
   }
 }
 
-/* Accessibility: reduced motion */
+/* Stagger utilities */
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+.stagger-5 { animation-delay: 200ms; }
+
+/* ========== UTILITY CLASSES ========== */
+
+/* Label style — uppercase + wide tracking */
+.text-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Caption style */
+.text-caption {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Tabular numbers for data */
+.tabular-nums {
+  font-feature-settings: "tnum" 1;
+}
+
+/* Interactive card hover pattern */
+.card-interactive {
+  cursor: pointer;
+  transition-property: all;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-spring);
+}
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elevated);
+  border-color: hsl(var(--brand-300));
+}
+.card-interactive:active {
+  transform: translateY(0);
+  transform: scale(0.98);
+  box-shadow: var(--shadow-card);
+}
+
+/* Button press — ensures visible active state even on fast clicks */
+button:active:not(:disabled) {
+  transform: scale(0.97) !important;
+  transition-duration: 50ms !important;
+}
+
+/* ========== ACCESSIBILITY ========== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

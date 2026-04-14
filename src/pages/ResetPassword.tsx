@@ -70,10 +70,12 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="light min-h-screen bg-subtle flex flex-col">
+        <div className="light min-h-screen flex flex-col" style={{
+            background: `radial-gradient(circle at 30% 20%, rgba(0,150,136,0.08), transparent 50%), radial-gradient(circle at 70% 80%, rgba(0,150,136,0.05), transparent 50%), hsl(174, 5%, 97%)`
+        }}>
 
             {/* Header */}
-            <header className="py-4 px-6 md:px-10 bg-white/80 backdrop-blur-xl border-b border-border">
+            <header className="py-4 px-6 md:px-10 border-b border-border" style={{ background: 'rgba(255,255,255,0.80)', backdropFilter: 'blur(20px) saturate(180%)' }}>
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <Link to="/onboarding" className="font-heading text-2xl font-bold flex items-center shrink-0 tracking-tight">
                         <span className="text-brand-600 pr-0.5">Kit</span>
@@ -83,7 +85,7 @@ const ResetPassword = () => {
             </header>
 
             <main className="flex-1 flex items-center justify-center px-4 py-12">
-                <Card className="w-full max-w-[400px] shadow-elevated border-0 bg-white/90 backdrop-blur-xl rounded-token-xl">
+                <Card className="w-full max-w-[400px] rounded-token-xl border-0 animate-enter" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(180%)', border: '1px solid rgba(255,255,255,0.30)', boxShadow: 'var(--shadow-elevated)' }}>
                     <CardHeader className="space-y-1 text-center">
                         <CardTitle className="text-2xl font-bold">{lang === 'cs' ? 'Nastavit nové heslo' : 'Set new password'}</CardTitle>
                         <CardDescription>
